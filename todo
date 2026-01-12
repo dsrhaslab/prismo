@@ -1,13 +1,4 @@
-+ deduplicacao com a sliding window e reposicionar as coisas
-- taxas de compressao
-+ permitir que a seed do random seja manipulada no ficheiro de configuração
-  (vou meter o random do device afinal)
-  (e mais facil e e menos um preocupacao em alterar o ficheiro de config)
-
-
 + atualizar a recolhas das metricas nas engines de aio, uring e spdk para refletir
   o indice do bloco utilizador nas escritas, para as restantes operações de io é
   utilizador o indice zero por defeito
   - falta testar no spdk e as outras pelo sim pelo nao
-
-+ modularizar a cumulative percentage

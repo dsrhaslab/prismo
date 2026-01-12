@@ -489,28 +489,30 @@ A estrutura do ficheiro de logging onde as métricas são armazenadas é de simp
 
 Por fim, quanto mais detalhadas forem as métricas recolhidas, pior será o desempenho do benchmark, daí que exista uma opção de desativação de métricas para atingir o máximo de performance. Ademais, como as métricas são escritas num ficheiro de logging, o sistema de armazenamento é sobrecarregado para além da execução do benchmark, algo que pode originar o enviesamento de resultados.
 
+=== Resultados Preliminares
 
+Com o objetivo de testar o protótipo, em particular o desempenho das várias interface de #link(<io>)[*I/O*], foram desenvolvidas workloads de características distintas, projetadas para avaliar o sistema de armazenamento sob diferentes padrões de acesso, leituras e escritas intensivas, bem como cenários de alta concorrência.
 
++ *nop:* não são realizadas quaisquer operações ao nível do sistema de armazenamento, sendo por isso ideal na identificação do débito máximo por parte da interface de #link(<io>)[*I/O*], consequentemente o grosso do tempo de execução é gasto em espaço de utilizador.
 
++ *wseq:* as escritas são realizadas do modo sequencial, seguindo o tamanho dos blocos. Ademais o conteúdo gerado é constante, como tal é frequentemente repetido o mesmo bloco e a taxa de compressão é máxima.
 
++ *rwmix:* as operações são divididas igualmente entre `READs` e `WRITEs`, sem a evidência de padrões, pois a seleção é aleatória. De igual modo, os blocos e acessos são obtidos através de uma distribuição uniforme, como tal não existem duplicados e nenhuma zona do disco é particularmente popular, o que inviabiliza uma utilização eficiente da cache.
 
++ *zipf:* os acessos são obtidos por uma distribuição zipfian com skew de 0.9, o que aumenta a frequência dos offsets mais baixos. De resto, os blocos seguem uma determinada distribuição de duplicados e compressão, onde as operações são realizadas sob o padrão `READ`, `WRITE`, `NOP`, `WRITE`.
 
++ *zipf_fsync*: esta workload é essencialmente igual à zipf, contudo difere pelo facto de possuir uma barreira onde a cada 1024 escritas é lançado um `FSYNC` para sincronização dos conteúdos no disco.
 
-=== Resultados Permilinares
+Sabendo que a memória principal e mecanismos de cache do sistema operativo influenciam a execução do benchmark, os offsets das workloads vão até ao limite de quatro vezes a capacidade da #link(<ram>)[*RAM*]. No entanto, por motivos de conveniência, o máximo de operações realizadas corresponde a dez milhões e a flag `O_DIRECT` foi desativada para fazer uso da page cache e assim diminuir o tempo de execução.
 
-// estabelacer as condições gerais da workloads, numero de operações
+Tendo isto em consideração, as workloads foram replicadas num ambiente controlado para garantir a reprodutibilidade dos resultados e a comparabilidade entre os vários testes, tendo sido utilizada a seguinte especificação de hardware e software:
 
-// apresentar as workloads por bullet points
+- *OS:*
+- *CPU:*
+- *RAM:*
+- *Disco:*
 
-// diser quais são as configurações das engine
-
-// apenas operações de nop (workload para testar a capacidade da engine)
-// writes | conteudo constant | offsets sequenciais
-// read e writes por percentagem | conteudo random | offsets random
-// padrão [write, read, nop, write] | conteudo duplicado e compressao | offset zipfian
-// a mesma coisa que a anterior mas com uma barreia que após 1024 writes faz um fsync
-
-#pagebreak()
+Por fim, a configuração dos backends de #link(<io>)[*I/O*] é constante entre a replicação das workloads, sendo de destacar a interface Uring com uma #link(<sq>)[*SQE*] de profundidade 128 e ativação da flag `IORING_SETUP_SQPOLL` para criar uma thread do kernel dedicada a fazer polling na #link(<sq>)[*SQE*] e assim evitar o custo das syscalls. Por outro lado, a interface #link(<spdk>)[*SPDK*] inicializa um reactor nos quatro primeiros cores e cinco threads lógicas para servir os pedidos de #link(<io>)[*I/O*], sendo estes satisfeitos por um #link(<bdev>)[*bdev*] associado a um controlador de #link(<nvme>)[*NVMe*].
 
 #figure(
   table(
@@ -550,7 +552,6 @@ Por fim, quanto mais detalhadas forem as métricas recolhidas, pior será o dese
   caption: [Execução da workload wseq]
 )
 
-
 #figure(
   table(
     columns: (1fr, 1.5fr, 1fr, 1fr, 1fr, 1.1fr, 1.2fr),
@@ -589,8 +590,6 @@ Por fim, quanto mais detalhadas forem as métricas recolhidas, pior será o dese
   caption: [Execução da workload zipf]
 )
 
-
-
 #figure(
   table(
     columns: (1fr, 1.5fr, 1fr, 1fr, 1fr, 1.1fr, 1.2fr),
@@ -610,10 +609,7 @@ Por fim, quanto mais detalhadas forem as métricas recolhidas, pior será o dese
   caption: [Execução da workload zipf_fsync]
 )
 
-
-
-
-
+// análise dos resultados
 
 === Próximas Etapas
 
