@@ -1,0 +1,113 @@
+{
+  "job": {
+    "name": "job",
+    "numjobs": 1,
+    "iterations": 1e2,
+    "filename": "testfile",
+    "block_size": 4096,
+    "limit": 4096e4,
+    "metric": "full"
+  },
+
+  "operation": {
+    "type": "sequence",
+    "operations": [
+      "read",
+      "write",
+      "nop",
+      "write"
+    ],
+    "barrier": [
+      {
+        "operation": "fsync",
+        "trigger": "write",
+        "counter": 1024
+      }
+    ]
+  },
+
+  "access": {
+    "type": "zipfian",
+    "skew": 0.9
+  },
+
+  "generator": {
+    "type": "dedup",
+    "refill_buffers": false,
+    "distribution": [
+      {
+        "percentage": 50,
+        "repeats": 0,
+        "compression": [
+          {
+            "percentage": 50,
+            "reduction": 0
+          },
+          {
+            "percentage": 50,
+            "reduction": 50
+          }
+        ]
+      },
+      {
+        "percentage": 30,
+        "repeats": 1,
+        "compression": [
+          {
+            "percentage": 70,
+            "reduction": 30
+          },
+          {
+            "percentage": 30,
+            "reduction": 20
+          }
+        ]
+      },
+      {
+        "percentage": 20,
+        "repeats": 3,
+        "compression": [
+          {
+            "percentage": 100,
+            "reduction": 0
+          }
+        ]
+      }
+    ]
+  },
+
+  "engine": {
+    "type": "posix",
+    "openflags": [
+      "O_CREAT",
+      "O_RDWR"
+    ],
+    "entries": 128,
+    "params": {
+      "cq_entries": 0,
+      "sq_thread_cpu": 0,
+      "sq_thread_idle": 0,
+      "flags": [
+        "IORING_SETUP_SQPOLL"
+      ]
+    },
+    "bdev_name": "Malloc0",
+    "reactor_mask": "0xF",
+    "spdk_threads": 4,
+    "json_config_file": "/home/digo/Desktop/prismo/config/spdk_bdev.json"
+  },
+
+  "logging": {
+    "type": "spdlog",
+    "name": "prismo",
+    "queue_size": 8192,
+    "thread_count": 1,
+    "truncate": true,
+    "to_stdout": true,
+    "files": [
+      "./log1.log",
+      "./log2.log",
+      "./log3.log"
+    ]
+  }
+}

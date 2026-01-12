@@ -11,21 +11,21 @@ Na verdade, o problema em questão não é completamente resolvido pelas ferrame
 Tratando-se de um micro-benchmark de #link(<io>)[*I/O*] para sistemas de deduplicação orientados ao bloco, o DEDISbench gera dados com padrões de deduplicação semelhantes aos encontrados em ambientes reais, para isso serve-se do DEDISgen, que após analisar um dataset, resume a informação numa grelha que indica a quantidade de blocos com X cópias.
 
 #figure(
- table(
-   columns: (1fr, 1fr, 1fr, 1fr),
-   inset: 6pt,
-   align: horizon + left,
-   fill: (x, y) => if y == 0 { gray.lighten(60%) },
-   table.header(
-     [*Nº de Cópias*], [*Nº de Blocos*],
-     [*Blocos Únicos (%)*], [*Blocos Totais (%)*],
-   ),
-   [0], [2000], [50.00%], [22.73%],
-   [1], [1000], [25.00%], [22.73%],
-   [3], [600],  [15.00%], [27.27%],
-   [5], [400],  [10.00%], [27.27%],
- ),
- caption: [Associação entre distribuição de duplicados e blocos totais]
+  table(
+    columns: (1fr, 1fr, 1fr, 1fr),
+    inset: 6pt,
+    align: horizon + left,
+    fill: (x, y) => if y == 0 { gray.lighten(60%) },
+    table.header(
+      [*Nº de Cópias*], [*Nº de Blocos*],
+      [*Blocos Únicos (%)*], [*Blocos Totais (%)*],
+    ),
+    [0], [2000], [50.00%], [22.73%],
+    [1], [1000], [25.00%], [22.73%],
+    [3], [600],  [15.00%], [27.27%],
+    [5], [400],  [10.00%], [27.27%],
+  ),
+  caption: [Associação entre distribuição de duplicados e blocos totais]
 ) <dedisbenchdedup>
 
 As duas primeiras colunas da @dedisbenchdedup representam a informação da distribuição de duplicados, sendo esta definida mediante a quantidade de cópias e blocos, neste caso em concreto, 2000 blocos não possuem qualquer cópia e portanto são únicos. Por outro lado, 400 blocos únicos apresentam cada um cinco cópias, resultando num total de 2400 blocos.

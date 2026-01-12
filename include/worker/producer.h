@@ -48,6 +48,9 @@ namespace Worker {
                         packet->request.offset = access->next_offset();
                         packet->request.operation = barrier->apply(operation->next_operation());
 
+                        packet->request.metadata.block_id = 0;
+                        packet->request.metadata.compression = 0;
+
                         if (packet->request.operation == Operation::OperationType::WRITE) {
                             packet->request.metadata = generator->next_block(
                                 packet->request.buffer,

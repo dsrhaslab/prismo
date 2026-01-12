@@ -498,6 +498,119 @@ Por fim, quanto mais detalhadas forem as métricas recolhidas, pior será o dese
 
 === Resultados Permilinares
 
+// estabelacer as condições gerais da workloads, numero de operações
+
+// apresentar as workloads por bullet points
+
+// diser quais são as configurações das engine
+
+// apenas operações de nop (workload para testar a capacidade da engine)
+// writes | conteudo constant | offsets sequenciais
+// read e writes por percentagem | conteudo random | offsets random
+// padrão [write, read, nop, write] | conteudo duplicado e compressao | offset zipfian
+// a mesma coisa que a anterior mas com uma barreia que após 1024 writes faz um fsync
+
+#pagebreak()
+
+#figure(
+  table(
+    columns: (1fr, 1.5fr, 1fr, 1fr, 1fr, 1.1fr, 1.2fr),
+    inset: 6pt,
+    align: horizon + left,
+    fill: (x, y) => if y == 0 or x == 0 { gray.lighten(60%) },
+    table.header(
+      [*Engine*], [*Mean ± σ (s)*], [*Min (s)*], [*Max (s)*], [*User (s)*], [*System (s)*], [*IOPS (M/s)*]
+    ),
+    [*POSIX*], [0.506 ± 0.002], [0.504], [0.509], [0.985], [0.008], [19.76],
+    [*Libaio*], [2.658 ± 0.017], [2.638], [2.671], [3.195], [2.038], [4.91],
+    [*Uring*], [0.843 ± 0.002], [0.840], [0.845], [1.651], [0.835], [11.86],
+    [*SPDK*], [], [], [], [], [], [],
+  ),
+  kind: "performance",
+  supplement: "Performance",
+  caption: [Execução da workload nop]
+)
+
+#figure(
+  table(
+    columns: (1fr, 1.5fr, 1fr, 1fr, 1fr, 1.1fr, 1.2fr),
+    inset: 6pt,
+    align: horizon + left,
+    fill: (x, y) => if y == 0 or x == 0 { gray.lighten(60%) },
+    table.header(
+      [*Engine*], [*Mean ± σ (s)*], [*Min (s)*], [*Max (s)*], [*User (s)*], [*System (s)*], [*IOPS (M/s)*]
+    ),
+    [*POSIX*], [], [], [], [], [], [],
+    [*Libaio*], [], [], [], [], [], [],
+    [*Uring*], [], [], [], [], [], [],
+    [*SPDK*], [], [], [], [], [], [],
+  ),
+  kind: "performance",
+  supplement: "Performance",
+  caption: [Execução da workload wseq]
+)
+
+
+#figure(
+  table(
+    columns: (1fr, 1.5fr, 1fr, 1fr, 1fr, 1.1fr, 1.2fr),
+    inset: 6pt,
+    align: horizon + left,
+    fill: (x, y) => if y == 0 or x == 0 { gray.lighten(60%) },
+    table.header(
+      [*Engine*], [*Mean ± σ (s)*], [*Min (s)*], [*Max (s)*], [*User (s)*], [*System (s)*], [*IOPS (M/s)*]
+    ),
+    [*POSIX*], [], [], [], [], [], [],
+    [*Libaio*], [], [], [], [], [], [],
+    [*Uring*], [], [], [], [], [], [],
+    [*SPDK*], [], [], [], [], [], [],
+  ),
+  kind: "performance",
+  supplement: "Performance",
+  caption: [Execução da workload rwmix]
+)
+
+#figure(
+  table(
+    columns: (1fr, 1.5fr, 1fr, 1fr, 1fr, 1.1fr, 1.2fr),
+    inset: 6pt,
+    align: horizon + left,
+    fill: (x, y) => if y == 0 or x == 0 { gray.lighten(60%) },
+    table.header(
+      [*Engine*], [*Mean ± σ (s)*], [*Min (s)*], [*Max (s)*], [*User (s)*], [*System (s)*], [*IOPS (M/s)*]
+    ),
+    [*POSIX*], [], [], [], [], [], [],
+    [*Libaio*], [], [], [], [], [], [],
+    [*Uring*], [], [], [], [], [], [],
+    [*SPDK*], [], [], [], [], [], [],
+  ),
+  kind: "performance",
+  supplement: "Performance",
+  caption: [Execução da workload zipf]
+)
+
+
+
+#figure(
+  table(
+    columns: (1fr, 1.5fr, 1fr, 1fr, 1fr, 1.1fr, 1.2fr),
+    inset: 6pt,
+    align: horizon + left,
+    fill: (x, y) => if y == 0 or x == 0 { gray.lighten(60%) },
+    table.header(
+      [*Engine*], [*Mean ± σ (s)*], [*Min (s)*], [*Max (s)*], [*User (s)*], [*System (s)*], [*IOPS (M/s)*]
+    ),
+    [*POSIX*], [], [], [], [], [], [],
+    [*Libaio*], [], [], [], [], [], [],
+    [*Uring*], [], [], [], [], [], [],
+    [*SPDK*], [], [], [], [], [], [],
+  ),
+  kind: "performance",
+  supplement: "Performance",
+  caption: [Execução da workload zipf_fsync]
+)
+
+
 
 
 
