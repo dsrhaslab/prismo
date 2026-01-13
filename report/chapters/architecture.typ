@@ -507,22 +507,22 @@ Sabendo que a memória principal e mecanismos de cache do sistema operativo infl
 
 Tendo isto em consideração, as workloads foram replicadas num ambiente controlado para garantir a reprodutibilidade dos resultados e a comparabilidade entre os vários testes, tendo sido utilizada a seguinte especificação de hardware e software:
 
-- *OS:*
-- *CPU:*
-- *RAM:*
-- *Disco:*
+- *OS:* Ubuntu 22.04.5 LTS (Jammy Jellyfish) x86_64
+- *CPU:* 12th Gen Intel(R) Core(TM) i5-12500 (12) @ 4.60 GHz
+- *RAM:* 64 GiB DDR4 @ 3200 MT/s, 2 x 32 GiB modules
+- *Disco:* NVMe Sandisk Corp 256 GB, non-rotational
 
 Por fim, a configuração dos backends de #link(<io>)[*I/O*] é constante entre a replicação das workloads, sendo de destacar a interface Uring com uma #link(<sq>)[*SQE*] de profundidade 128 e ativação da flag `IORING_SETUP_SQPOLL` para criar uma thread do kernel dedicada a fazer polling na #link(<sq>)[*SQE*] e assim evitar o custo das syscalls. Por outro lado, a interface #link(<spdk>)[*SPDK*] inicializa um reactor nos quatro primeiros cores e cinco threads lógicas para servir os pedidos de #link(<io>)[*I/O*], sendo estes satisfeitos por um #link(<bdev>)[*bdev*] associado a um controlador de #link(<nvme>)[*NVMe*].
 
 #let performance-table(workload_name, ..content) = figure(
   table(
-    columns: (1fr, 1.5fr, 1fr, 1fr, 1fr, 1.1fr, 1.2fr),
+    columns: (1fr, 1.6fr, 1fr, 1fr, 1fr, 1.2fr, 1.2fr),
     inset: 6pt,
     align: horizon + left,
     fill: (x, y) => if y == 0 or x == 0 { gray.lighten(60%) },
     table.header(
-      [*Engine*], [*Mean ± σ (s)*], [*Min (s)*],
-      [*Max (s)*], [*User (s)*], [*System (s)*], [*IOPS (M/s)*]
+      [*Engine*], [*Mean $plus.minus$ $sigma$ (s)*], [*Min (s)*],
+      [*Max (s)*], [*User (s)*], [*System (s)*], [*IOPS (k/s)*]
     ),
     ..content
   ),
@@ -532,38 +532,38 @@ Por fim, a configuração dos backends de #link(<io>)[*I/O*] é constante entre 
 )
 
 #performance-table("nop",
-  [*POSIX*], [0.506 ± 0.002], [0.504], [0.509], [0.985], [0.008], [19.76],
-  [*Libaio*], [2.658 ± 0.017], [2.638], [2.671], [3.195], [2.038], [4.91],
-  [*Uring*], [0.843 ± 0.002], [0.840], [0.845], [1.651], [0.835], [11.86],
-  [*SPDK*], [], [], [], [], [], [],
+  [*POSIX*], [0.567 $plus.minus$ 0.192], [0.392], [0.801], [1.107], [0.010], [17636],
+  [*Libaio*], [2.458 $plus.minus$ 0.093], [2.089], [2.515], [2.858], [1.853], [4068],
+  [*Uring*], [1.073 $plus.minus$ 0.097], [0.925], [1.257], [1.411], [1.069], [9319],
+  [*SPDK*], [9.472 $plus.minus$ 0.045], [9.420], [9.503], [55.362], [0.153], [1055],
 )
 
 #performance-table("wsqe",
-  [*POSIX*], [], [], [], [], [], [],
-  [*Libaio*], [], [], [], [], [], [],
-  [*Uring*], [], [], [], [], [], [],
-  [*SPDK*], [], [], [], [], [], [],
+  [*POSIX*], [20.991 $plus.minus$ 2.387], [19.527], [23.745], [24.323], [9.889], [476],
+  [*Libaio*], [22.661 $plus.minus$ 3.445], [18.688], [25.142], [27.294], [9.587], [441],
+  [*Uring*], [23.829 $plus.minus$ 2.768], [20.695], [25.941], [47.970], [84.578], [419],
+  [*SPDK*], [19.910 $plus.minus$ 0.084], [19.817], [19.981], [116.922], [0.311], [502],
 )
 
 #performance-table("rwmix",
-  [*POSIX*], [], [], [], [], [], [],
-  [*Libaio*], [], [], [], [], [], [],
-  [*Uring*], [], [], [], [], [], [],
-  [*SPDK*], [], [], [], [], [], [],
+  [*POSIX*], [95.796 $plus.minus$ 11.202], [82.862], [102.407], [97.451], [12.140], [104],
+  [*Libaio*], [79.481 $plus.minus$ 28.754], [49.505], [106.832], [81.150], [12.664], [125],
+  [*Uring*], [53.931 $plus.minus$ 27.617], [27.578], [82.659], [108.344], [75.874], [185],
+  [*SPDK*], [19.800 $plus.minus$ 0.093], [19.706], [19.891], [116.341], [0.291], [505]
 )
 
 #performance-table("zipf",
-  [*POSIX*], [], [], [], [], [], [],
-  [*Libaio*], [], [], [], [], [], [],
-  [*Uring*], [], [], [], [], [], [],
-  [*SPDK*], [], [], [], [], [], [],
+  [*POSIX*], [36.625 $plus.minus$ 3.801], [32.361], [39.655], [36.625], [12.039], [273],
+  [*Libaio*], [36.608 $plus.minus$ 1.372], [35.111], [37.805], [36.975], [11.971], [273],
+  [*Uring*], [27.835 $plus.minus$ 0.758], [26.974], [28.404], [49.214], [52.578], [359],
+  [*SPDK*], [21.733 $plus.minus$ 0.151], [21.636], [21.907], [116.751], [4.987], [460],
 )
 
 #performance-table("zipf_fsync",
-  [*POSIX*], [], [], [], [], [], [],
-  [*Libaio*], [], [], [], [], [], [],
-  [*Uring*], [], [], [], [], [], [],
-  [*SPDK*], [], [], [], [], [], [],
+  [*POSIX*], [107.84 $plus.minus$ 39.384], [66.800], [145.327], [149.822], [31.932], [92],
+  [*Libaio*], [161.73 $plus.minus$ 33.294], [132.694], [198.074], [195.341], [27.219], [61],
+  [*Uring*], [159.28 $plus.minus$ 2.240], [156.999], [161.477], [314.117], [191.201], [62],
+  [*SPDK*], [21.803 $plus.minus$ 0.181], [21.672], [22.009], [117.774], [4.910], [458],
 )
 
 // análise dos resultados
