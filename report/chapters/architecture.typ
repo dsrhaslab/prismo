@@ -526,8 +526,8 @@ Por fim, a configuração dos backends de #link(<io>)[*I/O*] é constante entre 
     ),
     ..content
   ),
-  kind: "performance",
-  supplement: "Performance",
+  // kind: "performance",
+  // supplement: "Performance",
   caption: [Execução da workload #workload_name]
 )
 
