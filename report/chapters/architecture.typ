@@ -514,99 +514,56 @@ Tendo isto em consideração, as workloads foram replicadas num ambiente control
 
 Por fim, a configuração dos backends de #link(<io>)[*I/O*] é constante entre a replicação das workloads, sendo de destacar a interface Uring com uma #link(<sq>)[*SQE*] de profundidade 128 e ativação da flag `IORING_SETUP_SQPOLL` para criar uma thread do kernel dedicada a fazer polling na #link(<sq>)[*SQE*] e assim evitar o custo das syscalls. Por outro lado, a interface #link(<spdk>)[*SPDK*] inicializa um reactor nos quatro primeiros cores e cinco threads lógicas para servir os pedidos de #link(<io>)[*I/O*], sendo estes satisfeitos por um #link(<bdev>)[*bdev*] associado a um controlador de #link(<nvme>)[*NVMe*].
 
-#figure(
+#let performance-table(workload_name, ..content) = figure(
   table(
     columns: (1fr, 1.5fr, 1fr, 1fr, 1fr, 1.1fr, 1.2fr),
     inset: 6pt,
     align: horizon + left,
     fill: (x, y) => if y == 0 or x == 0 { gray.lighten(60%) },
     table.header(
-      [*Engine*], [*Mean ± σ (s)*], [*Min (s)*], [*Max (s)*], [*User (s)*], [*System (s)*], [*IOPS (M/s)*]
+      [*Engine*], [*Mean ± σ (s)*], [*Min (s)*],
+      [*Max (s)*], [*User (s)*], [*System (s)*], [*IOPS (M/s)*]
     ),
-    [*POSIX*], [0.506 ± 0.002], [0.504], [0.509], [0.985], [0.008], [19.76],
-    [*Libaio*], [2.658 ± 0.017], [2.638], [2.671], [3.195], [2.038], [4.91],
-    [*Uring*], [0.843 ± 0.002], [0.840], [0.845], [1.651], [0.835], [11.86],
-    [*SPDK*], [], [], [], [], [], [],
+    ..content
   ),
   kind: "performance",
   supplement: "Performance",
-  caption: [Execução da workload nop]
+  caption: [Execução da workload #workload_name]
 )
 
-#figure(
-  table(
-    columns: (1fr, 1.5fr, 1fr, 1fr, 1fr, 1.1fr, 1.2fr),
-    inset: 6pt,
-    align: horizon + left,
-    fill: (x, y) => if y == 0 or x == 0 { gray.lighten(60%) },
-    table.header(
-      [*Engine*], [*Mean ± σ (s)*], [*Min (s)*], [*Max (s)*], [*User (s)*], [*System (s)*], [*IOPS (M/s)*]
-    ),
-    [*POSIX*], [], [], [], [], [], [],
-    [*Libaio*], [], [], [], [], [], [],
-    [*Uring*], [], [], [], [], [], [],
-    [*SPDK*], [], [], [], [], [], [],
-  ),
-  kind: "performance",
-  supplement: "Performance",
-  caption: [Execução da workload wseq]
+#performance-table("nop",
+  [*POSIX*], [0.506 ± 0.002], [0.504], [0.509], [0.985], [0.008], [19.76],
+  [*Libaio*], [2.658 ± 0.017], [2.638], [2.671], [3.195], [2.038], [4.91],
+  [*Uring*], [0.843 ± 0.002], [0.840], [0.845], [1.651], [0.835], [11.86],
+  [*SPDK*], [], [], [], [], [], [],
 )
 
-#figure(
-  table(
-    columns: (1fr, 1.5fr, 1fr, 1fr, 1fr, 1.1fr, 1.2fr),
-    inset: 6pt,
-    align: horizon + left,
-    fill: (x, y) => if y == 0 or x == 0 { gray.lighten(60%) },
-    table.header(
-      [*Engine*], [*Mean ± σ (s)*], [*Min (s)*], [*Max (s)*], [*User (s)*], [*System (s)*], [*IOPS (M/s)*]
-    ),
-    [*POSIX*], [], [], [], [], [], [],
-    [*Libaio*], [], [], [], [], [], [],
-    [*Uring*], [], [], [], [], [], [],
-    [*SPDK*], [], [], [], [], [], [],
-  ),
-  kind: "performance",
-  supplement: "Performance",
-  caption: [Execução da workload rwmix]
+#performance-table("wsqe",
+  [*POSIX*], [], [], [], [], [], [],
+  [*Libaio*], [], [], [], [], [], [],
+  [*Uring*], [], [], [], [], [], [],
+  [*SPDK*], [], [], [], [], [], [],
 )
 
-#figure(
-  table(
-    columns: (1fr, 1.5fr, 1fr, 1fr, 1fr, 1.1fr, 1.2fr),
-    inset: 6pt,
-    align: horizon + left,
-    fill: (x, y) => if y == 0 or x == 0 { gray.lighten(60%) },
-    table.header(
-      [*Engine*], [*Mean ± σ (s)*], [*Min (s)*], [*Max (s)*], [*User (s)*], [*System (s)*], [*IOPS (M/s)*]
-    ),
-    [*POSIX*], [], [], [], [], [], [],
-    [*Libaio*], [], [], [], [], [], [],
-    [*Uring*], [], [], [], [], [], [],
-    [*SPDK*], [], [], [], [], [], [],
-  ),
-  kind: "performance",
-  supplement: "Performance",
-  caption: [Execução da workload zipf]
+#performance-table("rwmix",
+  [*POSIX*], [], [], [], [], [], [],
+  [*Libaio*], [], [], [], [], [], [],
+  [*Uring*], [], [], [], [], [], [],
+  [*SPDK*], [], [], [], [], [], [],
 )
 
-#figure(
-  table(
-    columns: (1fr, 1.5fr, 1fr, 1fr, 1fr, 1.1fr, 1.2fr),
-    inset: 6pt,
-    align: horizon + left,
-    fill: (x, y) => if y == 0 or x == 0 { gray.lighten(60%) },
-    table.header(
-      [*Engine*], [*Mean ± σ (s)*], [*Min (s)*], [*Max (s)*], [*User (s)*], [*System (s)*], [*IOPS (M/s)*]
-    ),
-    [*POSIX*], [], [], [], [], [], [],
-    [*Libaio*], [], [], [], [], [], [],
-    [*Uring*], [], [], [], [], [], [],
-    [*SPDK*], [], [], [], [], [], [],
-  ),
-  kind: "performance",
-  supplement: "Performance",
-  caption: [Execução da workload zipf_fsync]
+#performance-table("zipf",
+  [*POSIX*], [], [], [], [], [], [],
+  [*Libaio*], [], [], [], [], [], [],
+  [*Uring*], [], [], [], [], [], [],
+  [*SPDK*], [], [], [], [], [], [],
+)
+
+#performance-table("zipf_fsync",
+  [*POSIX*], [], [], [], [], [], [],
+  [*Libaio*], [], [], [], [], [], [],
+  [*Uring*], [], [], [], [], [], [],
+  [*SPDK*], [], [], [], [], [], [],
 )
 
 // análise dos resultados
