@@ -27,6 +27,24 @@ def plot_offset_distribution(
     plt.close()
 
 
+def plot_column_distribution(
+    df: pd.DataFrame,
+    column: str,
+    output_file: str = 'png/column_dist.png'
+) -> None:
+    counts = df[column].value_counts().sort_index()
+
+    plt.figure(figsize=(10, 5))
+    sns.barplot(x=counts.index.astype(str), y=counts.values)
+    plt.xlabel(f'{column.upper()} Code')
+    plt.ylabel('Frequency')
+    plt.title(f'Frequency of {column.upper()} Codes')
+    plt.grid(axis='y', alpha=0.3)
+    plt.tight_layout()
+    plt.savefig(output_file, dpi=300)
+    plt.close()
+
+
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(
@@ -52,6 +70,23 @@ if __name__ == '__main__':
     )
 
     args = parser.parse_args()
-
     df = get_prismo_entries(args.input)
+
+    columns: list[str] = [
+        'pid',
+        'tid',
+        'req',
+        'proc',
+        'offset',
+        'ret',
+        'errno',
+    ]
+
+    output_file = 'png/offset_dist.png'
     plot_offset_distribution(df, args.bins)
+    print(f'Saved offset distribution plot to {output_file}')
+
+    for column in columns:
+        output_file = f'png/{column}_dist.png'
+        plot_column_distribution(df, column, output_file=output_file)
+        print(f'Saved {column} frequency plot to {output_file}')

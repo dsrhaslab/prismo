@@ -167,5 +167,8 @@ if __name__ == '__main__':
     df = get_prismo_entries(args.input)
     stats = compute_statistics(df)
 
-    plot_operations_vs_repeats(stats)
     show_statistics_table(stats, args.input)
+
+    output_file = 'png/operations_vs_repeats.png'
+    plot_operations_vs_repeats(stats)
+    print(f'Saved operations vs repeats to {output_file}')

@@ -115,7 +115,10 @@ if __name__ == '__main__':
     ]
 
     for operation in operations:
-        plot_operations_over_time(
-            df, operation, output_file=f'png/{operation.name}_overtime.png')
-        plot_interarrival_times(
-            df, operation, output_file=f'png/{operation.name}_interarrival.png')
+        output_file = f'png/{operation.name}_overtime.png'
+        plot_operations_over_time(df, operation, output_file=output_file)
+        print(f'Saved {operation.name} overtime to {output_file}')
+
+        output_file = f'png/{operation.name}_interarrival.png'
+        plot_interarrival_times(df, operation, output_file=output_file)
+        print(f'Saved {operation.name} interarrival to {output_file}')
