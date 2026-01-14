@@ -566,7 +566,11 @@ Por fim, a configuração dos backends de #link(<io>)[*I/O*] é constante entre 
   [*SPDK*], [21.803 $plus.minus$ 0.181], [21.672], [22.009], [117.774], [4.910], [458],
 )
 
-// análise dos resultados
+Numa breve análise dos resultados, percebemos que o protótipo atinge o máximo de 17 milhões #link(<iops>)[*IOPS*] para a interface POSIX, isto porque a operação `NOP` não é naturalmente suportada pelo backend, sendo simulada por uma invocação vazia. Sob outro enfoque, as restantes interfaces apresentam uma implementação de `NOP` mais complexa, daí que a performance obtida seja significativamente pior.
+
+Embora os resultados possam estar enviesados pela desativação da flag `O_DIRECT`, constatámos que o desempenho dos backends piora quando as workloads apresentam determinadas características, nomeadamente acessos aleatórios e operações de `FSYNC`, no entanto estes aspetos são pouco visíveis em #link(<spdk>)[*SPDK*], talvez por evitar os mecanismos da stack de #link(<io>)[*I/O*] e dar bypass ao kernel.
+
+Por fim, a performance do Uring ficou abaixo das expectativas, afinal a configuração de polling na #link(<sq>)[*SQ*] permite eliminar as syscalls e aumentar o débito de submissão, supondo valores superiores a POSIX.
 
 === Próximas Etapas
 
