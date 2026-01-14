@@ -197,6 +197,10 @@ For more elegant visualisation check some community-made packages like #link("ht
 
 */
 
+#formatting.show-postamble[
+  #bibliography("bibliography.yml", full: true)
+]
+
 #set page(numbering: none)
 
 #page(fill: colors.pantonecoolgray7)[]

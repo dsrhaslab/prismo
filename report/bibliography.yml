@@ -1,48 +1,128 @@
-clang:
-  type: Book
+didona2022:
+  type: "Article"
   author:
-    - name: "B.W. Kernighan"
-    - name: "D.M. Ritchie"
-  title: "The C Programming Language (ANSI C)"
-  edition: "2nd"
+    - name: "Diego Didona"
+    - name: "Jonas Pfefferle"
+    - name: "Nikolas Ioannou"
+    - name: "Bernard Metzler"
+  title: "Understanding modern storage APIs: A systematic study of libaio, SPDK, and io_uring"
   publisher:
-    name: "Prentice Hall Software series"
-  year: 1988
+    name: "ACM"
+  booktitle: "Proceedings of the 15th ACM International Conference on Systems and Storage"
+  year: 2022
   keywords:
-    - "Programming"
-    - "Imperative"
+    - "Storage Systems"
+    - "I/O APIs"
+    - "libaio"
+    - "SPDK"
+    - "io_uring"
 
-functional:
-  type: Web
+koller2010:
+  type: "Article"
   author:
-    - name: "R. Bird"
-    - name: "P. Wadler"
-  title: "Introduction to Functional Programming"
+    - name: "Ricardo Koller"
+    - name: "Raju Rangaswami"
+  title: "I/O Deduplication: Utilizing Content Similarity to Improve I/O Performance"
+  journal: "ACM Transactions on Storage"
+  volume: 6
+  number: 3
+  article: 13
+  pages: "26"
   publisher:
-    name: "Prentice-Hall"
-  year: 1988  
+    name: "Association for Computing Machinery"
+  year: 2010
   keywords:
-    - "Programming"
-    - "Functional"
+    - "Deduplication"
+    - "Storage Performance"
+    - "Content Similarity"
 
-rustbook:
-  type: Web
-  title: "The Rust Programming Language"
-  year: 2024
-  url: "https://doc.rust-lang.org/book/"
+ren2023:
+  type: "Article"
+  author:
+    - name: "Zebin Ren"
+    - name: "Animesh Trivedi"
+  title: "Performance characterization of modern storage stacks: POSIX I/O, libaio, SPDK, and io_uring"
+  booktitle: "Proceedings of the 3rd Workshop on Challenges and Opportunities of Efficient and Performant Storage Systems"
+  year: 2023
   keywords:
-    - "Rust"
-    - "Programming"
-    - "Systems Programming"
+    - "Storage Stacks"
+    - "Performance Evaluation"
+    - "POSIX I/O"
+    - "io_uring"
 
-typstdocs:
-  type: Web
-  title: "Typst Documentation"
+talasila2019:
+  type: "Article"
+  author:
+    - name: "Prasad Talasila"
+    - name: "Daniel E. Lucani"
+  title: "Generalized deduplication: Lossless compression by clustering similar data"
+  booktitle: "2019 IEEE 8th International Conference on Cloud Networking (CloudNet)"
   publisher:
-    name: "Typst"
-  year: 2024
-  url: "https://typst.app/docs/"
+    name: "IEEE"
+  year: 2019
   keywords:
-    - "Typst"
-    - "Document Preparation"
-    - "Typesetting"
+    - "Deduplication"
+    - "Lossless Compression"
+    - "Cloud Storage"
+
+constantinescu2011:
+  type: "Article"
+  author:
+    - name: "Cornel Constantinescu"
+    - name: "Joseph Glider"
+    - name: "David Chambliss"
+  title: "Mixing Deduplication and Compression on Active Data Sets"
+  booktitle: "2011 Data Compression Conference"
+  publisher:
+    name: "IEEE"
+  year: 2011
+  keywords:
+    - "Deduplication"
+    - "Compression"
+    - "Active Data Sets"
+
+paulo2013:
+  type: "Article"
+  author:
+    - name: "João Paulo"
+    - name: "Pedro Reis"
+    - name: "José Pereira"
+    - name: "António Sousa"
+  title: "Towards an accurate evaluation of deduplicated storage systems"
+  year: 2013
+  keywords:
+    - "Deduplicated Storage"
+    - "Evaluation Methodology"
+
+paulo2014:
+  type: "Article"
+  author:
+    - name: "João Paulo"
+    - name: "José Pereira"
+  title: "A Survey and Classification of Storage Deduplication Systems"
+  volume: 47
+  number: 1
+  article: 11
+  pages: 30
+  publisher:
+    name: "Association for Computing Machinery"
+  year: 2014
+  month: "May"
+  keywords:
+    - "Storage Deduplication"
+    - "Storage Systems"
+    - "Data Reduction"
+    - "File Systems"
+    - "Survey"
+    - "Taxonomy"
+
+dedisbench++:
+  type: "Article"
+  author:
+    - name: "Alexandre Lopes Mandim da Silva"
+  title: "DEDISbench++: Avaliação realista de deduplicação e compressão em sistemas de armazenamento"
+  year: null
+  keywords:
+    - "Deduplication"
+    - "Compression"
+    - "Storage Benchmarking"
