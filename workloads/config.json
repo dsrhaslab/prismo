@@ -10,7 +10,7 @@
   },
 
   "operation": {
-    "type": "constant",
+    "type": "sequence",
     "operation": "write",
     "percentages": {
       "read": 50,
@@ -21,7 +21,10 @@
       "write",
       "fsync",
       "fdatasync",
-      "nop"
+      "nop",
+      "nop",
+      "write",
+      "read"
     ],
     "barrier": [
     ]
@@ -88,7 +91,7 @@
   },
 
   "engine": {
-    "type": "aio",
+    "type": "posix",
     "openflags": [
       "O_CREAT",
       "O_RDWR"

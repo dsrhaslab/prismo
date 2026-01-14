@@ -4,13 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt # type: ignore
 from tabulate import tabulate # type: ignore
 from dataclasses import dataclass
-from prismo_entry import get_prismo_entries
-
-@dataclass
-class DedupAnalysisArgs:
-    input: str
-    output: str
-
+from parser import get_prismo_entries
 
 @dataclass
 class CompressionStatsEntry:
@@ -55,10 +49,10 @@ class Statistics:
     unique_blocks: int
 
 
-def compute_statistics(filepath: str) -> Statistics:
-    df = get_prismo_entries(filepath)
+def compute_statistics(
+    df: pd.DataFrame
+) -> Statistics:
     df_writes = df[df['type'] == 1].copy()
-
     repetitions = df_writes.groupby('block').size().rename('repeats')
     df_writes = df_writes.join(repetitions, on='block')
 
@@ -100,7 +94,10 @@ def compute_statistics(filepath: str) -> Statistics:
     )
 
 
-def show_statistics_table(stats: Statistics, input_file: str) -> None:
+def show_statistics_table(
+    stats: Statistics,
+    input_file: str
+) -> None:
     headers = [
         'Repeats',
         'Unique blocks',
@@ -121,7 +118,10 @@ def show_statistics_table(stats: Statistics, input_file: str) -> None:
     print(f'  {'Average accesses per block':<30}: {avg_access:.3f}')
 
 
-def plot_operations_vs_repeats(stats: Statistics, output_file: str) -> None:
+def plot_operations_vs_repeats(
+    stats: Statistics,
+    output_file: str = 'png/operations_vs_repeats.png'
+) -> None:
     repeats = [entry.repeats for entry in stats.entries]
     operations = [entry.operations for entry in stats.entries]
     unique_blocks_list = [entry.unique_blocks for entry in stats.entries]
@@ -149,15 +149,9 @@ def plot_operations_vs_repeats(stats: Statistics, output_file: str) -> None:
     plt.close()
 
 
-def dedup_analysis(args: DedupAnalysisArgs) -> None:
-    stats = compute_statistics(args.input)
-    show_statistics_table(stats, args.input)
-    plot_operations_vs_repeats(stats, args.output)
-
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        prog='dedup_analysis',
+        prog='dedup',
         description='Deduplication and compression distribution analysis',
     )
 
@@ -169,18 +163,9 @@ if __name__ == '__main__':
         help='prismo log file path'
     )
 
-    parser.add_argument(
-        '-o',
-        '--output',
-        type=str,
-        required=True,
-        help='png output file path'
-    )
-
     args = parser.parse_args()
-    args = DedupAnalysisArgs(
-        input=args.input,
-        output=args.output
-    )
+    df = get_prismo_entries(args.input)
+    stats = compute_statistics(df)
 
-    dedup_analysis(args)
+    plot_operations_vs_repeats(stats)
+    show_statistics_table(stats, args.input)
