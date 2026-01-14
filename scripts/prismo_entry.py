@@ -1,53 +1,79 @@
 import re
+import pandas as pd
+from tqdm import tqdm # type: ignore
 from datetime import datetime
-from dataclasses import dataclass
-from typing import ClassVar, List
+from typing import Iterator
 
-@dataclass
-class PrismoEntry:
-    timestamp: datetime
-    module: str
-    level: str
+LOG_RE = re.compile(
+    r'\[(?P<timestamp>.*?)\] '
+    r'\[(?P<module>.*?)\] '
+    r'\[(?P<level>.*?)\] '
+    r'\[(?P<fields>.*)\]'
+)
 
-    type: int
-    block: int
-    cpr: int
-    sts: int
-    ets: int
-    pid: int
-    tid: int
-    req: int
-    proc: int
-    offset: int
-    ret: int
-    errno: int
-
-    _FIELDS: ClassVar[List[str]] = [
-        'type', 'block', 'cpr', 'sts', 'ets',
-        'pid', 'tid', 'req', 'proc', 'offset', 'ret', 'errno'
-    ]
-
-    def __init__(self, line: str) -> None:
-        header_match = re.match(r'\[(.*?)\] \[(.*?)\] \[(.*?)\] \[(.*)\]', line)
-        if not header_match:
-            raise ValueError(f'Invalid log line format: {line}')
-
-        timestamp_str, module, level, fields_str = header_match.groups()
-        self.timestamp = datetime.strptime(timestamp_str, '%Y-%m-%d %H:%M:%S.%f')
-        self.module = module
-        self.level = level
-
-        fields: dict[str, int] = {}
-        for part in fields_str.split():
-            key, value = part.split('=')
-            fields[key] = int(value)
-
-        for field in self._FIELDS:
-            if field not in fields:
-                raise ValueError(f'Missing field "{field}" in log line: {line}')
-            setattr(self, field, fields[field])
+DTYPES = {
+    'type': 'int32',
+    'block': 'int32',
+    'cpr': 'int32',
+    'sts': 'int64',
+    'ets': 'int64',
+    'pid': 'int32',
+    'tid': 'int64',
+    'req': 'int32',
+    'proc': 'int32',
+    'offset': 'int64',
+    'ret': 'int32',
+    'errno': 'int32',
+}
 
 
-def get_prismo_entries(log_filename: str) -> List[PrismoEntry]:
-    with open(log_filename, 'r') as log_file:
-        return [PrismoEntry(line) for line in log_file if line.strip()]
+def iter_prismo_rows(log_filename: str) -> Iterator[dict]:
+    total_lines = sum(1 for _ in open(log_filename, 'r'))
+
+    with open(log_filename, 'r') as f:
+        for line in tqdm(f, total=total_lines, desc=f'Reading {log_filename}', unit='lines'):
+            line = line.strip()
+            if not line:
+                continue
+
+            m = LOG_RE.match(line)
+            if not m:
+                continue
+
+            row = {
+                'timestamp': datetime.strptime(
+                    m.group('timestamp'),
+                    '%Y-%m-%d %H:%M:%S.%f'
+                ),
+                'module': m.group('module'),
+                'level': m.group('level'),
+            }
+
+            for part in m.group('fields').split():
+                k, v = part.split('=')
+                row[k] = int(v)
+
+            yield row
+
+
+def get_prismo_entries(
+    log_filename: str,
+    chunk_size: int = 100_000
+) -> pd.DataFrame:
+    chunks = []
+    batch = []
+
+    for row in iter_prismo_rows(log_filename):
+        batch.append(row)
+        if len(batch) == chunk_size:
+            chunks.append(pd.DataFrame(batch))
+            batch.clear()
+
+    if batch:
+        chunks.append(pd.DataFrame(batch))
+
+    df = pd.concat(chunks, ignore_index=True)
+    df = df.astype(DTYPES)
+    df['timestamp'] = pd.to_datetime(df['timestamp'])
+
+    return df

@@ -1,14 +1,16 @@
 import argparse
 import numpy as np
-import matplotlib.pyplot as plt
-from tabulate import tabulate
+import pandas as pd
+import matplotlib.pyplot as plt # type: ignore
+from tabulate import tabulate # type: ignore
 from dataclasses import dataclass
-from collections import Counter, defaultdict
-from prismo_entry import PrismoEntry, get_prismo_entries
+from prismo_entry import get_prismo_entries
 
 @dataclass
 class DedupAnalysisArgs:
     input: str
+    output: str
+
 
 @dataclass
 class CompressionStatsEntry:
@@ -17,6 +19,7 @@ class CompressionStatsEntry:
 
     def __str__(self) -> str:
         return f'{self.percentage:.2f}% → {self.reduction}'
+
 
 @dataclass
 class DedupStatsEntry:
@@ -44,6 +47,7 @@ class DedupStatsEntry:
             )
         )
 
+
 @dataclass
 class Statistics:
     entries: list[DedupStatsEntry]
@@ -51,79 +55,52 @@ class Statistics:
     unique_blocks: int
 
 
-def get_entries_by_block(
-    entries: list[PrismoEntry]
-) -> dict[int, list[PrismoEntry]]:
-    entries_by_block: dict[int, list[PrismoEntry]] = defaultdict(list)
-    for e in entries:
-        entries_by_block[e.block].append(e)
-    return entries_by_block
+def compute_statistics(filepath: str) -> Statistics:
+    df = get_prismo_entries(filepath)
+    df_writes = df[df['type'] == 1].copy()
 
+    repetitions = df_writes.groupby('block').size().rename('repeats')
+    df_writes = df_writes.join(repetitions, on='block')
 
-def get_repetitions_by_block(
-    entries_by_block: dict[int, list[PrismoEntry]]
-) -> dict[int, int]:
-    return {
-        block: len(block_entries)
-        for block, block_entries in entries_by_block.items()
-    }
+    total_operations = len(df_writes)
+    unique_blocks = df_writes['block'].nunique()
 
+    stats_entries: list[DedupStatsEntry] = []
 
-def calculate_write_statistics(
-    entries: list[PrismoEntry],
-    entries_by_block: dict[int, list[PrismoEntry]],
-    repetitions_by_block: dict[int, int]
-) -> Statistics:
-    data: list[DedupStatsEntry] = []
-    total_operations: int = len(entries)
-    unique_blocks: int = len(repetitions_by_block)
+    for repeats, group in df_writes.groupby('repeats'):
+        unique_blocks_count = group['block'].nunique()
+        ops = repeats * unique_blocks_count
+        percentage_unique = unique_blocks_count / unique_blocks * 100
+        percentage_global = ops / total_operations * 100
 
-    blocks_by_repeats: dict[int, list[int]] = defaultdict(list)
-    for block, reps in repetitions_by_block.items():
-        blocks_by_repeats[reps].append(block)
-
-    for repeats, blocks in blocks_by_repeats.items():
-        selected_entries = [
-            e
-            for block in blocks
-            for e in entries_by_block[block]
-        ]
-
-        total_selected = len(selected_entries)
-        compression_counter = Counter(e.cpr for e in selected_entries)
-
+        compression_counter = group['cpr'].value_counts()
         compression_entries = [
             CompressionStatsEntry(
-                reduction=reduction,
-                percentage=round(cnt / total_selected * 100, 2)
+                reduction=int(reduction),
+                percentage=float(count / len(group) * 100)
             )
-            for reduction, cnt in compression_counter.items()
+            for reduction, count in compression_counter.items()
         ]
 
-        block_count = len(blocks)
-
-        data.append(DedupStatsEntry(
+        stats_entries.append(DedupStatsEntry(
             repeats=repeats - 1,
-            unique_blocks=block_count,
-            percentage_unique=round(block_count / unique_blocks * 100, 2) if unique_blocks else 0,
-            operations=repeats * block_count,
-            percentage_global=round(repeats * block_count / total_operations * 100, 2) if total_operations else 0,
+            unique_blocks=unique_blocks_count,
+            percentage_unique=round(percentage_unique, 2),
+            operations=ops,
+            percentage_global=round(percentage_global, 2),
             compression_entries=compression_entries
         ))
 
-    data.sort(key=lambda x: x.repeats)
+    stats_entries.sort(key=lambda x: x.repeats)
 
     return Statistics(
-        entries=data,
+        entries=stats_entries,
         total_operations=total_operations,
         unique_blocks=unique_blocks
     )
 
 
-def show_statistics_table(
-    args: DedupAnalysisArgs,
-    stats: Statistics
-) -> None:
+def show_statistics_table(stats: Statistics, input_file: str) -> None:
     headers = [
         'Repeats',
         'Unique blocks',
@@ -133,65 +110,49 @@ def show_statistics_table(
         'Compression distribution',
     ]
 
-    table_data: list[tuple[int, int, float, int, float, str]] = [entry.to_tuple() for entry in stats.entries]
-    avg_access = stats.total_operations / stats.unique_blocks if stats.unique_blocks else 0
+    table_data = [entry.to_tuple() for entry in stats.entries]
+    avg_access = stats.total_operations / stats.unique_blocks
 
     print(tabulate(table_data, headers=headers, tablefmt='rounded_outline'))
-
-    print(f'\nSummary: {args.input}')
+    print(f'\nSummary: {input_file}')
     print(f'  {'Total operations (log lines)':<30}: {stats.total_operations}')
-    print(f'  {'Total writes':<30}: {sum(entry.operations for entry in stats.entries)}')
+    print(f'  {'Total writes':<30}: {sum(e.operations for e in stats.entries)}')
     print(f'  {'Unique blocks':<30}: {stats.unique_blocks}')
     print(f'  {'Average accesses per block':<30}: {avg_access:.3f}')
 
 
-def plot_operations_vs_repeats(
-    stats: Statistics
-) -> None:
+def plot_operations_vs_repeats(stats: Statistics, output_file: str) -> None:
     repeats = [entry.repeats for entry in stats.entries]
     operations = [entry.operations for entry in stats.entries]
-    unique_blocks = [entry.unique_blocks for entry in stats.entries]
+    unique_blocks_list = [entry.unique_blocks for entry in stats.entries]
 
     x = np.arange(len(repeats))
+    fig, ax1 = plt.subplots(figsize=(10,6))
 
-    fig, ax1 = plt.subplots(figsize=(10,6)) # type: ignore
-
-    ax1.bar(x, operations, color='skyblue', label='Operations') # type: ignore
-    ax1.set_xlabel('Number of Repeats') # type: ignore
-    ax1.set_ylabel('Operations', color='black') # type: ignore
-    ax1.tick_params(axis='y', labelcolor='black') # type: ignore
-    ax1.set_xticks(x) # type: ignore
-    ax1.set_xticklabels(repeats) # type: ignore
-    ax1.grid(axis='y', linestyle='--', alpha=0.7) # type: ignore
+    ax1.bar(x, operations, color='skyblue', label='Operations')
+    ax1.set_xlabel('Number of Repeats')
+    ax1.set_ylabel('Operations', color='black')
+    ax1.tick_params(axis='y', labelcolor='black')
+    ax1.set_xticks(x)
+    ax1.set_xticklabels(repeats)
+    ax1.grid(axis='y', linestyle='--', alpha=0.7)
 
     ax2 = ax1.twinx()
-    ax2.plot(x, unique_blocks, color='brown', marker='o', label='Unique Blocks') # type: ignore
-    ax2.set_ylabel('Unique Blocks', color='black') # type: ignore
-    ax2.tick_params(axis='y', labelcolor='black') # type: ignore
+    ax2.plot(x, unique_blocks_list, color='brown', marker='o', label='Unique Blocks')
+    ax2.set_ylabel('Unique Blocks', color='black')
+    ax2.tick_params(axis='y', labelcolor='black')
 
     fig.tight_layout()
-    fig.legend(loc='upper right', bbox_to_anchor=(1,1), bbox_transform=ax1.transAxes) # type: ignore
-
-    plt.title('Operations and Unique Blocks vs Repeats') # type: ignore
-    plt.savefig('png/operations_vs_repeats', dpi=300, bbox_inches='tight') # type: ignore
+    fig.legend(loc='upper right', bbox_to_anchor=(1,1), bbox_transform=ax1.transAxes)
+    plt.title('Operations and Unique Blocks vs Repeats')
+    plt.savefig(output_file, dpi=300, bbox_inches='tight')
     plt.close()
 
 
-def dedup_analysis(
-    args: DedupAnalysisArgs
-) -> None:
-    write_entries: list[PrismoEntry] = [e for e in get_prismo_entries(args.input) if e.type == 1]
-    entries_by_block: dict[int, list[PrismoEntry]] = get_entries_by_block(write_entries)
-    repetition_by_block: dict[int, int] = get_repetitions_by_block(entries_by_block)
-
-    write_stats: Statistics = calculate_write_statistics(
-        write_entries,
-        entries_by_block,
-        repetition_by_block
-    )
-
-    plot_operations_vs_repeats(write_stats)
-    show_statistics_table(args, write_stats)
+def dedup_analysis(args: DedupAnalysisArgs) -> None:
+    stats = compute_statistics(args.input)
+    show_statistics_table(stats, args.input)
+    plot_operations_vs_repeats(stats, args.output)
 
 
 if __name__ == '__main__':
@@ -208,7 +169,18 @@ if __name__ == '__main__':
         help='prismo log file path'
     )
 
+    parser.add_argument(
+        '-o',
+        '--output',
+        type=str,
+        required=True,
+        help='png output file path'
+    )
+
     args = parser.parse_args()
-    args = DedupAnalysisArgs(input=args.input)
+    args = DedupAnalysisArgs(
+        input=args.input,
+        output=args.output
+    )
 
     dedup_analysis(args)

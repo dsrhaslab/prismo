@@ -28,8 +28,8 @@
   },
 
   "access": {
-    "type": "sequential",
-    "skew": 0.99
+    "type": "zipfian",
+    "skew": 0.9
   },
 
   "generator": {
@@ -65,7 +65,7 @@
         ]
       },
       {
-        "percentage": 10,
+        "percentage": 20,
         "repeats": 3,
         "compression": [
           {
@@ -75,7 +75,7 @@
         ]
       },
       {
-        "percentage": 40,
+        "percentage": 30,
         "repeats": 5,
         "compression": [
           {
@@ -114,7 +114,7 @@
     "queue_size": 8192,
     "thread_count": 1,
     "truncate": true,
-    "to_stdout": true,
+    "to_stdout": false,
     "files": [
       "./log1.log",
       "./log2.log",
