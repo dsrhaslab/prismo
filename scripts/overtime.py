@@ -9,77 +9,138 @@ from parser import get_prismo_entries
 class OperationType:
     code: int
     name: str
+    linestyle: str
+    marker: str
 
 
-def plot_operations_over_time(
+def plot_operations_overtime(
     df: pd.DataFrame,
-    operation: OperationType,
+    operations: list['OperationType'],
     time_window: str = '1s',
-    output_file: str = 'png/overtime.png'
+    output_file: str = 'png/operations_overtime.png'
 ) -> None:
     df = df.copy()
     df['timestamp'] = pd.to_datetime(df['timestamp'])
+    df = df.sort_values('timestamp')
 
-    if operation.name != 'all':
-        df = df[df['type'] == operation.code]
+    plt.figure(figsize=(14, 6))
 
-    operations_per_window = df.set_index('timestamp').resample(time_window).size()
+    for operation in operations:
+        df_op = df[df['type'] == operation.code]
+        ops_per_window = df_op.set_index('timestamp').resample(time_window).size()
 
-    if operations_per_window.empty or operations_per_window.nunique() <= 1:
-        print(f'Not enough {operation.name} data to plot over time.')
-        return
+        plt.plot(
+            ops_per_window.index,
+            ops_per_window.values,
+            linewidth=1.5,
+            marker=operation.marker,
+            linestyle=operation.linestyle,
+            label=operation.name
+        )
 
-    plt.figure(figsize=(12, 5))
-    operations_per_window.plot()
     plt.xlabel('Time')
-    plt.ylabel(f'Number of {operation.name.capitalize()}s')
-    plt.title(f'Number of {operation.name.capitalize()}s Over Time (Window: {time_window})')
+    plt.ylabel('Number of Operations')
+    plt.title(f'Operations Over Time (Window: {time_window})')
     plt.grid(alpha=0.3)
-
-    if operations_per_window.index.nunique() == 1:
-        single_time = operations_per_window.index[0]
-        plt.xlim(single_time - pd.Timedelta(seconds=1), single_time + pd.Timedelta(seconds=1))
-
+    plt.legend()
     plt.tight_layout()
     plt.savefig(output_file, dpi=300)
     plt.close()
 
 
-def plot_interarrival_times(
+def plot_interarrival_overtime(
     df: pd.DataFrame,
-    operation: OperationType,
-    bins: int = 100,
-    output_file: str = 'png/interarrival.png',
+    operations: list['OperationType'],
+    time_window: str = '1s',
+    output_file: str = 'png/interarrival_overtime.png',
 ) -> None:
     df = df.copy()
     df['timestamp'] = pd.to_datetime(df['timestamp'])
-
-    if operation.name != 'all':
-        df = df[df['type'] == operation.code]
-
     df = df.sort_values('timestamp')
 
-    if len(df) < 2:
-        print(f'Not enough {operation.name} entries to compute inter-arrival times.')
-        return
+    plt.figure(figsize=(14, 6))
 
-    delta_t = df['timestamp'].diff().dt.total_seconds().dropna()
+    for operation in operations:
+        df_op = df[df['type'] == operation.code]
+        delta_t = df_op['sts'].diff().dropna()
+        df_op = df_op.iloc[1:].copy()
+        df_op['delta_t'] = delta_t
 
-    if delta_t.empty:
-        print(f'No inter-arrival times for {operation.name}. Skipping.')
-        return
+        avg_delta_t = df_op.set_index('timestamp').resample(time_window)['delta_t'].mean()
 
-    plt.figure(figsize=(12, 5))
-    sns.histplot(delta_t, bins=bins, kde=True)
-    plt.xlabel('Inter-arrival Time (seconds)')
-    plt.ylabel('Frequency')
-    plt.title(f'Histogram of Inter-arrival Times for {operation.name.capitalize()}')
+        plt.plot(
+            avg_delta_t.index,
+            avg_delta_t.values,
+            linewidth=2,
+            alpha=0.8,
+            marker=operation.marker,
+            linestyle=operation.linestyle,
+            label=operation.name
+        )
+
+    plt.xlabel('Time')
+    plt.ylabel(f'Average Inter-arrival Time (ns)')
+    plt.title(f'Average Inter-arrival Time Over Time by Operation (Window: {time_window})')
     plt.grid(alpha=0.3)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(output_file, dpi=300)
+    plt.close()
 
-    if delta_t.nunique() == 1:
-        val = delta_t.iloc[0]
-        plt.xlim(val - 0.1, val + 0.1)
 
+def plot_latency_overtime(
+    df: pd.DataFrame,
+    operations: list[OperationType],
+    time_window: str = '1s',
+    output_file: str = 'png/latency_over_time.png'
+) -> None:
+    df = df.copy()
+    df['timestamp'] = pd.to_datetime(df['timestamp'])
+    df['latency'] = df['ets'] - df['sts']
+    df = df.sort_values('timestamp')
+
+    plt.figure(figsize=(14, 6))
+
+    for operation in operations:
+        df_op = df[df['type'] == operation.code]
+
+        avg_latency = (
+            df_op
+            .set_index('timestamp')['latency']
+            .resample(time_window)
+            .mean()
+        )
+
+        plt.plot(
+            avg_latency.index,
+            avg_latency.values,
+            linewidth=2,
+            marker=operation.marker,
+            linestyle=operation.linestyle,
+            label=operation.name
+        )
+
+    avg_all = (
+        df
+        .set_index('timestamp')['latency']
+        .resample(time_window)
+        .mean()
+    )
+
+    plt.plot(
+        avg_all.index,
+        avg_all.values,
+        color='black',
+        linestyle='--',
+        linewidth=2,
+        label=f'all ops avg'
+    )
+
+    plt.xlabel('Time')
+    plt.ylabel('Latency (ns)')
+    plt.title(f'Latency Over Time by Operation ({time_window} avg)')
+    plt.grid(alpha=0.3)
+    plt.legend()
     plt.tight_layout()
     plt.savefig(output_file, dpi=300)
     plt.close()
@@ -106,19 +167,21 @@ if __name__ == '__main__':
     df_writes = df[df['type'] == 1].copy()
 
     operations: list[OperationType] = [
-        OperationType(code=0, name='read'),
-        OperationType(code=1, name='write'),
-        OperationType(code=2, name='fsync'),
-        OperationType(code=3, name='fdatasync'),
-        OperationType(code=4, name='nop'),
-        OperationType(code=5, name='all'),
+        OperationType(code=0, name='read', linestyle='-', marker='v'),
+        OperationType(code=1, name='write', linestyle='--', marker='h'),
+        OperationType(code=2, name='fsync', linestyle=':', marker='s'),
+        OperationType(code=3, name='fdatasync', linestyle='-.', marker='+'),
+        OperationType(code=4, name='nop', linestyle='dotted', marker='>'),
     ]
 
-    for operation in operations:
-        output_file = f'png/{operation.name}_overtime.png'
-        plot_operations_over_time(df, operation, output_file=output_file)
-        print(f'Saved {operation.name} overtime to {output_file}')
+    output_file = 'png/latency_overtime.png'
+    plot_latency_overtime(df, operations, output_file=output_file)
+    print(f'Saved latency overtime to {output_file}')
 
-        output_file = f'png/{operation.name}_interarrival.png'
-        plot_interarrival_times(df, operation, output_file=output_file)
-        print(f'Saved {operation.name} interarrival to {output_file}')
+    output_file = 'png/interarrival_overtime.png'
+    plot_interarrival_overtime(df, operations, output_file=output_file)
+    print(f'Saved interarrival overtime to {output_file}')
+
+    output_file = 'png/operations_overtime.png'
+    plot_operations_overtime(df, operations, output_file=output_file)
+    print(f'Saved operations overtime to {output_file}')

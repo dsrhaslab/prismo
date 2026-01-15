@@ -12,16 +12,16 @@ LOG_RE = re.compile(
 )
 
 DTYPES = {
-    'type': 'int32',
-    'block': 'int32',
-    'cpr': 'int32',
+    'type': 'uint32',
+    'block': 'uint32',
+    'cpr': 'uint32',
     'sts': 'int64',
     'ets': 'int64',
-    'pid': 'int32',
-    'tid': 'int64',
-    'req': 'int32',
-    'proc': 'int32',
-    'offset': 'int64',
+    'pid': 'uint32',
+    'tid': 'uint64',
+    'req': 'uint32',
+    'proc': 'uint32',
+    'offset': 'uint64',
     'ret': 'int32',
     'errno': 'int32',
 }
