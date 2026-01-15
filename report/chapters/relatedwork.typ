@@ -4,11 +4,11 @@
 
 A fim de explorar ferramentas que solucionem problemas semelhantes aos abordados na dissertação, esta secção procura explicar algumas das técnicas utilizadas para obter workloads mais realistas e assim avaliar com maior critério os sistemas de armazenamento.
 
-Na verdade, o problema em questão não é completamente resolvido pelas ferramentas que se apresentam de seguida, cada uma sofre de limitações ao nível da geração de conteúdo, replicação de traces, ou suporte a diversas #link(<api>)[*APIs*] de #link(<io>)[*I/O*]. No entanto, convém perceber essas mesmas limitações para concluir em que medida a solução proposta se destaca das existentes.
+Na verdade, o problema em questão não é completamente resolvido pelas ferramentas que se apresentam de seguida, cada uma sofre de limitações ao nível da geração de conteúdo, replicação de traces, ou suporte a diversas @api de @io. No entanto, convém perceber essas mesmas limitações para concluir em que medida a solução proposta se destaca das existentes.
 
 ==== DEDISbench
 
-Tratando-se de um micro-benchmark de #link(<io>)[*I/O*] para sistemas de deduplicação orientados ao bloco, o DEDISbench gera dados com padrões de deduplicação semelhantes aos encontrados em ambientes reais, para isso serve-se do DEDISgen, que após analisar um dataset, resume a informação numa grelha que indica a quantidade de blocos com X cópias.
+Tratando-se de um micro-benchmark de @io para sistemas de deduplicação orientados ao bloco, o DEDISbench gera dados com padrões de deduplicação semelhantes aos encontrados em ambientes reais, para isso serve-se do DEDISgen, que após analisar um dataset, resume a informação numa grelha que indica a quantidade de blocos com X cópias.
 
 #figure(
   table(
@@ -34,13 +34,13 @@ De facto, a forma como a distribuição é especificada dificulta a perceção d
 
 Neste sentido, o DEDISgen é responsável por fornecer a distribuição de duplicados num formato passível de interpretação ao DEDISbench, algo que mais tarde será replicado numa workload com padrões de acesso e débito definidos pelo utilizador.
 
-- *Acesso Sequencial:* as operações de #link(<io>)[*I/O*] são realizadas de modo sequencial, o que beneficia a localidade espacial, visto os blocos encontrarem-se fisicamente próximos no sistema de armazenamento.
+- *Acesso Sequencial:* as operações de @io são realizadas de modo sequencial, o que beneficia a localidade espacial, visto os blocos encontrarem-se fisicamente próximos no sistema de armazenamento.
 
 - *Acesso Uniforme:* os offsets são obtidos através de uma distribuição uniforme, daí que todas as zonas do disco sejam alvo da mesma carga, não havendo por isso benefícios obtidos através da localidade espacial ou temporal.
 
 - *Acesso TPC-C:* uma distribuição com hotspots é responsável por estabelecer os padrões de acesso, consequentemente um subconjunto reduzido de blocos é alvo da maioria dos acessos, contribuindo assim para um bom uso da cache e reflexão do comportamento de partilha de blocos duplicados.
 
-Em sentido semelhante, o DEDISbench permite manipular outros parâmetros da workload, dos quais se destacam a distribuição das operações de #link(<io>)[*I/O*] e o débito a que estas são realizadas, podendo ser nominal ou stress quando pretendemos extrair o máximo das capacidades do sistema de armazenamento.
+Em sentido semelhante, o DEDISbench permite manipular outros parâmetros da workload, dos quais se destacam a distribuição das operações de @io e o débito a que estas são realizadas, podendo ser nominal ou stress quando pretendemos extrair o máximo das capacidades do sistema de armazenamento.
 
 Apesar desta versatilidade, a impossibilidade de simular traces e falta de suporte para interfaces assíncronas tornam a ferramenta pouco apetecível face aos dispositivos atuais que beneficiam as estratégias de polling face a interrupções, consequentemente não é possível atingir o máximo de performance.
 
@@ -93,11 +93,11 @@ $
 
 Se considerarmos $P$ como sendo a taxa de compreensão inter-bloco, isso implica que $P = 1$ corresponde ao máximo e portanto todos os blocos estão associados ao primeiro modelo, no entanto esta fórmula assume que o número total de blocos é conhecido à priori, o que nem sempre é verdade, especialmente em workloads que executam baseadas no tempo em vez do número de operações.
 
-Em suma, apesar de incorporar a geração de conteúdo sintético com propriedades realistas de compressibilidade, o DEDISbench++ continua a sofrer das mesmas fragilidades apontadas ao seu antecessor, nomeadamente a replicação de traces e suporte a múltiplas interfaces de #link(<io>)[*I/O*], no entanto até a definição das taxas de compressão revela debilidades, quer por exigir conhecer o número total de blocos, quer por limitar a sua especificação a múltiplos de dez.
+Em suma, apesar de incorporar a geração de conteúdo sintético com propriedades realistas de compressibilidade, o DEDISbench++ continua a sofrer das mesmas fragilidades apontadas ao seu antecessor, nomeadamente a replicação de traces e suporte a múltiplas interfaces de @io, no entanto até a definição das taxas de compressão revela debilidades, quer por exigir conhecer o número total de blocos, quer por limitar a sua especificação a múltiplos de dez.
 
 ==== FIO
 
-No que se refere ao estado da arte da avaliação de sistemas de armazenamento, o #link(<fio>)[*FIO*] é a ferramenta mais avançada e amplamente utilizada pela comunidade. Além de permitir a manipulação duma infinidade de parâmetros relativos à workload, que vão desde os padrões de acesso, distribuição das operações, escolha da interface de #link(<io>)[*I/O*] e definição de barreiras, as métricas obtidas são de fácil compreensão e um bom indicador das capacidades do sistema de armazenamento.
+No que se refere ao estado da arte da avaliação de sistemas de armazenamento, o @fio é a ferramenta mais avançada e amplamente utilizada pela comunidade. Além de permitir a manipulação duma infinidade de parâmetros relativos à workload, que vão desde os padrões de acesso, distribuição das operações, escolha da interface de @io e definição de barreiras, as métricas obtidas são de fácil compreensão e um bom indicador das capacidades do sistema de armazenamento.
 
 #figure(
   raw_code_block[
@@ -118,24 +118,24 @@ No que se refere ao estado da arte da avaliação de sistemas de armazenamento, 
   caption: [Métricas recolhidas pelo FIO]
 )
 
-Numa breve análise dos resultados obtidos através de uma execução do #link(<fio>)[*FIO*] com os parâmetros default, reparamos que a workload em questão foi executada por uma única thread, sendo o trabalho sequencial e de escritas constantes, o que resultou num débito de 421MiB/s e 108k #link(<iops>)[*IOPS*].
+Numa breve análise dos resultados obtidos através de uma execução do @fio com os parâmetros default, reparamos que a workload em questão foi executada por uma única thread, sendo o trabalho sequencial e de escritas constantes, o que resultou num débito de 421MiB/s e 108k @iops.
 
-Por outro lado, uma vez que a engine utilizada é síncrona, todas as operações foram realizadas com uma #link(<io>)[*IO*] depth igual a um, no entanto a submissão foi realizada em grupos de quatro para reduzir o impacto das system calls e extrair maior proveito do sistema de armazenamento, algo que na verdade tornou-se escusado, visto 50% do tempo de #link(<cpu>)[*CPU*] ter sido consumido a resolver syscalls.
+Por outro lado, uma vez que a engine utilizada é síncrona, todas as operações foram realizadas com uma @io depth igual a um, no entanto a submissão foi realizada em grupos de quatro para reduzir o impacto das system calls e extrair maior proveito do sistema de armazenamento, algo que na verdade tornou-se escusado, visto 50% do tempo de @cpu ter sido consumido a resolver syscalls.
 
-Por fim, a latência das operações manteve-se significativamente baixa, com 58% dos pedidos a serem respondidos em menos de quatro microsegundos e somente 0.03% a demorarem entre 250 e 500 microssegundos, no fundo isto indica uma utilização eficiente da cache ou então de um #link(<nvme>)[*NVMe*] deveras performante.
+Por fim, a latência das operações manteve-se significativamente baixa, com 58% dos pedidos a serem respondidos em menos de quatro microsegundos e somente 0.03% a demorarem entre 250 e 500 microssegundos, no fundo isto indica uma utilização eficiente da cache ou então de um @nvme deveras performante.
 
-Apesar desta diversidade de configurações, os requisitos para obter workloads realistas são um pouco mais complexos do que as ofertas do #link(<fio>)[*FIO*], por exemplo, a geração de duplicados é obtida através da flag `dedupe_percentage=int`, que tal como o nome indica, estabelece a percentagem de blocos duplicados, no entanto isto é conseguido repetindo X vezes o mesmo bloco, o que não reflete minimamente as situações encontradas em ambientes reais.
+Apesar desta diversidade de configurações, os requisitos para obter workloads realistas são um pouco mais complexos do que as ofertas do @fio, por exemplo, a geração de duplicados é obtida através da flag `dedupe_percentage=int`, que tal como o nome indica, estabelece a percentagem de blocos duplicados, no entanto isto é conseguido repetindo X vezes o mesmo bloco, o que não reflete minimamente as situações encontradas em ambientes reais.
 
 Por outro lado, a compressão é alcançada com a flag `buffer_compress_chunk=int`, assim uma determinada zona do bloco é repetida para atingir uma compressibilidade de X%, porém isso significa que todos os blocos irão comprimir na mesma taxa, algo que o DEDISbench++ resolvia ao atribuir distribuições diferentes por grupo de cópias.
 
-Em suma, estes fatores contribuem para que a geração de conteúdo do #link(<fio>)[*FIO*] não respeite os critérios de duplicados e compressibilidade que gostaríamos de ver nas workloads, além disso os traces do #link(<fiu>)[*FIU*] vêm acompanhados com a identificação do processo responsável pela operação de #link(<io>)[*I/O*], algo que o #link(<fio>)[*FIO*] não é capaz de reproduzir por as workloads não serem partilhadas entre processos, quando muito dívidas.
+Em suma, estes fatores contribuem para que a geração de conteúdo do @fio não respeite os critérios de duplicados e compressibilidade que gostaríamos de ver nas workloads, além disso os traces do @fiu vêm acompanhados com a identificação do processo responsável pela operação de @io, algo que o @fio não é capaz de reproduzir por as workloads não serem partilhadas entre processos, quando muito dívidas.
 
 === Discussão
 
-Após a experienciação das ferramentas anteriormente mencionadas, destaca-se que os requisitos para workloads realistas são cumpridos apenas parcialmente, contudo a combinação das configurações que cada uma oferece aproxima-nos no objetivo final, ou seja, se o #link(<io>)[*FIO*] conseguisse replicar a estratégia de duplicados e compressão do DEDISbench++ e ao mesmo tempo manter o suporte a múltiplas #link(<api>)[*APIs*] de #link(<io>)[*I/O*], somente ficava por resolver a questão da simulação de traces do #link(<fiu>)[*FIU*].
+Após a experienciação das ferramentas anteriormente mencionadas, destaca-se que os requisitos para workloads realistas são cumpridos apenas parcialmente, contudo a combinação das configurações que cada uma oferece aproxima-nos no objetivo final, ou seja, se o @fio conseguisse replicar a estratégia de duplicados e compressão do DEDISbench++ e ao mesmo tempo manter o suporte a múltiplas @api de @io, somente ficava por resolver a questão da simulação de traces do @fiu.
 
 Ademais, a integração entre workloads geradas sinteticamente e traces obtidos em ambiente de produção, é algo totalmente inovador e que soluciona os problemas resultantes de traces incompletos, deste modo as informações em falta seriam geradas artificialmente através de uma distribuição escolhida pelo utilizador ou então conforme um padrão.
 
 Numa outra perspectiva, os traces tendem a ser bastante limitados pelo seu tempo de duração, daí que estender o próprio trace após a sua conclusão permitiria continuar a avaliar o sistema sobre condições reais de funcionamento, algo que nenhum dos benchmark é capaz de fazer em tempo de execução e sem prejudicar a performance da workload.
 
-Por fim, apesar do #link(<fio>)[*FIO*] suportar imensas interfaces de #link(<io>)[*I/O*], a utilização do #link(<spdk>)[*SPDK*] é conseguida através de um plugin cuja utilização é extremamente complicada, nesse sentido o suporte direto de #link(<spdk>)[*SPDK*] no benchmark seria uma melhoria considerável em termos da facilidade de uso.
+Por fim, apesar do @fio suportar imensas interfaces de @io, a utilização do @spdk é conseguida através de um plugin cuja utilização é extremamente complicada, nesse sentido o suporte direto de @spdk no benchmark seria uma melhoria considerável em termos da facilidade de uso.

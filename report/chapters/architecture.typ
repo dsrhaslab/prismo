@@ -4,7 +4,7 @@
 
 == Abordagem e Planeamento <chapter3>
 
-Depois de esclarecido o problema da avaliação realista dos sistemas de armazenamento e compreendidos os conceitos em seu redor, este capítulo visa abordar a arquitetura do protótipo de benchmark, passando pela identificação dos respetivos componentes, estratégias adotadas para geração de conteúdo e integração com #link(<api>)[*APIs*] de #link(<io>)[*I/O*] cuja natureza é bastante diversa, isto fundamentalmente porque algumas são síncronas e outras assíncronas.
+Depois de esclarecido o problema da avaliação realista dos sistemas de armazenamento e compreendidos os conceitos em seu redor, este capítulo visa abordar a arquitetura do protótipo de benchmark, passando pela identificação dos respetivos componentes, estratégias adotadas para geração de conteúdo e integração com @api de @io cuja natureza é bastante diversa, isto fundamentalmente porque algumas são síncronas e outras assíncronas.
 
 De seguida, serão apresentados resultados preliminares da performance do benchmark, procurando explicar as diferenças obtidas conforme as configurações e ambiente de teste, sendo isto fundamental para perceber se o overhead associado à geração de conteúdo impossibilita a saturação do sistema de armazenamento.
 
@@ -12,17 +12,17 @@ Por fim, e uma vez que somente o protótipo foi implementado, serão estabelecid
 
 === Arquitetura
 
-Numa primeira abordagem ao problema, percebemos que a geração de conteúdo é facilmente dissociável das operações solicitadas ao sistema de armazenamento, sendo estas realizadas por meio das #link(<api>)[*APIs*] de #link(<io>)[*I/O*]. Deste modo, a arquitetura pode ser dividida em dois grandes componentes que estabelecem cada um interfaces para manipulação da conduta.
+Numa primeira abordagem ao problema, percebemos que a geração de conteúdo é facilmente dissociável das operações solicitadas ao sistema de armazenamento, sendo estas realizadas por meio das @api de @io. Deste modo, a arquitetura pode ser dividida em dois grandes componentes que estabelecem cada um interfaces para manipulação da conduta.
 
 Posto isto, a interface para geração de conteúdo abstrai as implementações concretas, daí que a sua utilização não implique desvios de padrão caso o utilizador escolha usufruir de dados sintéticos ou reais obtidos através de traces, do mesmo modo esta lógica é aplicável para a interface de abstração do disco.
 
-Com o estabelecimento destes componentes, um produtor é responsável para invocar os métodos da interface de geração de conteúdo e encapsular os resultados num pedido de #link(<io>)[*I/O*], sendo este colocado numa blocking queue como forma de solicitação de execução.
+Com o estabelecimento destes componentes, um produtor é responsável para invocar os métodos da interface de geração de conteúdo e encapsular os resultados num pedido de @io, sendo este colocado numa blocking queue como forma de solicitação de execução.
 
-Do outro lado, um consumidor está constantemente à escuta na queue com o objetivo de receber pedidos, mal isto ocorra, é realizada uma submissão na interface de #link(<io>)[*I/O*], sendo mais tarde a estrutura do pedido libertada e transmitida ao produtor para nova utilização.
+Do outro lado, um consumidor está constantemente à escuta na queue com o objetivo de receber pedidos, mal isto ocorra, é realizada uma submissão na interface de @io, sendo mais tarde a estrutura do pedido libertada e transmitida ao produtor para nova utilização.
 
 ==== Geração de Conteúdo Sintético
 
-Na generalidade das interfaces, os pedidos de #link(<io>)[*I/O*] são caracterizados pelo tipo de operação, conteúdo e posição do disco onde o pedido será satisfeito, consequentemente o gerador de conteúdo sintético pode ser desacoplado nestas três funcionalidades, dando origem a interfaces que visam fornecer os parâmetros dos pedidos.
+Na generalidade das interfaces, os pedidos de @io são caracterizados pelo tipo de operação, conteúdo e posição do disco onde o pedido será satisfeito, consequentemente o gerador de conteúdo sintético pode ser desacoplado nestas três funcionalidades, dando origem a interfaces que visam fornecer os parâmetros dos pedidos.
 
 Como fruto desta abordagem, e uma vez que os geradores são definidos ao nível dos parâmetros, a combinação entre geradores sintéticos e reais torna-se bastante simples, isto porque o produtor apenas conhece uma interface que é independente da implementação concreta, assim podemos ter acessos reais e operações sintéticas, sendo o contrário igualmente válido.
 
@@ -84,7 +84,7 @@ Por outro lado, os acessos totalmente aleatórios não favorecem quaisquer propr
 
 ===== Operação
 
-Os sistemas de armazenamento suportam uma infinidade de operações, no entanto o gerador de operações apenas disponibiliza `READ`, `WRITE`, `FSYNC`, `FDATASYNC` e `NOP` por serem as mais comuns e portanto adotadas pela maioria das #link(<api>)[*APIs*] de #link(<io>)[*I/O*]. Embora a operação `NOP` não faça rigorosamente nada, a mesma é útil para testar a performance do benchmark independente da capacidade do disco, permitindo identificar o débito máximo que o sistema de armazenamento pode almejar.
+Os sistemas de armazenamento suportam uma infinidade de operações, no entanto o gerador de operações apenas disponibiliza `READ`, `WRITE`, `FSYNC`, `FDATASYNC` e `NOP` por serem as mais comuns e portanto adotadas pela maioria das @api de @io. Embora a operação `NOP` não faça rigorosamente nada, a mesma é útil para testar a performance do benchmark independente da capacidade do disco, permitindo identificar o débito máximo que o sistema de armazenamento pode almejar.
 
 #figure(
   image("../images/operation.png", width: 60%),
@@ -256,7 +256,7 @@ A interface `Engine` disponibiliza o método `submit` que aceita operações de 
   caption: [Interação do consumidor com a interface de engine]
 )
 
-Um pedido obtido a partir da queue pode ser de três tipos distintos, onde as structs de abertura e fecho são caracterizadas pelos argumentos encontrados nas syscalls de `open` e `close`, importa realçar que tais estruturas não fazem sentido para a engine de #link(<spdk>)[*SPDK*], visto esta funcionar diretamente sobre o dispositivo de armazenamento e portanto não existir uma abstração do sistema de ficheiros.
+Um pedido obtido a partir da queue pode ser de três tipos distintos, onde as structs de abertura e fecho são caracterizadas pelos argumentos encontrados nas syscalls de `open` e `close`, importa realçar que tais estruturas não fazem sentido para a engine de @spdk, visto esta funcionar diretamente sobre o dispositivo de armazenamento e portanto não existir uma abstração do sistema de ficheiros.
 
 #figure(
   grid(
@@ -325,7 +325,7 @@ Perante a combinação de interfaces síncronas e assíncronas, o método `submi
   posix_config,
   posix_body,
   align: top + right,
-  columns: (2fr, 1.4fr),
+  columns: (2fr, 1.7fr),
 )
 
 #figure(
@@ -362,16 +362,16 @@ Por ostentar comportamento síncrono, o método `reap_left_completions` não tem
 #let uring_body = [
   Ao fazer uso do sistema de ficheiros, os argumentos de abertura são semelhantes aos previamente referidos, portanto a configuração da `UringEngine` apresenta uma lista das mesmas flags.
 
-  Em relação aos demais parâmetros, `entries` e `cq_entries` definem a profundidade da #link(<sq>)[*SQ*] e #link(<cq>)[*CQ*] respetivamente, por norma estes valores são potências de dois entre 64 e 256, isto porque valores pequenos diminuem o paralelismo, enquanto o contrário resulta num aumento do consumo de memória e desperdício da localidade da cache.
+  Em relação aos demais parâmetros, `entries` e `cq_entries` definem a profundidade da @sq e @cq respetivamente, por norma estes valores são potências de dois entre 64 e 256, isto porque valores pequenos diminuem o paralelismo, enquanto o contrário resulta num aumento do consumo de memória e desperdício da localidade da cache.
 
-  Relativamente às flags para controlo do anel e processamento de #link(<io>)[*I/O*], o utilizador usufruir de total liberdade de escolha, sendo de realçar a flag `IORING_SETUP_SQPOLL` que cria uma thread no kernel para pollar a #link(<sq>)[*SQ*] e assim os pedidos serem submetidos sem a necessidade de invocar a syscall `io_uring_enter`. Por outro lado, a flag `IORING_SETUP_SQ_AFF` estabelece a afinidade da thread do kernel, neste caso em particular, a mesma será fixada no core 0 e após de 100 milissegundos de inatividade entrará no estado de sleep.
+  Relativamente às flags para controlo do anel e processamento de @io, o utilizador usufruir de total liberdade de escolha, sendo de realçar a flag `IORING_SETUP_SQPOLL` que cria uma thread no kernel para pollar a @sq e assim os pedidos serem submetidos sem a necessidade de invocar a syscall `io_uring_enter`. Por outro lado, a flag `IORING_SETUP_SQ_AFF` estabelece a afinidade da thread do kernel, neste caso em particular, a mesma será fixada no core 0 e após de 100 milissegundos de inatividade entrará no estado de sleep.
 ]
 
 #wrap-content(
   uring_config,
   uring_body,
   align: top + right,
-  columns: (2fr, 1.4fr),
+  columns: (2fr, 1.7fr),
 )
 
 #figure(
@@ -379,9 +379,9 @@ Por ostentar comportamento síncrono, o método `reap_left_completions` não tem
     caption: [Funcionamento interno da Uring Engine]
 )
 
-Tratando-se de uma interface assíncrona, o seu bom uso passa por diminuir a invocação de syscalls e manter os pedidos in-flight no máximo permitido, o que corresponde à capacidade da #link(<sq>)[*SQ*]. Tendo isto em consideração, a `UringEngine` não executa os pedidos mal estes sejam recebidos, procura sim formar um batch para submeter vários em simultâneo.
+Tratando-se de uma interface assíncrona, o seu bom uso passa por diminuir a invocação de syscalls e manter os pedidos in-flight no máximo permitido, o que corresponde à capacidade da @sq. Tendo isto em consideração, a `UringEngine` não executa os pedidos mal estes sejam recebidos, procura sim formar um batch para submeter vários em simultâneo.
 
-Depois do primeiro batch ser submetido, a estratégia é alterada para preservar a quantidade de pedidos in-flight, portanto mal seja encontrada uma #link(<sqe>)[*SQE*] dísponivel, a mesma é preparada e submetida independentemente de haver ou não um batch. É certo que esta abordagem aumenta as syscalls, porém quando combinada com a thread de polling do kernel, permite atingir débitos e #link(<iops>)[*IOPS*] deveras elevados.
+Depois do primeiro batch ser submetido, a estratégia é alterada para preservar a quantidade de pedidos in-flight, portanto mal seja encontrada uma @sqe dísponivel, a mesma é preparada e submetida independentemente de haver ou não um batch. É certo que esta abordagem aumenta as syscalls, porém quando combinada com a thread de polling do kernel, permite atingir débitos e @iops deveras elevados.
 
 ===== SPDK
 
@@ -400,20 +400,20 @@ Depois do primeiro batch ser submetido, a estratégia é alterada para preservar
 )
 
 #let spdk_body = [
-  Uma vez que o #link(<spdk>)[*SPDK*] possui um ficheiro de configuração próprio, utilizado para definir os #link(<bdev>)[*bdevs*], controladores de disco, tamanho dos blocos e afins, os parâmetros manipuláveis pelo benchmark a nível aplicacional são limitados.
+  Uma vez que o @spdk possui um ficheiro de configuração próprio, utilizado para definir os @bdev, controladores de disco, tamanho dos blocos e afins, os parâmetros manipuláveis pelo benchmark a nível aplicacional são limitados.
 
-  Posto isto, `spdk_threads` indica o número de threads lógicas que serão criadas e pelas quais os pedidos de #link(<io>)[*I/O*] serão distribuídos em round-robin, importa realçar que tais threads funcionam como uma abstração sobre o reactor, o qual é responsável por escalonar as tarefas e direcioná-las para que sejam executadas nos cores corretos.
+  Posto isto, `spdk_threads` indica o número de threads lógicas que serão criadas e pelas quais os pedidos de @io serão distribuídos em round-robin, importa realçar que tais threads funcionam como uma abstração sobre o reactor, o qual é responsável por escalonar as tarefas e direcioná-las para que sejam executadas nos cores corretos.
 
-  Desta feita, o número de cores realmente utilizados pelo runtime do #link(<spdk>)[*SPDK*] é identificado por `reactor_mask`, neste caso em particular, `0XF` convertido para binário equivale a `1111`, assim os quatro primeiros cores do sistema estão disponíveis para escalonamento de tarefas.
+  Desta feita, o número de cores realmente utilizados pelo runtime do @spdk é identificado por `reactor_mask`, neste caso em particular, `0XF` convertido para binário equivale a `1111`, assim os quatro primeiros cores do sistema estão disponíveis para escalonamento de tarefas.
 
-  Embora as threads lógicas possam ser fixadas em qualquer core, o componente `SPDKRuntime` está fixado no primeiro core e em espera ativa por pedidos de #link(<io>)[*I/O*] vindos da aplicação, portanto qualquer outra thread fixada no mesmo core nunca será capaz de executar, afinal o runtime é interminável no consumo de recursos.
+  Embora as threads lógicas possam ser fixadas em qualquer core, o componente `SPDKRuntime` está fixado no primeiro core e em espera ativa por pedidos de @io vindos da aplicação, portanto qualquer outra thread fixada no mesmo core nunca será capaz de executar, afinal o runtime é interminável no consumo de recursos.
 ]
 
 #wrap-content(
   spdk_config,
   spdk_body,
   align: top + right,
-  columns: (2fr, 1.6fr),
+  columns: (2fr, 1.7fr),
 )
 
 #figure(
@@ -421,15 +421,15 @@ Depois do primeiro batch ser submetido, a estratégia é alterada para preservar
   caption: [Funcionamento interno da SPDK Engine]
 )
 
-Ao iniciar o runtime do #link(<spdk>)[*SPDK*], o ambiente de execução muda completamente e torna-se difícil comunicar com os restante componentes do nível aplicacional, deste modo `SPDKEngine` serve essencialmente para transmitir os pedidos de #link(<io>)[*I/O*] através de um trigger partilhado pelo runtime.
+Ao iniciar o runtime do @spdk, o ambiente de execução muda completamente e torna-se difícil comunicar com os restante componentes do nível aplicacional, deste modo `SPDKEngine` serve essencialmente para transmitir os pedidos de @io através de um trigger partilhado pelo runtime.
 
-No momento em que este recebe um pedido, é necessário aguardar por uma zona de memória disponível, isto porque um buffer foi inicialmente alocado para propósitos de #link(<dma>)[*DMA*]. De seguida, o pedido é encapsulado numa mensagem própria do #link(<spdk>)[*SPDK*] e transmitido a uma thread lógica, sendo esta responsável por submeter ao #link(<bdev>)[*bdev*] e executar a operação de callback quando o pedido estiver concluído.
+No momento em que este recebe um pedido, é necessário aguardar por uma zona de memória disponível, isto porque um buffer foi inicialmente alocado para propósitos de @dma. De seguida, o pedido é encapsulado numa mensagem própria do @spdk e transmitido a uma thread lógica, sendo esta responsável por submeter ao @bdev e executar a operação de callback quando o pedido estiver concluído.
 
 Por fim, como os pedidos vão acompanhados de um trigger, a `SPDKEngine` é notificada acerca da conclusão e portanto percebe que é seguro devolver a struct ao produtor.
 
 ==== Recolha de Métricas
 
-Durante a execução de workloads, o benchmark é responsável por recolher métricas sobre cada uma das operações de #link(<io>)[*I/O*] realizadas, algo fundamental na caracterização e posterior avaliação do sistema de armazenamento, isto porque scripts estatísticos podem analisar o ficheiro de log resultante das métricas.
+Durante a execução de workloads, o benchmark é responsável por recolher métricas sobre cada uma das operações de @io realizadas, algo fundamental na caracterização e posterior avaliação do sistema de armazenamento, isto porque scripts estatísticos podem analisar o ficheiro de log resultante das métricas.
 
 #figure(
   grid(
@@ -491,9 +491,9 @@ Por fim, quanto mais detalhadas forem as métricas recolhidas, pior será o dese
 
 === Resultados Preliminares
 
-Com o objetivo de testar o protótipo, em particular o desempenho das várias interface de #link(<io>)[*I/O*], foram desenvolvidas workloads de características distintas, projetadas para avaliar o sistema de armazenamento sob diferentes padrões de acesso, leituras e escritas intensivas, bem como cenários de alta concorrência.
+Com o objetivo de testar o protótipo, em particular o desempenho das várias interface de @io, foram desenvolvidas workloads de características distintas, projetadas para avaliar o sistema de armazenamento sob diferentes padrões de acesso, leituras e escritas intensivas, bem como cenários de alta concorrência.
 
-+ *nop:* não são realizadas quaisquer operações ao nível do sistema de armazenamento, sendo por isso ideal na identificação do débito máximo por parte da interface de #link(<io>)[*I/O*], consequentemente o grosso do tempo de execução é gasto em espaço de utilizador.
++ *nop:* não são realizadas quaisquer operações ao nível do sistema de armazenamento, sendo por isso ideal na identificação do débito máximo por parte da interface de @io, consequentemente o grosso do tempo de execução é gasto em espaço de utilizador.
 
 + *wseq:* as escritas são realizadas do modo sequencial, seguindo o tamanho dos blocos. Ademais o conteúdo gerado é constante, como tal é frequentemente repetido o mesmo bloco e a taxa de compressão é máxima.
 
@@ -503,7 +503,7 @@ Com o objetivo de testar o protótipo, em particular o desempenho das várias in
 
 + *zipf_fsync*: esta workload é essencialmente igual à zipf, contudo difere pelo facto de possuir uma barreira onde a cada 1024 escritas é lançado um `FSYNC` para sincronização dos conteúdos no disco.
 
-Sabendo que a memória principal e mecanismos de cache do sistema operativo influenciam a execução do benchmark, os offsets das workloads vão até ao limite de quatro vezes a capacidade da #link(<ram>)[*RAM*]. No entanto, por motivos de conveniência, o máximo de operações realizadas corresponde a dez milhões e a flag `O_DIRECT` foi desativada para fazer uso da page cache e assim diminuir o tempo de execução.
+Sabendo que a memória principal e mecanismos de cache do sistema operativo influenciam a execução do benchmark, os offsets das workloads vão até ao limite de quatro vezes a capacidade da @ram. No entanto, por motivos de conveniência, o máximo de operações realizadas corresponde a dez milhões e a flag `O_DIRECT` foi desativada para fazer uso da page cache e assim diminuir o tempo de execução.
 
 Tendo isto em consideração, as workloads foram replicadas num ambiente controlado para garantir a reprodutibilidade dos resultados e a comparabilidade entre os vários testes, tendo sido utilizada a seguinte especificação de hardware e software:
 
@@ -512,7 +512,7 @@ Tendo isto em consideração, as workloads foram replicadas num ambiente control
 - *RAM:* 64 GiB DDR4 @ 3200 MT/s, 2 x 32 GiB modules
 - *Disco:* NVMe Sandisk Corp 256 GB, non-rotational
 
-Por fim, a configuração dos backends de #link(<io>)[*I/O*] é constante entre a replicação das workloads, sendo de destacar a interface Uring com uma #link(<sq>)[*SQE*] de profundidade 128 e ativação da flag `IORING_SETUP_SQPOLL` para criar uma thread do kernel dedicada a fazer polling na #link(<sq>)[*SQE*] e assim evitar o custo das syscalls. Por outro lado, a interface #link(<spdk>)[*SPDK*] inicializa um reactor nos quatro primeiros cores e cinco threads lógicas para servir os pedidos de #link(<io>)[*I/O*], sendo estes satisfeitos por um #link(<bdev>)[*bdev*] associado a um controlador de #link(<nvme>)[*NVMe*].
+Por fim, a configuração dos backends de @io é constante entre a replicação das workloads, sendo de destacar a interface Uring com uma @sqe de profundidade 128 e ativação da flag `IORING_SETUP_SQPOLL` para criar uma thread do kernel dedicada a fazer polling na @sqe e assim evitar o custo das syscalls. Por outro lado, a interface @spdk inicializa um reactor nos quatro primeiros cores e cinco threads lógicas para servir os pedidos de @io, sendo estes satisfeitos por um @bdev associado a um controlador de @nvme.
 
 #let performance-table(workload_name, ..content) = figure(
   table(
@@ -566,15 +566,15 @@ Por fim, a configuração dos backends de #link(<io>)[*I/O*] é constante entre 
   [*SPDK*], [21.803 $plus.minus$ 0.181], [21.672], [22.009], [117.774], [4.910], [458],
 )
 
-Numa breve análise dos resultados, percebemos que o protótipo atinge o máximo de 17 milhões #link(<iops>)[*IOPS*] para a interface POSIX, isto porque a operação `NOP` não é naturalmente suportada pelo backend, sendo simulada por uma invocação vazia. Sob outro enfoque, as restantes interfaces apresentam uma implementação de `NOP` mais complexa, daí que a performance obtida seja significativamente pior.
+Numa breve análise dos resultados, percebemos que o protótipo atinge o máximo de 17 milhões @iops para a interface POSIX, isto porque a operação `NOP` não é naturalmente suportada pelo backend, sendo simulada por uma invocação vazia. Sob outro enfoque, as restantes interfaces apresentam uma implementação de `NOP` mais complexa, daí que a performance obtida seja significativamente pior.
 
-Embora os resultados possam estar enviesados pela desativação da flag `O_DIRECT`, constatámos que o desempenho dos backends piora quando as workloads apresentam determinadas características, nomeadamente acessos aleatórios e operações de `FSYNC`, no entanto estes aspetos são pouco visíveis em #link(<spdk>)[*SPDK*], talvez por evitar os mecanismos da stack de #link(<io>)[*I/O*] e dar bypass ao kernel.
+Embora os resultados possam estar enviesados pela desativação da flag `O_DIRECT`, constatámos que o desempenho dos backends piora quando as workloads apresentam determinadas características, nomeadamente acessos aleatórios e operações de `FSYNC`, no entanto estes aspetos são pouco visíveis em @spdk, talvez por evitar os mecanismos da stack de @io e dar bypass ao kernel.
 
-Por fim, a performance do Uring ficou abaixo das expectativas, afinal a configuração de polling na #link(<sq>)[*SQ*] permite eliminar as syscalls e aumentar o débito de submissão, supondo valores superiores a POSIX.
+Por fim, a performance do Uring ficou abaixo das expectativas, afinal a configuração de polling na @sq permite eliminar as syscalls e aumentar o débito de submissão, supondo valores superiores a POSIX.
 
 === Próximas Etapas
 
-Embora o protótipo possua imensas funcionalidades, tendo inclusive finalizado alguns componentes, dos quais se destacam as implementações de backends de #link(<io>)[*I/O*] e geração de conteúdo sintético, ainda restam pontos diferenciadores relativamente aos demais benchmarks.
+Embora o protótipo possua imensas funcionalidades, tendo inclusive finalizado alguns componentes, dos quais se destacam as implementações de backends de @io e geração de conteúdo sintético, ainda restam pontos diferenciadores relativamente aos demais benchmarks.
 
 #figure(
   timeliney.timeline(

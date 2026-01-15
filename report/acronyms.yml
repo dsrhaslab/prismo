@@ -1,0 +1,67 @@
+- key: api
+  short: API
+  long: Applications Programming Interface
+
+- key: bdev
+  short: bdev
+  long: Block Device
+
+- key: cpu
+  short: CPU
+  long: Central Processing Unit
+
+- key: cq
+  short: CQ
+  long: Completion Queue
+
+- key: cqe
+  short: CQE
+  long: Completion Queue Entry
+
+- key: dma
+  short: DMA
+  long: Direct Memory Access
+
+- key: fio
+  short: FIO
+  long: Flexible I/O Tester
+
+- key: fiu
+  short: FIU
+  long: Florida International University
+
+- key: io
+  short: I/O
+  long: Input/Output
+
+- key: iops
+  short: IOPS
+  long: Input/output Operations per Second
+
+- key: nvme
+  short: NVMe
+  long: Non-Volatile Memory Express
+
+- key: ram
+  short: RAM
+  long: Random Access Memory
+
+- key: spdk
+  short: SPDK
+  long: Storage Performance Development Kit
+
+- key: sq
+  short: SQ
+  long: Submission Queue
+
+- key: sqe
+  short: SQE
+  long: Submission Queue Entry
+
+- key: vfs
+  short: VFS
+  long: Virtual File System
+
+- key: zfs
+  short: ZFS
+  long: Zettabyte File System
