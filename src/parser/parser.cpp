@@ -30,8 +30,8 @@ namespace Parser {
         } else if (type == "random") {
             return std::make_unique<Generator::RandomGenerator>();
         } else if (type == "dedup") {
-            return std::make_unique<Generator::DedupCompressorGenerator>(
-                config.get<Generator::DedupCompressorGeneratorConfig>()
+            return std::make_unique<Generator::DeduplicationGenerator>(
+                config.get<Generator::DeduplicationGeneratorConfig>()
             );
         } else {
             throw std::invalid_argument("get_generator: type '" + type + "' not recognized");

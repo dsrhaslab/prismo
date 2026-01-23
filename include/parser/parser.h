@@ -1,19 +1,20 @@
 #ifndef PARSER_H
 #define PARSER_H
 
+#include <memory>
 #include <io/metric.h>
 #include <access/synthetic.h>
 #include <generator/synthetic.h>
+#include <generator/deduplication.h>
 #include <operation/synthetic.h>
-#include <generator/dedup_compressor.h>
 #include <operation/barrier.h>
-#include <engine/engine.h>
-#include <engine/aio.h>
-#include <engine/posix.h>
-#include <engine/uring.h>
-#include <engine/spdk.h>
 #include <logger/logger.h>
 #include <logger/spdlog.h>
+#include <engine/engine.h>
+#include <engine/posix.h>
+#include <engine/uring.h>
+#include <engine/aio.h>
+#include <engine/spdk.h>
 
 namespace Parser {
 

@@ -21,7 +21,7 @@ inline ValueT select_from_percentage_vector(
 }
 
 template <typename PercentageT, typename ValueT>
-void validate_percentage_vector(
+inline void validate_percentage_vector(
     const std::vector<PercentageElement<PercentageT, ValueT>>& vec,
     const std::string& name
 ) {

@@ -1,6 +1,6 @@
 == Introdução <chapter1>
 
-Com o aumento das aplicações de inteligência artificial, a necessidade de processar e armazenar grandes quantidades de dados tornou-se cada vez mais relevante, consequentemente os sistemas de armazenamento evoluíram no sentido de oferecer uma maior eficiência de acessos e densidade dos dados.
+Com o crescimento de aplicações intensivas em @io, como inteligência artificial e análise de dados, a necessidade de processar e armazenar grandes quantidades de dados tornou-se cada vez mais relevante, consequentemente os sistemas de armazenamento evoluíram no sentido de oferecer uma maior eficiência de acessos e densidade dos dados.
 
 Sistemas de armazenamento modernos, como o @zfs, disponibilizam uma série de recursos que procuram melhorar a performance das aplicações. Em particular, destaca-se a deduplicação - geralmente abreviada para dedup - que procura reduzir o espaço de armazenamento utilizado ao não reescrever dados que já existam. Por outro lado, a compressão também exerce um papel relevante neste sistema, permitindo aumentar a entropia dos dados ao eliminar aqueles que de algum modo podem ser obtidos através de uma amostra menor.
 
@@ -32,15 +32,27 @@ Perante os problemas mencionados anteriormente, esta dissertação tem como prin
 
 No entanto, tal condição é insuficiente para alcançar workloads realistas que efetuem uma avaliação correta do sistema, para isto é necessário replicar as propriedades de traces extraídos a partir de ambientes em produção, pois somente estes oferecem informações acerca das cargas reais.
 
-Assim sendo, o protótipo do benchmark reúne todas as contribuições da dissertação numa arquitetura que torna as @api completamente independentes da geração de conteúdo, deste modo o utilizador final usufrui das seguintes vantagens:
+Assim sendo, o protótipo do benchmark reúne todas as contribuições da dissertação numa arquitetura que torna as @api de @io completamente independentes da geração de conteúdo, deste modo o utilizador final usufrui das seguintes vantagens:
 
-+ O funcionamento do benchmark não depende de implementações concretas das interfaces de @io, o sistema apenas define uma interface para operações de @io, consequentemente qualquer programador pode estender o benchmark para usufruir de uma @api totalmente customizada.
+#underline(stroke: 1.5pt + red)[
++ Suporte a várias interfaces de @io síncronas e assíncronas, com possível configuração de parâmetros para alteração do comportamento do backend, consequentemente o benchmark torna-se mais portável entre sistemas de armazenamento e proporciona uma comparação justa do desempenho.
 
-+ A geração de conteúdo é dividida em vários módulos, cada um respeitante aos parâmetros da operação de @io (offset, tipo de operação e conteúdo), assim diferentes estratégias e distribuições dos parâmetros são combinadas para extrair mais versatilidade das workloads.
++ Geração de conteúdo realista a partir de distribuições de duplicados e compressibilidade, além disso os restantes parâmetros dos pedidos de @io são igualmente obtidos por distribuições ou padrões configuráveis pelo utilizador.
 
-+ Cada um dos módulos definidos anteriormente define uma interface, portanto é permitido misturar dados sintéticos com traces, ou seja, uma workload pode replicar os bytes de um traces enquanto os restantes parâmetros da operação de @io são gerados sinteticamente enquanto o benchmark decorre.
++ Replicação completa de traces do @fiu para avaliação do sistema de armazenamento sobre cargas de trabalho reais, permitindo a identificação de gargalos em ambientes de produção e reprodutibilidade dos resultados.
 
-Tendo um protótipo com estas características, contribuímos para que a avaliação dos sistemas de armazenamento seja efetuada como mais critério, afinal o utilizador tem a possibilidade de testar várias @api e para cada uma selecionar workloads que avaliem determinadas características do sistema, tudo com o maior realismo possível, e não através de métodos simplistas como praticam grande parte das soluções atuais.
++ Replicação parcial de traces com geração de dados sintéticos para os parâmetros em falta, desta forma a replicação de operações de @io pode ser efetuada sobre diferentes padrões de acesso, adição de barreiras e outros critérios à escolha do utilizador.
+
++ Extensão de traces com dados sintéticos, após o conteúdo original do trace ser totalmente replicado, o mesmo é continuamente estendido pelo tempo necessário, salvaguardando as características e padrões encontrados originalmente nos dados.
+]
+
+// + O funcionamento do benchmark não depende de implementações concretas das interfaces de @io, o sistema apenas define uma interface para operações de @io, consequentemente qualquer programador pode estender o benchmark para usufruir de uma @api totalmente customizada.
+
+// + A geração de conteúdo é dividida em vários módulos, cada um respeitante aos parâmetros da operação de @io (offset, tipo de operação e conteúdo), assim diferentes estratégias e distribuições dos parâmetros são combinadas para extrair mais versatilidade das workloads.
+
+// + Cada um dos módulos definidos anteriormente define uma interface, portanto é permitido misturar dados sintéticos com traces, ou seja, uma workload pode replicar os bytes de um traces enquanto os restantes parâmetros da operação de @io são gerados sinteticamente enquanto o benchmark decorre.
+
+Tendo um protótipo com estas características, contribuímos para que a avaliação dos sistemas de armazenamento seja efetuada como mais critério, afinal o utilizador tem a possibilidade de testar várias interfaces de @io e para cada uma selecionar workloads que avaliem determinadas características do sistema, tudo com o maior realismo possível, e não através de métodos simplistas como praticam as demais soluções.
 
 === Estrutura do Documento
 

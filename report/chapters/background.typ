@@ -16,6 +16,17 @@ Nesta secção dão-se a conhecer os conceitos de deduplicação e compressão, 
 
 Convém mencionar que a proposta de solução funciona ao nível do bloco, portanto, e por motivos de simplicidade, os conceitos serão apresentados tendo isso em conta, embora a granularidade não lhes seja diretamente incutida.
 
+#underline(stroke: 1.5pt + red)[
+
+==== Benchmarking
+
+O benchmarking de sistemas de armazenamento passa por aplicar cargas de trabalho controladas e reprodutíveis, consentindo assim a avaliação do desempenho, eficiência e escalabilidade das soluções de @io. Mais tarde os dados recolhidos são utilizados para decidir entre arquiteturas, interfaces de acesso e configurações de hardware/software que melhor respondem às necessidades do ambiente de produção.
+
+Entre as métricas recolhidas, destacam-se a latência (intervalo entre submissão e conclusão), débito (quantidade de dados transferidos por unidade de tempo) e @iops (operações de @io realizadas por unidade de tempo), sendo claro que, para além dos componentes técnicos, as características da workload influenciam o valor das métricas.
+
+Por fim, a representatividade das workloads corresponde a um desafio central do benchmarking, pois testes sintéticos tendem a não refletir fielmente comportamentos e padrões observados em ambientes reais. Além disso, certas soluções de @io foram desenhadas para favorecer determinadas características, por exemplo deduplicação e compressão, como tal uma workload genérica é incapaz de extrair o máximo das capacidades do sistema.
+]
+
 ==== Deduplicação
 
 A deduplicação caracteriza-se por poupar espaço ao não escrever conteúdos redundantes, sendo aplicada numa grande variedade de contextos, que vão desde backup, archival e primary storage até à @ram. Uma visão geral do funcionamento deste processo está apresentada na @dedup.
@@ -83,7 +94,7 @@ A fórmula da entropia nada diz sobre a codificação dos símbolos, para isso �
 
 #figure(
   image("../images/huffman.png", width: 60%),
-  caption: [Árvore de Huffman]
+  caption: [Árvore de Huffman @huffman_wiki]
 ) <huffman>
 
 O funcionamento do algoritmo é bastante simples, inicialmente os símbolos são ordenados conforme a sua frequência, de seguida os dois primeiros da lista são agrupados numa árvore cuja raiz tem valor de frequência igual ao somatório, sendo esta colocada de novo na lista conforme o seu valor de frequência.
@@ -96,7 +107,7 @@ Huffman provou que o seu código é a forma mais eficiente de associar uns e zer
 
 #figure(
   image("../images/lz77_sliding_window.png", width: 60%),
-  caption: [Sliding window no algoritmo LZ77]
+  caption: [Sliding window no algoritmo LZ77 @maxg_lz77]
 ) <lz77>
 
 Na grande maioria dos algoritmos, incluído o LZ77, a identificação de padrões ocorre dentro de uma sliding window, assim sempre que um padrão é quebrado, a codificação dos símbolos anteriores é dada por um tuplo com o deslocamento, comprimento, e novo símbolo.
@@ -142,7 +153,7 @@ Perante a necessidade de aceder ao disco, o pedido é encaminhado para a camada 
 
 #figure(
   image("../images/stack.png", width: 60%),
-  caption: [Visão alto nível da stack de I/O em linux]
+  caption: [Visão alto nível da stack de I/O em linux @ren2023]
 ) <iostack>
 
 Em suma, este fluxo permite que as aplicações realizem operações de @io de modo transparente, enquanto o sistema operativo gere a complexidade, desempenho e segurança dos acessos ao dispositivo de armazenamento.
@@ -161,7 +172,7 @@ Recentemente as interfaces assíncronas têm ganho popularidade por conseguirem 
 
 #figure(
   image("../images/uring.png", width: 70%),
-  caption: [Visão alto nível das queues circulares do uring]
+  caption: [Visão alto nível das queues circulares do uring @rust_iouring_async]
 ) <uring>
 
 Inicialmente  a @sq encontra-se vazia e por isso disponível para receber @sqe, quando a aplicação julgar conveniente ou a @sq ficar cheia é necessário realizar uma syscall de `submit`, informando o kernel sobre a existência de @sqe disponíveis para submissão, neste momento ocorre uma mudança de contexto, no entanto a aplicação pode continuar a submeter novos pedidos caso encontre espaço disponível na @sq.

@@ -10,7 +10,7 @@
   },
 
   "operation": {
-    "type": "sequence",
+    "type": "constant",
     "operation": "write",
     "percentages": {
       "read": 50,
@@ -68,7 +68,7 @@
         ]
       },
       {
-        "percentage": 20,
+        "percentage": 10,
         "repeats": 3,
         "compression": [
           {
@@ -78,7 +78,7 @@
         ]
       },
       {
-        "percentage": 30,
+        "percentage": 40,
         "repeats": 5,
         "compression": [
           {
@@ -117,7 +117,7 @@
     "queue_size": 8192,
     "thread_count": 1,
     "truncate": true,
-    "to_stdout": false,
+    "to_stdout": true,
     "files": [
       "./log1.log",
       "./log2.log",
