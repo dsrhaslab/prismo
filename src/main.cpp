@@ -1,6 +1,3 @@
-#include <memory>
-#include <iostream>
-#include <iomanip>
 #include <fstream>
 #include <prismo/parser/parser.h>
 #include <prismo/operation/type.h>
@@ -8,55 +5,73 @@
 #include <prismo/worker/utils.h>
 #include <prismo/worker/producer.h>
 #include <prismo/worker/consumer.h>
+#include <argparse/argparse.hpp>
 
 
 int main(int argc, char** argv) {
 
-    if (argc < 2) {
-        throw std::invalid_argument("main: invalid number of arguments");
+    argparse::ArgumentParser program("prismo");
+
+    program.add_argument("-c", "--config")
+        .required()
+        .help("specify the configuration file.");
+
+    try {
+        program.parse_args(argc, argv);
+    } catch (const std::exception& err) {
+        std::cerr << err.what() << std::endl;
+        std::cerr << program;
+        return 1;
     }
 
-    std::ifstream config_file(argv[1]);
-    json config_j = json::parse(config_file);
+    std::string config = program.get<std::string>("--config");
+    std::ifstream config_file(config);
 
-    json job_j = config_j.at("job");
-    json access_j = config_j.at("access");
-    json operation_j = config_j.at("operation");
-    json barrier_j = operation_j.at("barrier");
-    json generator_j = config_j.at("generator");
-    json engine_j = config_j.at("engine");
-    json logging_j = config_j.at("logging");
+    if (!config_file.is_open()) {
+        std::cerr << "Failed to open file: " << config << std::endl;
+        return 1;
+    }
 
-    access_j.merge_patch(job_j);
-    engine_j.merge_patch(job_j);
-    generator_j.merge_patch(job_j);
+    json config_json = json::parse(config_file);
 
-    const size_t block_size = job_j.at("block_size").get<size_t>();
-    const uint64_t iterations = job_j.at("iterations").get<uint64_t>();
-    const std::string filename = job_j.at("filename").get<std::string>();
+    json job_json = config_json.at("job");
+    json access_json = config_json.at("access");
+    json operation_json = config_json.at("operation");
+    json barrier_json = operation_json.at("barrier");
+    json generator_json = config_json.at("generator");
+    json engine_json = config_json.at("engine");
+    json logging_json = config_json.at("logging");
 
-    Engine::OpenFlags open_flags = engine_j.at("openflags").get<Engine::OpenFlags>();
+    access_json.merge_patch(job_json);
+    engine_json.merge_patch(job_json);
+    generator_json.merge_patch(job_json);
+
+    const size_t block_size = job_json.at("block_size").get<size_t>();
+    const uint64_t iterations = job_json.at("iterations").get<uint64_t>();
+    const std::string filename = job_json.at("filename").get<std::string>();
+
+    Engine::OpenFlags open_flags = engine_json.at("openflags").get<Engine::OpenFlags>();
 
     // std::cout << "Parse Access" << std::endl;
-    std::unique_ptr<Access::Access> access = Parser::get_access(access_j);
+    std::unique_ptr<Access::Access> access = Parser::get_access(access_json);
 
     // std::cout << "Parse Operation" << std::endl;
-    std::unique_ptr<Operation::Operation> operation = Parser::get_operation(operation_j);
+    std::unique_ptr<Operation::Operation> operation = Parser::get_operation(operation_json);
 
     // std::cout << "Parse Generator" << std::endl;
-    std::unique_ptr<Generator::Generator> generator = Parser::get_generator(generator_j);
+    std::unique_ptr<Generator::Generator> generator = Parser::get_generator(generator_json);
 
     // std::cout << "Parse MultipleBarrier" << std::endl;
-    std::unique_ptr<Operation::MultipleBarrier> barrier = Parser::get_multiple_barrier(barrier_j);
+    std::unique_ptr<Operation::MultipleBarrier> barrier = Parser::get_multiple_barrier(barrier_json);
 
     // std::cout << "Parse Metric" << std::endl;
-    std::unique_ptr metric = Parser::get_metric(job_j);
+    std::unique_ptr metric = Parser::get_metric(job_json);
 
     // std::cout << "Parse Logger" << std::endl;
-    std::unique_ptr<Logger::Logger> logger = Parser::get_logger(logging_j);
+    std::unique_ptr<Logger::Logger> logger = Parser::get_logger(logging_json);
 
     // std::cout << "Parse Engine" << std::endl;
-    std::unique_ptr<Engine::Engine> engine = Parser::get_engine(engine_j, std::move(metric), std::move(logger));
+    std::unique_ptr<Engine::Engine> engine = Parser::get_engine(engine_json, std::move(metric), std::move(logger));
 
     auto to_producer = std::make_shared<moodycamel::ConcurrentQueue<Protocol::Packet*>>(QUEUE_INITIAL_CAPACITY);
     auto to_consumer = std::make_shared<moodycamel::ConcurrentQueue<Protocol::Packet*>>(QUEUE_INITIAL_CAPACITY);

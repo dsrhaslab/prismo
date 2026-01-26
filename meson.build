@@ -10,20 +10,15 @@ project(
   ]
 )
 
-
-# Your project includes (keep warnings enabled)
-project_inc = include_directories('include')
-
-# SPDK includes (mark as system to suppress their warnings)
 spdk_root = '/home/digo/Desktop/spdk'
 
+project_inc = include_directories('include')
 spdk_inc = include_directories(
   join_paths(spdk_root, 'include'),
   join_paths(spdk_root, 'build/include'),
   is_system: true
 )
 
-# Combine them when building
 inc = [project_inc, spdk_inc]
 
 # Define source files
@@ -47,25 +42,14 @@ src = files(
   'src/main.cpp',
 )
 
-# Get the C++ compiler
 cc = meson.get_compiler('cpp')
 
-# Find json dependency (nlohmann/json wrap)
 json_dep = dependency('nlohmann_json', required: true)
-
-# Find spdlog dependency (header-only)
 spdlog_dep = dependency('spdlog', required: true)
-
-# Find liburing dependency (header-only)
 liburing_dep = dependency('liburing', required: true)
-
-# Find libaio dependency (header-only)
+boost_dep = dependency( 'boost', modules: ['pool'], required: true)
 libaio_dep = cc.find_library('aio', required: true)
 
-# Find boost dependencu (header-only)
-boost_dep = dependency( 'boost', modules: ['pool'], required: true)
-
-# Find sdpk dependencies (statics libs)
 spdk_env_dpdk_dep   = dependency('spdk_env_dpdk', required: true, static: true)
 spdk_event_dep      = dependency('spdk_event', required: true, static: true)
 spdk_bdev_dep       = dependency('spdk_bdev', required: true, static: true)
@@ -204,6 +188,10 @@ if cc.get_id() == 'gcc' or cc.get_id() == 'clang'
   ]
 endif
 
+
+# Compile the trace-parser tool
+subdir('tools/trace-parser')
+
 # add_project_arguments(common_flags + extra_flags, language: 'cpp')
 
 prismo = executable(
@@ -234,10 +222,6 @@ prismo = executable(
   install : true,
 )
 
-# Compile the trace-parser tool
-subdir('tools/trace-parser')
-
-# Define a test to run the prismo executable
 test(
   'prismo_basic_test',
   prismo,
