@@ -1,42 +1,84 @@
+#include <cstring>
 #include <fstream>
 #include <iostream>
-#include <cstdint>
+#include <common/trace.h>
 #include <argparse/argparse.hpp>
 
-struct TraceRecord {
-    uint64_t timestamp;
-    uint32_t pid;
-    char     process[16];
-    uint64_t offset;
-    uint32_t size;
-    char     rw;
-    uint32_t major;
-    uint32_t minor;
-    uint8_t  hash[16];
-};
+
+bool parse_line(const std::string& line, TraceRecord& record) {
+    std::istringstream iss(line);
+    std::string process;
+    std::string hash;
+
+    iss >> record.timestamp
+        >> record.pid
+        >> process
+        >> record.offset
+        >> record.size
+        >> record.rw
+        >> record.major
+        >> record.minor
+        >> hash;
+
+    if (iss.fail()) {
+        return false;
+    }
+
+    std::memset(record.hash, 0, sizeof(record.hash));
+    std::memset(record.process, 0, sizeof(record.process));
+
+    std::memcpy(record.hash, hash.c_str(), sizeof(record.hash) - 1);
+    std::memcpy(record.process, process.c_str(), sizeof(record.process) - 1);
+
+    return true;
+}
+
 
 int main(int argc, char** argv) {
-    std::ifstream in(argv[1]);
-    std::ofstream out(argv[2], std::ios::binary);
+    argparse::ArgumentParser program("trace-parser");
 
-    if (!in || !out) {
-        std::cerr << "Failed to open files\n";
+    program.add_argument("-i", "--input")
+        .required()
+        .help("specify the .blkparse input file.");
+
+    program.add_argument("-o", "--output")
+        .required()
+        .help("specify the output file.");
+
+    try {
+        program.parse_args(argc, argv);
+    } catch (const std::exception& err) {
+        std::cerr << err.what() << std::endl;
+        std::cerr << program;
+        return 1;
+    }
+
+    std::string input = program.get<std::string>("--input");
+    std::string output = program.get<std::string>("--output");
+
+    std::ifstream input_file(input);
+    std::ofstream output_file(output, std::ios::binary);
+
+    if (!input_file.is_open() || !output_file.is_open()) {
+        std::cerr << "Failed to open files" << std::endl;
         return 1;
     }
 
     std::string line;
-    TraceRecord rec{};
+    TraceRecord record {};
 
-    while (std::getline(in, line)) {
-        if (line.empty())
+    while (std::getline(input_file, line)) {
+        if (line.empty()) {
+            std::cerr << "Empty line" << std::endl;
             continue;
+        }
 
-        if (!parse_line(line, rec)) {
-            std::cerr << "Parse error: " << line << '\n';
+        if (!parse_line(line, record)) {
+            std::cerr << "Parse error: " << line << std::endl;
             continue;
-        }Include
+        }
 
-        out.write(reinterpret_cast<const char*>(&rec), sizeof(rec));
+        output_file.write(reinterpret_cast<const char*>(&record), sizeof(record));
     }
 
     return 0;

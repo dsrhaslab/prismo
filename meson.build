@@ -10,8 +10,6 @@ project(
   ]
 )
 
-# Compile the trace-parser tool
-# subdir('tools/trace-parser')
 
 # Your project includes (keep warnings enabled)
 project_inc = include_directories('include')
@@ -235,6 +233,9 @@ prismo = executable(
   ],
   install : true,
 )
+
+# Compile the trace-parser tool
+subdir('tools/trace-parser')
 
 # Define a test to run the prismo executable
 test(
