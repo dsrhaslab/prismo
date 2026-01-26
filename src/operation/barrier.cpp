@@ -1,4 +1,4 @@
-#include <operation/barrier.h>
+#include <prismo/operation/barrier.h>
 
 namespace Operation {
 

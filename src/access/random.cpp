@@ -1,4 +1,4 @@
-#include <access/synthetic.h>
+#include <prismo/access/synthetic.h>
 
 namespace Access {
 

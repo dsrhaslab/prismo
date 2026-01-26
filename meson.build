@@ -10,6 +10,9 @@ project(
   ]
 )
 
+# Compile the trace-parser tool
+# subdir('tools/trace-parser')
+
 # Your project includes (keep warnings enabled)
 project_inc = include_directories('include')
 

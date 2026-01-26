@@ -1,4 +1,4 @@
-#include <operation/synthetic.h>
+#include <prismo/operation/synthetic.h>
 
 namespace Operation {
 

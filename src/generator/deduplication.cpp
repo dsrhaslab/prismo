@@ -1,4 +1,4 @@
-#include <generator/deduplication.h>
+#include <prismo/generator/deduplication.h>
 
 namespace Generator {
 

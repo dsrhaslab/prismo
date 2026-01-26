@@ -1,14 +1,14 @@
-#include <parser/parser.h>
-#include <operation/type.h>
-#include <operation/barrier.h>
-#include <worker/utils.h>
-#include <worker/producer.h>
-#include <worker/consumer.h>
-
 #include <memory>
 #include <iostream>
 #include <iomanip>
 #include <fstream>
+#include <prismo/parser/parser.h>
+#include <prismo/operation/type.h>
+#include <prismo/operation/barrier.h>
+#include <prismo/worker/utils.h>
+#include <prismo/worker/producer.h>
+#include <prismo/worker/consumer.h>
+
 
 int main(int argc, char** argv) {
 
