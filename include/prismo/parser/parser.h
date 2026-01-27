@@ -3,11 +3,11 @@
 
 #include <memory>
 #include <prismo/io/metric.h>
-#include <prismo/access/synthetic.h>
-#include <prismo/generator/synthetic.h>
-#include <prismo/generator/deduplication.h>
-#include <prismo/operation/synthetic.h>
-#include <prismo/operation/barrier.h>
+#include <prismo/generator/access/generator.h>
+#include <prismo/generator/content/generator.h>
+#include <prismo/generator/content/deduplication.h>
+#include <prismo/generator/operation/generator.h>
+#include <prismo/generator/operation/barrier.h>
 #include <prismo/logger/logger.h>
 #include <prismo/logger/spdlog.h>
 #include <prismo/engine/engine.h>
@@ -18,10 +18,10 @@
 
 namespace Parser {
 
-    std::unique_ptr<Access::Access> get_access(const json& config);
-    std::unique_ptr<Generator::Generator> get_generator(const json& config);
-    std::unique_ptr<Operation::Operation> get_operation(const json& config);
-    std::unique_ptr<Operation::MultipleBarrier> get_multiple_barrier(const json& config);
+    std::unique_ptr<Generator::AccessGenerator> get_access_generator(const json& config);
+    std::unique_ptr<Generator::ContentGenerator> get_content_generator(const json& config);
+    std::unique_ptr<Generator::OperationGenerator> get_operation_generator(const json& config);
+    std::unique_ptr<Generator::MultipleBarrier> get_multiple_barrier(const json& config);
 
     std::unique_ptr<Metric::Metric> get_metric(const json& config);
     std::unique_ptr<Logger::Logger> get_logger(const json& config);

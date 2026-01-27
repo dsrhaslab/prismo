@@ -7,8 +7,8 @@
 #include <libaio.h>
 #include <liburing.h>
 #include <nlohmann/json.hpp>
-#include <prismo/operation/type.h>
-#include <prismo/generator/metadata.h>
+#include <prismo/generator/operation/type.h>
+#include <prismo/generator/content/metadata.h>
 
 using json = nlohmann::json;
 

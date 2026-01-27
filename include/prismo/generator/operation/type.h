@@ -14,7 +14,7 @@ namespace Operation {
         NOP = 4,
     };
 
-    inline OperationType operation_from_str(std::string& operation) {
+    inline OperationType operation_from_str(const std::string& operation) {
         if (operation == "read") {
             return OperationType::READ;
         } else if (operation == "write") {

@@ -34,7 +34,7 @@ namespace Engine {
     }
 
     AioEngine::~AioEngine() {
-        // std::cout << "~Destroying AioEngine" << std::endl;
+        std::cout << "~Destroying AioEngine" << std::endl;
         for (auto& task : tasks) std::free(task.buffer);
 
         if (io_queue_release(io_context)) {

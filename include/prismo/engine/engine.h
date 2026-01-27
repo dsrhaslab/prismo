@@ -12,7 +12,7 @@
 #include <prismo/io/protocol.h>
 #include <prismo/engine/utils.h>
 #include <prismo/logger/logger.h>
-#include <prismo/operation/type.h>
+#include <prismo/generator/operation/type.h>
 
 namespace Engine {
 
@@ -30,7 +30,7 @@ namespace Engine {
                 logger(std::move(_logger)) {}
 
             virtual ~Engine() {
-                // std::cout << "~Destroying Engine" << std::endl;
+                std::cout << "~Destroying Engine" << std::endl;
             }
 
             virtual int open(Protocol::OpenRequest& request) = 0;

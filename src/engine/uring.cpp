@@ -40,7 +40,7 @@ namespace Engine {
     }
 
     UringEngine::~UringEngine() {
-        // std::cout << "~Destroying UringEngine" << std::endl;
+        std::cout << "~Destroying UringEngine" << std::endl;
         if (io_uring_unregister_buffers(&ring))
             std::cerr << "uring_destructor: unregister buffers failed: " << strerror(errno) << std::endl;
         for (auto& iv : iovecs)

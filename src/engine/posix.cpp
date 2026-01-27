@@ -8,7 +8,7 @@ namespace Engine {
     ) : Engine(std::move(_metric), std::move(_logger)) {}
 
     PosixEngine::~PosixEngine() {
-        // std::cout << "~Destroying PosixEngine" << std::endl;
+        std::cout << "~Destroying PosixEngine" << std::endl;
     }
 
     int PosixEngine::open(Protocol::OpenRequest& request) {

@@ -1,14 +1,23 @@
-#include <prismo/generator/deduplication.h>
+#include <prismo/generator/content/deduplication.h>
 
 namespace Generator {
 
-    DeduplicationGenerator::DeduplicationGenerator(const DeduplicationGeneratorConfig& _config)
-        : Generator(), pool(_config.get_block_size()), config(_config), distribution(0, 99) {
-            refill_buffer = std::make_unique<uint8_t[]>(config.get_block_size());
-            random_generator.next_block(refill_buffer.get(), config.get_block_size());
-        }
+    DeduplicationContentGenerator::DeduplicationContentGenerator(
+        const DeduplicationContentGeneratorConfig& _config
+    ) :
+        ContentGenerator(),
+        pool(_config.get_block_size()),
+        config(_config),
+        distribution(0, 99)
+    {
+        refill_buffer = std::make_unique<uint8_t[]>(config.get_block_size());
+        random_generator.next_block(refill_buffer.get(), config.get_block_size());
+    }
 
-    BlockMetadata DeduplicationGenerator::next_block(uint8_t* buffer, size_t size) {
+    BlockMetadata DeduplicationContentGenerator::next_block(
+        uint8_t* buffer,
+        size_t size
+    ) {
         uint32_t deduplication_roll = distribution.nextValue();
         uint32_t compression_roll = distribution.nextValue();
 
@@ -42,7 +51,7 @@ namespace Generator {
         };
     }
 
-    DedupElement DeduplicationGenerator::create_dedup_element(
+    DedupElement DeduplicationContentGenerator::create_dedup_element(
         uint32_t repeats,
         uint32_t compression,
         size_t size
@@ -73,7 +82,7 @@ namespace Generator {
         return dedup_element;
     }
 
-    DedupElement DeduplicationGenerator::reuse_dedup_element(
+    DedupElement DeduplicationContentGenerator::reuse_dedup_element(
         uint32_t repeats,
         uint8_t* buffer,
         size_t size

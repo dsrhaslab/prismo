@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <chrono>
 #include <thread>
-#include <prismo/operation/type.h>
+#include <prismo/generator/operation/type.h>
 
 namespace Metric {
 

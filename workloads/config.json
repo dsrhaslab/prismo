@@ -2,7 +2,7 @@
   "job": {
     "name": "job",
     "numjobs": 1,
-    "iterations": 1e5,
+    "iterations": 20,
     "filename": "testfile",
     "block_size": 4096,
     "limit": 65536,
@@ -108,7 +108,7 @@
     "bdev_name": "Malloc0",
     "reactor_mask": "0xF",
     "spdk_threads": 1,
-    "json_config_file": "/home/digo/Desktop/prismo/config/spdk_bdev.json"
+    "json_config_file": "/home/digo/Desktop/prismo/workloads/spdk/spdk_bdev.json"
   },
 
   "logging": {

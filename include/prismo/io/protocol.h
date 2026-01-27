@@ -4,8 +4,8 @@
 #include <cstddef>
 #include <fcntl.h>
 #include <cstdint>
-#include <prismo/operation/type.h>
-#include <prismo/generator/metadata.h>
+#include <prismo/generator/operation/type.h>
+#include <prismo/generator/content/metadata.h>
 
 namespace Protocol {
 

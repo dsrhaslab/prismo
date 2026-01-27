@@ -10,7 +10,7 @@ namespace Logger {
         public:
             Logger() = default;
             virtual ~Logger() {
-                // std::cout << "~Destroying Logger" << std::endl;
+                std::cout << "~Destroying Logger" << std::endl;
             }
 
             virtual void info(Metric::Metric& metric) = 0;

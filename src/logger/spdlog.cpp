@@ -28,7 +28,7 @@ namespace Logger {
     }
 
     Spdlog::~Spdlog() {
-        // std::cout << "~Destroying Spdlog" << std::endl;
+        std::cout << "~Destroying Spdlog" << std::endl;
     }
 
     void Spdlog::info(Metric::Metric& metric) {

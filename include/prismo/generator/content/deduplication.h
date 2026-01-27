@@ -1,9 +1,9 @@
-#ifndef DEDUPLICATION_GENERATOR_H
-#define DEDUPLICATION_GENERATOR_H
+#ifndef DEDUPLICATION_CONTENT_GENERATOR_H
+#define DEDUPLICATION_CONTENT_GENERATOR_H
 
 #include <boost/pool/pool.hpp>
-#include <prismo/generator/synthetic.h>
-#include <prismo/generator/compression.h>
+#include <prismo/generator/content/generator.h>
+#include <prismo/generator/content/compression.h>
 #include <lib/distribution/percentage.h>
 #include <lib/distribution/distribution.h>
 
@@ -18,7 +18,7 @@ namespace Generator {
         uint8_t* buffer;
     };
 
-    struct DeduplicationGeneratorConfig {
+    struct DeduplicationContentGeneratorConfig {
         private:
             bool refill_buffers;
             size_t block_size;
@@ -62,7 +62,7 @@ namespace Generator {
                 }
             };
 
-            friend inline void from_json(const json& j, DeduplicationGeneratorConfig& config) {
+            friend inline void from_json(const json& j, DeduplicationContentGeneratorConfig& config) {
                 uint32_t cumulative_deduplication = 0;
 
                 j.at("block_size").get_to(config.block_size);
@@ -86,13 +86,13 @@ namespace Generator {
             }
     };
 
-    class DeduplicationGenerator : public Generator {
+    class DeduplicationContentGenerator : public ContentGenerator {
         private:
             boost::pool<> pool;
             std::unique_ptr<uint8_t[]> refill_buffer;
 
-            RandomGenerator random_generator;
-            DeduplicationGeneratorConfig config;
+            RandomContentGenerator random_generator;
+            DeduplicationContentGeneratorConfig config;
 
             Distribution::UniformDistribution<uint32_t> distribution;
             std::unordered_map<uint32_t, std::vector<DedupElement>> dedup_windows;
@@ -101,11 +101,11 @@ namespace Generator {
             DedupElement create_dedup_element(uint32_t repeats, uint32_t compression, size_t size);
 
         public:
-            DeduplicationGenerator() = delete;
-            DeduplicationGenerator(const DeduplicationGeneratorConfig& _config);
+            DeduplicationContentGenerator() = delete;
+            DeduplicationContentGenerator(const DeduplicationContentGeneratorConfig& _config);
 
-            ~DeduplicationGenerator() override {
-                // std::cout << "~Destroying DeduplicationGenerator" << std::endl;
+            ~DeduplicationContentGenerator() override {
+                std::cout << "~Destroying DeduplicationContentGenerator" << std::endl;
             }
 
             BlockMetadata next_block(uint8_t* buffer, size_t size) override;

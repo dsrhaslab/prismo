@@ -23,23 +23,16 @@ inc = [project_inc, spdk_inc]
 
 # Define source files
 src = files(
-  'src/access/access.cpp',
-  'src/access/random.cpp',
-  'src/access/sequential.cpp',
-  'src/access/zipfian.cpp',
-  'src/engine/aio.cpp',
-  'src/engine/posix.cpp',
-  'src/engine/spdk.cpp',
-  'src/engine/uring.cpp',
-  'src/engine/utils.cpp',
-  'src/generator/deduplication.cpp',
-  'src/logger/spdlog.cpp',
-  'src/operation/barrier.cpp',
-  'src/operation/constant.cpp',
-  'src/operation/percentage.cpp',
-  'src/operation/sequence.cpp',
-  'src/parser/parser.cpp',
-  'src/main.cpp',
+'src/main.cpp',
+'src/engine/aio.cpp',
+'src/engine/posix.cpp',
+'src/engine/spdk.cpp',
+'src/engine/uring.cpp',
+'src/engine/utils.cpp',
+'src/generator/content/deduplication.cpp',
+'src/logger/spdlog.cpp',
+'src/parser/parser.cpp',
+'src/main.cpp',
 )
 
 cc = meson.get_compiler('cpp')
@@ -225,5 +218,5 @@ prismo = executable(
 test(
   'prismo_basic_test',
   prismo,
-  args : ['../config/config.json']
+  args : ['-c', '../workloads/config.json']
 )

@@ -1,35 +1,35 @@
 #ifndef PRODUCER_WORKER_H
 #define PRODUCER_WORKER_H
 
-#include <prismo/access/synthetic.h>
-#include <prismo/generator/synthetic.h>
-#include <prismo/operation/synthetic.h>
-#include <prismo/operation/barrier.h>
+#include <prismo/generator/access/generator.h>
+#include <prismo/generator/content/generator.h>
+#include <prismo/generator/operation/generator.h>
+#include <prismo/generator/operation/barrier.h>
 #include <prismo/worker/utils.h>
 
 namespace Worker {
 
     class Producer {
         private:
-            std::unique_ptr<Access::Access> access;
-            std::unique_ptr<Operation::Operation> operation;
-            std::unique_ptr<Generator::Generator> generator;
-            std::unique_ptr<Operation::MultipleBarrier> barrier;
+            std::unique_ptr<Generator::AccessGenerator> access;
+            std::unique_ptr<Generator::OperationGenerator> operation;
+            std::unique_ptr<Generator::ContentGenerator> content;
+            std::unique_ptr<Generator::MultipleBarrier> barrier;
             std::shared_ptr<moodycamel::ConcurrentQueue<Protocol::Packet*>> to_producer;
             std::shared_ptr<moodycamel::ConcurrentQueue<Protocol::Packet*>> to_consumer;
 
         public:
             Producer(
-                std::unique_ptr<Access::Access> _access,
-                std::unique_ptr<Operation::Operation> _operation,
-                std::unique_ptr<Generator::Generator> _generator,
-                std::unique_ptr<Operation::MultipleBarrier> _barrier,
+                std::unique_ptr<Generator::AccessGenerator> _access,
+                std::unique_ptr<Generator::OperationGenerator> _operation,
+                std::unique_ptr<Generator::ContentGenerator> _content,
+                std::unique_ptr<Generator::MultipleBarrier> _barrier,
                 std::shared_ptr<moodycamel::ConcurrentQueue<Protocol::Packet*>> _to_producer,
                 std::shared_ptr<moodycamel::ConcurrentQueue<Protocol::Packet*>> _to_consumer
             ) :
                 access(std::move(_access)),
                 operation(std::move(_operation)),
-                generator(std::move(_generator)),
+                content(std::move(_content)),
                 barrier(std::move(_barrier)),
                 to_producer(_to_producer),
                 to_consumer(_to_consumer) {}
@@ -52,7 +52,7 @@ namespace Worker {
                         packet->request.metadata.compression = 0;
 
                         if (packet->request.operation == Operation::OperationType::WRITE) {
-                            packet->request.metadata = generator->next_block(
+                            packet->request.metadata = content->next_block(
                                 packet->request.buffer,
                                 packet->request.size
                             );

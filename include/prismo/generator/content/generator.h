@@ -1,33 +1,34 @@
-#ifndef SYNTHETIC_GENERATOR_H
-#define SYNTHETIC_GENERATOR_H
+#ifndef CONTENT_GENERATOR_H
+#define CONTENT_GENERATOR_H
 
 #include <cstring>
-#include <prismo/generator/metadata.h>
+#include <iostream>
+#include <prismo/generator/content/metadata.h>
 #include <lib/shishua/shishua.h>
 #include <lib/shishua/utils.h>
 
 namespace Generator {
 
-    class Generator {
+    class ContentGenerator {
         protected:
             uint64_t block_id = 0;
 
         public:
-            Generator() = default;
+            ContentGenerator() = default;
 
-            virtual ~Generator() {
-                // std::cout << "~Destroying Generator" << std::endl;
+            virtual ~ContentGenerator() {
+                std::cout << "~Destroying ContentGenerator" << std::endl;
             }
 
             virtual BlockMetadata next_block(uint8_t* buffer, size_t size) = 0;
     };
 
-    class ConstantGenerator : public Generator {
+    class ConstantContentGenerator : public ContentGenerator {
         public:
-            ConstantGenerator() = default;
+            ConstantContentGenerator() = default;
 
-            ~ConstantGenerator() override {
-                // std::cout << "~Destroying ConstantGenerator" << std::endl;
+            ~ConstantContentGenerator() override {
+                std::cout << "~Destroying ConstantContentGenerator" << std::endl;
             }
 
             BlockMetadata next_block(uint8_t* buffer, size_t size) override {
@@ -40,18 +41,18 @@ namespace Generator {
             }
     };
 
-    class RandomGenerator : public Generator {
+    class RandomContentGenerator : public ContentGenerator {
         private:
             prng_state generator;
 
         public:
-            RandomGenerator() : Generator() {
+            RandomContentGenerator() : ContentGenerator() {
                 auto seed = generate_seed();
                 prng_init(&generator, seed.data());
             };
 
-            ~RandomGenerator() override {
-                // std::cout << "~Destroying RandomGenerator" << std::endl;
+            ~RandomContentGenerator() override {
+                std::cout << "~Destroying RandomContentGenerator" << std::endl;
             }
 
             BlockMetadata next_block(uint8_t* buffer, size_t size) {

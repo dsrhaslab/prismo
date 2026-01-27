@@ -2,65 +2,65 @@
 
 namespace Parser {
 
-    std::unique_ptr<Access::Access> get_access(const json& config) {
+    std::unique_ptr<Generator::AccessGenerator> get_access_generator(const json& config) {
         std::string type = config.at("type").get<std::string>();
 
         if (type == "sequential") {
-            return std::make_unique<Access::SequentialAccess>(
-                config.get<Access::SequentialAccess>()
+            return std::make_unique<Generator::SequentialAccessGenerator>(
+                config.get<Generator::SequentialAccessGenerator>()
             );
         } else if (type == "random") {
-            return std::make_unique<Access::RandomAccess>(
-                config.get<Access::RandomAccess>()
+            return std::make_unique<Generator::RandomAccessGenerator>(
+                config.get<Generator::RandomAccessGenerator>()
             );
         } else if (type == "zipfian") {
-            return std::make_unique<Access::ZipfianAccess>(
-                config.get<Access::ZipfianAccess>()
+            return std::make_unique<Generator::ZipfianAccessGenerator>(
+                config.get<Generator::ZipfianAccessGenerator>()
             );
         } else {
             throw std::invalid_argument("get_access: type '" + type + "' not recognized");
         }
     }
 
-    std::unique_ptr<Generator::Generator> get_generator(const json& config) {
+    std::unique_ptr<Generator::ContentGenerator> get_content_generator(const json& config) {
         std::string type = config.at("type").get<std::string>();
 
         if (type == "constant") {
-            return std::make_unique<Generator::ConstantGenerator>();
+            return std::make_unique<Generator::ConstantContentGenerator>();
         } else if (type == "random") {
-            return std::make_unique<Generator::RandomGenerator>();
+            return std::make_unique<Generator::RandomContentGenerator>();
         } else if (type == "dedup") {
-            return std::make_unique<Generator::DeduplicationGenerator>(
-                config.get<Generator::DeduplicationGeneratorConfig>()
+            return std::make_unique<Generator::DeduplicationContentGenerator>(
+                config.get<Generator::DeduplicationContentGeneratorConfig>()
             );
         } else {
             throw std::invalid_argument("get_generator: type '" + type + "' not recognized");
         }
     }
 
-    std::unique_ptr<Operation::Operation> get_operation(const json& config) {
+    std::unique_ptr<Generator::OperationGenerator> get_operation_generator(const json& config) {
         std::string type = config.at("type").get<std::string>();
 
         if (type == "constant") {
-            return std::make_unique<Operation::ConstantOperation>(
-                config.get<Operation::ConstantOperation>()
+            return std::make_unique<Generator::ConstantOperationGenerator>(
+                config.get<Generator::ConstantOperationGenerator>()
             );
         } else if (type == "percentage") {
-            return std::make_unique<Operation::PercentageOperation>(
-                config.get<Operation::PercentageOperation>()
+            return std::make_unique<Generator::PercentageOperationGenerator>(
+                config.get<Generator::PercentageOperationGenerator>()
             );
         } else if (type == "sequence") {
-            return std::make_unique<Operation::SequenceOperation>(
-                config.get<Operation::SequenceOperation>()
+            return std::make_unique<Generator::SequenceOperationGeneator>(
+                config.get<Generator::SequenceOperationGeneator>()
             );
         } else {
             throw std::invalid_argument("get_operation: type '" + type + "' not recognized");
         }
     }
 
-    std::unique_ptr<Operation::MultipleBarrier> get_multiple_barrier(const json& config) {
-        return std::make_unique<Operation::MultipleBarrier>(
-            config.get<Operation::MultipleBarrier>()
+    std::unique_ptr<Generator::MultipleBarrier> get_multiple_barrier(const json& config) {
+        return std::make_unique<Generator::MultipleBarrier>(
+            config.get<Generator::MultipleBarrier>()
         );
     }
 
