@@ -6,8 +6,9 @@
 
 
 int main(int argc, char** argv) {
-
     argparse::ArgumentParser program("prismo");
+
+    program.add_description("Prismo I/O benchmarking tool.");
 
     program.add_argument("-c", "--config")
         .required()
@@ -50,20 +51,20 @@ int main(int argc, char** argv) {
     Engine::OpenFlags open_flags = engine_json.at("openflags").get<Engine::OpenFlags>();
 
     std::cout << "Parse AccessGenerator" << std::endl;
-    std::unique_ptr<Generator::AccessGenerator> access
-        = Parser::get_access_generator(access_json);
+    std::unique_ptr<Generator::AccessGenerator> access =
+        Parser::get_access_generator(access_json);
 
     std::cout << "Parse OperationGenerator" << std::endl;
-    std::unique_ptr<Generator::OperationGenerator> operation
-        = Parser::get_operation_generator(operation_json);
+    std::unique_ptr<Generator::OperationGenerator> operation =
+        Parser::get_operation_generator(operation_json);
 
     std::cout << "Parse ContentGenerator" << std::endl;
-    std::unique_ptr<Generator::ContentGenerator> content
-        = Parser::get_content_generator(generator_json);
+    std::unique_ptr<Generator::ContentGenerator> content =
+        Parser::get_content_generator(generator_json);
 
     std::cout << "Parse MultipleBarrier" << std::endl;
-    std::unique_ptr<Generator::MultipleBarrier> barrier
-        = Parser::get_multiple_barrier(barrier_json);
+    std::unique_ptr<Generator::MultipleBarrier> barrier =
+        Parser::get_multiple_barrier(barrier_json);
 
     std::cout << "Parse Metric" << std::endl;
     std::unique_ptr metric = Parser::get_metric(job_json);
@@ -72,8 +73,8 @@ int main(int argc, char** argv) {
     std::unique_ptr<Logger::Logger> logger = Parser::get_logger(logging_json);
 
     std::cout << "Parse Engine" << std::endl;
-    std::unique_ptr<Engine::Engine> engine
-        = Parser::get_engine(engine_json, std::move(metric), std::move(logger));
+    std::unique_ptr<Engine::Engine> engine =
+        Parser::get_engine(engine_json, std::move(metric), std::move(logger));
 
     auto to_producer = std::make_shared<moodycamel::ConcurrentQueue<Protocol::Packet*>>(QUEUE_INITIAL_CAPACITY);
     auto to_consumer = std::make_shared<moodycamel::ConcurrentQueue<Protocol::Packet*>>(QUEUE_INITIAL_CAPACITY);

@@ -62,7 +62,7 @@ namespace Generator {
                 }
             };
 
-            friend inline void from_json(const json& j, DeduplicationContentGeneratorConfig& config) {
+            friend void from_json(const json& j, DeduplicationContentGeneratorConfig& config) {
                 uint32_t cumulative_deduplication = 0;
 
                 j.at("block_size").get_to(config.block_size);

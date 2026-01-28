@@ -37,11 +37,11 @@ src = files(
 
 cc = meson.get_compiler('cpp')
 
+libaio_dep = cc.find_library('aio', required: true)
 json_dep = dependency('nlohmann_json', required: true)
 spdlog_dep = dependency('spdlog', required: true)
 liburing_dep = dependency('liburing', required: true)
 boost_dep = dependency( 'boost', modules: ['pool'], required: true)
-libaio_dep = cc.find_library('aio', required: true)
 
 spdk_env_dpdk_dep   = dependency('spdk_env_dpdk', required: true, static: true)
 spdk_event_dep      = dependency('spdk_event', required: true, static: true)
@@ -171,21 +171,13 @@ common_flags = [
   '-Wpedantic',
   '-Wshadow',
   '-Wnon-virtual-dtor',
+  '-Wconversion',
+  '-Wsign-conversion',
 ]
 
-# Compiler-specific flags
-if cc.get_id() == 'gcc' or cc.get_id() == 'clang'
-  extra_flags = [
-    '-Wconversion',
-    '-Wsign-conversion',
-  ]
-endif
+# add_project_arguments(common_flags, language: 'cpp')
 
-
-# Compile the trace-parser tool
 subdir('tools/trace-parser')
-
-# add_project_arguments(common_flags + extra_flags, language: 'cpp')
 
 prismo = executable(
   'prismo',

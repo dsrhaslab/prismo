@@ -5,7 +5,7 @@
 #include <argparse/argparse.hpp>
 
 
-bool parse_line(const std::string& line, TraceRecord& record) {
+bool parse_line(const std::string& line, Trace::Record& record) {
     std::istringstream iss(line);
     std::string process;
     std::string hash;
@@ -37,6 +37,8 @@ bool parse_line(const std::string& line, TraceRecord& record) {
 int main(int argc, char** argv) {
     argparse::ArgumentParser program("trace-parser");
 
+    program.add_description("Parse .blkparse files into binary trace format.");
+
     program.add_argument("-i", "--input")
         .required()
         .help("specify the .blkparse input file.");
@@ -44,6 +46,11 @@ int main(int argc, char** argv) {
     program.add_argument("-o", "--output")
         .required()
         .help("specify the output file.");
+
+    program.add_argument("-b", "--block-size")
+        .default_value(static_cast<uint32_t>(512))
+        .scan<'u', uint32_t>()
+        .help("specify the block size");
 
     try {
         program.parse_args(argc, argv);
@@ -55,6 +62,7 @@ int main(int argc, char** argv) {
 
     std::string input = program.get<std::string>("--input");
     std::string output = program.get<std::string>("--output");
+    uint32_t block_size = program.get<uint32_t>("--block-size");
 
     std::ifstream input_file(input);
     std::ofstream output_file(output, std::ios::binary);
@@ -65,7 +73,7 @@ int main(int argc, char** argv) {
     }
 
     std::string line;
-    TraceRecord record {};
+    Trace::Record record {};
 
     while (std::getline(input_file, line)) {
         if (line.empty()) {
@@ -78,8 +86,13 @@ int main(int argc, char** argv) {
             continue;
         }
 
+        record.size *= block_size;
+        record.offset *= block_size;
         output_file.write(reinterpret_cast<const char*>(&record), sizeof(record));
     }
+
+    input_file.close();
+    output_file.close();
 
     return 0;
 }

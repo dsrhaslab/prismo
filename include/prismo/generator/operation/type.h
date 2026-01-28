@@ -1,5 +1,5 @@
-#ifndef TYPE_OPERATION_H
-#define TYPE_OPERATION_H
+#ifndef OPERATION_TYPE_H
+#define OPERATION_TYPE_H
 
 #include <string>
 #include <stdexcept>

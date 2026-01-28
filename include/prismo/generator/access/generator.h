@@ -3,7 +3,6 @@
 
 #include <cstddef>
 #include <iostream>
-#include <stdexcept>
 #include <nlohmann/json.hpp>
 #include <lib/distribution/distribution.h>
 
@@ -18,8 +17,6 @@ namespace Generator {
 
         public:
             AccessGenerator() = default;
-            AccessGenerator(size_t _block_size, size_t _limit)
-                : block_size(_block_size), limit(_limit) {};
 
             virtual ~AccessGenerator() {
                 std::cout << "~Destroying AccessGenerator" << std::endl;
@@ -47,8 +44,6 @@ namespace Generator {
 
         public:
             SequentialAccessGenerator() = default;
-            SequentialAccessGenerator(size_t _block_size, size_t _limit)
-                : AccessGenerator(_block_size, _limit), current_offset(0) {};
 
             ~SequentialAccessGenerator() override {
                 std::cout << "~Destroying SequentialAccessGenerator" << std::endl;
@@ -79,8 +74,6 @@ namespace Generator {
 
         public:
             RandomAccessGenerator() = default;
-            RandomAccessGenerator(size_t _block_size, size_t _limit)
-                : AccessGenerator(_block_size, _limit), distribution(_block_size, _limit) {};
 
             ~RandomAccessGenerator() override {
                 std::cout << "~Destroying RandomAccessGenerator" << std::endl;
@@ -110,9 +103,6 @@ namespace Generator {
         public:
             ZipfianAccessGenerator()
                 : AccessGenerator(), skew(0), distribution(0, 99, 0.9f) {};
-
-            ZipfianAccessGenerator(size_t _block_size, size_t _limit, float _skew)
-                : AccessGenerator(_block_size, _limit), skew(_skew), distribution(0, _limit, _skew) {};
 
             ~ZipfianAccessGenerator() override {
                 std::cout << "~Destroying ZipfianAccessGenerator" << std::endl;

@@ -28,8 +28,7 @@ namespace Generator {
             Operation::OperationType operation;
 
         public:
-            ConstantOperationGenerator()
-                : OperationGenerator(), operation(Operation::OperationType::READ) {};
+            ConstantOperationGenerator() = default;
 
             ~ConstantOperationGenerator() override {
                 std::cout << "~Destroying ConstantOperationGenerator" << std::endl;
