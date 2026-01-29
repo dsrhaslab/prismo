@@ -28,11 +28,10 @@ src = files(
     'src/engine/spdk.cpp',
     'src/engine/uring.cpp',
     'src/engine/utils.cpp',
+    'src/parser/factory.cpp',
     'src/generator/content/deduplication.cpp',
     'src/logger/spdlog.cpp',
     'src/main.cpp',
-    'src/main.cpp',
-    'src/parser/parser.cpp',
 )
 
 cc = meson.get_compiler('cpp')

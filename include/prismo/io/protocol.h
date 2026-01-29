@@ -18,7 +18,7 @@ namespace Protocol {
         int fd;
     };
 
-    struct CommonRequest {
+    struct IORequest {
         int fd;
         size_t size;
         uint64_t offset;
@@ -29,7 +29,7 @@ namespace Protocol {
 
     struct Packet {
         bool isShutDown;
-        CommonRequest request;
+        IORequest request;
     };
 }
 

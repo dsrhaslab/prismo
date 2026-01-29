@@ -29,23 +29,23 @@ namespace Engine {
         return 0;
     }
 
-    int PosixEngine::fsync(Protocol::CommonRequest& request) {
+    int PosixEngine::fsync(Protocol::IORequest& request) {
         return ::fsync(request.fd);
     }
 
-    int PosixEngine::fdatasync(Protocol::CommonRequest& request) {
+    int PosixEngine::fdatasync(Protocol::IORequest& request) {
         return ::fdatasync(request.fd);
     }
 
-    ssize_t PosixEngine::read(Protocol::CommonRequest& request) {
+    ssize_t PosixEngine::read(Protocol::IORequest& request) {
         return ::pread(request.fd, request.buffer, request.size, request.offset);
     }
 
-    ssize_t PosixEngine::write(Protocol::CommonRequest& request) {
+    ssize_t PosixEngine::write(Protocol::IORequest& request) {
         return ::pwrite(request.fd, request.buffer, request.size, request.offset);
     }
 
-    void PosixEngine::submit(Protocol::CommonRequest& request) {
+    void PosixEngine::submit(Protocol::IORequest& request) {
         ssize_t result = 0;
         uint64_t start_timestamp = Metric::get_current_timestamp();
 

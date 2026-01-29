@@ -8,11 +8,11 @@ namespace Engine {
     class PosixEngine : public Engine {
         private:
             int nop(void);
-            int fsync(Protocol::CommonRequest& request);
-            int fdatasync(Protocol::CommonRequest& request);
+            int fsync(Protocol::IORequest& request);
+            int fdatasync(Protocol::IORequest& request);
 
-            ssize_t read(Protocol::CommonRequest& request);
-            ssize_t write(Protocol::CommonRequest& request);
+            ssize_t read(Protocol::IORequest& request);
+            ssize_t write(Protocol::IORequest& request);
 
         public:
             explicit PosixEngine(
@@ -24,7 +24,7 @@ namespace Engine {
 
             int open(Protocol::OpenRequest& request) override;
             int close(Protocol::CloseRequest& request) override;
-            void submit(Protocol::CommonRequest& request) override;
+            void submit(Protocol::IORequest& request) override;
             void reap_left_completions(void) override {};
     };
 }

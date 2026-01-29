@@ -587,7 +587,7 @@ namespace Engine {
         SPDK_NOTICELOG("Unsupported bdev event: type %d\n", type);
     }
 
-    void SpdkEngine::submit(Protocol::CommonRequest& request) {
+    void SpdkEngine::submit(Protocol::IORequest& request) {
         TriggerData snap = {};
         snap.has_next = true;
         snap.is_shutdown = false;

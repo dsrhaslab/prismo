@@ -14,11 +14,11 @@ namespace Engine {
             std::vector<io_uring_cqe*> completed_cqes;
 
             void nop(io_uring_sqe* sqe);
-            void fsync(Protocol::CommonRequest& request, io_uring_sqe* sqe);
-            void fdatasync(Protocol::CommonRequest& request, io_uring_sqe* sqe);
+            void fsync(Protocol::IORequest& request, io_uring_sqe* sqe);
+            void fdatasync(Protocol::IORequest& request, io_uring_sqe* sqe);
 
-            void read(Protocol::CommonRequest& request, io_uring_sqe* sqe, uint32_t free_index);
-            void write(Protocol::CommonRequest& request, io_uring_sqe* sqe, uint32_t free_index);
+            void read(Protocol::IORequest& request, io_uring_sqe* sqe, uint32_t free_index);
+            void write(Protocol::IORequest& request, io_uring_sqe* sqe, uint32_t free_index);
 
             void reap_completions(void);
 
@@ -33,7 +33,7 @@ namespace Engine {
 
             int open(Protocol::OpenRequest& request) override;
             int close(Protocol::CloseRequest& request) override;
-            void submit(Protocol::CommonRequest& request) override;
+            void submit(Protocol::IORequest& request) override;
             void reap_left_completions(void) override;
     };
 };

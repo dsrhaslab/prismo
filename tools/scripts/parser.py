@@ -51,7 +51,10 @@ def iter_prismo_rows(log_filename: str) -> Iterator[dict]:
 
             for part in m.group('fields').split():
                 k, v = part.split('=')
-                row[k] = int(v)
+                if k == 'block':
+                    row[k] = int(v, 16)
+                else:
+                    row[k] = int(v)
 
             yield row
 

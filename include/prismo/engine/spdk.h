@@ -14,7 +14,7 @@ namespace Engine {
         bool has_next;
         bool is_shutdown;
         bool has_submitted;
-        Protocol::CommonRequest* request;
+        Protocol::IORequest* request;
 
         auto operator<=>(const TriggerData&) const = default;
     };
@@ -45,7 +45,7 @@ namespace Engine {
         spdk_bdev_io_wait_entry bdev_io_wait;
 
         std::atomic<bool>* submitted;
-        Protocol::CommonRequest* request;
+        Protocol::IORequest* request;
         SpdkThreadCallBackContext* thread_cb_ctx;
     };
 
@@ -149,7 +149,7 @@ namespace Engine {
 
             int open(Protocol::OpenRequest& request) override { (void) request; return 0; }
             int close(Protocol::CloseRequest& request) override { (void) request; return 0; }
-            void submit(Protocol::CommonRequest& request) override;
+            void submit(Protocol::IORequest& request) override;
             void reap_left_completions(void) override;
         };
 }

@@ -70,24 +70,24 @@ namespace Engine {
         io_uring_prep_nop(sqe);
     }
 
-    void UringEngine::fsync(Protocol::CommonRequest& request, io_uring_sqe* sqe) {
+    void UringEngine::fsync(Protocol::IORequest& request, io_uring_sqe* sqe) {
         io_uring_prep_fsync(sqe, request.fd, 0);
     }
 
-    void UringEngine::fdatasync(Protocol::CommonRequest& request, io_uring_sqe* sqe) {
+    void UringEngine::fdatasync(Protocol::IORequest& request, io_uring_sqe* sqe) {
         io_uring_prep_fsync(sqe, request.fd, IORING_FSYNC_DATASYNC);
     }
 
-    void UringEngine::read(Protocol::CommonRequest& request, io_uring_sqe* sqe, uint32_t free_index) {
+    void UringEngine::read(Protocol::IORequest& request, io_uring_sqe* sqe, uint32_t free_index) {
         io_uring_prep_read_fixed(sqe, request.fd, iovecs[free_index].iov_base, request.size, request.offset, free_index);
     }
 
-    void UringEngine::write(Protocol::CommonRequest& request, io_uring_sqe* sqe, uint32_t free_index) {
+    void UringEngine::write(Protocol::IORequest& request, io_uring_sqe* sqe, uint32_t free_index) {
         std::memcpy(iovecs[free_index].iov_base, request.buffer, request.size);
         io_uring_prep_write_fixed(sqe, request.fd, iovecs[free_index].iov_base, request.size, request.offset, free_index);
     }
 
-    void UringEngine::submit(Protocol::CommonRequest& request) {
+    void UringEngine::submit(Protocol::IORequest& request) {
         uint32_t free_index;
         io_uring_sqe* sqe = io_uring_get_sqe(&ring);
         request.fd = 0;

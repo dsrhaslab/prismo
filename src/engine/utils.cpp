@@ -92,10 +92,10 @@ namespace Engine {
 
     std::vector<uint32_t> get_pinned_cores(uint64_t mask) {
         std::vector<uint32_t> cores;
-        long num_cores = sysconf(_SC_NPROCESSORS_ONLN);
-        for (int i = 0; i < num_cores; i++) {
-            if (mask & (1ULL << i)) {
-                cores.push_back(i);
+        long max_cores = sysconf(_SC_NPROCESSORS_ONLN);
+        for (uint32_t core = 0; core < max_cores; core++) {
+            if (mask & (1ULL << core)) {
+                cores.push_back(core);
             }
         }
         return cores;

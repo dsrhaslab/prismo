@@ -82,9 +82,11 @@ namespace Metric {
     };
 
     inline uint64_t get_current_timestamp() noexcept {
-        return std::chrono::duration_cast<std::chrono::nanoseconds>(
-            std::chrono::steady_clock::now().time_since_epoch()
-        ).count();
+        return static_cast<uint64_t>(
+            std::chrono::duration_cast<std::chrono::nanoseconds>(
+                std::chrono::steady_clock::now().time_since_epoch()
+            ).count()
+        );
     }
 
     inline void fill_metric(

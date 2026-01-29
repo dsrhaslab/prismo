@@ -34,7 +34,7 @@ namespace Engine {
 
             virtual int open(Protocol::OpenRequest& request) = 0;
             virtual int close(Protocol::CloseRequest& request) = 0;
-            virtual void submit(Protocol::CommonRequest& request) = 0;
+            virtual void submit(Protocol::IORequest& request) = 0;
             virtual void reap_left_completions(void) = 0;
     };
 };

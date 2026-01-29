@@ -56,28 +56,28 @@ namespace Engine {
         return ret;
     }
 
-    void AioEngine::nop(Protocol::CommonRequest& request, uint32_t free_index) {
+    void AioEngine::nop(Protocol::IORequest& request, uint32_t free_index) {
         io_prep_pwrite(&iocbs[free_index], request.fd, nullptr, 0, 0);
     }
 
-    void AioEngine::fsync(Protocol::CommonRequest& request, uint32_t free_index) {
+    void AioEngine::fsync(Protocol::IORequest& request, uint32_t free_index) {
         io_prep_fsync(&iocbs[free_index], request.fd);
     }
 
-    void AioEngine::fdatasync(Protocol::CommonRequest& request, uint32_t free_index) {
+    void AioEngine::fdatasync(Protocol::IORequest& request, uint32_t free_index) {
         io_prep_fdsync(&iocbs[free_index], request.fd);
     }
 
-    void AioEngine::read(Protocol::CommonRequest& request, uint32_t free_index) {
+    void AioEngine::read(Protocol::IORequest& request, uint32_t free_index) {
         io_prep_pread(&iocbs[free_index], request.fd, tasks[free_index].buffer, request.size, request.offset);
     }
 
-    void AioEngine::write(Protocol::CommonRequest& request, uint32_t free_index) {
+    void AioEngine::write(Protocol::IORequest& request, uint32_t free_index) {
         std::memcpy(tasks[free_index].buffer, request.buffer, request.size);
         io_prep_pwrite(&iocbs[free_index], request.fd, tasks[free_index].buffer, request.size, request.offset);
     }
 
-    void AioEngine::submit(Protocol::CommonRequest& request) {
+    void AioEngine::submit(Protocol::IORequest& request) {
         if (iocb_ptrs.size() == iocb_ptrs.capacity()) {
             int submit_result = io_submit(io_context, iocb_ptrs.size(), &iocb_ptrs[0]);
             if (submit_result != static_cast<int>(iocb_ptrs.size()))
