@@ -1,9 +1,6 @@
 #ifndef CONSUMER_WORKER_H
 #define CONSUMER_WORKER_H
 
-#include <prismo/engine/engine.h>
-#include <prismo/worker/utils.h>
-#include <prismo/parser/parser.h>
 
 namespace Worker {
 

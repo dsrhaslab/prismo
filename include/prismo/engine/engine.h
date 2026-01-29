@@ -12,7 +12,6 @@
 #include <prismo/io/protocol.h>
 #include <prismo/engine/utils.h>
 #include <prismo/logger/logger.h>
-#include <prismo/generator/operation/type.h>
 
 namespace Engine {
 

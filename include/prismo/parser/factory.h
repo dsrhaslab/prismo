@@ -1,5 +1,5 @@
-#ifndef PARSER_H
-#define PARSER_H
+#ifndef PARSER_FACTORY_H
+#define PARSER_FACTORY_H
 
 #include <memory>
 #include <prismo/io/metric.h>

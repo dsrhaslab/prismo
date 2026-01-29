@@ -1,10 +1,6 @@
 #ifndef PRODUCER_WORKER_H
 #define PRODUCER_WORKER_H
 
-#include <prismo/generator/access/generator.h>
-#include <prismo/generator/content/generator.h>
-#include <prismo/generator/operation/generator.h>
-#include <prismo/generator/operation/barrier.h>
 #include <prismo/worker/utils.h>
 
 namespace Worker {

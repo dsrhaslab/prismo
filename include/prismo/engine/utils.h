@@ -7,7 +7,7 @@
 #include <libaio.h>
 #include <liburing.h>
 #include <nlohmann/json.hpp>
-#include <prismo/generator/operation/type.h>
+#include <common/operation.h>
 #include <prismo/generator/content/metadata.h>
 
 using json = nlohmann::json;
@@ -40,7 +40,7 @@ namespace Engine {
     struct MetricData {
         size_t size;
         uint64_t offset;
-        int64_t start_timestamp;
+        uint64_t start_timestamp;
         Generator::BlockMetadata metadata;
         Operation::OperationType operation_type;
     };

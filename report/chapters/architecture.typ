@@ -438,8 +438,8 @@ Durante a execução de workloads, o benchmark é responsável por recolher mét
     raw_code_block[
       ```c
       struct BaseMetric : Metric {
-        int64_t sts;
-        int64_t ets;
+        uint64_t sts;
+        uint64_t ets;
         uint64_t block_id;
         uint32_t compression;
         OperationType op;

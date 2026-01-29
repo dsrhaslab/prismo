@@ -2,33 +2,33 @@
 #include <fstream>
 #include <iostream>
 #include <common/trace.h>
+#include <common/operation.h>
 #include <argparse/argparse.hpp>
-
+#include <lib/komihash/komihash.h>
 
 bool parse_line(const std::string& line, Trace::Record& record) {
     std::istringstream iss(line);
     std::string process;
-    std::string hash;
+    std::string block_id;
+    char operation;
 
     iss >> record.timestamp
         >> record.pid
         >> process
         >> record.offset
         >> record.size
-        >> record.rw
+        >> operation
         >> record.major
         >> record.minor
-        >> hash;
+        >> block_id;
 
     if (iss.fail()) {
         return false;
     }
 
-    std::memset(record.hash, 0, sizeof(record.hash));
-    std::memset(record.process, 0, sizeof(record.process));
-
-    std::memcpy(record.hash, hash.c_str(), sizeof(record.hash) - 1);
-    std::memcpy(record.process, process.c_str(), sizeof(record.process) - 1);
+    record.operation = Operation::operation_from_char(operation);
+    record.process = komihash(process.data(), process.size(), 0);
+    record.block_id = komihash(block_id.data(), block_id.size(), 0);
 
     return true;
 }

@@ -1,10 +1,9 @@
-#ifndef PROTOCOL_H
-#define PROTOCOL_H
+#ifndef IO_PROTOCOL_H
+#define IO_PROTOCOL_H
 
 #include <cstddef>
 #include <fcntl.h>
 #include <cstdint>
-#include <prismo/generator/operation/type.h>
 #include <prismo/generator/content/metadata.h>
 
 namespace Protocol {

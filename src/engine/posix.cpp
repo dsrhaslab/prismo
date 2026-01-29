@@ -47,7 +47,7 @@ namespace Engine {
 
     void PosixEngine::submit(Protocol::CommonRequest& request) {
         ssize_t result = 0;
-        int64_t start_timestamp = Metric::get_current_timestamp();
+        uint64_t start_timestamp = Metric::get_current_timestamp();
 
         switch (request.operation) {
             case Operation::OperationType::READ:

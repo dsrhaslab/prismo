@@ -1,10 +1,10 @@
-#ifndef METRIC_H
-#define METRIC_H
+#ifndef IO_METRIC_H
+#define IO_METRIC_H
 
 #include <cstdint>
 #include <chrono>
 #include <thread>
-#include <prismo/generator/operation/type.h>
+#include <common/operation.h>
 
 namespace Metric {
 
@@ -41,8 +41,8 @@ namespace Metric {
     struct BaseMetric : Metric {
         uint64_t block_id;
         uint32_t compression;
-        int64_t start_timestamp;
-        int64_t end_timestamp;
+        uint64_t start_timestamp;
+        uint64_t end_timestamp;
         Operation::OperationType operation_type{};
 
         BaseMetric() : Metric(MetricType::Base) {}
@@ -81,7 +81,7 @@ namespace Metric {
         }
     };
 
-    inline int64_t get_current_timestamp() noexcept {
+    inline uint64_t get_current_timestamp() noexcept {
         return std::chrono::duration_cast<std::chrono::nanoseconds>(
             std::chrono::steady_clock::now().time_since_epoch()
         ).count();
@@ -92,14 +92,15 @@ namespace Metric {
         Operation::OperationType op,
         uint64_t block_id,
         uint32_t compression,
-        int64_t start_ts,
-        int64_t end_ts,
+        uint64_t start_ts,
+        uint64_t end_ts,
         ssize_t result,
         size_t size,
         uint64_t offset
     ) {
-        if (metric.type < MetricType::Base)
+        if (metric.type < MetricType::Base) {
             return;
+        }
 
         auto& base = static_cast<BaseMetric&>(metric);
         base.operation_type  = op;
@@ -108,15 +109,17 @@ namespace Metric {
         base.start_timestamp = start_ts;
         base.end_timestamp   = end_ts;
 
-        if (metric.type < MetricType::Standard)
+        if (metric.type < MetricType::Standard) {
             return;
+        }
 
         auto& standard = static_cast<StandardMetric&>(metric);
         standard.pid = ::getpid();
         standard.tid = std::hash<std::thread::id>{}(std::this_thread::get_id());
 
-        if (metric.type < MetricType::Full)
+        if (metric.type < MetricType::Full) {
             return;
+        }
 
         auto& full = static_cast<FullMetric&>(metric);
         full.requested_bytes = size;

@@ -1,4 +1,4 @@
-#include <prismo/parser/parser.h>
+#include <prismo/parser/factory.h>
 
 namespace Parser {
 

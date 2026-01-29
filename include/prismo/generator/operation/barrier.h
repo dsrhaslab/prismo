@@ -5,7 +5,6 @@
 #include <vector>
 #include <iostream>
 #include <nlohmann/json.hpp>
-#include <prismo/generator/operation/type.h>
 
 using json = nlohmann::json;
 

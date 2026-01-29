@@ -35,7 +35,7 @@ namespace Generator {
                 std::memset(buffer, 0, size);
                 std::memcpy(buffer, &block_id, sizeof(block_id));
                 return BlockMetadata {
-                    .block_id = block_id++,
+                    .block_id = block_id,
                     .compression = 100
                 };
             }

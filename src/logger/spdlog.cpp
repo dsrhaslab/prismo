@@ -63,7 +63,7 @@ auto fmt::formatter<Metric::BaseMetric>::format(
 ) const -> decltype(ctx.out()) {
     return fmt::format_to(
         ctx.out(),
-        "[type={} block={} cpr={} sts={} ets={}]",
+        "[type={} block={:016x} cpr={} sts={} ets={}]",
         static_cast<uint8_t>(metric.operation_type),
         metric.block_id,
         metric.compression,
@@ -78,7 +78,7 @@ auto fmt::formatter<Metric::StandardMetric>::format(
 ) const -> decltype(ctx.out()) {
     return fmt::format_to(
         ctx.out(),
-        "[type={} block={} cpr={} sts={} ets={} pid={} tid={}]",
+        "[type={} block={:016x} cpr={} sts={} ets={} pid={} tid={}]",
         static_cast<uint8_t>(metric.operation_type),
         metric.block_id,
         metric.compression,
@@ -95,7 +95,7 @@ auto fmt::formatter<Metric::FullMetric>::format(
 ) const -> decltype(ctx.out()) {
     return fmt::format_to(
         ctx.out(),
-        "[type={} block={} cpr={} sts={} ets={} pid={} tid={} req={} proc={} offset={} ret={} errno={}]",
+        "[type={} block={:016x} cpr={} sts={} ets={} pid={} tid={} req={} proc={} offset={} ret={} errno={}]",
         static_cast<uint8_t>(metric.operation_type),
         metric.block_id,
         metric.compression,

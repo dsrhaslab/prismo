@@ -1,8 +1,8 @@
 #include <fstream>
-#include <prismo/parser/parser.h>
+#include <argparse/argparse.hpp>
+#include <prismo/parser/factory.h>
 #include <prismo/worker/producer.h>
 #include <prismo/worker/consumer.h>
-#include <argparse/argparse.hpp>
 
 
 int main(int argc, char** argv) {
@@ -124,6 +124,5 @@ int main(int argc, char** argv) {
     Worker::destroy_queue_packet(*to_producer, QUEUE_INITIAL_CAPACITY);
     config_file.close();
 
-    std::cout << "End" << std::endl;
     return 0;
 }
