@@ -14,31 +14,40 @@ namespace Generator {
         public ContentGenerator
     {
         private:
-            Parser::TraceReader trace_reader;
+            std::optional<Parser::TraceReader> trace_reader;
 
-            Trace::Record next_record(void) {
-                std::optional<Trace::Record> record = trace_reader.next_record();
+            Trace::Record next_record() {
+                auto record = trace_reader->next_record();
+                std::cout << "ola2" << std::endl;
                 if (!record.has_value()) {
-                    trace_reader.reset();
-                    record = trace_reader.next_record();
+                    std::cout << "Resetting trace reader" << std::endl;
+                    trace_reader->reset();
+                    std::cout << "Reading next record after reset" << std::endl;
+                    record = trace_reader->next_record();
                 }
+                std::cout << "ola3" << std::endl;
                 return record.value();
-            };
+            }
 
         public:
-            RealisticRepeatGenerator() = default;
-
-            RealisticRepeatGenerator(const Parser::TraceReaderConfig& trace_reader_config)
-                : AccessGenerator(), OperationGenerator(), ContentGenerator(),
-                trace_reader(trace_reader_config) {};
+            RealisticRepeatGenerator() = delete;
 
             ~RealisticRepeatGenerator() override {
                 std::cout << "~Destroying RealisticRepeatGenerator" << std::endl;
             };
 
+            explicit RealisticRepeatGenerator(const json& j)
+                : AccessGenerator(j), trace_reader(j) {};
+
+            void validate(void) const override {
+                AccessGenerator::validate();
+            }
+
             uint64_t next_offset(void) override {
+                std::cout << "ola" << std::endl;
                 Trace::Record record = next_record();
-                return record.offset;
+                std::cout << "ola" << std::endl;
+                return record.offset % limit;
             };
 
             Operation::OperationType next_operation(void) override {

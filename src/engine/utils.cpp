@@ -32,7 +32,7 @@ namespace Engine {
             if (it != flag_map.end()) {
                 config.value |= it->second;
             } else {
-                throw std::invalid_argument("from_json: open flag value '" + value.template get<std::string>() + "' not recognized");
+                throw std::invalid_argument("from_json: open flag value '" + value.get<std::string>() + "' not recognized");
             }
         }
     };
@@ -57,7 +57,7 @@ namespace Engine {
             if (it != params_flag_map.end()) {
                 config.params.flags |= it->second;
             } else {
-                throw std::invalid_argument("from_json: uring params flag value '" + value.template get<std::string>() + "' not recognized");
+                throw std::invalid_argument("from_json: uring params flag value '" + value.get<std::string>() + "' not recognized");
             }
         }
     };

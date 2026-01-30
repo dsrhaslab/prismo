@@ -2,7 +2,7 @@
   "job": {
     "name": "job",
     "numjobs": 1,
-    "iterations": 20,
+    "iterations": 1e5,
     "filename": "testfile",
     "block_size": 4096,
     "limit": 65536,
@@ -26,18 +26,20 @@
       "write",
       "read"
     ],
-    "barrier": [
+    "brrier": [
     ]
   },
 
   "access": {
-    "type": "zipfian",
-    "skew": 0.9
+    "type": "sequential",
+    "skew": 0.9,
+    "trace": "/home/digo/Desktop/prismo/",
+    "memory": 4096
   },
 
   "generator": {
     "type": "dedup",
-    "refill_buffers": false,
+    "refill": false,
     "distribution": [
       {
         "percentage": 20,

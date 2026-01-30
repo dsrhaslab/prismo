@@ -35,7 +35,6 @@ int main(int argc, char** argv) {
     json job_json = config_json.at("job");
     json access_json = config_json.at("access");
     json operation_json = config_json.at("operation");
-    json barrier_json = operation_json.at("barrier");
     json generator_json = config_json.at("generator");
     json engine_json = config_json.at("engine");
     json logging_json = config_json.at("logging");
@@ -63,8 +62,8 @@ int main(int argc, char** argv) {
         Parser::get_content_generator(generator_json);
 
     std::cout << "Parse MultipleBarrier" << std::endl;
-    std::unique_ptr<Generator::MultipleBarrier> barrier =
-        Parser::get_multiple_barrier(barrier_json);
+    std::optional<Generator::MultipleBarrier> barrier =
+        Parser::get_multiple_barrier(operation_json);
 
     std::cout << "Parse Metric" << std::endl;
     std::unique_ptr metric = Parser::get_metric(job_json);

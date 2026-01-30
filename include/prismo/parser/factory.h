@@ -8,6 +8,7 @@
 #include <prismo/generator/content/deduplication.h>
 #include <prismo/generator/operation/generator.h>
 #include <prismo/generator/operation/barrier.h>
+#include <prismo/generator/realistic/repeat.h>
 #include <prismo/logger/logger.h>
 #include <prismo/logger/spdlog.h>
 #include <prismo/engine/engine.h>
@@ -21,7 +22,8 @@ namespace Parser {
     std::unique_ptr<Generator::AccessGenerator> get_access_generator(const json& config);
     std::unique_ptr<Generator::ContentGenerator> get_content_generator(const json& config);
     std::unique_ptr<Generator::OperationGenerator> get_operation_generator(const json& config);
-    std::unique_ptr<Generator::MultipleBarrier> get_multiple_barrier(const json& config);
+
+    std::optional<Generator::MultipleBarrier> get_multiple_barrier(const json& config);
 
     std::unique_ptr<Metric::Metric> get_metric(const json& config);
     std::unique_ptr<Logger::Logger> get_logger(const json& config);

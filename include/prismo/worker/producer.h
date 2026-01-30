@@ -10,7 +10,7 @@ namespace Worker {
             std::unique_ptr<Generator::AccessGenerator> access;
             std::unique_ptr<Generator::OperationGenerator> operation;
             std::unique_ptr<Generator::ContentGenerator> content;
-            std::unique_ptr<Generator::MultipleBarrier> barrier;
+            std::optional<Generator::MultipleBarrier> barrier;
             std::shared_ptr<moodycamel::ConcurrentQueue<Protocol::Packet*>> to_producer;
             std::shared_ptr<moodycamel::ConcurrentQueue<Protocol::Packet*>> to_consumer;
 
@@ -19,7 +19,7 @@ namespace Worker {
                 std::unique_ptr<Generator::AccessGenerator> _access,
                 std::unique_ptr<Generator::OperationGenerator> _operation,
                 std::unique_ptr<Generator::ContentGenerator> _content,
-                std::unique_ptr<Generator::MultipleBarrier> _barrier,
+                std::optional<Generator::MultipleBarrier> _barrier,
                 std::shared_ptr<moodycamel::ConcurrentQueue<Protocol::Packet*>> _to_producer,
                 std::shared_ptr<moodycamel::ConcurrentQueue<Protocol::Packet*>> _to_consumer
             ) :
@@ -42,7 +42,11 @@ namespace Worker {
                         packet = packets[ready];
                         packet->request.fd = fd;
                         packet->request.offset = access->next_offset();
-                        packet->request.operation = barrier->apply(operation->next_operation());
+                        packet->request.operation = operation->next_operation();
+
+                        if (barrier.has_value()) {
+                            packet->request.operation = barrier->apply(packet->request.operation);
+                        }
 
                         packet->request.metadata.block_id = 0;
                         packet->request.metadata.compression = 0;

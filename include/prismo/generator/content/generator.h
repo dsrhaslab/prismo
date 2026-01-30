@@ -11,7 +11,7 @@ namespace Generator {
 
     class ContentGenerator {
         protected:
-            uint64_t block_id = 0;
+            uint64_t block_id = 1;
 
         public:
             ContentGenerator() = default;
@@ -21,6 +21,8 @@ namespace Generator {
             }
 
             virtual BlockMetadata next_block(uint8_t* buffer, size_t size) = 0;
+
+            virtual void validate(void) const = 0;
     };
 
     class ConstantContentGenerator : public ContentGenerator {
@@ -30,6 +32,8 @@ namespace Generator {
             ~ConstantContentGenerator() override {
                 std::cout << "~Destroying ConstantContentGenerator" << std::endl;
             }
+
+            void validate(void) const override {}
 
             BlockMetadata next_block(uint8_t* buffer, size_t size) override {
                 std::memset(buffer, 0, size);
@@ -54,6 +58,8 @@ namespace Generator {
             ~RandomContentGenerator() override {
                 std::cout << "~Destroying RandomContentGenerator" << std::endl;
             }
+
+            void validate(void) const override {}
 
             BlockMetadata next_block(uint8_t* buffer, size_t size) {
                 prng_gen(&generator, buffer, size);

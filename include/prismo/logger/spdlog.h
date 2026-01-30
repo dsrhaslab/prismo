@@ -13,27 +13,21 @@ using json = nlohmann::json;
 
 namespace Logger {
 
-    struct SpdlogConfig {
-        std::string name;
-        size_t queue_size;
-        size_t thread_count;
-        bool truncate;
-        bool to_stdout;
-        std::vector<std::string> files;
-    };
-
     class Spdlog : public Logger {
         private:
             std::shared_ptr<spdlog::logger> logger;
 
         public:
-            Spdlog(const SpdlogConfig& config);
-            ~Spdlog() override;
+            Spdlog() = delete;
+
+            ~Spdlog() override {
+                std::cout << "~Destroying Spdlog Logger" << std::endl;
+            };
+
+            explicit Spdlog(const json& j);
 
             void info(Metric::Metric& metric) override;
         };
-
-    void from_json(const json& j, SpdlogConfig& config);
 };
 
 template<>

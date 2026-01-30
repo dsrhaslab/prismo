@@ -20,10 +20,21 @@ namespace Generator {
             std::vector<PercentageElement<uint32_t, uint32_t>> distribution;
 
         public:
-            void add_compression(
-                PercentageElement<uint32_t, uint32_t> compression_percentage
-            ) {
-                distribution.push_back(compression_percentage);
+            CompressionGenerator() = default;
+
+            ~CompressionGenerator() {
+                std::cout << "~Destroying CompressionGenerator" << std::endl;
+            };
+
+            explicit CompressionGenerator(const json& j) : distribution() {
+                uint32_t cumulative = 0;
+                for (const auto& item : j) {
+                    cumulative += item.at("percentage").get<uint32_t>();
+                    distribution.push_back(PercentageElement<uint32_t, uint32_t> {
+                        .cumulative_percentage = cumulative,
+                        .value = item.at("reduction").get<uint32_t>(),
+                    });
+                }
             };
 
             uint32_t select_compression(uint32_t roll) {
@@ -33,23 +44,6 @@ namespace Generator {
             void validate(void) const {
                 validate_percentage_vector(distribution, "compression");
             };
-
-            friend inline void from_json(const json& j, CompressionGenerator& config) {
-                uint32_t cumulative = 0;
-
-                for (const auto& item : j.at("compression")) {
-                    cumulative += item.at("percentage").get<uint32_t>();
-                    uint32_t compression = item.at("reduction").get<uint32_t>();
-
-                    config.add_compression(
-                        PercentageElement<uint32_t, uint32_t> {
-                            .cumulative_percentage = cumulative,
-                            .value = compression,
-                    });
-                }
-
-                config.validate();
-            }
     };
 }
 

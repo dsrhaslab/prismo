@@ -4,92 +4,98 @@ namespace Parser {
 
     std::unique_ptr<Generator::AccessGenerator> get_access_generator(const json& config) {
         std::string type = config.at("type").get<std::string>();
+        std::unique_ptr<Generator::AccessGenerator> access_generator;
 
         if (type == "sequential") {
-            return std::make_unique<Generator::SequentialAccessGenerator>(
-                config.get<Generator::SequentialAccessGenerator>()
-            );
+            access_generator = std::make_unique<Generator::SequentialAccessGenerator>(config);
         } else if (type == "random") {
-            return std::make_unique<Generator::RandomAccessGenerator>(
-                config.get<Generator::RandomAccessGenerator>()
-            );
+            access_generator = std::make_unique<Generator::RandomAccessGenerator>(config);
         } else if (type == "zipfian") {
-            return std::make_unique<Generator::ZipfianAccessGenerator>(
-                config.get<Generator::ZipfianAccessGenerator>()
-            );
+            access_generator = std::make_unique<Generator::ZipfianAccessGenerator>(config);
+        } else if (type == "repeat") {
+            access_generator = std::make_unique<Generator::RealisticRepeatGenerator>(config);
         } else {
             throw std::invalid_argument("get_access: type '" + type + "' not recognized");
         }
-    }
 
-    std::unique_ptr<Generator::ContentGenerator> get_content_generator(const json& config) {
-        std::string type = config.at("type").get<std::string>();
-
-        if (type == "constant") {
-            return std::make_unique<Generator::ConstantContentGenerator>();
-        } else if (type == "random") {
-            return std::make_unique<Generator::RandomContentGenerator>();
-        } else if (type == "dedup") {
-            return std::make_unique<Generator::DeduplicationContentGenerator>(
-                config.get<Generator::DeduplicationContentGeneratorConfig>()
-            );
-        } else {
-            throw std::invalid_argument("get_generator: type '" + type + "' not recognized");
-        }
+        access_generator->validate();
+        return access_generator;
     }
 
     std::unique_ptr<Generator::OperationGenerator> get_operation_generator(const json& config) {
         std::string type = config.at("type").get<std::string>();
+        std::unique_ptr<Generator::OperationGenerator> operation_generator;
 
         if (type == "constant") {
-            return std::make_unique<Generator::ConstantOperationGenerator>(
-                config.get<Generator::ConstantOperationGenerator>()
-            );
+            operation_generator = std::make_unique<Generator::ConstantOperationGenerator>(config);
         } else if (type == "percentage") {
-            return std::make_unique<Generator::PercentageOperationGenerator>(
-                config.get<Generator::PercentageOperationGenerator>()
-            );
+            operation_generator = std::make_unique<Generator::PercentageOperationGenerator>(config);
         } else if (type == "sequence") {
-            return std::make_unique<Generator::SequenceOperationGeneator>(
-                config.get<Generator::SequenceOperationGeneator>()
-            );
+            operation_generator = std::make_unique<Generator::SequenceOperationGeneator>(config);
+        } else if (type == "repeat") {
+            operation_generator = std::make_unique<Generator::RealisticRepeatGenerator>(config);
         } else {
             throw std::invalid_argument("get_operation: type '" + type + "' not recognized");
         }
+
+        operation_generator->validate();
+        return operation_generator;
     }
 
-    std::unique_ptr<Generator::MultipleBarrier> get_multiple_barrier(const json& config) {
-        return std::make_unique<Generator::MultipleBarrier>(
-            config.get<Generator::MultipleBarrier>()
-        );
+    std::optional<Generator::MultipleBarrier> get_multiple_barrier(const json& config) {
+        return config.contains("barrier")
+            ? std::optional<Generator::MultipleBarrier>{config}
+            : std::nullopt;
     }
 
-    std::unique_ptr<Metric::Metric> get_metric(const json& config) {
-        std::string type = config.at("metric").get<std::string>();
+    std::unique_ptr<Generator::ContentGenerator> get_content_generator(const json& config) {
+        std::string type = config.at("type").get<std::string>();
+        std::unique_ptr<Generator::ContentGenerator> content_generator;
 
-        if (type == "none") {
-            return std::make_unique<Metric::NoneMetric>();
-        } else if (type == "base") {
-            return std::make_unique<Metric::BaseMetric>();
-        } else if (type == "standard") {
-            return std::make_unique<Metric::StandardMetric>();
-        } else if (type == "full") {
-            return std::make_unique<Metric::FullMetric>();
+        if (type == "constant") {
+            content_generator = std::make_unique<Generator::ConstantContentGenerator>();
+        } else if (type == "random") {
+            content_generator = std::make_unique<Generator::RandomContentGenerator>();
+        } else if (type == "dedup") {
+            content_generator = std::make_unique<Generator::DeduplicationContentGenerator>(config);
         } else {
-            throw std::invalid_argument("get_metric: type '" + type + "' not recognized");
+            throw std::invalid_argument("get_generator: type '" + type + "' not recognized");
         }
+
+        content_generator->validate();
+        return content_generator;
     }
 
     std::unique_ptr<Logger::Logger> get_logger(const json& config) {
         const std::string type = config.at("type").get<std::string>();
+        std::unique_ptr<Logger::Logger> logger;
 
         if (type == "spdlog") {
-            return std::make_unique<Logger::Spdlog>(
-                config.get<Logger::SpdlogConfig>()
-            );
+            logger = std::make_unique<Logger::Spdlog>(config);
         } else {
             throw std::invalid_argument("get_logger: type '" + type + "' not recognized");
         }
+
+        return logger;
+    }
+
+    std::unique_ptr<Metric::Metric> get_metric(const json& config) {
+        std::string type = config.at("metric").get<std::string>();
+        std::unique_ptr<Metric::Metric> metric;
+
+        if (type == "none") {
+            metric = std::make_unique<Metric::NoneMetric>();
+        } else if (type == "base") {
+            metric = std::make_unique<Metric::BaseMetric>();
+        } else if (type == "standard") {
+            metric = std::make_unique<Metric::StandardMetric>();
+        } else if (type == "full") {
+            metric = std::make_unique<Metric::FullMetric>();
+        } else {
+            throw std::invalid_argument("get_metric: type '" + type + "' not recognized");
+        }
+
+        return metric;
     }
 
     std::unique_ptr<Engine::Engine> get_engine(

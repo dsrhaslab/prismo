@@ -12,40 +12,30 @@ namespace Generator {
 
     class Barrier {
         private:
-            uint64_t counter = 0;
-            uint64_t everyN;
+            uint64_t counter;
+            uint64_t barrier;
             Operation::OperationType barrier_operation;
             Operation::OperationType trigger_operation;
 
         public:
-            Barrier() = default;
+            Barrier() = delete;
 
-            Barrier(
-                size_t _everyN,
-                Operation::OperationType _barrier_operation,
-                Operation::OperationType _trigger_operation
-            ) :
-                counter(0),
-                everyN(_everyN),
-                barrier_operation(_barrier_operation),
-                trigger_operation(_trigger_operation) {};
+            explicit Barrier(const json& j) : counter(0) {
+                barrier = j.at("barrier").get<size_t>();
+                barrier_operation = Operation::operation_from_str(
+                    j.at("operation").get<std::string>()
+                );
+                trigger_operation = Operation::operation_from_str(
+                    j.at("trigger").get<std::string>()
+                );
+            };
 
             Operation::OperationType apply(Operation::OperationType operation) {
-                if (operation == trigger_operation && counter++ == everyN) {
+                if (operation == trigger_operation && counter++ == barrier) {
                     counter = 0;
                     return barrier_operation;
                 }
                 return operation;
-            };
-
-            friend void from_json(const json& j, Barrier& barrier) {
-                j.at("counter").get_to(barrier.everyN);
-                barrier.barrier_operation = Operation::operation_from_str(
-                    j.at("operation").template get<std::string>()
-                );
-                barrier.trigger_operation = Operation::operation_from_str(
-                    j.at("trigger").template get<std::string>()
-                );
             };
     };
 
@@ -54,29 +44,23 @@ namespace Generator {
             std::vector<Barrier> barriers;
 
         public:
-            MultipleBarrier() = default;
+            MultipleBarrier() = delete;
 
             ~MultipleBarrier() {
                 std::cout << "~Destroying MultipleBarrier" << std::endl;
             }
 
-            void addBarrier(Barrier barrier) {
-                barriers.push_back(barrier);
-            }
+            explicit MultipleBarrier(const json& j) : barriers() {
+                for (const auto& barrier_json : j) {
+                    barriers.emplace_back(barrier_json);
+                }
+            };
 
             Operation::OperationType apply(Operation::OperationType operation) {
                 for (auto& barrier : barriers) {
                     operation = barrier.apply(operation);
                 }
                 return operation;
-            };
-
-            friend void from_json(const json& j, MultipleBarrier& multiple_barrier) {
-                for (const auto& barrier : j) {
-                    multiple_barrier.barriers.push_back(
-                        barrier.template get<Barrier>()
-                    );
-                }
             };
     };
 

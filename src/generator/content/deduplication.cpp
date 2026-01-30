@@ -2,16 +2,27 @@
 
 namespace Generator {
 
-    DeduplicationContentGenerator::DeduplicationContentGenerator(
-        const DeduplicationContentGeneratorConfig& _config
-    ) :
-        ContentGenerator(),
-        pool(_config.get_block_size()),
-        config(_config),
+    DeduplicationContentGenerator::DeduplicationContentGenerator(const json& j)
+        : ContentGenerator(),
+        refill(j.at("refill").get<bool>()),
+        block_size(j.at("block_size").get<size_t>()),
+        pool(j.at("block_size").get<size_t>()),
         distribution(0, 99)
     {
-        refill_buffer = std::make_unique<uint8_t[]>(config.get_block_size());
-        random_generator.next_block(refill_buffer.get(), config.get_block_size());
+        uint32_t cumulative_deduplication = 0;
+        for (const auto& dedup_item : j.at("distribution")) {
+            cumulative_deduplication += dedup_item.at("percentage").get<uint32_t>();
+            uint32_t repeats = dedup_item.at("repeats").get<uint32_t>();
+
+            compression_generators[repeats] = CompressionGenerator{dedup_item.at("compression")};
+            dedup_percentages.emplace_back(PercentageElement<uint32_t, uint32_t> {
+                .cumulative_percentage = cumulative_deduplication,
+                .value = repeats,
+            });
+        }
+
+        refill_buffer = std::make_unique<uint8_t[]>(block_size);
+        random_generator.next_block(refill_buffer.get(), block_size);
     }
 
     BlockMetadata DeduplicationContentGenerator::next_block(
@@ -21,8 +32,13 @@ namespace Generator {
         uint32_t deduplication_roll = distribution.nextValue();
         uint32_t compression_roll = distribution.nextValue();
 
-        uint32_t selected_repeats = config.select_repeats(deduplication_roll);
-        uint32_t selected_compression = config.select_compression(compression_roll, selected_repeats);
+        uint32_t selected_repeats = select_from_percentage_vector(
+            deduplication_roll,
+            dedup_percentages
+        );
+
+        uint32_t selected_compression = compression_generators[selected_repeats]
+            .select_compression(compression_roll);
 
         if (selected_repeats == 0) {
             DedupElement element = create_dedup_element(selected_repeats, selected_compression, size);
@@ -65,7 +81,7 @@ namespace Generator {
 
         // improve memcpy to not overlap compression area
         // maybe not because size could be strange for random generator
-        if (config.get_refill_buffers()) {
+        if (refill) {
             random_generator.next_block(dedup_element.buffer, size);
         } else {
             std::memcpy(dedup_element.buffer, refill_buffer.get(), size);

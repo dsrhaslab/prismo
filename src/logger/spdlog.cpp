@@ -2,22 +2,26 @@
 
 namespace Logger {
 
-    Spdlog::Spdlog(const SpdlogConfig& config) : Logger() {
+    Spdlog::Spdlog(const json& j) : Logger() {
         std::vector<spdlog::sink_ptr> sinks;
-        spdlog::init_thread_pool(config.queue_size, config.thread_count);
+        spdlog::init_thread_pool(
+            j.at("queue_size").get<size_t>(),
+            j.at("thread_count").get<size_t>()
+        );
 
-        if (config.to_stdout) {
+        if (j.at("to_stdout").get<bool>()) {
             auto stdout_sink = std::make_shared<spdlog::sinks::stdout_sink_mt>();
             sinks.push_back(stdout_sink);
         }
 
-        for (auto& file : config.files) {
-            auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(file, config.truncate);
+        for (auto& file : j.at("files").get<std::vector<std::string>>()) {
+            auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>
+                (file, j.at("truncate").get<bool>());
             sinks.push_back(file_sink);
         }
 
         logger = std::make_shared<spdlog::async_logger>(
-            config.name,
+            j.at("name").get<std::string>(),
             sinks.begin(),
             sinks.end(),
             spdlog::thread_pool(),
@@ -25,10 +29,6 @@ namespace Logger {
         );
 
         spdlog::register_logger(logger);
-    }
-
-    Spdlog::~Spdlog() {
-        std::cout << "~Destroying Spdlog" << std::endl;
     }
 
     void Spdlog::info(Metric::Metric& metric) {
@@ -46,15 +46,6 @@ namespace Logger {
                 break;
         }
     }
-
-    void from_json(const json& j, SpdlogConfig& config) {
-        config.name         = j.at("name").get<std::string>();
-        config.queue_size   = j.at("queue_size").get<size_t>();
-        config.thread_count = j.at("thread_count").get<size_t>();
-        config.truncate     = j.at("truncate").get<bool>();
-        config.to_stdout    = j.at("to_stdout").get<bool>();
-        config.files        = j.at("files").get<std::vector<std::string>>();
-    };
 };
 
 auto fmt::formatter<Metric::BaseMetric>::format(
