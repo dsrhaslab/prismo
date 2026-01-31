@@ -10,9 +10,6 @@
 namespace Generator {
 
     class ContentGenerator {
-        protected:
-            uint64_t block_id = 1;
-
         public:
             ContentGenerator() = default;
 
@@ -26,6 +23,9 @@ namespace Generator {
     };
 
     class ConstantContentGenerator : public ContentGenerator {
+        private:
+            uint64_t block_id = 1;
+
         public:
             ConstantContentGenerator() = default;
 
@@ -63,9 +63,10 @@ namespace Generator {
 
             BlockMetadata next_block(uint8_t* buffer, size_t size) {
                 prng_gen(&generator, buffer, size);
+                uint64_t block_id = *reinterpret_cast<uint64_t*>(buffer);
                 std::memcpy(buffer, &block_id, sizeof(block_id));
                 return BlockMetadata {
-                    .block_id = block_id++,
+                    .block_id = block_id,
                     .compression = 0
                 };
             }

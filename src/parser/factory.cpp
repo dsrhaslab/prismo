@@ -44,8 +44,19 @@ namespace Parser {
 
     std::optional<Generator::MultipleBarrier> get_multiple_barrier(const json& config) {
         return config.contains("barrier")
-            ? std::optional<Generator::MultipleBarrier>{config}
+            ? std::optional<Generator::MultipleBarrier>{config.at("barrier")}
             : std::nullopt;
+    }
+
+    std::optional<Generator::CompressionGenerator> get_compression_generator(const json& config) {
+        std::optional<Generator::CompressionGenerator> compression_generator = std::nullopt;
+
+        if (config.contains("compression")) {
+            compression_generator = std::optional<Generator::CompressionGenerator>{config.at("compression")};
+            compression_generator->validate();
+        }
+
+        return compression_generator;
     }
 
     std::unique_ptr<Generator::ContentGenerator> get_content_generator(const json& config) {

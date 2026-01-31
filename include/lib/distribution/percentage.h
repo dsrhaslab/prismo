@@ -1,6 +1,9 @@
 #ifndef PERCENTAGE_DISTRIBUTION_H
 #define PERCENTAGE_DISTRIBUTION_H
 
+#include <vector>
+#include <string>
+
 template<typename PercentageT, typename ValueT>
 struct PercentageElement {
     PercentageT cumulative_percentage;

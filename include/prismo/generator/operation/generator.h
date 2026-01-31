@@ -4,6 +4,7 @@
 #include <vector>
 #include <iostream>
 #include <nlohmann/json.hpp>
+#include <common/operation.h>
 #include <lib/distribution/distribution.h>
 #include <lib/distribution/percentage.h>
 
@@ -49,8 +50,8 @@ namespace Generator {
 
     class PercentageOperationGenerator : public OperationGenerator {
         private:
+        Distribution::UniformDistribution<uint32_t> rng;
             std::vector<PercentageElement<uint32_t, Operation::OperationType>> op_percentages;
-            Distribution::UniformDistribution<uint32_t> distribution;
 
         public:
             PercentageOperationGenerator() = delete;
@@ -60,7 +61,7 @@ namespace Generator {
             };
 
             explicit PercentageOperationGenerator(const json& j)
-                : OperationGenerator(), op_percentages(), distribution(0, 99)
+                : OperationGenerator(), rng(0,99), op_percentages()
             {
                 uint32_t cumulative = 0;
                 for (const auto& item: j.at("percentages").items()) {
@@ -74,8 +75,7 @@ namespace Generator {
 
 
             Operation::OperationType next_operation(void) override {
-                uint32_t roll = distribution.nextValue();
-                return select_from_percentage_vector(roll, op_percentages);
+                return select_from_percentage_vector(rng.nextValue(), op_percentages);
             };
 
             void validate(void) const {
@@ -86,7 +86,6 @@ namespace Generator {
     class SequenceOperationGeneator : public OperationGenerator {
         private:
             size_t index;
-            size_t length;
             std::vector<Operation::OperationType> operations;
 
         public:
@@ -97,18 +96,17 @@ namespace Generator {
             };
 
             explicit SequenceOperationGeneator(const json& j)
-                : OperationGenerator(), index(0), length(0), operations()
+                : OperationGenerator(), index(0), operations()
             {
                 for (auto& item : j.at("operations")) {
                     auto op_str = item.get<std::string>();
                     operations.push_back(Operation::operation_from_str(op_str));
                 }
-                length = operations.size();
             };
 
             Operation::OperationType next_operation(void) override{
                 Operation::OperationType operation = operations.at(index);
-                index = (index + 1) % length;
+                index = (index + 1) % operations.size();
                 return operation;
             };
 

@@ -61,6 +61,10 @@ int main(int argc, char** argv) {
     std::unique_ptr<Generator::ContentGenerator> content =
         Parser::get_content_generator(generator_json);
 
+    std::cout << "Parse CompressionGenerator" << std::endl;
+    std::optional<Generator::CompressionGenerator> compression =
+        Parser::get_compression_generator(generator_json);
+
     std::cout << "Parse MultipleBarrier" << std::endl;
     std::optional<Generator::MultipleBarrier> barrier =
         Parser::get_multiple_barrier(operation_json);
@@ -87,6 +91,7 @@ int main(int argc, char** argv) {
         std::move(access),
         std::move(operation),
         std::move(content),
+        std::move(compression),
         std::move(barrier),
         to_producer,
         to_consumer

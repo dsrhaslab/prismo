@@ -69,7 +69,7 @@ namespace Generator {
     class RandomAccessGenerator : public AccessGenerator {
         private:
             size_t normalized_limit;
-            Distribution::UniformDistribution<uint64_t> distribution;
+            Distribution::UniformDistribution<uint64_t> rng;
 
         public:
             RandomAccessGenerator() = delete;
@@ -79,14 +79,14 @@ namespace Generator {
             }
 
             explicit RandomAccessGenerator(const json& j)
-                : AccessGenerator(j), normalized_limit(0), distribution(0, 99)
+                : AccessGenerator(j), normalized_limit(0), rng()
             {
                 normalized_limit = limit / block_size - 1;
-                distribution.setParams(0, normalized_limit);
+                rng.setParams(0, normalized_limit);
             };
 
             uint64_t next_offset(void) override {
-                return static_cast<uint64_t>(distribution.nextValue() * block_size);
+                return static_cast<uint64_t>(rng.nextValue() * block_size);
             };
 
             void validate(void) const {

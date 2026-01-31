@@ -5,6 +5,7 @@
 #include <vector>
 #include <iostream>
 #include <nlohmann/json.hpp>
+#include <common/operation.h>
 
 using json = nlohmann::json;
 
@@ -13,7 +14,8 @@ namespace Generator {
     class Barrier {
         private:
             uint64_t counter;
-            uint64_t barrier;
+            uint64_t threshold;
+
             Operation::OperationType barrier_operation;
             Operation::OperationType trigger_operation;
 
@@ -21,7 +23,7 @@ namespace Generator {
             Barrier() = delete;
 
             explicit Barrier(const json& j) : counter(0) {
-                barrier = j.at("barrier").get<size_t>();
+                threshold = j.at("threshold").get<size_t>();
                 barrier_operation = Operation::operation_from_str(
                     j.at("operation").get<std::string>()
                 );
@@ -30,8 +32,12 @@ namespace Generator {
                 );
             };
 
+            uint64_t get_threshold(void) const { return threshold; }
+
+            uint64_t get_counter(void) const { return counter; }
+
             Operation::OperationType apply(Operation::OperationType operation) {
-                if (operation == trigger_operation && counter++ == barrier) {
+                if (operation == trigger_operation && counter++ == threshold) {
                     counter = 0;
                     return barrier_operation;
                 }
@@ -54,11 +60,24 @@ namespace Generator {
                 for (const auto& barrier_json : j) {
                     barriers.emplace_back(barrier_json);
                 }
+                std::sort(barriers.begin(), barriers.end(),
+                    [](const Barrier& a, const Barrier& b) {
+                        return a.get_threshold() < b.get_threshold();
+                    });
             };
 
             Operation::OperationType apply(Operation::OperationType operation) {
                 for (auto& barrier : barriers) {
-                    operation = barrier.apply(operation);
+                    Operation::OperationType new_operation = barrier.apply(operation);
+                    if (operation != new_operation) {
+                        std::sort(barriers.begin(), barriers.end(),
+                            [](const Barrier& a, const Barrier& b) {
+                                return
+                                    a.get_threshold() - a.get_counter() <
+                                    b.get_threshold() - b.get_counter();
+                            });
+                        return new_operation;
+                    }
                 }
                 return operation;
             };
