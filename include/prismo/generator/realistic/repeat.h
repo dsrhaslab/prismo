@@ -18,14 +18,11 @@ namespace Generator {
 
             Trace::Record next_record() {
                 auto record = trace_reader->next_record();
-                std::cout << "ola2" << std::endl;
                 if (!record.has_value()) {
-                    std::cout << "Resetting trace reader" << std::endl;
+                    // std::cout << "Resetting trace reader" << std::endl;
                     trace_reader->reset();
-                    std::cout << "Reading next record after reset" << std::endl;
                     record = trace_reader->next_record();
                 }
-                std::cout << "ola3" << std::endl;
                 return record.value();
             }
 
@@ -44,9 +41,7 @@ namespace Generator {
             }
 
             uint64_t next_offset(void) override {
-                std::cout << "ola" << std::endl;
                 Trace::Record record = next_record();
-                std::cout << "ola" << std::endl;
                 return record.offset % limit;
             };
 

@@ -25,21 +25,28 @@ namespace Parser {
             TraceReader() = delete;
 
             explicit TraceReader(const json& j) {
-                trace_file.open(j.at("trace").get<std::string>(), std::ios::binary);
-                buffer.resize(j.at("memory").get<size_t>() / sizeof(Trace::Record));
-                if (!trace_file.is_open()) {
-                    throw std::runtime_error(
-                        "Failed to open trace file: " + j.at("trace").get<std::string>()
+                const std::string trace_path = j.at("trace").get<std::string>();
+                const size_t memory_bytes = j.at("memory").get<size_t>();
+
+                if (memory_bytes < sizeof(Trace::Record)) {
+                    throw std::invalid_argument(
+                        "Memory should be equal or greater than " + std::to_string(sizeof(Trace::Record))
                     );
                 }
+
+                trace_file.open(trace_path, std::ios::binary);
+                if (!trace_file.is_open()) {
+                    throw std::runtime_error("Failed to open trace file: " + trace_path);
+                }
+
+                buffer.resize(memory_bytes / sizeof(Trace::Record));
             }
 
             ~TraceReader() {
+                std::cout << "~Destroying TraceReader" << std::endl;
                 if (trace_file.is_open()) {
                     trace_file.close();
                 }
-
-                std::cout << "~Destroying TraceReader" << std::endl;
             };
 
             void reset(void) {
@@ -53,29 +60,25 @@ namespace Parser {
             };
 
             std::optional<Trace::Record> next_record(void) {
-                std::cout << current_position << " " << records_read << std::endl;
-                std::cout << trace_file.is_open() << std::endl;
-                std::cout << trace_file.eof() << std::endl;
-
                 if (current_position >= records_read) {
                     const std::streamsize bytes_to_read =
                         static_cast<std::streamsize>(buffer.capacity() * sizeof(Trace::Record));
 
                     trace_file.read(reinterpret_cast<char*>(buffer.data()), bytes_to_read);
-
                     const std::streamsize bytes_read = trace_file.gcount();
-                    std::cout << "Reading " << bytes_to_read << " bytes from trace file" << std::endl;
-                    std::cout << bytes_read << " bytes read from trace file" << std::endl;
-                    records_read = static_cast<std::size_t>(bytes_read) / sizeof(Trace::Record);
 
+                    // std::cout << "Reading " << bytes_to_read << " bytes from trace file" << std::endl;
+                    // std::cout << bytes_read << " bytes read from trace file" << std::endl;
+
+                    records_read = static_cast<std::size_t>(bytes_read) / sizeof(Trace::Record);
                     current_position = 0;
 
                     if (bytes_read <= 0) {
                         return std::nullopt;
                     }
 
-                    std::cout << records_read << " records read into buffer" << std::endl;
-                    std::cout << "Current position reset to 0" << std::endl;
+                    // std::cout << records_read << " records read into buffer" << std::endl;
+                    // std::cout << "Current position reset to 0" << std::endl;
                 }
 
                 return buffer[current_position++];
