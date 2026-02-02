@@ -62,8 +62,9 @@ namespace Generator {
             void validate(void) const override {}
 
             BlockMetadata next_block(uint8_t* buffer, size_t size) {
+                uint64_t block_id;
                 prng_gen(&generator, buffer, size);
-                uint64_t block_id = *reinterpret_cast<uint64_t*>(buffer);
+                std::memcpy(&block_id, buffer, sizeof(block_id));
                 std::memcpy(buffer, &block_id, sizeof(block_id));
                 return BlockMetadata {
                     .block_id = block_id,

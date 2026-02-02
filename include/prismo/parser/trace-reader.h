@@ -1,11 +1,12 @@
 #ifndef PARSER_TRACE_READER_H
 #define PARSER_TRACE_READER_H
 
+#include <vector>
 #include <cstddef>
 #include <string>
 #include <fstream>
-#include <vector>
 #include <optional>
+#include <iostream>
 #include <common/trace.h>
 #include <nlohmann/json.hpp>
 
