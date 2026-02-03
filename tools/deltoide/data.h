@@ -10,10 +10,10 @@ using DuplicationDB = std::map<uint64_t, std::pair<uint64_t, CompressionDB>>;
 namespace std {
 
     void to_json(json& j, const CompressionDB& db) {
-        for (const auto& [reduction, percentage] : db) {
+        for (const auto& [compression, percentage] : db) {
             if (percentage > 0) {
                 j.push_back({
-                    {"reduction", reduction},
+                    {"reduction", compression},
                     {"percentage", percentage},
                 });
             }

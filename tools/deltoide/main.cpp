@@ -12,7 +12,7 @@ namespace fs = std::filesystem;
 void analyse_file(
     const char* path,
     size_t block_size,
-    DuplicationDB duplication_db,
+    DuplicationDB& duplication_db,
     CompressionDB& compression_db
 ) {
     ssize_t bytes_read = 0;
@@ -102,14 +102,14 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    normalize(compression_db);
+    // normalize(compression_db);
     normalize(duplication_db);
 
-    json compression_j = compression_db;
-    // json duplication_j = duplication_db;
+    // json compression_j = compression_db;
+    json duplication_j = duplication_db;
 
-    std::cout << compression_j.dump(4) << std::endl;
-    // std::cout << duplication_j.dump(4) << std::endl;
+    // std::cout << compression_j.dump(4) << std::endl;
+    std::cout << duplication_j.dump(4) << std::endl;
 
     return 0;
 }

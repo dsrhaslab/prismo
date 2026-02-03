@@ -46,7 +46,6 @@ std::vector<uint64_t> largest_remainder(const std::vector<double>& values) {
     return result;
 }
 
-
 void normalize(CompressionDB& db) {
     uint64_t total = 0;
     std::vector<double> percentages;
@@ -77,7 +76,52 @@ void normalize(CompressionDB& db) {
 }
 
 void normalize(DuplicationDB& db) {
+    uint64_t total = 0;
+    DuplicationDB result_db;
+    std::vector<double> percentages;
 
+    std::cout << "duplication size: " << db.size() << std::endl;
+
+
+
+    for (const auto& [hash, value] : db) {
+        result_db[value.first].first++;
+        for (const auto& [compression, count] : value.second) {
+            result_db[value.first].second[compression] += count;
+        }
+    }
+
+    std::cout << static_cast<json>(result_db) << std::endl;
+
+    for (auto& [repeats, value] : result_db) {
+        total += value.first;
+        normalize(value.second);
+    }
+
+    for (const auto& [repeats, value] : result_db) {
+        percentages.push_back(
+            static_cast<double>(value.first) /
+            static_cast<double>(total) * 100.0
+        );
+    }
+
+    auto it = result_db.begin();
+    std::vector<uint64_t> normalized = largest_remainder(percentages);
+
+    uint64_t foo = 0;
+
+    for (auto& value : normalized) {
+        it->second.first = value;
+        ++it;
+        foo += value;
+    }
+
+    std::cout << "AAAAAAAAAAAAAAAAA" << std::endl;
+
+    std::cout << foo << std::endl;
+
+    std::cout << static_cast<json>(result_db) << std::endl;
+    db = result_db;
 }
 
 
