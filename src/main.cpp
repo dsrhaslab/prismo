@@ -12,7 +12,7 @@ int main(int argc, char** argv) {
 
     program.add_argument("-c", "--config")
         .required()
-        .help("specify the configuration file.");
+        .help("specify the configuration file");
 
     try {
         program.parse_args(argc, argv);

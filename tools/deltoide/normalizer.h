@@ -16,7 +16,6 @@ std::vector<uint64_t> largest_remainder(const std::vector<double>& values) {
     std::vector<double> fractions(n);
 
     for (size_t idx = 0; idx < n; idx++) {
-        std::cout << static_cast<double>(values[idx]) << std::endl;
         result[idx] = static_cast<uint64_t>(values[idx]);
         fractions[idx] = values[idx] - static_cast<double>(result[idx]);
         floor_sum += static_cast<int>(result[idx]);
@@ -64,15 +63,10 @@ void normalize(CompressionDB& db) {
     auto it = db.begin();
     std::vector<uint64_t> normalized = largest_remainder(percentages);
 
-    uint64_t foo = 0;
-
     for (auto& value : normalized) {
         it->second = value;
         ++it;
-        foo += value;
     }
-
-    std::cout << foo << std::endl;
 }
 
 void normalize(DuplicationDB& db) {
@@ -80,18 +74,12 @@ void normalize(DuplicationDB& db) {
     DuplicationDB result_db;
     std::vector<double> percentages;
 
-    std::cout << "duplication size: " << db.size() << std::endl;
-
-
-
     for (const auto& [hash, value] : db) {
         result_db[value.first].first++;
         for (const auto& [compression, count] : value.second) {
             result_db[value.first].second[compression] += count;
         }
     }
-
-    std::cout << static_cast<json>(result_db) << std::endl;
 
     for (auto& [repeats, value] : result_db) {
         total += value.first;
@@ -108,19 +96,11 @@ void normalize(DuplicationDB& db) {
     auto it = result_db.begin();
     std::vector<uint64_t> normalized = largest_remainder(percentages);
 
-    uint64_t foo = 0;
-
     for (auto& value : normalized) {
         it->second.first = value;
         ++it;
-        foo += value;
     }
 
-    std::cout << "AAAAAAAAAAAAAAAAA" << std::endl;
-
-    std::cout << foo << std::endl;
-
-    std::cout << static_cast<json>(result_db) << std::endl;
     db = result_db;
 }
 

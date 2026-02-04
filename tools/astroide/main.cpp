@@ -35,17 +35,17 @@ bool parse_line(const std::string& line, Trace::Record& record) {
 
 
 int main(int argc, char** argv) {
-    argparse::ArgumentParser program("trace-parser");
+    argparse::ArgumentParser program("Astroide");
 
     program.add_description("Parse .blkparse files into binary trace format.");
 
     program.add_argument("-i", "--input")
         .required()
-        .help("specify the .blkparse input file.");
+        .help("specify the .blkparse input file");
 
     program.add_argument("-o", "--output")
         .required()
-        .help("specify the output file.");
+        .help("specify the output file");
 
     program.add_argument("-b", "--block-size")
         .default_value(static_cast<uint32_t>(512))

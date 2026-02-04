@@ -176,7 +176,7 @@ common_flags = [
 
 # add_project_arguments(common_flags, language: 'cpp')
 
-subdir('tools/trace-parser')
+subdir('tools/astroide')
 subdir('tools/deltoide')
 
 prismo = executable(

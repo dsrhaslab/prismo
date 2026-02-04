@@ -22,11 +22,13 @@ namespace std {
 
     void to_json(json& j, const DuplicationDB db) {
         for (const auto& [repeats, value] : db) {
-            j.push_back({
-                {"repeats", repeats },
-                {"percentage", value.first},
-                {"compression", static_cast<json>(value.second)}
-            });
+            if (value.first > 0) {
+                j.push_back({
+                    {"repeats", repeats },
+                    {"percentage", value.first},
+                    {"compression", static_cast<json>(value.second)}
+                });
+            }
         }
     }
 }

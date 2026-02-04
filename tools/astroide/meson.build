@@ -1,5 +1,5 @@
 executable(
-  'trace-parser',
+  'astroide',
   sources: ['main.cpp'],
   include_directories: project_inc,
   cpp_args: common_flags,

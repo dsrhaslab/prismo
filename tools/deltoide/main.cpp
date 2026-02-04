@@ -27,12 +27,8 @@ void analyse_file(
         std::memset(buffer.data() + bytes_read, 0, block_size - static_cast<size_t>(bytes_read));
         uint32_t compression = shannon_entropy(buffer.data(), block_size);
         uint64_t header = komihash(buffer.data(), block_size, 0);
-
         update_compression_db(compression, compression_db);
         update_duplication_db(header, compression, duplication_db);
-
-        std::cout << "compression: " << compression << std::endl;
-        std::cout << "header: " << header << std::endl;
     }
 
     if (close(fd) == -1) {
@@ -43,7 +39,7 @@ void analyse_file(
 int main(int argc, char** argv) {
     argparse::ArgumentParser program("deltoid");
 
-    program.add_description("Generator distributions from dataset");
+    program.add_description("Generate distributions from a dataset.");
 
     program.add_argument("-i", "--input")
         .required()
@@ -52,6 +48,14 @@ int main(int argc, char** argv) {
     program.add_argument("-b", "--block-size")
         .default_value(static_cast<uint32_t>(4096))
         .help("specify the block size");
+
+    program.add_argument("-c", "--compression")
+        .flag()
+        .help("shows the overall compression distribution");
+
+    program.add_argument("-d", "--duplication")
+        .flag()
+        .help("shows the distribution of duplicated data with compression applied");
 
     try {
         program.parse_args(argc, argv);
@@ -65,51 +69,47 @@ int main(int argc, char** argv) {
     uint32_t block_size = program.get<uint32_t>("--block-size");
 
     struct stat st;
+    std::vector<std::string> files;
+
     CompressionDB compression_db;
     DuplicationDB duplication_db;
 
     if (stat(dataset.c_str(), &st) != 0) {
-        std::cerr << "stat failed with errno: " << strerror(errno) << std::endl;
+        std::cerr << "stat failed: " << strerror(errno) << std::endl;
         return 1;
     }
 
     try {
         if (S_ISBLK(st.st_mode)) {
-            analyse_file(
-                dataset.c_str(),
-                block_size,
-                duplication_db,
-                compression_db
-            );
+            files.push_back(dataset);
         } else if (S_ISDIR(st.st_mode)) {
-            for (const fs::directory_entry& entry : fs::recursive_directory_iterator(dataset)) {
-                std::cout << entry.path() << std::endl;
-                if (fs::is_regular_file(entry)) {
-                    analyse_file(
-                        entry.path().c_str(),
-                        block_size,
-                        duplication_db,
-                        compression_db
-                    );
-                }
+            for (const fs::directory_entry& entry :
+                    fs::recursive_directory_iterator(dataset)) {
+                files.push_back(entry.path());
             }
         } else {
             std::cerr << dataset << " is neither a directory nor a block device" << std::endl;
             return 1;
+        }
+
+        for (const auto& file : files) {
+            std::cout << file << std::endl;
+            analyse_file(file.c_str(), block_size, duplication_db, compression_db);
         }
     } catch (const std::exception& err) {
         std::cerr << err.what() << std::endl;
         return 1;
     }
 
-    // normalize(compression_db);
-    normalize(duplication_db);
+    if (program["--compression"] == true) {
+        normalize(compression_db);
+        std::cout << static_cast<json>(compression_db).dump(4) << std::endl;
+    }
 
-    // json compression_j = compression_db;
-    json duplication_j = duplication_db;
-
-    // std::cout << compression_j.dump(4) << std::endl;
-    std::cout << duplication_j.dump(4) << std::endl;
+    if (program["--duplication"] == true) {
+        normalize(duplication_db);
+        std::cout << static_cast<json>(duplication_db).dump(4) << std::endl;
+    }
 
     return 0;
 }
