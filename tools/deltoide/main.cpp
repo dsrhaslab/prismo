@@ -25,8 +25,10 @@ void analyse_file(
 
     while ((bytes_read = read(fd, buffer.data(), block_size)) > 0) {
         std::memset(buffer.data() + bytes_read, 0, block_size - static_cast<size_t>(bytes_read));
+
         uint32_t compression = shannon_entropy(buffer.data(), block_size);
         uint64_t header = komihash(buffer.data(), block_size, 0);
+
         update_compression_db(compression, compression_db);
         update_duplication_db(header, compression, duplication_db);
     }
