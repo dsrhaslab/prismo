@@ -22,34 +22,20 @@ namespace Generator {
         uint8_t* buffer,
         size_t size
     ) {
-        uint32_t deduplication_roll = rng.nextValue();
-        uint32_t selected_repeats = select_from_percentage_vector(
-            deduplication_roll,
-            dedup_percentages
-        );
+        DedupElement element;
+        uint32_t dedup_roll = rng.nextValue();
+        uint32_t repeats = select_from_percentage_vector(dedup_roll, dedup_percentages);
 
-        if (selected_repeats == 0) {
-            DedupElement element = create_dedup_element(selected_repeats, size);
-            std::memcpy(buffer, element.buffer, size);
-            return BlockMetadata {
-                .block_id = element.block_id,
-                .compression = element.compression,
-            };
+        if (repeats == 0) {
+            element = create_dedup_element(repeats, buffer, size);
+        } else if (dedup_windows[repeats].size() == DEDUP_WINDOW_SIZE) {
+            element = reuse_dedup_element(repeats, buffer, size);
+        } else {
+            element = create_dedup_element(repeats, buffer, size);
+            dedup_windows[repeats].push_back(element);
         }
 
-        if (dedup_windows[selected_repeats].size() == DEDUP_WINDOW_SIZE) {
-            DedupElement element = reuse_dedup_element(selected_repeats, buffer, size);
-            return BlockMetadata {
-                .block_id = element.block_id,
-                .compression = element.compression,
-            };
-        }
-
-        DedupElement element = create_dedup_element(selected_repeats, size);
-        dedup_windows[selected_repeats].push_back(element);
-        std::memcpy(buffer, element.buffer, size);
-
-        return BlockMetadata {
+        return BlockMetadata{
             .block_id = element.block_id,
             .compression = element.compression
         };
@@ -57,11 +43,12 @@ namespace Generator {
 
     DedupElement DeduplicationContentGenerator::create_dedup_element(
         uint32_t repeats,
+        uint8_t* buffer,
         size_t size
     ) {
         auto& compression_generator = compression_generators[repeats];
 
-        DedupElement dedup_element = {
+        DedupElement element = {
             .block_id = block_id++,
             .left_repeats = repeats,
             .compression = compression_generator.select_compression(),
@@ -70,16 +57,19 @@ namespace Generator {
 
         // improve memcpy to not overlap compression area
         // maybe not because size could be strange for random generator
-        refill(dedup_element.buffer, size);
-        apply_compression(dedup_element.buffer, size, dedup_element.compression);
+        refill(element.buffer, size);
+        element.compression =
+            compression_generator.apply(element.buffer,size);
 
         std::memcpy(
-            dedup_element.buffer,
-            &dedup_element.block_id,
-            sizeof(dedup_element.block_id)
+            element.buffer,
+            &element.block_id,
+            sizeof(element.block_id)
         );
 
-        return dedup_element;
+        std::memcpy(buffer, element.buffer, size);
+
+        return element;
     }
 
     DedupElement DeduplicationContentGenerator::reuse_dedup_element(
@@ -87,19 +77,19 @@ namespace Generator {
         uint8_t* buffer,
         size_t size
     ) {
-        std::vector<DedupElement>& dedup_window = dedup_windows[repeats];
-        uint32_t index = rng.nextValue() % dedup_window.size();
-        DedupElement& dedup_element = dedup_window[index];
+        std::vector<DedupElement>& window = dedup_windows[repeats];
+        uint32_t index = rng.nextValue() % window.size();
+        DedupElement& element = window[index];
 
-        dedup_element.left_repeats--;
-        std::memcpy(buffer, dedup_element.buffer, size);
+        element.left_repeats--;
+        std::memcpy(buffer, element.buffer, size);
 
-        if (dedup_element.left_repeats == 0) {
-            std::swap(dedup_window[index], dedup_window.back());
-            dedup_window.pop_back();
-            pool.free(dedup_element.buffer);
+        if (element.left_repeats == 0) {
+            std::swap(window[index], window.back());
+            window.pop_back();
+            pool.free(element.buffer);
         }
 
-        return dedup_element;
+        return element;
     }
 }

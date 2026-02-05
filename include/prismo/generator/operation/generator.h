@@ -13,16 +13,16 @@ using json = nlohmann::json;
 namespace Generator {
 
     class OperationGenerator {
-        public:
+        protected:
             OperationGenerator() = default;
 
+        public:
             virtual ~OperationGenerator() {
                 std::cout << "~Destroying Operation" << std::endl;
             };
 
-            virtual Operation::OperationType next_operation(void) = 0;
-
             virtual void validate(void) const = 0;
+            virtual Operation::OperationType next_operation(void) = 0;
     };
 
     class ConstantOperationGenerator : public OperationGenerator {
@@ -41,16 +41,16 @@ namespace Generator {
                 operation = Operation::operation_from_str(op_str);
             };
 
+            void validate(void) const override {};
+
             Operation::OperationType next_operation(void) override {
                 return operation;
             };
-
-            void validate(void) const override {};
     };
 
     class PercentageOperationGenerator : public OperationGenerator {
         private:
-        Distribution::UniformDistribution<uint32_t> rng;
+            Distribution::UniformDistribution<uint32_t> rng;
             std::vector<PercentageElement<uint32_t, Operation::OperationType>> op_percentages;
 
         public:
@@ -71,19 +71,18 @@ namespace Generator {
                 }
             };
 
+            void validate(void) const override {
+                validate_percentage_vector(op_percentages, "percentage_operation");
+            };
 
             Operation::OperationType next_operation(void) override {
                 return select_from_percentage_vector(rng.nextValue(), op_percentages);
-            };
-
-            void validate(void) const override {
-                validate_percentage_vector(op_percentages, "percentage_operation");
             };
     };
 
     class SequenceOperationGeneator : public OperationGenerator {
         private:
-            size_t index;
+            size_t index = 0;
             std::vector<Operation::OperationType> operations;
 
         public:
@@ -93,10 +92,16 @@ namespace Generator {
                 std::cout << "~Destroying SequenceOperationGeneator" << std::endl;
             };
 
-            explicit SequenceOperationGeneator(const json& j) : index(0) {
+            explicit SequenceOperationGeneator(const json& j) {
                 for (auto& item : j.at("operations")) {
                     auto op_str = item.get<std::string>();
                     operations.push_back(Operation::operation_from_str(op_str));
+                }
+            };
+
+            void validate(void) const override {
+                if (operations.size() == 0) {
+                    throw std::invalid_argument("validate: invalid sequence of operations");
                 }
             };
 
@@ -104,12 +109,6 @@ namespace Generator {
                 Operation::OperationType operation = operations.at(index);
                 index = (index + 1) % operations.size();
                 return operation;
-            };
-
-            void validate(void) const override {
-                if (operations.size() == 0) {
-                    throw std::invalid_argument("validate: invalid sequence of operations");
-                }
             };
     };
 };

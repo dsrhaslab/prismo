@@ -2,7 +2,7 @@
   "job": {
     "name": "job",
     "numjobs": 1,
-    "iterations": 10,
+    "iterations": 1000,
     "filename": "testfile",
     "block_size": 4096,
     "limit": 65536,
@@ -27,24 +27,15 @@
     ]
   },
   "access": {
-    "type": "repeat",
+    "type": "sequential",
     "skew": 0.9,
     "trace": "/home/digo/Desktop/prismo/traces/webmail+online.cs.fiu.edu-110108-113008.1.blkparse.prismo",
     "memory": 262144
   },
   "generator": {
-    "type": "constant",
+    "type": "dedup",
     "refill": false,
-    "compression": [
-      {
-        "percentage": 50,
-        "reduction": 0
-        },
-      {
-        "percentage": 50,
-        "reduction": 50
-      }
-    ],
+
 
     "distribution": [
       {
@@ -123,7 +114,7 @@
     "queue_size": 8192,
     "thread_count": 1,
     "truncate": true,
-    "to_stdout": false,
+    "to_stdout": true,
     "files": [
       "./log1.log",
       "./log2.log",

@@ -5,6 +5,7 @@
 #include <iostream>
 #include <nlohmann/json.hpp>
 #include <prismo/generator/content/metadata.h>
+#include <lib/distribution/distribution.h>
 #include <lib/shishua/shishua.h>
 #include <lib/shishua/utils.h>
 
@@ -21,20 +22,7 @@ namespace Generator {
         protected:
             uint64_t block_id = 0;
 
-            void refill(uint8_t* buffer, size_t size) {
-                if (refill_flag) {
-                    prng_gen(&shishua_prng, buffer, size);
-                } else {
-                    std::memcpy(buffer, base_buffer.data(), size);
-                }
-            }
-
-        public:
             ContentGenerator() = delete;
-
-            virtual ~ContentGenerator() {
-                std::cout << "~Destroying ContentGenerator" << std::endl;
-            }
 
             explicit ContentGenerator(const json& j)
                 : ContentGenerator(j, j.at("refill").get<bool>()) {}
@@ -48,9 +36,21 @@ namespace Generator {
                 prng_gen(&shishua_prng, base_buffer.data(), base_buffer.size());
             }
 
-            virtual BlockMetadata next_block(uint8_t* buffer, size_t size) = 0;
+            void refill(uint8_t* buffer, size_t size) {
+                if (refill_flag) {
+                    prng_gen(&shishua_prng, buffer, size);
+                } else {
+                    std::memcpy(buffer, base_buffer.data(), size);
+                }
+            }
+
+        public:
+            virtual ~ContentGenerator() {
+                std::cout << "~Destroying ContentGenerator" << std::endl;
+            }
 
             virtual void validate(void) const = 0;
+            virtual BlockMetadata next_block(uint8_t* buffer, size_t size) = 0;
     };
 
     class ConstantContentGenerator : public ContentGenerator {
@@ -77,6 +77,9 @@ namespace Generator {
     };
 
     class RandomContentGenerator : public ContentGenerator {
+        private:
+            Distribution::UniformDistribution<uint64_t> rng;
+
         public:
             RandomContentGenerator() = delete;
 
@@ -91,7 +94,8 @@ namespace Generator {
 
             BlockMetadata next_block(uint8_t* buffer, size_t size) override {
                 refill(buffer, size);
-                std::memcpy(&block_id, buffer, sizeof(block_id));
+                block_id = rng.nextValue();
+                std::memcpy(buffer, &block_id, sizeof(block_id));
                 return BlockMetadata {
                     .block_id = block_id,
                     .compression = 0

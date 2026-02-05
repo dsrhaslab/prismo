@@ -15,17 +15,17 @@ namespace Generator {
             size_t block_size;
             size_t limit;
 
-        public:
             AccessGenerator() = delete;
-
-            virtual ~AccessGenerator() {
-                std::cout << "~Destroying AccessGenerator" << std::endl;
-            };
 
             explicit AccessGenerator(const json& j) {
                 block_size = j.at("block_size").get<size_t>();
                 limit = j.at("limit").get<size_t>();
             }
+
+        public:
+            virtual ~AccessGenerator() {
+                std::cout << "~Destroying AccessGenerator" << std::endl;
+            };
 
             virtual uint64_t next_offset(void) = 0;
 
@@ -40,7 +40,7 @@ namespace Generator {
 
     class SequentialAccessGenerator : public AccessGenerator {
         private:
-            uint64_t current_offset;
+            uint64_t current_offset = 0;
 
         public:
             SequentialAccessGenerator() = delete;
@@ -49,10 +49,12 @@ namespace Generator {
                 std::cout << "~Destroying SequentialAccessGenerator" << std::endl;
             }
 
-            explicit SequentialAccessGenerator(const json& j)
-                : AccessGenerator(j), current_offset(0)
-            {
+            explicit SequentialAccessGenerator(const json& j) : AccessGenerator(j) {
                 limit = block_size * (limit / block_size);
+            };
+
+            void validate(void) const override {
+                AccessGenerator::validate();
             };
 
             uint64_t next_offset(void) override {
@@ -60,15 +62,11 @@ namespace Generator {
                 current_offset = static_cast<uint64_t>((current_offset + block_size) % limit);
                 return offset;
             };
-
-            void validate(void) const override {
-                AccessGenerator::validate();
-            };
     };
 
     class RandomAccessGenerator : public AccessGenerator {
         private:
-            size_t normalized_limit;
+            size_t normalized_limit = 0;
             Distribution::UniformDistribution<uint64_t> rng;
 
         public:
@@ -78,26 +76,24 @@ namespace Generator {
                 std::cout << "~Destroying RandomAccessGenerator" << std::endl;
             }
 
-            explicit RandomAccessGenerator(const json& j)
-                : AccessGenerator(j), normalized_limit(0), rng()
-            {
+            explicit RandomAccessGenerator(const json& j) : AccessGenerator(j) {
                 normalized_limit = limit / block_size - 1;
                 rng.setParams(0, normalized_limit);
-            };
-
-            uint64_t next_offset(void) override {
-                return static_cast<uint64_t>(rng.nextValue() * block_size);
             };
 
             void validate(void) const override {
                 AccessGenerator::validate();
             };
+
+            uint64_t next_offset(void) override {
+                return static_cast<uint64_t>(rng.nextValue() * block_size);
+            };
     };
 
     class ZipfianAccessGenerator : public AccessGenerator {
         private:
-            float skew;
-            size_t normalized_limit;
+            float skew = 0.0f;
+            size_t normalized_limit = 0;
             Distribution::ZipfianDistribution<uint64_t> distribution;
 
         public:
@@ -107,15 +103,9 @@ namespace Generator {
                 std::cout << "~Destroying ZipfianAccessGenerator" << std::endl;
             };
 
-            explicit ZipfianAccessGenerator(const json& j)
-                : AccessGenerator(j), skew(0.0f), normalized_limit(0), distribution()
-            {
+            explicit ZipfianAccessGenerator(const json& j) : AccessGenerator(j) {
                 normalized_limit = limit / block_size - 1;
                 distribution.setParams(0, normalized_limit, skew);
-            };
-
-            uint64_t next_offset(void) override {
-                return static_cast<uint64_t>(distribution.nextValue() * block_size);
             };
 
             void validate(void) const override {
@@ -123,6 +113,10 @@ namespace Generator {
                 if (skew <= 0 || skew >= 1) {
                     throw std::invalid_argument("zipfian_validate: skew must belong to range [0; 1]");
                 }
+            };
+
+            uint64_t next_offset(void) override {
+                return static_cast<uint64_t>(distribution.nextValue() * block_size);
             };
     };
 };

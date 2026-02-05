@@ -27,7 +27,7 @@ namespace Generator {
             std::vector<PercentageElement<uint32_t, uint32_t>> dedup_percentages;
             std::unordered_map<uint32_t, CompressionGenerator> compression_generators;
 
-            DedupElement create_dedup_element(uint32_t repeats, size_t size);
+            DedupElement create_dedup_element(uint32_t repeats, uint8_t* buffer, size_t size);
             DedupElement reuse_dedup_element(uint32_t repeats, uint8_t* buffer, size_t size);
 
         public:

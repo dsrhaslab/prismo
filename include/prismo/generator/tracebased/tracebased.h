@@ -79,7 +79,7 @@ namespace Generator {
             BlockMetadata next_block(uint8_t* buffer, size_t size) override {
                 refill(buffer, size);
                 Trace::Record record = extension->next_record();
-                std::memcpy(&record.block_id, buffer, sizeof(record.block_id));
+                std::memcpy(buffer, &record.block_id, sizeof(record.block_id));
                 return BlockMetadata {
                     .block_id = record.block_id,
                     .compression = 0

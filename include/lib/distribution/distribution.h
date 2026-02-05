@@ -23,7 +23,7 @@ namespace Distribution {
 
         UniformDistribution() :
             min(std::numeric_limits<DistributionTypeT>::lowest()),
-            max(std::numeric_limits<DistributionTypeT>::max()),
+            max(std::numeric_limits<DistributionTypeT>::max() - 1),
             current(0),
             buffer(UNIFORM_BUFFER_CAPACITY)
         {

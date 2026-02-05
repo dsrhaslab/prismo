@@ -13,11 +13,6 @@ using json = nlohmann::json;
 
 namespace Generator {
 
-    inline void apply_compression(uint8_t* buffer, size_t size, uint32_t compression) {
-        size_t compressed_size = (size - sizeof(BlockMetadata::block_id)) * compression / 100;
-        std::memset(buffer + sizeof(BlockMetadata::block_id), 0, compressed_size);
-    }
-
     struct CompressionGenerator {
         private:
             Distribution::UniformDistribution<uint32_t> rng;
@@ -30,9 +25,7 @@ namespace Generator {
                 std::cout << "~Destroying CompressionGenerator" << std::endl;
             };
 
-            explicit CompressionGenerator(const json& j)
-                : rng(0,99), distribution()
-            {
+            explicit CompressionGenerator(const json& j) : rng(0,99) {
                 uint32_t cumulative = 0;
                 for (const auto& item : j) {
                     cumulative += item.at("percentage").get<uint32_t>();
@@ -49,7 +42,8 @@ namespace Generator {
 
             uint32_t apply(uint8_t* buffer, size_t size) {
                 uint32_t compression = select_compression();
-                apply_compression(buffer, size, compression);
+                size_t compressed_size = (size - sizeof(BlockMetadata::block_id)) * compression / 100;
+                std::memset(buffer + sizeof(BlockMetadata::block_id), 0, compressed_size);
                 return compression;
             }
 
