@@ -2,9 +2,10 @@
 
 namespace Engine {
 
-    PosixEngine::PosixEngine(std::unique_ptr<Metric::Metric> _metric,
-                             std::unique_ptr<Logger::Logger> _logger)
-        : Engine(std::move(_metric), std::move(_logger)) {}
+    PosixEngine::PosixEngine(
+        std::unique_ptr<Metric::Metric> _metric,
+        std::unique_ptr<Logger::Logger> _logger
+    ) : Engine(std::move(_metric), std::move(_logger)) {}
 
     PosixEngine::~PosixEngine() {
         std::cout << "~Destroying PosixEngine" << std::endl;
@@ -13,16 +14,14 @@ namespace Engine {
     int PosixEngine::open(Protocol::OpenRequest& request) {
         int fd = ::open(request.filename.c_str(), request.flags, request.mode);
         if (fd < 0)
-            throw std::runtime_error("posix_open: failed to open file: " +
-                                     std::string(strerror(errno)));
+            throw std::runtime_error("posix_open: failed to open file: " + std::string(strerror(errno)));
         return fd;
     }
 
     int PosixEngine::close(Protocol::CloseRequest& request) {
         int rt = ::close(request.fd);
         if (rt < 0)
-            throw std::runtime_error("posix_close: failed to close fd: " +
-                                     std::string(strerror(errno)));
+            throw std::runtime_error("posix_close: failed to close fd: " + std::string(strerror(errno)));
         return rt;
     }
 
@@ -39,13 +38,11 @@ namespace Engine {
     }
 
     ssize_t PosixEngine::read(Protocol::IORequest& request) {
-        return ::pread(request.fd, request.buffer, request.size,
-                       request.offset);
+        return ::pread(request.fd, request.buffer, request.size, request.offset);
     }
 
     ssize_t PosixEngine::write(Protocol::IORequest& request) {
-        return ::pwrite(request.fd, request.buffer, request.size,
-                        request.offset);
+        return ::pwrite(request.fd, request.buffer, request.size, request.offset);
     }
 
     void PosixEngine::submit(Protocol::IORequest& request) {
@@ -70,12 +67,18 @@ namespace Engine {
                 break;
         }
 
-        Metric::fill_metric(*Engine::metric, request.operation,
-                            request.metadata.block_id,
-                            request.metadata.compression, start_timestamp,
-                            Metric::get_current_timestamp(), result,
-                            request.size, request.offset);
+        Metric::fill_metric(
+            *Engine::metric,
+            request.operation,
+            request.metadata.block_id,
+            request.metadata.compression,
+            start_timestamp,
+            Metric::get_current_timestamp(),
+            result,
+            request.size,
+            request.offset
+        );
 
         Engine::logger->info(*Engine::metric);
     }
-}  // namespace Engine
+}

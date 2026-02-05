@@ -1,11 +1,11 @@
 #ifndef DEDUPLICATION_CONTENT_GENERATOR_H
 #define DEDUPLICATION_CONTENT_GENERATOR_H
 
-#include <lib/distribution/distribution.h>
-#include <lib/distribution/percentage.h>
-#include <prismo/generator/content/compression.h>
-#include <prismo/generator/content/generator.h>
 #include <boost/pool/pool.hpp>
+#include <prismo/generator/content/generator.h>
+#include <prismo/generator/content/compression.h>
+#include <lib/distribution/percentage.h>
+#include <lib/distribution/distribution.h>
 
 #define DEDUP_WINDOW_SIZE 5
 
@@ -19,38 +19,35 @@ namespace Generator {
     };
 
     class DeduplicationContentGenerator : public ContentGenerator {
-       private:
-        boost::pool<> pool;
-        Distribution::UniformDistribution<uint32_t> rng;
+        private:
+            boost::pool<> pool;
+            Distribution::UniformDistribution<uint32_t> rng;
 
-        std::unordered_map<uint32_t, std::vector<DedupElement>> dedup_windows;
-        std::vector<PercentageElement<uint32_t, uint32_t>> dedup_percentages;
-        std::unordered_map<uint32_t, CompressionGenerator>
-            compression_generators;
+            std::unordered_map<uint32_t, std::vector<DedupElement>> dedup_windows;
+            std::vector<PercentageElement<uint32_t, uint32_t>> dedup_percentages;
+            std::unordered_map<uint32_t, CompressionGenerator> compression_generators;
 
-        DedupElement create_dedup_element(uint32_t repeats, size_t size);
-        DedupElement reuse_dedup_element(uint32_t repeats, uint8_t* buffer,
-                                         size_t size);
+            DedupElement create_dedup_element(uint32_t repeats, size_t size);
+            DedupElement reuse_dedup_element(uint32_t repeats, uint8_t* buffer, size_t size);
 
-       public:
-        DeduplicationContentGenerator() = delete;
+        public:
+            DeduplicationContentGenerator() = delete;
 
-        explicit DeduplicationContentGenerator(const json& j);
+            explicit DeduplicationContentGenerator(const json& j);
 
-        ~DeduplicationContentGenerator() override {
-            std::cout << "~Destroying DeduplicationContentGenerator"
-                      << std::endl;
-        }
-
-        BlockMetadata next_block(uint8_t* buffer, size_t size) override;
-
-        void validate(void) const override {
-            validate_percentage_vector(dedup_percentages, "deduplication");
-            for (const auto& [_, generator] : compression_generators) {
-                generator.validate();
+            ~DeduplicationContentGenerator() override {
+                std::cout << "~Destroying DeduplicationContentGenerator" << std::endl;
             }
-        };
+
+            BlockMetadata next_block(uint8_t* buffer, size_t size) override;
+
+            void validate(void) const override {
+                validate_percentage_vector(dedup_percentages, "deduplication");
+                for (const auto& [_, generator] : compression_generators) {
+                    generator.validate();
+                }
+            };
     };
-}  // namespace Generator
+}
 
 #endif

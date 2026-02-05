@@ -1,12 +1,12 @@
 #ifndef SPDLOG_LOGGER_H
 #define SPDLOG_LOGGER_H
 
-#include <prismo/logger/logger.h>
+#include <spdlog/spdlog.h>
 #include <spdlog/async.h>
 #include <spdlog/fmt/fmt.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/stdout_sinks.h>
-#include <spdlog/spdlog.h>
+#include <prismo/logger/logger.h>
 #include <nlohmann/json.hpp>
 
 using json = nlohmann::json;
@@ -14,38 +14,44 @@ using json = nlohmann::json;
 namespace Logger {
 
     class Spdlog : public Logger {
-       private:
-        std::shared_ptr<spdlog::logger> logger;
+        private:
+            std::shared_ptr<spdlog::logger> logger;
 
-       public:
-        Spdlog() = delete;
+        public:
+            Spdlog() = delete;
 
-        ~Spdlog() override {
-            std::cout << "~Destroying Spdlog Logger" << std::endl;
+            ~Spdlog() override {
+                std::cout << "~Destroying Spdlog Logger" << std::endl;
+            };
+
+            explicit Spdlog(const json& j);
+
+            void info(Metric::Metric& metric) override;
         };
+};
 
-        explicit Spdlog(const json& j);
-
-        void info(Metric::Metric& metric) override;
-    };
-};  // namespace Logger
-
-template <>
+template<>
 struct fmt::formatter<Metric::BaseMetric> : fmt::formatter<std::string> {
-    auto format(const Metric::BaseMetric metric, fmt::format_context& ctx) const
-        -> decltype(ctx.out());
+    auto format(
+        const Metric::BaseMetric metric,
+        fmt::format_context& ctx
+    ) const -> decltype(ctx.out());
 };
 
-template <>
+template<>
 struct fmt::formatter<Metric::StandardMetric> : fmt::formatter<std::string> {
-    auto format(const Metric::StandardMetric metric,
-                fmt::format_context& ctx) const -> decltype(ctx.out());
+    auto format(
+        const Metric::StandardMetric metric,
+        fmt::format_context& ctx
+    ) const -> decltype(ctx.out());
 };
 
-template <>
+template<>
 struct fmt::formatter<Metric::FullMetric> : fmt::formatter<std::string> {
-    auto format(const Metric::FullMetric metric, fmt::format_context& ctx) const
-        -> decltype(ctx.out());
+    auto format(
+        const Metric::FullMetric metric,
+        fmt::format_context& ctx
+    ) const -> decltype(ctx.out());
 };
 
 #endif

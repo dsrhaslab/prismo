@@ -1,14 +1,14 @@
 #ifndef ENGINE_CONFIG_H
 #define ENGINE_CONFIG_H
 
-#include <common/operation.h>
+#include <cstdint>
 #include <fcntl.h>
+#include <iostream>
 #include <libaio.h>
 #include <liburing.h>
-#include <prismo/generator/content/metadata.h>
-#include <cstdint>
-#include <iostream>
 #include <nlohmann/json.hpp>
+#include <common/operation.h>
+#include <prismo/generator/content/metadata.h>
 
 using json = nlohmann::json;
 
@@ -62,6 +62,6 @@ namespace Engine {
     void from_json(const json& j, SpdkConfig& config);
 
     std::vector<u_int32_t> get_pinned_cores(uint64_t mask);
-};  // namespace Engine
+};
 
 #endif

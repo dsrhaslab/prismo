@@ -3,43 +3,43 @@
 namespace Generator {
 
     DeduplicationContentGenerator::DeduplicationContentGenerator(const json& j)
-        : ContentGenerator(j),
-          pool(j.at("block_size").get<size_t>()),
-          rng(0, 99) {
+        : ContentGenerator(j), pool(j.at("block_size").get<size_t>()), rng(0, 99)
+    {
         uint32_t cumulative_deduplication = 0;
         for (const auto& dedup_item : j.at("distribution")) {
             uint32_t repeats = dedup_item.at("repeats").get<uint32_t>();
-            cumulative_deduplication +=
-                dedup_item.at("percentage").get<uint32_t>();
+            cumulative_deduplication += dedup_item.at("percentage").get<uint32_t>();
 
-            compression_generators.emplace(repeats,
-                                           dedup_item.at("compression"));
-            dedup_percentages.push_back(PercentageElement<uint32_t, uint32_t>{
+            compression_generators.emplace(repeats, dedup_item.at("compression"));
+            dedup_percentages.push_back(PercentageElement<uint32_t, uint32_t> {
                 .cumulative_percentage = cumulative_deduplication,
                 .value = repeats,
             });
         }
     }
 
-    BlockMetadata DeduplicationContentGenerator::next_block(uint8_t* buffer,
-                                                            size_t size) {
+    BlockMetadata DeduplicationContentGenerator::next_block(
+        uint8_t* buffer,
+        size_t size
+    ) {
         uint32_t deduplication_roll = rng.nextValue();
         uint32_t selected_repeats = select_from_percentage_vector(
-            deduplication_roll, dedup_percentages);
+            deduplication_roll,
+            dedup_percentages
+        );
 
         if (selected_repeats == 0) {
             DedupElement element = create_dedup_element(selected_repeats, size);
             std::memcpy(buffer, element.buffer, size);
-            return BlockMetadata{
+            return BlockMetadata {
                 .block_id = element.block_id,
                 .compression = element.compression,
             };
         }
 
         if (dedup_windows[selected_repeats].size() == DEDUP_WINDOW_SIZE) {
-            DedupElement element =
-                reuse_dedup_element(selected_repeats, buffer, size);
-            return BlockMetadata{
+            DedupElement element = reuse_dedup_element(selected_repeats, buffer, size);
+            return BlockMetadata {
                 .block_id = element.block_id,
                 .compression = element.compression,
             };
@@ -49,12 +49,16 @@ namespace Generator {
         dedup_windows[selected_repeats].push_back(element);
         std::memcpy(buffer, element.buffer, size);
 
-        return BlockMetadata{.block_id = element.block_id,
-                             .compression = element.compression};
+        return BlockMetadata {
+            .block_id = element.block_id,
+            .compression = element.compression
+        };
     }
 
     DedupElement DeduplicationContentGenerator::create_dedup_element(
-        uint32_t repeats, size_t size) {
+        uint32_t repeats,
+        size_t size
+    ) {
         auto& compression_generator = compression_generators[repeats];
 
         DedupElement dedup_element = {
@@ -67,17 +71,22 @@ namespace Generator {
         // improve memcpy to not overlap compression area
         // maybe not because size could be strange for random generator
         refill(dedup_element.buffer, size);
-        apply_compression(dedup_element.buffer, size,
-                          dedup_element.compression);
+        apply_compression(dedup_element.buffer, size, dedup_element.compression);
 
-        std::memcpy(dedup_element.buffer, &dedup_element.block_id,
-                    sizeof(dedup_element.block_id));
+        std::memcpy(
+            dedup_element.buffer,
+            &dedup_element.block_id,
+            sizeof(dedup_element.block_id)
+        );
 
         return dedup_element;
     }
 
     DedupElement DeduplicationContentGenerator::reuse_dedup_element(
-        uint32_t repeats, uint8_t* buffer, size_t size) {
+        uint32_t repeats,
+        uint8_t* buffer,
+        size_t size
+    ) {
         std::vector<DedupElement>& dedup_window = dedup_windows[repeats];
         uint32_t index = rng.nextValue() % dedup_window.size();
         DedupElement& dedup_element = dedup_window[index];
@@ -93,4 +102,4 @@ namespace Generator {
 
         return dedup_element;
     }
-}  // namespace Generator
+}

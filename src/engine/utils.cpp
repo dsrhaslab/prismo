@@ -3,9 +3,15 @@
 namespace Engine {
 
     static const std::unordered_map<std::string, int> flag_map = {
-        {"O_CREAT", O_CREAT},   {"O_TRUNC", O_TRUNC},   {"O_APPEND", O_APPEND},
-        {"O_RDONLY", O_RDONLY}, {"O_WRONLY", O_WRONLY}, {"O_RDWR", O_RDWR},
-        {"O_SYNC", O_SYNC},     {"O_DSYNC", O_DSYNC},   {"O_RSYNC", O_RSYNC},
+        {"O_CREAT", O_CREAT},
+        {"O_TRUNC", O_TRUNC},
+        {"O_APPEND", O_APPEND},
+        {"O_RDONLY", O_RDONLY},
+        {"O_WRONLY", O_WRONLY},
+        {"O_RDWR", O_RDWR},
+        {"O_SYNC", O_SYNC},
+        {"O_DSYNC", O_DSYNC},
+        {"O_RSYNC", O_RSYNC},
         {"O_DIRECT", O_DIRECT},
     };
 
@@ -26,9 +32,7 @@ namespace Engine {
             if (it != flag_map.end()) {
                 config.value |= it->second;
             } else {
-                throw std::invalid_argument("from_json: open flag value '" +
-                                            value.get<std::string>() +
-                                            "' not recognized");
+                throw std::invalid_argument("from_json: open flag value '" + value.get<std::string>() + "' not recognized");
             }
         }
     };
@@ -53,9 +57,7 @@ namespace Engine {
             if (it != params_flag_map.end()) {
                 config.params.flags |= it->second;
             } else {
-                throw std::invalid_argument(
-                    "from_json: uring params flag value '" +
-                    value.get<std::string>() + "' not recognized");
+                throw std::invalid_argument("from_json: uring params flag value '" + value.get<std::string>() + "' not recognized");
             }
         }
     };
@@ -70,8 +72,7 @@ namespace Engine {
         uint64_t mask = strtoull(config.reactor_mask.c_str(), &endptr, 0);
 
         if (*endptr != '\0') {
-            throw std::invalid_argument("from_json: invalid reactor mask: " +
-                                        config.reactor_mask);
+            throw std::invalid_argument("from_json: invalid reactor mask: " + config.reactor_mask);
         }
 
         std::vector<uint32_t> pinned_cores = get_pinned_cores(mask);
@@ -81,8 +82,7 @@ namespace Engine {
         }
 
         if (config.pinned_cores.size() < 2) {
-            throw std::invalid_argument(
-                "from_json: reactor mask must have at least 2 pinned cores");
+            throw std::invalid_argument("from_json: reactor mask must have at least 2 pinned cores");
         }
 
         for (auto a : config.pinned_cores) {
@@ -100,4 +100,4 @@ namespace Engine {
         }
         return cores;
     }
-};  // namespace Engine
+};
