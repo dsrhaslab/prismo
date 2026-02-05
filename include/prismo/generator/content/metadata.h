@@ -8,7 +8,6 @@ namespace Generator {
         uint64_t block_id;
         uint32_t compression;
     };
-}
+}  // namespace Generator
 
 #endif
-

@@ -1,10 +1,10 @@
 #ifndef IO_PROTOCOL_H
 #define IO_PROTOCOL_H
 
-#include <cstddef>
 #include <fcntl.h>
-#include <cstdint>
 #include <prismo/generator/content/metadata.h>
+#include <cstddef>
+#include <cstdint>
 
 namespace Protocol {
 
@@ -31,6 +31,6 @@ namespace Protocol {
         bool isShutDown;
         IORequest request;
     };
-}
+}  // namespace Protocol
 
 #endif

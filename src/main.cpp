@@ -1,9 +1,8 @@
-#include <fstream>
-#include <argparse/argparse.hpp>
 #include <prismo/parser/factory.h>
-#include <prismo/worker/producer.h>
 #include <prismo/worker/consumer.h>
-
+#include <prismo/worker/producer.h>
+#include <argparse/argparse.hpp>
+#include <fstream>
 
 int main(int argc, char** argv) {
     argparse::ArgumentParser program("prismo");
@@ -47,7 +46,8 @@ int main(int argc, char** argv) {
     const uint64_t iterations = job_json.at("iterations").get<uint64_t>();
     const std::string filename = job_json.at("filename").get<std::string>();
 
-    Engine::OpenFlags open_flags = engine_json.at("openflags").get<Engine::OpenFlags>();
+    Engine::OpenFlags open_flags =
+        engine_json.at("openflags").get<Engine::OpenFlags>();
 
     std::cout << "Parse AccessGenerator" << std::endl;
     std::unique_ptr<Generator::AccessGenerator> access =
@@ -79,31 +79,22 @@ int main(int argc, char** argv) {
     std::unique_ptr<Engine::Engine> engine =
         Parser::get_engine(engine_json, std::move(metric), std::move(logger));
 
-    auto to_producer = std::make_shared<moodycamel::ConcurrentQueue<Protocol::Packet*>>(QUEUE_INITIAL_CAPACITY);
-    auto to_consumer = std::make_shared<moodycamel::ConcurrentQueue<Protocol::Packet*>>(QUEUE_INITIAL_CAPACITY);
+    auto to_producer =
+        std::make_shared<moodycamel::ConcurrentQueue<Protocol::Packet*>>(
+            QUEUE_INITIAL_CAPACITY);
+    auto to_consumer =
+        std::make_shared<moodycamel::ConcurrentQueue<Protocol::Packet*>>(
+            QUEUE_INITIAL_CAPACITY);
 
-    Worker::init_queue_packet(
-        *to_producer,
-        block_size
-    );
+    Worker::init_queue_packet(*to_producer, block_size);
 
-    Worker::Producer producer (
-        std::move(access),
-        std::move(operation),
-        std::move(content),
-        std::move(compression),
-        std::move(barrier),
-        to_producer,
-        to_consumer
-    );
+    Worker::Producer producer(std::move(access), std::move(operation),
+                              std::move(content), std::move(compression),
+                              std::move(barrier), to_producer, to_consumer);
 
-    Worker::Consumer consumer (
-        std::move(engine),
-        to_producer,
-        to_consumer
-    );
+    Worker::Consumer consumer(std::move(engine), to_producer, to_consumer);
 
-    Protocol::OpenRequest open_request {
+    Protocol::OpenRequest open_request{
         .filename = filename,
         .flags = open_flags.value,
         .mode = 0666,
@@ -112,7 +103,8 @@ int main(int argc, char** argv) {
     int fd = consumer.open(open_request);
 
     std::cout << "Parse Start Producer" << std::endl;
-    std::thread producer_thread(&Worker::Producer::run, &producer, iterations, fd);
+    std::thread producer_thread(&Worker::Producer::run, &producer, iterations,
+                                fd);
 
     std::cout << "Parse Start Consumer" << std::endl;
     std::thread consumer_thread(&Worker::Consumer::run, &consumer);
@@ -120,9 +112,7 @@ int main(int argc, char** argv) {
     producer_thread.join();
     consumer_thread.join();
 
-    Protocol::CloseRequest close_request {
-        .fd = fd
-    };
+    Protocol::CloseRequest close_request{.fd = fd};
 
     consumer.close(close_request);
     Worker::destroy_queue_packet(*to_producer, QUEUE_INITIAL_CAPACITY);
