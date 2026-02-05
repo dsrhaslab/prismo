@@ -4,9 +4,9 @@
 #include <array>
 #include <random>
 #include <cstdint>
-#include <lib/distribution/zipfian.h>
-#include <lib/shishua/shishua.h>
 #include <lib/shishua/utils.h>
+#include <lib/shishua/shishua.h>
+#include <lib/distribution/zipfian.h>
 
 #define UNIFORM_BUFFER_CAPACITY 1024
 
@@ -18,25 +18,22 @@ namespace Distribution {
         DistributionTypeT max;
 
         size_t current;
-        prng_state generator;
-        std::shared_ptr<DistributionTypeT[]>buffer;
+        prng_state shishua_prng;
+        std::vector<DistributionTypeT> buffer;
 
-        UniformDistribution()
-            : min(std::numeric_limits<DistributionTypeT>::lowest()),
+        UniformDistribution() :
+            min(std::numeric_limits<DistributionTypeT>::lowest()),
             max(std::numeric_limits<DistributionTypeT>::max()),
-            current(0)
+            current(0),
+            buffer(UNIFORM_BUFFER_CAPACITY)
         {
-            auto seed = generate_seed();
-            prng_init(&generator, seed.data());
-            buffer = std::make_shared<DistributionTypeT[]>(UNIFORM_BUFFER_CAPACITY);
+            prng_init(&shishua_prng, generate_seed().data());
         }
 
         UniformDistribution(DistributionTypeT _min, DistributionTypeT _max)
-            : min(_min), max(_max), current(0)
+            : min(_min), max(_max), current(0), buffer(UNIFORM_BUFFER_CAPACITY)
         {
-            auto seed = generate_seed();
-            prng_init(&generator, seed.data());
-            buffer = std::make_shared<DistributionTypeT[]>(UNIFORM_BUFFER_CAPACITY);
+            prng_init(&shishua_prng, generate_seed().data());
         }
 
         void setParams(DistributionTypeT _min, DistributionTypeT _max) {
@@ -48,9 +45,9 @@ namespace Distribution {
             if (current == 0) {
                 current = UNIFORM_BUFFER_CAPACITY - 1;
                 prng_gen(
-                    &generator,
-                    reinterpret_cast<uint8_t*>(buffer.get()),
-                    UNIFORM_BUFFER_CAPACITY * sizeof(DistributionTypeT)
+                    &shishua_prng,
+                    reinterpret_cast<uint8_t*>(buffer.data()),
+                    buffer.size() * sizeof(DistributionTypeT)
                 );
             }
             DistributionTypeT value = buffer[current--];

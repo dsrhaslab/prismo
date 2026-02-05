@@ -35,6 +35,16 @@
   "generator": {
     "type": "constant",
     "refill": false,
+    "compression": [
+      {
+        "percentage": 50,
+        "reduction": 0
+        },
+      {
+        "percentage": 50,
+        "reduction": 50
+      }
+    ],
 
     "distribution": [
       {

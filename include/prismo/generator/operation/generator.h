@@ -60,9 +60,7 @@ namespace Generator {
                 std::cout << "~Destroying PercentageOperationGenerator" << std::endl;
             };
 
-            explicit PercentageOperationGenerator(const json& j)
-                : OperationGenerator(), rng(0,99), op_percentages()
-            {
+            explicit PercentageOperationGenerator(const json& j) : rng(0,99) {
                 uint32_t cumulative = 0;
                 for (const auto& item: j.at("percentages").items()) {
                     cumulative += item.value().get<uint32_t>();
@@ -78,7 +76,7 @@ namespace Generator {
                 return select_from_percentage_vector(rng.nextValue(), op_percentages);
             };
 
-            void validate(void) const {
+            void validate(void) const override {
                 validate_percentage_vector(op_percentages, "percentage_operation");
             };
     };
@@ -95,22 +93,20 @@ namespace Generator {
                 std::cout << "~Destroying SequenceOperationGeneator" << std::endl;
             };
 
-            explicit SequenceOperationGeneator(const json& j)
-                : OperationGenerator(), index(0), operations()
-            {
+            explicit SequenceOperationGeneator(const json& j) : index(0) {
                 for (auto& item : j.at("operations")) {
                     auto op_str = item.get<std::string>();
                     operations.push_back(Operation::operation_from_str(op_str));
                 }
             };
 
-            Operation::OperationType next_operation(void) override{
+            Operation::OperationType next_operation(void) override {
                 Operation::OperationType operation = operations.at(index);
                 index = (index + 1) % operations.size();
                 return operation;
             };
 
-            void validate(void) const {
+            void validate(void) const override {
                 if (operations.size() == 0) {
                     throw std::invalid_argument("validate: invalid sequence of operations");
                 }

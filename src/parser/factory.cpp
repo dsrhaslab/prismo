@@ -64,9 +64,9 @@ namespace Parser {
         std::unique_ptr<Generator::ContentGenerator> content_generator;
 
         if (type == "constant") {
-            content_generator = std::make_unique<Generator::ConstantContentGenerator>();
+            content_generator = std::make_unique<Generator::ConstantContentGenerator>(config);
         } else if (type == "random") {
-            content_generator = std::make_unique<Generator::RandomContentGenerator>();
+            content_generator = std::make_unique<Generator::RandomContentGenerator>(config);
         } else if (type == "dedup") {
             content_generator = std::make_unique<Generator::DeduplicationContentGenerator>(config);
         } else {

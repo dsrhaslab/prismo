@@ -3,18 +3,49 @@
 
 #include <cstring>
 #include <iostream>
+#include <nlohmann/json.hpp>
 #include <prismo/generator/content/metadata.h>
 #include <lib/shishua/shishua.h>
 #include <lib/shishua/utils.h>
 
+using json = nlohmann::json;
+
 namespace Generator {
 
     class ContentGenerator {
+        private:
+            bool refill_flag;
+            prng_state shishua_prng;
+            std::vector<uint8_t> base_buffer;
+
+        protected:
+            uint64_t block_id = 0;
+
+            void refill(uint8_t* buffer, size_t size) {
+                if (refill_flag) {
+                    prng_gen(&shishua_prng, buffer, size);
+                } else {
+                    std::memcpy(buffer, base_buffer.data(), size);
+                }
+            }
+
         public:
-            ContentGenerator() = default;
+            ContentGenerator() = delete;
 
             virtual ~ContentGenerator() {
                 std::cout << "~Destroying ContentGenerator" << std::endl;
+            }
+
+            explicit ContentGenerator(const json& j)
+                : ContentGenerator(j, j.at("refill").get<bool>()) {}
+
+            explicit ContentGenerator(const json& j, bool _refill_flag)
+                :
+                refill_flag(_refill_flag),
+                base_buffer(j.at("block_size").get<size_t>())
+            {
+                prng_init(&shishua_prng, generate_seed().data());
+                prng_gen(&shishua_prng, base_buffer.data(), base_buffer.size());
             }
 
             virtual BlockMetadata next_block(uint8_t* buffer, size_t size) = 0;
@@ -23,49 +54,44 @@ namespace Generator {
     };
 
     class ConstantContentGenerator : public ContentGenerator {
-        private:
-            uint64_t block_id = 1;
-
         public:
-            ConstantContentGenerator() = default;
+            ConstantContentGenerator() = delete;
 
             ~ConstantContentGenerator() override {
                 std::cout << "~Destroying ConstantContentGenerator" << std::endl;
             }
 
+            explicit ConstantContentGenerator(const json& j)
+                : ContentGenerator(j, false) {}
+
             void validate(void) const override {}
 
             BlockMetadata next_block(uint8_t* buffer, size_t size) override {
-                std::memset(buffer, 0, size);
+                refill(buffer, size);
                 std::memcpy(buffer, &block_id, sizeof(block_id));
                 return BlockMetadata {
                     .block_id = block_id,
-                    .compression = 100
+                    .compression = 0
                 };
             }
     };
 
     class RandomContentGenerator : public ContentGenerator {
-        private:
-            prng_state generator;
-
         public:
-            RandomContentGenerator() : ContentGenerator() {
-                auto seed = generate_seed();
-                prng_init(&generator, seed.data());
-            };
+            RandomContentGenerator() = delete;
 
             ~RandomContentGenerator() override {
                 std::cout << "~Destroying RandomContentGenerator" << std::endl;
             }
 
+            explicit RandomContentGenerator(const json& j)
+                : ContentGenerator(j) {}
+
             void validate(void) const override {}
 
-            BlockMetadata next_block(uint8_t* buffer, size_t size) {
-                uint64_t block_id;
-                prng_gen(&generator, buffer, size);
+            BlockMetadata next_block(uint8_t* buffer, size_t size) override {
+                refill(buffer, size);
                 std::memcpy(&block_id, buffer, sizeof(block_id));
-                std::memcpy(buffer, &block_id, sizeof(block_id));
                 return BlockMetadata {
                     .block_id = block_id,
                     .compression = 0

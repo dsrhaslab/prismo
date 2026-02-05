@@ -9,7 +9,7 @@
 #include <prismo/generator/content/compression.h>
 #include <prismo/generator/operation/generator.h>
 #include <prismo/generator/operation/barrier.h>
-#include <prismo/generator/realistic/repeat.h>
+// falta um include
 #include <prismo/logger/logger.h>
 #include <prismo/logger/spdlog.h>
 #include <prismo/engine/engine.h>

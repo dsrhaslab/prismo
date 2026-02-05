@@ -20,15 +20,7 @@ namespace Generator {
 
     class DeduplicationContentGenerator : public ContentGenerator {
         private:
-            uint64_t block_id = 0;
-
-            bool refill;
-            size_t block_size;
-
             boost::pool<> pool;
-            std::unique_ptr<uint8_t[]> refill_buffer;
-
-            RandomContentGenerator random_generator;
             Distribution::UniformDistribution<uint32_t> rng;
 
             std::unordered_map<uint32_t, std::vector<DedupElement>> dedup_windows;

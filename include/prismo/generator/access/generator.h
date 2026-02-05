@@ -61,7 +61,7 @@ namespace Generator {
                 return offset;
             };
 
-            void validate(void) const {
+            void validate(void) const override {
                 AccessGenerator::validate();
             };
     };
@@ -89,7 +89,7 @@ namespace Generator {
                 return static_cast<uint64_t>(rng.nextValue() * block_size);
             };
 
-            void validate(void) const {
+            void validate(void) const override {
                 AccessGenerator::validate();
             };
     };
@@ -118,7 +118,7 @@ namespace Generator {
                 return static_cast<uint64_t>(distribution.nextValue() * block_size);
             };
 
-            void validate(void) const {
+            void validate(void) const override {
                 AccessGenerator::validate();
                 if (skew <= 0 || skew >= 1) {
                     throw std::invalid_argument("zipfian_validate: skew must belong to range [0; 1]");

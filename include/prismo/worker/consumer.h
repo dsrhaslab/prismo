@@ -1,6 +1,10 @@
 #ifndef CONSUMER_WORKER_H
 #define CONSUMER_WORKER_H
 
+#include <memory>
+#include <prismo/worker/utils.h>
+#include <prismo/engine/engine.h>
+#include <lib/concurrentqueue/concurrentqueue.h>
 
 namespace Worker {
 

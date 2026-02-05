@@ -3,11 +3,7 @@
 namespace Generator {
 
     DeduplicationContentGenerator::DeduplicationContentGenerator(const json& j)
-        : ContentGenerator(),
-        refill(j.at("refill").get<bool>()),
-        block_size(j.at("block_size").get<size_t>()),
-        pool(j.at("block_size").get<size_t>()),
-        rng(0, 99)
+        : ContentGenerator(j), pool(j.at("block_size").get<size_t>()), rng(0, 99)
     {
         uint32_t cumulative_deduplication = 0;
         for (const auto& dedup_item : j.at("distribution")) {
@@ -20,9 +16,6 @@ namespace Generator {
                 .value = repeats,
             });
         }
-
-        refill_buffer = std::make_unique<uint8_t[]>(block_size);
-        random_generator.next_block(refill_buffer.get(), block_size);
     }
 
     BlockMetadata DeduplicationContentGenerator::next_block(
@@ -77,12 +70,7 @@ namespace Generator {
 
         // improve memcpy to not overlap compression area
         // maybe not because size could be strange for random generator
-        if (refill) {
-            random_generator.next_block(dedup_element.buffer, size);
-        } else {
-            std::memcpy(dedup_element.buffer, refill_buffer.get(), size);
-        }
-
+        refill(dedup_element.buffer, size);
         apply_compression(dedup_element.buffer, size, dedup_element.compression);
 
         std::memcpy(
