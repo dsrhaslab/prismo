@@ -16,8 +16,6 @@ Nesta secção dão-se a conhecer os conceitos de deduplicação e compressão, 
 
 Convém mencionar que a proposta de solução funciona ao nível do bloco, portanto, e por motivos de simplicidade, os conceitos serão apresentados tendo isso em conta, embora a granularidade não lhes seja diretamente incutida.
 
-#underline(stroke: 1.5pt + red)[
-
 ==== Benchmarking
 
 O benchmarking de sistemas de armazenamento passa por aplicar cargas de trabalho controladas e reprodutíveis, consentindo assim a avaliação do desempenho, eficiência e escalabilidade das soluções de @io. Mais tarde os dados recolhidos são utilizados para decidir entre arquiteturas, interfaces de acesso e configurações de hardware/software que melhor respondem às necessidades do ambiente de produção.
@@ -25,7 +23,6 @@ O benchmarking de sistemas de armazenamento passa por aplicar cargas de trabalho
 Entre as métricas recolhidas, destacam-se a latência (intervalo entre submissão e conclusão), débito (quantidade de dados transferidos por unidade de tempo) e @iops (operações de @io realizadas por unidade de tempo), sendo claro que, para além dos componentes técnicos, as características da workload influenciam o valor das métricas.
 
 Por fim, a representatividade das workloads corresponde a um desafio central do benchmarking, pois testes sintéticos tendem a não refletir fielmente comportamentos e padrões observados em ambientes reais. Além disso, certas soluções de @io foram desenhadas para favorecer determinadas características, por exemplo deduplicação e compressão, como tal uma workload genérica é incapaz de extrair o máximo das capacidades do sistema.
-]
 
 ==== Deduplicação
 

@@ -1,192 +1,280 @@
-didona2022:
-  type: "Article"
-  author:
-    - name: "Diego Didona"
-    - name: "Jonas Pfefferle"
-    - name: "Nikolas Ioannou"
-    - name: "Bernard Metzler"
-  title: "Understanding modern storage APIs: A systematic study of libaio, SPDK, and io_uring"
-  url: "https://dl.acm.org/doi/10.1145/3534056.3534945"
-  publisher:
-    name: "ACM"
-  booktitle: "Proceedings of the 15th ACM International Conference on Systems and Storage"
-  year: 2022
-  keywords:
-    - "Storage Systems"
-    - "I/O APIs"
-    - "libaio"
-    - "SPDK"
-    - "io_uring"
-
-koller2010:
-  type: "Article"
-  author:
-    - name: "Ricardo Koller"
-    - name: "Raju Rangaswami"
-  title: "I/O Deduplication: Utilizing Content Similarity to Improve I/O Performance"
-  url: "https://dl.acm.org/doi/abs/10.1145/1837915.1837921"
-  journal: "ACM Transactions on Storage"
-  volume: 6
-  number: 3
-  article: 13
-  pages: "26"
-  publisher:
-    name: "Association for Computing Machinery"
-  year: 2010
-  keywords:
-    - "Deduplication"
-    - "Storage Performance"
-    - "Content Similarity"
-
-ren2023:
-  type: "Article"
-  author:
-    - name: "Zebin Ren"
-    - name: "Animesh Trivedi"
-  title: "Performance characterization of modern storage stacks: POSIX I/O, libaio, SPDK, and io_uring"
-  booktitle: "Proceedings of the 3rd Workshop on Challenges and Opportunities of Efficient and Performant Storage Systems"
-  url: "https://dl.acm.org/doi/abs/10.1145/3578353.3589545"
-  year: 2023
-  keywords:
-    - "Storage Stacks"
-    - "Performance Evaluation"
-    - "POSIX I/O"
-    - "io_uring"
-
-talasila2019:
-  type: "Article"
-  author:
-    - name: "Prasad Talasila"
-    - name: "Daniel E. Lucani"
-  title: "Generalized deduplication: Lossless compression by clustering similar data"
-  booktitle: "2019 IEEE 8th International Conference on Cloud Networking (CloudNet)"
-  url: "https://ieeexplore.ieee.org/document/9064140"
-  publisher:
-    name: "IEEE"
-  year: 2019
-  keywords:
-    - "Deduplication"
-    - "Lossless Compression"
-    - "Cloud Storage"
-
-constantinescu2011:
-  type: "Article"
-  author:
-    - name: "Cornel Constantinescu"
-    - name: "Joseph Glider"
-    - name: "David Chambliss"
-  title: "Mixing Deduplication and Compression on Active Data Sets"
-  booktitle: "2011 Data Compression Conference"
-  url: "https://dl.acm.org/doi/10.1109/DCC.2011.46"
-  publisher:
-    name: "IEEE"
-  year: 2011
-  keywords:
-    - "Deduplication"
-    - "Compression"
-    - "Active Data Sets"
-
-paulo2013:
-  type: "Article"
-  author:
-    - name: "João Paulo"
-    - name: "Pedro Reis"
-    - name: "José Pereira"
-    - name: "António Sousa"
-  title: "Towards an accurate evaluation of deduplicated storage systems"
-  url: "https://gsd.di.uminho.pt/members/jtpaulo/prp13.pdf"
-  year: 2013
-  keywords:
-    - "Deduplicated Storage"
-    - "Evaluation Methodology"
-
-paulo2014:
-  type: "Article"
-  author:
-    - name: "João Paulo"
-    - name: "José Pereira"
-  title: "A Survey and Classification of Storage Deduplication Systems"
-  url: "https://dl.acm.org/doi/10.1145/2611778"
-  volume: 47
-  number: 1
-  article: 11
-  pages: 30
-  publisher:
-    name: "Association for Computing Machinery"
-  year: 2014
-  month: "May"
-  keywords:
-    - "Storage Deduplication"
-    - "Storage Systems"
-    - "Data Reduction"
-    - "File Systems"
-    - "Survey"
-    - "Taxonomy"
-
-dedisbench:
-  type: "Article"
-  author:
-    - name: "João Paulo"
-    - name: "Pedro Reis"
-    - name: "José Pereira"
-    - name: "António Sousa"
-  title: "DEDISbench: a benchmark for deduplicated storage systems"
-  url: "https://repositorium.uminho.pt/entities/publication/5adffd6f-5029-48f9-bddf-6e5a94abbce5"
-  year: 2012
-  keywords:
-    - "Deduplication"
-    - "Storage"
-    - "Benchmark"
-    - "Cloud Computing"
-
-dedisbench++:
-  type: "Article"
-  author:
-    - name: "Alexandre Lopes Mandim da Silva"
-  title: "DEDISbench++: Avaliação realista de deduplicação e compressão em sistemas de armazenamento"
-  keywords:
-    - "Deduplication"
-    - "Compression"
-    - "Storage Benchmarking"
-
 rust_iouring_async:
-  type: "Web"
-  title: "Rust async with io_uring"
-  author:
-    - name: "NTT Labs"
-  url: "https://medium.com/nttlabs/rust-async-with-io-uring-db3fa2642dd4"
-  year: 2021
-  accessed: "2026-01-21"
-  keywords:
-    - "Rust"
-    - "Async I/O"
-    - "io_uring"
+  type: web
+  title: Rust async with io_uring
+  author: NTT Labs
+  url: https://medium.com/nttlabs/rust-async-with-io-uring-db3fa2642dd4
 
 maxg_lz77:
-  type: "Web"
+  type: web
   title: "The LZ77 Algorithm: Lossless Compression with a Sliding Window"
-  author:
-    - name: "MaxGCoding"
-  url: "https://www.maxgcoding.com/lossless-compression-lz77"
-  publisher:
-    name: "MaxGCoding.com"
-  year: 2024
-  accessed: "2026-01-21"
-  keywords:
-    - "Lossless Compression"
-    - "LZ77"
+  author: MaxGCoding
+  url: https://www.maxgcoding.com/lossless-compression-lz77
 
 huffman_wiki:
-  type: "Web"
-  title: "Huffman coding"
+  type: web
+  title: Huffman coding
+  author: Wikipedia
+  url: https://en.wikipedia.org/wiki/Huffman_coding
+
+didona2022:
+  type: article
+  title: "Understanding modern storage APIs: A systematic study of libaio, SPDK, and io_uring"
   author:
-    - name: "Wikipedia"
-  url: "https://en.wikipedia.org/wiki/Huffman_coding"
-  publisher:
-    name: "Wikipedia"
-  year: 2026
-  accessed: "2026-01-21"
-  keywords:
-    - "Lossless Compression"
-    - "Entropy Coding"
-    - "Prefix Codes"
+    - Didona, Diego
+    - Pfefferle, Jonas
+    - Ioannou, Nikolas
+    - Metzler, Bernard
+  date: 2022
+  serial-number:
+    doi: 10.1145/3534056.3534945
+  parent:
+    type: Proceedings
+    title: Proceedings of the 15th ACM International Conference on Systems and Storage
+    publisher:
+      name: Association for Computing Machinery
+      location: Haifa, Israel
+
+koller2010:
+  type: article
+  title: "I/O Deduplication: Utilizing Content Similarity to Improve I/O Performance"
+  author:
+    - Koller, Ricardo
+    - Rangaswami, Raju
+  date: 2010
+  serial-number:
+    doi: 10.1145/1837915.1837921
+  parent:
+    type: Proceedings
+    title: ACM Transactions on Storage
+    publisher:
+      name: Association for Computing Machinery
+      location: New York, NY, USA
+    volume: 6
+    issue: 3
+
+ren2023:
+  type: article
+  title: "Performance characterization of modern storage stacks: POSIX I/O, libaio, SPDK, and io_uring"
+  author:
+    - Ren, Zebin
+    - Trivedi, Animesh
+  date: 2023
+  serial-number:
+    doi: 10.1145/3578353.3589545
+  parent:
+    type: Proceedings
+    title: Proceedings of the 3rd Workshop on Challenges and Opportunities of Efficient and Performant Storage Systems
+    publisher:
+      name: Association for Computing Machinery
+      location: Rome, Italy
+
+talasila2019:
+  type: article
+  title: "Generalized deduplication: Lossless compression by clustering similar data"
+  author:
+    - Talasila, Prasad
+    - Lucani, Daniel E.
+  date: 2019
+  url: https://ieeexplore.ieee.org/document/9064140
+  parent:
+    type: Proceedings
+    title: 2019 IEEE 8th International Conference on Cloud Networking (CloudNet)
+    publisher:
+      name: IEEE
+
+constantinescu2011:
+  type: article
+  title: Mixing Deduplication and Compression on Active Data Sets
+  author:
+    - Constantinescu, Cornel
+    - Glider, Joseph
+    - Chambliss, David
+  date: 2011
+  serial-number:
+    doi: 10.1109/DCC.2011.46
+  parent:
+    type: Proceedings
+    title: Proceedings of the 2011 Data Compression Conference
+    publisher:
+      name: IEEE Computer Society
+      location: USA
+
+paulo2013:
+  type: report
+  title: Towards an accurate evaluation of deduplicated storage systems
+  author:
+    - Paulo, João
+    - Reis, Pedro
+    - Pereira, José
+    - Sousa, António
+  date: 2013
+  url: https://gsd.di.uminho.pt/members/jtpaulo/prp13.pdf
+
+paulo2014:
+  type: article
+  title: A Survey and Classification of Storage Deduplication Systems
+  author:
+    - Paulo, João
+    - Pereira, José
+  date: 2014-05
+  serial-number:
+    doi: 10.1145/2611778
+  parent:
+    type: Periodical
+    publisher:
+      name: Association for Computing Machinery
+      location: New York, NY, USA
+    volume: 47
+    issue: 1
+
+dedisbench:
+  type: article
+  title: "DEDISbench: a benchmark for deduplicated storage systems"
+  author:
+    - Paulo, João
+    - Reis, Pedro
+    - Pereira, José
+    - Sousa, António
+  date: 2012
+  url: "https://repositorium.uminho.pt/entities/publication/5adffd6f-5029-48f9-bddf-6e5a94abbce5"
+
+dedisbenchpp:
+  type: thesis
+  title: "DEDISbench++: Avaliação realista de deduplicação e compressão em sistemas de armazenamento"
+  author:
+    - Silva, Alexandre Lopes Mandim da
+  date: 2020
+
+lee2012:
+  type: article
+  title: Benchmarking and modeling disk-based storage tiers for practical storage design
+  author:
+    - Lee, DongJin
+    - O'Sullivan, Michael
+    - Walker, Cameron
+  date: 2012-10
+  serial-number:
+    doi: 10.1145/2381056.2381080
+  parent:
+    type: Periodical
+    title: SIGMETRICS Performance Evaluation Review
+    publisher:
+      name: Association for Computing Machinery
+    volume: 40
+    issue: 2
+  page-range: 113-118
+
+traeger2008:
+  type: article
+  title: A nine year study of file system and storage benchmarking
+  author:
+    - Traeger, Avishay
+    - Zadok, Erez
+    - Joukov, Nikolai
+    - Wright, Charles P.
+  date: 2008-05
+  serial-number:
+    doi: 10.1145/1367829.1367831
+  parent:
+    type: Periodical
+    title: ACM Transactions on Storage
+    publisher:
+      name: Association for Computing Machinery
+    volume: 4
+    issue: 2
+  article-number: 5
+
+borrill2007:
+  type: article
+  title: Investigation of leading HPC I/O performance using a scientific-application derived benchmark
+  author:
+    - Borrill, Julian
+    - Oliker, Leonid
+    - Shalf, John
+    - Shan, Hongzhang
+  date: 2007
+  serial-number:
+    doi: 10.1145/1362622.1362636
+  parent:
+    type: Proceedings
+    title: Proceedings of the 2007 ACM/IEEE Conference on Supercomputing
+    publisher:
+      name: Association for Computing Machinery
+    location: Reno, Nevada
+  article-number: 10
+  page-range: 1-12
+
+gracia-tinedo2015:
+  type: article
+  title: "SDGen: Mimicking Datasets for Content Generation in Storage Benchmarks"
+  author:
+    - Gracia-Tinedo, Raúl
+    - Harnik, Danny
+    - Naor, Dalit
+    - Sotnikov, Dmitry
+    - Toledo, Sivan
+    - Zuck, Aviad
+  date: 2015-02
+  url: https://www.usenix.org/conference/fast15/technical-sessions/presentation/gracia-tinedo
+  parent:
+    type: Proceedings
+    title: 13th USENIX Conference on File and Storage Technologies (FAST 15)
+    publisher:
+      name: USENIX Association
+      location: Santa Clara, CA
+  page-range: 317-330
+
+pang2026:
+  type: article
+  title: Synthetic Data Generation for Storage Trace Augmentation
+  author:
+    - Pang, Lu
+    - Kant, Krishna
+  date: 2026-01
+  serial-number:
+    doi: 10.1145/3767317
+  parent:
+    type: Periodical
+    title: ACM Transactions on Storage
+    publisher:
+      name: Association for Computing Machinery
+    volume: 22
+    issue: 1
+  article-number: 9
+  page-range: 1-29
+
+gracia-tinedo2018:
+  type: article
+  title: "BenchBox: A User-Driven Benchmarking Framework for Fat-Client Storage Systems"
+  author:
+    - Gracia-Tinedo, Raúl
+    - Zou, Chenglong
+    - Sánchez-Artigas, Marc
+    - Garcia-Lopez, Pedro
+  date: 2018
+  serial-number:
+    doi: 10.1109/TPDS.2018.2819657
+  parent:
+    type: Periodical
+    title: IEEE Transactions on Parallel and Distributed Systems
+    publisher:
+      name: IEEE
+    volume: 29
+    issue: 10
+  page-range: 2191-2205
+
+talwadker2014:
+  type: article
+  title: "ParaSwift: File I/O Trace Modeling for the Future"
+  author:
+    - Talwadker, Rukma
+    - Voruganti, Kaladhar
+  date: 2014-11-13
+  url: https://www.usenix.org/conference/lisa14/conference-program/presentation/talwadker
+  page-range: 128-141
+  parent:
+    type: Proceedings
+    title: 28th Large Installation System Administration Conference (LISA14)
+    publisher:
+      name: USENIX Association
+    location: Seattle, WA
