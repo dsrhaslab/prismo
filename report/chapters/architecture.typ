@@ -4,17 +4,17 @@
 
 == Abordagem e Planeamento <chapter3>
 
-Depois de esclarecido o problema da avaliação realista dos sistemas de armazenamento e compreendidos os conceitos em seu redor, este capítulo visa abordar a arquitetura do protótipo de benchmark, passando pela identificação dos respetivos componentes, estratégias adotadas para geração de conteúdo e integração com @api:pl de @io cuja natureza é bastante diversa, isto fundamentalmente porque algumas são síncronas e outras assíncronas.
+Depois de esclarecido o problema da avaliação realista dos sistemas de armazenamento e compreendidos os conceitos em seu redor, este capítulo visa abordar a arquitetura do protótipo de benchmark, passando pela identificação dos respetivos componentes, estratégias adotadas para geração de conteúdo e integração com @api:pl de @io cuja natureza é bastante diversa, isto fundamentalmente porque algumas são síncronas e outras assíncronas @didona2022 @ren2023 @rust_iouring_async.
 
-De seguida, serão apresentados resultados preliminares da performance do benchmark, procurando explicar as diferenças obtidas conforme as configurações e ambiente de teste, sendo isto fundamental para perceber se o overhead associado à geração de conteúdo impossibilita a saturação do sistema de armazenamento.
+De seguida, serão apresentados resultados preliminares da performance do benchmark, procurando explicar as diferenças obtidas conforme as configurações e ambiente de teste, sendo isto fundamental para perceber se o overhead associado à geração de conteúdo impossibilita a saturação do sistema de armazenamento @fio_docs @spdk_docs.
 
-Por fim, e uma vez que somente o protótipo foi implementado, serão estabelecidas as próximas etapas do desenvolvimento do benchmark, algo que inevitavelmente passará pela integração com traces e extensão dos mesmos, no então outras configurações relativamente simples como speed up ou slow down seriam interessantes e contribuiriam para uma maior flexibilidade em termos de configuração.
+Por fim, e uma vez que somente o protótipo foi implementado, serão estabelecidas as próximas etapas do desenvolvimento do benchmark, algo que inevitavelmente passará pela integração com traces e extensão dos mesmos, no então outras configurações relativamente simples como speed up ou slow down seriam interessantes e contribuiriam para uma maior flexibilidade em termos de configuração @tracegen2024 @talwadker2014 @gracia-tinedo2015 @pang2026.
 
 === Arquitetura
 
-Numa primeira abordagem ao problema, percebemos que a geração de conteúdo é facilmente dissociável das operações solicitadas ao sistema de armazenamento, sendo estas realizadas por meio das @api:pl de @io. Deste modo, a arquitetura pode ser dividida em dois grandes componentes que estabelecem cada um interfaces para manipulação da conduta.
+Numa primeira abordagem ao problema, percebemos que a geração de conteúdo é facilmente dissociável das operações solicitadas ao sistema de armazenamento, sendo estas realizadas por meio das @api:pl de @io. Deste modo, a arquitetura pode ser dividida em dois grandes componentes que estabelecem cada um interfaces para manipulação da conduta @didona2022 @ren2023.
 
-Posto isto, a interface para geração de conteúdo abstrai as implementações concretas, daí que a sua utilização não implique desvios de padrão caso o utilizador escolha usufruir de dados sintéticos ou reais obtidos através de traces, do mesmo modo esta lógica é aplicável para a interface de abstração do disco.
+Posto isto, a interface para geração de conteúdo abstrai as implementações concretas, daí que a sua utilização não implique desvios de padrão caso o utilizador escolha usufruir de dados sintéticos ou reais obtidos através de traces, do mesmo modo esta lógica é aplicável para a interface de abstração do disco @tracegen2024 @gracia-tinedo2018.
 
 Com o estabelecimento destes componentes, um produtor é responsável para invocar os métodos da interface de geração de conteúdo e encapsular os resultados num pedido de @io, sendo este colocado numa blocking queue como forma de solicitação de execução.
 
@@ -22,9 +22,9 @@ Do outro lado, um consumidor está constantemente à escuta na queue com o objet
 
 ==== Geração de Conteúdo Sintético
 
-Na generalidade das interfaces, os pedidos de @io são caracterizados pelo tipo de operação, conteúdo e posição do disco onde o pedido será satisfeito, consequentemente o gerador de conteúdo sintético pode ser desacoplado nestas três funcionalidades, dando origem a interfaces que visam fornecer os parâmetros dos pedidos.
+Na generalidade das interfaces, os pedidos de @io são caracterizados pelo tipo de operação, conteúdo e posição do disco onde o pedido será satisfeito, consequentemente o gerador de conteúdo sintético pode ser desacoplado nestas três funcionalidades, dando origem a interfaces que visam fornecer os parâmetros dos pedidos @gracia-tinedo2015 @talwadker2014.
 
-Como fruto desta abordagem, e uma vez que os geradores são definidos ao nível dos parâmetros, a combinação entre geradores sintéticos e reais torna-se bastante simples, isto porque o produtor apenas conhece uma interface que é independente da implementação concreta, assim podemos ter acessos reais e operações sintéticas, sendo o contrário igualmente válido.
+Como fruto desta abordagem, e uma vez que os geradores são definidos ao nível dos parâmetros, a combinação entre geradores sintéticos e reais torna-se bastante simples, isto porque o produtor apenas conhece uma interface que é independente da implementação concreta, assim podemos ter acessos reais e operações sintéticas, sendo o contrário igualmente válido @gracia-tinedo2015 @pang2026.
 
 #figure(
   image("../images/producer.png", width: 60%),
@@ -39,14 +39,14 @@ Uma vez que as queues apresentam capacidade limitada, e tendo em consideração 
 
 ===== Acesso
 
-Os pedidos de `READ` e `WRITE` necessitam de ser identificados pela zona do disco onde a operação irá ocorrer, neste sentido a interface `AccessGenerator` disponibiliza o método `nextAccess` que devolve o offset da próxima operação a realizar, sendo de realçar que nem todas as implementações concretas apresentam a mesma performance, pois algumas seguem distribuições enquanto outras utilizam aritmética simples.
+Os pedidos de `READ` e `WRITE` necessitam de ser identificados pela zona do disco onde a operação irá ocorrer, neste sentido a interface `AccessGenerator` disponibiliza o método `nextAccess` que devolve o offset da próxima operação a realizar, sendo de realçar que nem todas as implementações concretas apresentam a mesma performance, pois algumas seguem distribuições enquanto outras utilizam aritmética simples @tracegen2024 @gracia-tinedo2015.
 
 #figure(
   image("../images/access.png", width: 60%),
   caption: [Hierarquia da interface de acessos]
 )
 
-Dado que os acessos são realizados ao nível do bloco, todas as implementações devem conhecer o tamanho do bloco e o limite da zona do disco até onde é permitido ler ou escrever, deste modo os offsets devolvidos serão inferiores ou iguais ao limite e acima de tudo múltiplos do tamanho do bloco.
+Dado que os acessos são realizados ao nível do bloco, todas as implementações devem conhecer o tamanho do bloco e o limite da zona do disco até onde é permitido ler ou escrever, deste modo os offsets devolvidos serão inferiores ou iguais ao limite e acima de tudo múltiplos do tamanho do bloco @tracegen2024.
 
 #figure(
   grid(
@@ -78,20 +78,20 @@ Dado que os acessos são realizados ao nível do bloco, todas as implementaçõe
   caption: [Configuração dos geradores de acesso]
 )
 
-A implementação do tipo sequencial é responsável por devolver os offsets num padrão contínuo, sendo que o alcance do limite implica o reposicionamento no offset zero, esta estratégia beneficia claramente a localidade espacial, pois as zonas do disco são acedidas num padrão favorável.
+A implementação do tipo sequencial é responsável por devolver os offsets num padrão contínuo, sendo que o alcance do limite implica o reposicionamento no offset zero, esta estratégia beneficia claramente a localidade espacial, pois as zonas do disco são acedidas num padrão favorável @tracegen2024.
 
-Por outro lado, os acessos totalmente aleatórios não favorecem quaisquer propriedades de localidade, daí que sejam especialmente úteis para evitar uma utilização eficiente da cache. Por fim, os acessos zipfian seguem uma distribuição cuja skew pode ser manipulada pelo utilizador, neste sentido cargas de trabalho com hotspots são facilmente replicáveis por esta implementação.
+Por outro lado, os acessos totalmente aleatórios não favorecem quaisquer propriedades de localidade, daí que sejam especialmente úteis para evitar uma utilização eficiente da cache @tracegen2024. Por fim, os acessos zipfian seguem uma distribuição cuja skew pode ser manipulada pelo utilizador, neste sentido cargas de trabalho com hotspots são facilmente replicáveis por esta implementação @tracegen2024.
 
 ===== Operação
 
-Os sistemas de armazenamento suportam uma infinidade de operações, no entanto o gerador de operações apenas disponibiliza `READ`, `WRITE`, `FSYNC`, `FDATASYNC` e `NOP` por serem as mais comuns e portanto adotadas pela maioria das @api:pl de @io. Embora a operação `NOP` não faça rigorosamente nada, a mesma é útil para testar a performance do benchmark independente da capacidade do disco, permitindo identificar o débito máximo que o sistema de armazenamento pode almejar.
+Os sistemas de armazenamento suportam uma infinidade de operações, no entanto o gerador de operações apenas disponibiliza `READ`, `WRITE`, `FSYNC`, `FDATASYNC` e `NOP` por serem as mais comuns e portanto adotadas pela maioria das @api:pl de @io @didona2022 @ren2023. Embora a operação `NOP` não faça rigorosamente nada, a mesma é útil para testar a performance do benchmark independente da capacidade do disco, permitindo identificar o débito máximo que o sistema de armazenamento pode almejar @ren2023.
 
 #figure(
   image("../images/operation.png", width: 60%),
   caption: [Hierarquia da interface de operações]
 )
 
-A implementação do tipo constante é a mais simples, isto porque devolve sempre a mesma operação que foi definida previamente pelo utilizador. Em contrapartida, as operações percentuais são obtidas à custa de uma distribuição cujo somatório das probabilidade deve resultar em 100, exemplificando com a configuração abaixo, metade das operações serão `READs` e as restantes `WRITES`.
+A implementação do tipo constante é a mais simples, isto porque devolve sempre a mesma operação que foi definida previamente pelo utilizador. Em contrapartida, as operações percentuais são obtidas à custa de uma distribuição cujo somatório das probabilidade deve resultar em 100, exemplificando com a configuração abaixo, metade das operações serão `READS` e as restantes `WRITES` @ren2023.
 
 #figure(
   grid(
@@ -123,20 +123,20 @@ A implementação do tipo constante é a mais simples, isto porque devolve sempr
   caption: [Configuração dos geradores de operações]
 )
 
-Por fim, a replicação de padrões é obtida com recurso à implementação de sequência, sendo o utilizador responsável por definir uma lista de operações que mais tarde será repetidamente devolvida, neste caso em concreto, se o método `nextOperation` fosse invocado cinco vezes, as operações seriam devolvidas pela ordem: `WRITE`, `FSYNC`, `WRITE`, `FSYNC`, `WRITE`.
+Por fim, a replicação de padrões é obtida com recurso à implementação de sequência, sendo o utilizador responsável por definir uma lista de operações que mais tarde será repetidamente devolvida, neste caso em concreto, se o método `nextOperation` fosse invocado cinco vezes, as operações seriam devolvidas pela ordem: `WRITE`, `FSYNC`, `WRITE`, `FSYNC`, `WRITE` @ren2023.
 
 ===== Geração de Blocos
 
-A geração de blocos é sem dúvida a operação mais custosa, no entanto apenas torna-se necessária quando a operação selecionada for um `WRITE`, nesse sentido a interface de `BlockGenerator` disponibiliza o método `nextBlock` que preenche um buffer passado como argumento.
+A geração de blocos é sem dúvida a operação mais custosa, no entanto apenas torna-se necessária quando a operação selecionada for um `WRITE`, nesse sentido a interface de `BlockGenerator` disponibiliza o método `nextBlock` que preenche um buffer passado como argumento @constantinescu2011 @meyer2012.
 
-Embora a implementação principal desta interface seja aquela que combina duplicados e compressão, existem outras mais rudimentares que servem para testar cenários específicos com maior eficiência, isto porque o gerador de duplicados é capaz de simular os blocos dos outros geradores, mas com uma performance significativamente menor.
+Embora a implementação principal desta interface seja aquela que combina duplicados e compressão, existem outras mais rudimentares que servem para testar cenários específicos com maior eficiência, isto porque o gerador de duplicados é capaz de simular os blocos dos outros geradores, mas com uma performance significativamente menor @koller2010 @zhu2008 @talasila2019.
 
 #figure(
   image("../images/block.png", width: 60%),
   caption: [Hierarquia da interface de geração de blocos]
 )
 
-Tal como seria expectável, os geradores necessitam de conhecer o tamanho do bloco, deste modo podem garantir que os limites dos buffers jamais serão violados. A implementação mais simplista deste gerador corresponde ao constante, que devolve sempre o mesmo buffer, resultando numa deduplicação e compressibilidade interbloco máximas. Por outro lado, o aleatório tem exatamente o comportamento oposto, pois ao devolver buffers diferentes não existem duplicados e a entropia é elevada.
+Tal como seria expectável, os geradores necessitam de conhecer o tamanho do bloco, deste modo podem garantir que os limites dos buffers jamais serão violados. A implementação mais simplista deste gerador corresponde ao constante, que devolve sempre o mesmo buffer, resultando numa deduplicação e compressibilidade interbloco máximas. Por outro lado, o aleatório tem exatamente o comportamento oposto, pois ao devolver buffers diferentes não existem duplicados e a entropia é elevada @maxg_lz77 @huffman_wiki.
 
 #figure(
   grid(
@@ -165,13 +165,13 @@ Tal como seria expectável, os geradores necessitam de conhecer o tamanho do blo
   caption: [Configuração dos geradores de blocos]
 )
 
-Por fim, o gerador de duplicados e compressão procura seguir uma distribuição de duplicados definida pelo utilizador, esta estabelece a percentagem de blocos que terão X cópias, sendo que cada grupo de cópias tem associada uma distribuição de compressão, indicando que Y% dos blocos reduz cerca de Z%.
+Por fim, o gerador de duplicados e compressão procura seguir uma distribuição de duplicados definida pelo utilizador, esta estabelece a percentagem de blocos que terão X cópias, sendo que cada grupo de cópias tem associada uma distribuição de compressão, indicando que Y% dos blocos reduz cerca de Z% @constantinescu2011 @paulo2014.
 
-Além disso, a opção `refill_buffers` permite a partilha do buffer base entre blocos, deste modo quando os mesmos são criados a zona de entropia máxima é obtida a partir do buffer, consequentemente todos os blocos partilham a mesma informação e portanto a compressibilidade interbloco atinge o limite.
+Além disso, a opção `refill_buffers` permite a partilha do buffer base entre blocos, deste modo quando os mesmos são criados a zona de entropia máxima é obtida a partir do buffer, consequentemente todos os blocos partilham a mesma informação e portanto a compressibilidade interbloco atinge o limite @constantinescu2011 @paulo2014.
 
 ====== Geração de Duplicados e Compressão
 
-Para que o utilizador manipule a distribuição de duplicados e compressão, o benchmark oferece um ficheiro de configuração sobre o qual as informações são retiradas, bastando seguir o formato indicado.
+Para que o utilizador manipule a distribuição de duplicados e compressão, o benchmark oferece um ficheiro de configuração sobre o qual as informações são retiradas, bastando seguir o formato indicado @dedisbench @dedisbenchpp @paulo2013.
 
 #figure(
   grid(
@@ -214,7 +214,7 @@ Para que o utilizador manipule a distribuição de duplicados e compressão, o b
   caption: [Especificação da distribuição de duplicados e compressão]
 )
 
-A distribuição de duplicados e compressão é definida de modo particular, inicialmente é realizada uma associação entre o número de cópias e a respetiva probabilidade, sendo mais tarde definidas as taxas de compressão dentro de cada grupo.
+A distribuição de duplicados e compressão é definida de modo particular, inicialmente é realizada uma associação entre o número de cópias e a respetiva probabilidade, sendo mais tarde definidas as taxas de compressão dentro de cada grupo @constantinescu2011 @paulo2014.
 
 #grid(
   columns: 2,
@@ -233,30 +233,30 @@ A distribuição de duplicados e compressão é definida de modo particular, ini
   ],
 )
 
-A @compression-map representa a estrutura sobre a qual as taxas de compressão são armazenadas para cada grupo, sendo basicamente um mapa que associa o número de repetições a uma lista formada por tuplos de percentagem cumulativa e respetiva redução.
+A @compression-map representa a estrutura sobre a qual as taxas de compressão são armazenadas para cada grupo, sendo basicamente um mapa que associa o número de repetições a uma lista formada por tuplos de percentagem cumulativa e respetiva redução @constantinescu2011 @paulo2014.
 
-Por outro lado, a @dedup-map é responsável por gerir os blocos duplicados e tem um funcionamento semelhante ao de uma sliding window, onde os tuplos da lista são constituídos pelo identificador de bloco e cópias que faltam efetuar.
+Por outro lado, a @dedup-map é responsável por gerir os blocos duplicados e tem um funcionamento semelhante ao de uma sliding window, onde os tuplos da lista são constituídos pelo identificador de bloco e cópias que faltam efetuar @talasila2019 @policroniades2004.
 
-O funcionamento do algoritmo é bastante simples, inicialmente uma entrada do mapa é selecionada conforme as probabilidades do ficheiro de configuração, a partir daí, caso a lista não tenha atingido o limite de elementos, um novo é adicionado com o número de cópias igual ao de repetições.
+O funcionamento do algoritmo é bastante simples, inicialmente uma entrada do mapa é selecionada conforme as probabilidades do ficheiro de configuração, a partir daí, caso a lista não tenha atingido o limite de elementos, um novo é adicionado com o número de cópias igual ao de repetições @talasila2019.
 
-Na situação em que a lista encontra-se completa, um dos elementos é selecionado aleatoriamente e o valor das cópias em falta é decrementado uma unidade, ao ser atingido o valor zero a entrada é definitivamente retirada da lista, pois o bloco já foi repetido as vezes necessárias.
+Na situação em que a lista encontra-se completa, um dos elementos é selecionado aleatoriamente e o valor das cópias em falta é decrementado uma unidade, ao ser atingido o valor zero a entrada é definitivamente retirada da lista, pois o bloco já foi repetido as vezes necessárias @talasila2019.
 
-Por fim, depois de selecionado o identificador do bloco, volta a ser sorteado um número aleatório para descobrir a taxa de compressão a aplicar, de relembrar que a distribuição é obtida pela entrada do mapa selecionada inicialmente.
+Por fim, depois de selecionado o identificador do bloco, volta a ser sorteado um número aleatório para descobrir a taxa de compressão a aplicar, de relembrar que a distribuição é obtida pela entrada do mapa selecionada inicialmente @constantinescu2011 @paulo2014.
 
-Apesar de bastante eficiente, esta abordagem acarreta o problema da geração pseudo aleatória, algo que tende a ser bastante custoso relativamente às restantes operações, no entanto esta implementação faz uso de um buffer gerido pelo SHISHUA, deste modo gerações massivas são realizadas periodicamente enquanto a aplicação limita-se a recolher dados do buffer.
+Apesar de bastante eficiente, esta abordagem acarreta o problema da geração pseudo aleatória, algo que tende a ser bastante custoso relativamente às restantes operações, no entanto esta implementação faz uso de um buffer gerido pelo SHISHUA, deste modo gerações massivas são realizadas periodicamente enquanto a aplicação limita-se a recolher dados do buffer @rust_iouring_async.
 
 ==== Integração de Interfaces de I/O
 
-Sabendo que o consumidor está à escuta de pedidos enviados pelo produtor, quando os mesmos são recebidos procede-se de imediato ao desencapsulamento para compreender o tipo de operação em questão e assim facilitar o acesso aos restantes parâmetros, como offset e conteúdo.
+Sabendo que o consumidor está à escuta de pedidos enviados pelo produtor, quando os mesmos são recebidos procede-se de imediato ao desencapsulamento para compreender o tipo de operação em questão e assim facilitar o acesso aos restantes parâmetros, como offset e conteúdo @didona2022.
 
-A interface `Engine` disponibiliza o método `submit` que aceita operações de qualquer tipo, assim o consumidor não é responsável por definir as alterações de comportamento associadas. Mal o pedido seja dado por concluído, a struct é devolvida pela interface, permitindo ao consumidor fazer dequeue para que a zona de memória seja reutilizada mais tarde.
+A interface `Engine` disponibiliza o método `submit` que aceita operações de qualquer tipo, assim o consumidor não é responsável por definir as alterações de comportamento associadas @ren2023. Mal o pedido seja dado por concluído, a struct é devolvida pela interface, permitindo ao consumidor fazer dequeue para que a zona de memória seja reutilizada mais tarde.
 
 #figure(
   image("../images/consumer.png", width: 60%),
   caption: [Interação do consumidor com a interface de engine]
 )
 
-Um pedido obtido a partir da queue pode ser de três tipos distintos, onde as structs de abertura e fecho são caracterizadas pelos argumentos encontrados nas syscalls de `open` e `close`, importa realçar que tais estruturas não fazem sentido para a engine de @spdk, visto esta funcionar diretamente sobre o dispositivo de armazenamento e portanto não existir uma abstração do sistema de ficheiros.
+Um pedido obtido a partir da queue pode ser de três tipos distintos, onde as structs de abertura e fecho são caracterizadas pelos argumentos encontrados nas syscalls de `open` e `close`, importa realçar que tais estruturas não fazem sentido para a engine de @spdk, visto esta funcionar diretamente sobre o dispositivo de armazenamento e portanto não existir uma abstração do sistema de ficheiros @spdk_docs.
 
 #figure(
   grid(
@@ -294,9 +294,9 @@ Um pedido obtido a partir da queue pode ser de três tipos distintos, onde as st
   caption: [Estrutura dos vários tipos de pedidos]
 )
 
-Perante a combinação de interfaces síncronas e assíncronas, o método `submit` nem sempre devolve uma struct para reutilização, pois, no caso das interfaces assíncronas nunca sabemos exatamente quando o pedido será dado por concluído e além disso não é possível esperar até que tal aconteça, caso contrário estaria a ser dado comportamento síncrono e as vantagens de paralelismo seriam perdidas.
+Perante a combinação de interfaces síncronas e assíncronas, o método `submit` nem sempre devolve uma struct para reutilização, pois, no caso das interfaces assíncronas nunca sabemos exatamente quando o pedido será dado por concluído e além disso não é possível esperar até que tal aconteça, caso contrário estaria a ser dado comportamento síncrono e as vantagens de paralelismo seriam perdidas @uring_kernel @rust_iouring_async.
 
-/// Tendo isto em mente, o método `reap_left_completions` possibilita a espera forçosa dos  pedidos pendentes, algo que deve ser utilizado entre a última submissão e a operação de `close`.
+/// Tendo isto em mente, o método `reap_left_completions` possibilita a espera forçosa dos pedidos pendentes, algo que deve ser utilizado entre a última submissão e a operação de `close` @didona2022.
 
 ===== POSIX
 
@@ -316,7 +316,7 @@ Perante a combinação de interfaces síncronas e assíncronas, o método `submi
 )
 
 #let posix_body = [
-  Com o objetivo de flexibilizar o benchmark, todas as implementações de `Engine` possuem uma configuração para manipulação dos parâmetros e respetivo comportamento, neste caso em concreto, ao tratar-se de uma interface bastante simplista, a única configuração possível ocorre na syscall `open` através das flags passadas como argumento.
+  Com o objetivo de flexibilizar o benchmark, todas as implementações de `Engine` possuem uma configuração para manipulação dos parâmetros e respetivo comportamento, neste caso em concreto, ao tratar-se de uma interface bastante simplista, a única configuração possível ocorre na syscall `open` através das flags passadas como argumento @didona2022.
 
   Posto isto, a estrutura de configuração indica o tipo de `Engine` selecionada, bem como uma lista das flags que o utilizador considera relevantes para a execução da workload, por questões de comodidade na implementação, somente as flags mais relevantes são suportadas.
 ]
@@ -329,11 +329,11 @@ Perante a combinação de interfaces síncronas e assíncronas, o método `submi
 )
 
 #figure(
- image("../images/flow_posix.png", width: 65%),
- caption: [Funcionamento interno da POSIX Engine]
+  image("../images/flow_posix.png", width: 65%),
+  caption: [Funcionamento interno da POSIX Engine]
 )
 
-Por ostentar comportamento síncrono, o método `reap_left_completions` não tem relevância prática, destarte a receção de pedidos é seguida da syscall associada ao tipo de operação, sendo mais tarde devolvido o código de erro, bem como a estrutura do pedido.
+Por ostentar comportamento síncrono, o método `reap_left_completions` não tem relevância prática, destarte a receção de pedidos é seguida da syscall associada ao tipo de operação, sendo mais tarde devolvido o código de erro, bem como a estrutura do pedido @didona2022.
 
 ===== Uring
 
@@ -360,11 +360,11 @@ Por ostentar comportamento síncrono, o método `reap_left_completions` não tem
 )
 
 #let uring_body = [
-  Ao fazer uso do sistema de ficheiros, os argumentos de abertura são semelhantes aos previamente referidos, portanto a configuração da `UringEngine` apresenta uma lista das mesmas flags.
+  Ao fazer uso do sistema de ficheiros, os argumentos de abertura são semelhantes aos previamente referidos, portanto a configuração da `UringEngine` apresenta uma lista das mesmas flags @uring_kernel.
 
-  Em relação aos demais parâmetros, `entries` e `cq_entries` definem a profundidade da @sq e @cq respetivamente, por norma estes valores são potências de dois entre 64 e 256, isto porque valores pequenos diminuem o paralelismo, enquanto o contrário resulta num aumento do consumo de memória e desperdício da localidade da cache.
+  Em relação aos demais parâmetros, `entries` e `cq_entries` definem a profundidade da @sq e @cq respetivamente, por norma estes valores são potências de dois entre 64 e 256, isto porque valores pequenos diminuem o paralelismo, enquanto o contrário resulta num aumento do consumo de memória e desperdício da localidade da cache @didona2022.
 
-  Relativamente às flags para controlo do anel e processamento de @io, o utilizador usufruir de total liberdade de escolha, sendo de realçar a flag `IORING_SETUP_SQPOLL` que cria uma thread no kernel para pollar a @sq e assim os pedidos serem submetidos sem a necessidade de invocar a syscall `io_uring_enter`. Por outro lado, a flag `IORING_SETUP_SQ_AFF` estabelece a afinidade da thread do kernel, neste caso em particular, a mesma será fixada no core 0 e após de 100 milissegundos de inatividade entrará no estado de sleep.
+  Relativamente às flags para controlo do anel e processamento de @io, o utilizador usufruir de total liberdade de escolha, sendo de realçar a flag `IORING_SETUP_SQPOLL` que cria uma thread no kernel para pollar a @sq e assim os pedidos serem submetidos sem a necessidade de invocar a syscall `io_uring_enter`. Por outro lado, a flag `IORING_SETUP_SQ_AFF` estabelece a afinidade da thread do kernel, neste caso em particular, a mesma será fixada no core 0 e após de 100 milissegundos de inatividade entrará no estado de sleep @rust_iouring_async.
 ]
 
 #wrap-content(
@@ -375,13 +375,13 @@ Por ostentar comportamento síncrono, o método `reap_left_completions` não tem
 )
 
 #figure(
-    image("../images/flow_uring.png", width: 75%),
-    caption: [Funcionamento interno da Uring Engine]
+  image("../images/flow_uring.png", width: 75%),
+  caption: [Funcionamento interno da Uring Engine]
 )
 
-Tratando-se de uma interface assíncrona, o seu bom uso passa por diminuir a invocação de syscalls e manter os pedidos in-flight no máximo permitido, o que corresponde à capacidade da @sq. Tendo isto em consideração, a `UringEngine` não executa os pedidos mal estes sejam recebidos, procura sim formar um batch para submeter vários em simultâneo.
+Tratando-se de uma interface assíncrona, o seu bom uso passa por diminuir a invocação de syscalls e manter os pedidos in-flight no máximo permitido, o que corresponde à capacidade da @sq @uring_kernel. Tendo isto em consideração, a `UringEngine` não executa os pedidos mal estes sejam recebidos, procura sim formar um batch para submeter vários em simultâneo @rust_iouring_async.
 
-Depois do primeiro batch ser submetido, a estratégia é alterada para preservar a quantidade de pedidos in-flight, portanto mal seja encontrada uma @sqe dísponivel, a mesma é preparada e submetida independentemente de haver ou não um batch. É certo que esta abordagem aumenta as syscalls, porém quando combinada com a thread de polling do kernel, permite atingir débitos e @iops deveras elevados.
+Depois do primeiro batch ser submetido, a estratégia é alterada para preservar a quantidade de pedidos in-flight, portanto mal seja encontrada uma @sqe dísponivel, a mesma é preparada e submetida independentemente de haver ou não um batch. É certo que esta abordagem aumenta as syscalls, porém quando combinada com a thread de polling do kernel, permite atingir débitos e @iops deveras elevados @uring_kernel.
 
 ===== SPDK
 
@@ -400,13 +400,13 @@ Depois do primeiro batch ser submetido, a estratégia é alterada para preservar
 )
 
 #let spdk_body = [
-  Uma vez que o @spdk possui um ficheiro de configuração próprio, utilizado para definir os @bdev, controladores de disco, tamanho dos blocos e afins, os parâmetros manipuláveis pelo benchmark a nível aplicacional são limitados.
+  Uma vez que o @spdk possui um ficheiro de configuração próprio, utilizado para definir os @bdev, controladores de disco, tamanho dos blocos e afins, os parâmetros manipuláveis pelo benchmark a nível aplicacional são limitados @spdk_docs.
 
-  Posto isto, `spdk_threads` indica o número de threads lógicas que serão criadas e pelas quais os pedidos de @io serão distribuídos em round-robin, importa realçar que tais threads funcionam como uma abstração sobre o reactor, o qual é responsável por escalonar as tarefas e direcioná-las para que sejam executadas nos cores corretos.
+  Posto isto, `spdk_threads` indica o número de threads lógicas que serão criadas e pelas quais os pedidos de @io serão distribuídos em round-robin, importa realçar que tais threads funcionam como uma abstração sobre o reactor, o qual é responsável por escalonar as tarefas e direcioná-las para que sejam executadas nos cores corretos @didona2022.
 
-  Desta feita, o número de cores realmente utilizados pelo runtime do @spdk é identificado por `reactor_mask`, neste caso em particular, `0XF` convertido para binário equivale a `1111`, assim os quatro primeiros cores do sistema estão disponíveis para escalonamento de tarefas.
+  Desta feita, o número de cores realmente utilizados pelo runtime do @spdk é identificado por `reactor_mask`, neste caso em particular, `0XF` convertido para binário equivale a `1111`, assim os quatro primeiros cores do sistema estão disponíveis para escalonamento de tarefas @spdk_docs.
 
-  Embora as threads lógicas possam ser fixadas em qualquer core, o componente `SPDKRuntime` está fixado no primeiro core e em espera ativa por pedidos de @io vindos da aplicação, portanto qualquer outra thread fixada no mesmo core nunca será capaz de executar, afinal o runtime é interminável no consumo de recursos.
+  Embora as threads lógicas possam ser fixadas em qualquer core, o componente `SPDKRuntime` está fixado no primeiro core e em espera ativa por pedidos de @io vindos da aplicação, portanto qualquer outra thread fixada no mesmo core nunca será capaz de executar, afinal o runtime é interminável no consumo de recursos @didona2022.
 ]
 
 #wrap-content(
@@ -421,15 +421,15 @@ Depois do primeiro batch ser submetido, a estratégia é alterada para preservar
   caption: [Funcionamento interno da SPDK Engine]
 )
 
-Ao iniciar o runtime do @spdk, o ambiente de execução muda completamente e torna-se difícil comunicar com os restante componentes do nível aplicacional, deste modo `SPDKEngine` serve essencialmente para transmitir os pedidos de @io através de um trigger partilhado pelo runtime.
+Ao iniciar o runtime do @spdk, o ambiente de execução muda completamente e torna-se difícil comunicar com os restante componentes do nível aplicacional, deste modo `SPDKEngine` serve essencialmente para transmitir os pedidos de @io através de um trigger partilhado pelo runtime @spdk_docs.
 
-No momento em que este recebe um pedido, é necessário aguardar por uma zona de memória disponível, isto porque um buffer foi inicialmente alocado para propósitos de @dma. De seguida, o pedido é encapsulado numa mensagem própria do @spdk e transmitido a uma thread lógica, sendo esta responsável por submeter ao @bdev e executar a operação de callback quando o pedido estiver concluído.
+No momento em que este recebe um pedido, é necessário aguardar por uma zona de memória disponível, isto porque um buffer foi inicialmente alocado para propósitos de @dma. De seguida, o pedido é encapsulado numa mensagem própria do @spdk e transmitido a uma thread lógica, sendo esta responsável por submeter ao @bdev e executar a operação de callback quando o pedido estiver concluído @didona2022.
 
-Por fim, como os pedidos vão acompanhados de um trigger, a `SPDKEngine` é notificada acerca da conclusão e portanto percebe que é seguro devolver a struct ao produtor.
+Por fim, como os pedidos vão acompanhados de um trigger, a `SPDKEngine` é notificada acerca da conclusão e portanto percebe que é seguro devolver a struct ao produtor @spdk_docs.
 
 ==== Recolha de Métricas
 
-Durante a execução de workloads, o benchmark é responsável por recolher métricas sobre cada uma das operações de @io realizadas, algo fundamental na caracterização e posterior avaliação do sistema de armazenamento, isto porque scripts estatísticos podem analisar o ficheiro de log resultante das métricas.
+Durante a execução de workloads, o benchmark é responsável por recolher métricas sobre cada uma das operações de @io realizadas, algo fundamental na caracterização e posterior avaliação do sistema de armazenamento, isto porque scripts estatísticos podem analisar o ficheiro de log resultante das métricas @didona2022 @ren2023.
 
 #figure(
   grid(
@@ -469,7 +469,7 @@ Durante a execução de workloads, o benchmark é responsável por recolher mét
   caption: [Estrutura dos pacotes de métricas]
 )
 
-Tendo isto em consideração, o utilizador escolhe entre três pacotes de métricas que são progressivamente mais completos e suportam todos os parâmetros do pacote anterior. Assim sendo, `BaseMetric` corresponde à estrutura mais simples, contendo apenas os timestamp de início e fim, bem como o identificador do bloco utilizado e respetiva taxa de compressão, importa realçar que somente as operações de `WRITE` levam à geração de blocos, como tal qualquer outra operação apresenta um `block_id` igual a zero.
+Tendo isto em consideração, o utilizador escolhe entre três pacotes de métricas que são progressivamente mais completos e suportam todos os parâmetros do pacote anterior. Assim sendo, `BaseMetric` corresponde à estrutura mais simples, contendo apenas os timestamp de início e fim, bem como o identificador do bloco utilizado e respetiva taxa de compressão, importa realçar que somente as operações de `WRITE` levam à geração de blocos, como tal qualquer outra operação apresenta um `block_id` igual a zero @didona2022.
 
 #figure(
   raw_code_block[
@@ -485,34 +485,34 @@ Tendo isto em consideração, o utilizador escolhe entre três pacotes de métri
   caption: [Estrutura do ficherio de log]
 )
 
-A estrutura do ficheiro de logging onde as métricas são armazenadas é de simples interpretação, neste caso em particular o pacote de métricas selecionado foi o `BasicMetric`, portanto os parâmetros presentes são idênticos aos da struct.
+A estrutura do ficheiro de logging onde as métricas são armazenadas é de simples interpretação, neste caso em particular o pacote de métricas selecionado foi o `BasicMetric`, portanto os parâmetros presentes são idênticos aos da struct @didona2022.
 
-Por fim, quanto mais detalhadas forem as métricas recolhidas, pior será o desempenho do benchmark, daí que exista uma opção de desativação de métricas para atingir o máximo de performance. Ademais, como as métricas são escritas num ficheiro de logging, o sistema de armazenamento é sobrecarregado para além da execução do benchmark, algo que pode originar o enviesamento de resultados.
+Por fim, quanto mais detalhadas forem as métricas recolhidas, pior será o desempenho do benchmark, daí que exista uma opção de desativação de métricas para atingir o máximo de performance @ren2023. Ademais, como as métricas são escritas num ficheiro de logging, o sistema de armazenamento é sobrecarregado para além da execução do benchmark, algo que pode originar o enviesamento de resultados @didona2022.
 
 === Resultados Preliminares
 
-Com o objetivo de testar o protótipo, em particular o desempenho das várias interface de @io, foram desenvolvidas workloads de características distintas, projetadas para avaliar o sistema de armazenamento sob diferentes padrões de acesso, leituras e escritas intensivas, bem como cenários de alta concorrência.
+Com o objetivo de testar o protótipo, em particular o desempenho das várias interface de @io, foram desenvolvidas workloads de características distintas, projetadas para avaliar o sistema de armazenamento sob diferentes padrões de acesso, leituras e escritas intensivas, bem como cenários de alta concorrência @didona2022.
 
-+ *nop:* não são realizadas quaisquer operações ao nível do sistema de armazenamento, sendo por isso ideal na identificação do débito máximo por parte da interface de @io, consequentemente o grosso do tempo de execução é gasto em espaço de utilizador.
++ *nop:* não são realizadas quaisquer operações ao nível do sistema de armazenamento, sendo por isso ideal na identificação do débito máximo por parte da interface de @io, consequentemente o grosso do tempo de execução é gasto em espaço de utilizador @ren2023.
 
-+ *wseq:* as escritas são realizadas do modo sequencial, seguindo o tamanho dos blocos. Ademais o conteúdo gerado é constante, como tal é frequentemente repetido o mesmo bloco e a taxa de compressão é máxima.
++ *wseq:* as escritas são realizadas do modo sequencial, seguindo o tamanho dos blocos. Ademais o conteúdo gerado é constante, como tal é frequentemente repetido o mesmo bloco e a taxa de compressão é máxima @dedisbench @dedisbenchpp.
 
-+ *rwmix:* as operações são divididas igualmente entre `READs` e `WRITEs`, sem a evidência de padrões, pois a seleção é aleatória. De igual modo, os blocos e acessos são obtidos através de uma distribuição uniforme, como tal não existem duplicados e nenhuma zona do disco é particularmente popular, o que inviabiliza uma utilização eficiente da cache.
++ *rwmix:* as operações são divididas igualmente entre `READS` e `WRITES`, sem a evidência de padrões, pois a seleção é aleatória. De igual modo, os blocos e acessos são obtidos através de uma distribuição uniforme, como tal não existem duplicados e nenhuma zona do disco é particularmente popular, o que inviabiliza uma utilização eficiente da cache @paulo2014 @meyer2012.
 
-+ *zipf:* os acessos são obtidos por uma distribuição zipfian com skew de 0.9, o que aumenta a frequência dos offsets mais baixos. De resto, os blocos seguem uma determinada distribuição de duplicados e compressão, onde as operações são realizadas sob o padrão `READ`, `WRITE`, `NOP`, `WRITE`.
++ *zipf:* os acessos são obtidos por uma distribuição zipfian com skew de 0.9, o que aumenta a frequência dos offsets mais baixos. De resto, os blocos seguem uma determinada distribuição de duplicados e compressão, onde as operações são realizadas sob o padrão `READ`, `WRITE`, `NOP`, `WRITE` @talasila2019 @constantinescu2011.
 
-+ *zipf_fsync*: esta workload é essencialmente igual à zipf, contudo difere pelo facto de possuir uma barreira onde a cada 1024 escritas é lançado um `FSYNC` para sincronização dos conteúdos no disco.
++ *zipf_fsync*: esta workload é essencialmente igual à zipf, contudo difere pelo facto de possuir uma barreira onde a cada 1024 escritas é lançado um `FSYNC` para sincronização dos conteúdos no disco @ren2023.
 
-Sabendo que a memória principal e mecanismos de cache do sistema operativo influenciam a execução do benchmark, os offsets das workloads vão até ao limite de quatro vezes a capacidade da @ram. No entanto, por motivos de conveniência, o máximo de operações realizadas corresponde a dez milhões e a flag `O_DIRECT` foi desativada para fazer uso da page cache e assim diminuir o tempo de execução.
+Sabendo que a memória principal e mecanismos de cache do sistema operativo influenciam a execução do benchmark, os offsets das workloads vão até ao limite de quatro vezes a capacidade da @ram @lee2012. No entanto, por motivos de conveniência, o máximo de operações realizadas corresponde a dez milhões e a flag `O_DIRECT` foi desativada para fazer uso da page cache e assim diminuir o tempo de execução @ren2023.
 
-Tendo isto em consideração, as workloads foram replicadas num ambiente controlado para garantir a reprodutibilidade dos resultados e a comparabilidade entre os vários testes, tendo sido utilizada a seguinte especificação de hardware e software:
+Tendo isto em consideração, as workloads foram replicadas num ambiente controlado para garantir a reprodutibilidade dos resultados e a comparabilidade entre os vários testes, tendo sido utilizada a seguinte especificação de hardware e software @ren2023:
 
 - *OS:* Ubuntu 22.04.5 LTS (Jammy Jellyfish) x86_64
 - *CPU:* 12th Gen Intel(R) Core(TM) i5-12500 (12) @ 4.60 GHz
 - *RAM:* 64 GiB DDR4 @ 3200 MT/s, 2 x 32 GiB modules
 - *Disco:* SSD NVMe Sandisk Corp 256 GB, non-rotational
 
-Por fim, a configuração dos backends de @io é constante entre a replicação das workloads, sendo de destacar a interface Uring com uma @sqe de profundidade 128 e ativação da flag `IORING_SETUP_SQPOLL` para criar uma thread do kernel dedicada a fazer polling na @sqe e assim evitar o custo das syscalls. Por outro lado, a interface @spdk inicializa um reactor nos quatro primeiros cores e cinco threads lógicas para servir os pedidos de @io, sendo estes satisfeitos por um @bdev associado a um controlador de @nvme.
+Por fim, a configuração dos backends de @io é constante entre a replicação das workloads, sendo de destacar a interface Uring com uma @sqe de profundidade 128 e ativação da flag `IORING_SETUP_SQPOLL` para criar uma thread do kernel dedicada a fazer polling na @sqe e assim evitar o custo das syscalls @uring_kernel. Por outro lado, a interface @spdk inicializa um reactor nos quatro primeiros cores e cinco threads lógicas para servir os pedidos de @io, sendo estes satisfeitos por um @bdev associado a um controlador de @nvme @spdk_docs.
 
 #let performance-table(workload_name, ..content) = figure(
   table(
@@ -566,15 +566,15 @@ Por fim, a configuração dos backends de @io é constante entre a replicação 
   [*SPDK*], [21.803 $plus.minus$ 0.181], [21.672], [22.009], [117.774], [4.910], [458],
 )
 
-Numa breve análise dos resultados, percebemos que o protótipo atinge o máximo de 17 milhões @iops para a interface POSIX, isto porque a operação `NOP` não é naturalmente suportada pelo backend, sendo simulada por uma invocação vazia. Sob outro enfoque, as restantes interfaces apresentam uma implementação de `NOP` mais complexa, daí que a performance obtida seja significativamente pior.
+Numa breve análise dos resultados, percebemos que o protótipo atinge o máximo de 17 milhões @iops para a interface POSIX, isto porque a operação `NOP` não é naturalmente suportada pelo backend, sendo simulada por uma invocação vazia @didona2022. Sob outro enfoque, as restantes interfaces apresentam uma implementação de `NOP` mais complexa, daí que a performance obtida seja significativamente pior @ren2023.
 
-Embora os resultados possam estar enviesados pela desativação da flag `O_DIRECT`, constatámos que o desempenho dos backends piora quando as workloads apresentam determinadas características, nomeadamente acessos aleatórios e operações de `FSYNC`, no entanto estes aspetos são pouco visíveis em @spdk, talvez por evitar os mecanismos da stack de @io e dar bypass ao kernel.
+Embora os resultados possam estar enviesados pela desativação da flag `O_DIRECT`, constatámos que o desempenho dos backends piora quando as workloads apresentam determinadas características, nomeadamente acessos aleatórios e operações de `FSYNC`, no entanto estes aspetos são pouco visíveis em @spdk, talvez por evitar os mecanismos da stack de @io e dar bypass ao kernel @spdk_docs @didona2022.
 
-Por fim, a performance do Uring ficou abaixo das expectativas, afinal a configuração de polling na @sq permite eliminar as syscalls e aumentar o débito de submissão, supondo valores superiores a POSIX.
+Por fim, a performance do Uring ficou abaixo das expectativas, afinal a configuração de polling na @sq permite eliminar as syscalls e aumentar o débito de submissão, supondo valores superiores a POSIX @uring_kernel @rust_iouring_async.
 
 === Próximas Etapas
 
-Embora o protótipo possua imensas funcionalidades, tendo inclusive finalizado alguns componentes, dos quais se destacam as implementações de backends de @io e geração de conteúdo sintético, ainda restam pontos diferenciadores relativamente aos demais benchmarks.
+Embora o protótipo possua imensas funcionalidades, tendo inclusive finalizado alguns componentes, dos quais se destacam as implementações de backends de @io e geração de conteúdo sintético, ainda restam pontos diferenciadores relativamente aos demais benchmarks @ren2023 @didona2022.
 
 #figure(
   timeliney.timeline(
@@ -632,6 +632,6 @@ Embora o protótipo possua imensas funcionalidades, tendo inclusive finalizado a
   caption: [Calendarização das próximas tarefas com sobreposição de fases]
 )
 
-Deste modo, antes de partir para a implementação das workloads híbridas que partilham a geração de conteúdo sintético e realista, é necessário realizar um estudo sobre a melhor forma de atingir isso sem penalizar significativamente a performance do benhcmark ao ponto de não conseguir saturar o disco.
+Deste modo, antes de partir para a implementação das workloads híbridas que partilham a geração de conteúdo sintético e realista, é necessário realizar um estudo sobre a melhor forma de atingir isso sem penalizar significativamente a performance do benchmark ao ponto de não conseguir saturar o disco @gracia-tinedo2015 @pang2026 @tracegen2024.
 
-Tendo isso alcançado, resta a avaliação intensiva do benchmark através das múltiplas combinações entre backends, geradores de conteúdo e parâmetros gerais da workload, sendo isto tudo desenvolvido em paralelo com a escrita da dissertação.
+Tendo isso alcançado, resta a avaliação intensiva do benchmark através das múltiplas combinações entre backends, geradores de conteúdo e parâmetros gerais da workload, sendo isto tudo desenvolvido em paralelo com a escrita da dissertação @ren2023 @didona2022.
