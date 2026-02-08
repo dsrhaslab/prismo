@@ -4,7 +4,7 @@
 
 A fim de explorar ferramentas que solucionem problemas semelhantes aos abordados na dissertação, esta secção procura explicar algumas das técnicas utilizadas para obter workloads mais realistas e assim avaliar com maior critério os sistemas de armazenamento.
 
-Na verdade, o problema em questão não é completamente resolvido pelas ferramentas que se apresentam de seguida, cada uma sofre de limitações ao nível da geração de conteúdo, replicação de traces, ou suporte a diversas @api de @io. No entanto, convém perceber essas mesmas limitações para concluir em que medida a solução proposta se destaca das existentes.
+Na verdade, o problema em questão não é completamente resolvido pelas ferramentas que se apresentam de seguida, cada uma sofre de limitações ao nível da geração de conteúdo, replicação de traces, ou suporte a diversas @api:pl de @io. No entanto, convém perceber essas mesmas limitações para concluir em que medida a solução proposta se destaca das existentes.
 
 ==== DEDISbench
 
@@ -132,7 +132,7 @@ Em suma, estes fatores contribuem para que a geração de conteúdo do @fio não
 
 === Discussão
 
-Após a experienciação das ferramentas anteriormente mencionadas, destaca-se que os requisitos para workloads realistas são cumpridos apenas parcialmente, contudo a combinação das configurações que cada uma oferece aproxima-nos no objetivo final, ou seja, se o @fio conseguisse replicar a estratégia de duplicados e compressão do DEDISbench++ e ao mesmo tempo manter o suporte a múltiplas @api de @io, somente ficava por resolver a questão da simulação de traces do @fiu.
+Após a experienciação das ferramentas anteriormente mencionadas, destaca-se que os requisitos para workloads realistas são cumpridos apenas parcialmente, contudo a combinação das configurações que cada uma oferece aproxima-nos no objetivo final, ou seja, se o @fio conseguisse replicar a estratégia de duplicados e compressão do DEDISbench++ e ao mesmo tempo manter o suporte a múltiplas @api:pl de @io, somente ficava por resolver a questão da simulação de traces do @fiu.
 
 Ademais, a integração entre workloads geradas sinteticamente e traces obtidos em ambiente de produção, é algo totalmente inovador e que soluciona os problemas resultantes de traces incompletos, deste modo as informações em falta seriam geradas artificialmente através de uma distribuição escolhida pelo utilizador ou então conforme um padrão.
 

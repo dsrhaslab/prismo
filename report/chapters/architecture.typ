@@ -4,7 +4,7 @@
 
 == Abordagem e Planeamento <chapter3>
 
-Depois de esclarecido o problema da avaliação realista dos sistemas de armazenamento e compreendidos os conceitos em seu redor, este capítulo visa abordar a arquitetura do protótipo de benchmark, passando pela identificação dos respetivos componentes, estratégias adotadas para geração de conteúdo e integração com @api de @io cuja natureza é bastante diversa, isto fundamentalmente porque algumas são síncronas e outras assíncronas.
+Depois de esclarecido o problema da avaliação realista dos sistemas de armazenamento e compreendidos os conceitos em seu redor, este capítulo visa abordar a arquitetura do protótipo de benchmark, passando pela identificação dos respetivos componentes, estratégias adotadas para geração de conteúdo e integração com @api:pl de @io cuja natureza é bastante diversa, isto fundamentalmente porque algumas são síncronas e outras assíncronas.
 
 De seguida, serão apresentados resultados preliminares da performance do benchmark, procurando explicar as diferenças obtidas conforme as configurações e ambiente de teste, sendo isto fundamental para perceber se o overhead associado à geração de conteúdo impossibilita a saturação do sistema de armazenamento.
 
@@ -12,7 +12,7 @@ Por fim, e uma vez que somente o protótipo foi implementado, serão estabelecid
 
 === Arquitetura
 
-Numa primeira abordagem ao problema, percebemos que a geração de conteúdo é facilmente dissociável das operações solicitadas ao sistema de armazenamento, sendo estas realizadas por meio das @api de @io. Deste modo, a arquitetura pode ser dividida em dois grandes componentes que estabelecem cada um interfaces para manipulação da conduta.
+Numa primeira abordagem ao problema, percebemos que a geração de conteúdo é facilmente dissociável das operações solicitadas ao sistema de armazenamento, sendo estas realizadas por meio das @api:pl de @io. Deste modo, a arquitetura pode ser dividida em dois grandes componentes que estabelecem cada um interfaces para manipulação da conduta.
 
 Posto isto, a interface para geração de conteúdo abstrai as implementações concretas, daí que a sua utilização não implique desvios de padrão caso o utilizador escolha usufruir de dados sintéticos ou reais obtidos através de traces, do mesmo modo esta lógica é aplicável para a interface de abstração do disco.
 
@@ -84,7 +84,7 @@ Por outro lado, os acessos totalmente aleatórios não favorecem quaisquer propr
 
 ===== Operação
 
-Os sistemas de armazenamento suportam uma infinidade de operações, no entanto o gerador de operações apenas disponibiliza `READ`, `WRITE`, `FSYNC`, `FDATASYNC` e `NOP` por serem as mais comuns e portanto adotadas pela maioria das @api de @io. Embora a operação `NOP` não faça rigorosamente nada, a mesma é útil para testar a performance do benchmark independente da capacidade do disco, permitindo identificar o débito máximo que o sistema de armazenamento pode almejar.
+Os sistemas de armazenamento suportam uma infinidade de operações, no entanto o gerador de operações apenas disponibiliza `READ`, `WRITE`, `FSYNC`, `FDATASYNC` e `NOP` por serem as mais comuns e portanto adotadas pela maioria das @api:pl de @io. Embora a operação `NOP` não faça rigorosamente nada, a mesma é útil para testar a performance do benchmark independente da capacidade do disco, permitindo identificar o débito máximo que o sistema de armazenamento pode almejar.
 
 #figure(
   image("../images/operation.png", width: 60%),
@@ -510,7 +510,7 @@ Tendo isto em consideração, as workloads foram replicadas num ambiente control
 - *OS:* Ubuntu 22.04.5 LTS (Jammy Jellyfish) x86_64
 - *CPU:* 12th Gen Intel(R) Core(TM) i5-12500 (12) @ 4.60 GHz
 - *RAM:* 64 GiB DDR4 @ 3200 MT/s, 2 x 32 GiB modules
-- *Disco:* NVMe Sandisk Corp 256 GB, non-rotational
+- *Disco:* SSD NVMe Sandisk Corp 256 GB, non-rotational
 
 Por fim, a configuração dos backends de @io é constante entre a replicação das workloads, sendo de destacar a interface Uring com uma @sqe de profundidade 128 e ativação da flag `IORING_SETUP_SQPOLL` para criar uma thread do kernel dedicada a fazer polling na @sqe e assim evitar o custo das syscalls. Por outro lado, a interface @spdk inicializa um reactor nos quatro primeiros cores e cinco threads lógicas para servir os pedidos de @io, sendo estes satisfeitos por um @bdev associado a um controlador de @nvme.
 
@@ -597,9 +597,9 @@ Embora o protótipo possua imensas funcionalidades, tendo inclusive finalizado a
       taskgroup(
         title: [*Research*],
         style: (stroke: 5pt + black), {
-          task("Realistic content generation", (0, 1), style: (stroke: 5pt + gray))
-          task("Trace-based and synthetic workloads", (0, 2), style: (stroke: 5pt + gray))
-          task("Temporal and spatial locality", (1, 2), style: (stroke: 5pt + gray))
+          task("Realistic content generation", (0, 2), style: (stroke: 5pt + gray))
+          task("Trace-based and synthetic workloads", (0, 3), style: (stroke: 5pt + gray))
+          task("Temporal and spatial locality", (1, 3), style: (stroke: 5pt + gray))
         }
       )
 
@@ -607,15 +607,15 @@ Embora o protótipo possua imensas funcionalidades, tendo inclusive finalizado a
         title: [*Development*],
         style: (stroke: 5pt + black), {
           task("FIU trace parser", (2, 3), style: (stroke: 5pt + gray))
-          task("Hybrid workload generator", (3, 4), style: (stroke: 5pt + gray))
-          task("Thread and process parallelism", (3, 4), style: (stroke: 5pt + gray))
+          task("Hybrid workload generator", (3, 5), style: (stroke: 5pt + gray))
+          task("Thread and process parallelism", (3, 5), style: (stroke: 5pt + gray))
         }
       )
 
       taskgroup(
         title: [*Evaluation*],
         style: (stroke: 5pt + black), {
-          task("Workload validation", (4, 5), style: (stroke: 5pt + gray))
+          task("Workload validation", (3, 5), style: (stroke: 5pt + gray))
           task("Storage systems evaluation", (4, 6), style: (stroke: 5pt + gray))
           task("Performance metrics analysis", (4, 6), style: (stroke: 5pt + gray))
         }
@@ -629,7 +629,7 @@ Embora o protótipo possua imensas funcionalidades, tendo inclusive finalizado a
       )
     }
   ),
-  caption: [Calendarização das próximas tarefas]
+  caption: [Calendarização das próximas tarefas com sobreposição de fases]
 )
 
 Deste modo, antes de partir para a implementação das workloads híbridas que partilham a geração de conteúdo sintético e realista, é necessário realizar um estudo sobre a melhor forma de atingir isso sem penalizar significativamente a performance do benhcmark ao ponto de não conseguir saturar o disco.
