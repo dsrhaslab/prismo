@@ -21,8 +21,7 @@
 
 #show: make-glossary
 #let acronyms-data = yaml("acronyms.yml")
-#let glossary-data = yaml("glossary.yml")
-#register-glossary(acronyms-data + glossary-data)
+#register-glossary(acronyms-data)
 
 #let show-acronyms = print-glossary(
   acronyms-data,
@@ -36,7 +35,7 @@
 )
 
 #let show-glossary = print-glossary(
-  glossary-data,
+  acronyms-data,
   // Change this to your liking
   show-all: true,
   disable-back-references: true,

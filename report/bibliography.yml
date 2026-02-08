@@ -1,3 +1,9 @@
+fio_docs:
+  type: web
+  title: Flexible I/O tester
+  author: Jens Axboe
+  url: https://fio.readthedocs.io/en/latest/fio_doc.html
+
 rust_iouring_async:
   type: web
   title: Rust async with io_uring
