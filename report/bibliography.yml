@@ -4,6 +4,19 @@ fio_docs:
   author: Jens Axboe
   url: https://fio.readthedocs.io/en/latest/fio_doc.html
 
+spdk_docs:
+  type: web
+  title: Storage Performance Development Kit
+  author: SPDK
+  url: https://spdk.io/doc/
+
+uring_kernel:
+  type: web
+  title: The rapid growth of io_uring
+  author: Jonathan Corbet
+  url: https://lwn.net/Articles/810414/
+  date: 2020-01
+
 rust_iouring_async:
   type: web
   title: Rust async with io_uring
@@ -57,6 +70,58 @@ koller2010:
       location: New York, NY, USA
     volume: 6
     issue: 3
+
+zhu2008:
+  type: article
+  title: Avoiding the disk bottleneck in the data domain deduplication file system
+  author:
+    - Zhu, Benjamin
+    - Li, Kai
+    - Patterson, Hugo
+  date: 2008
+  parent:
+    type: Proceedings
+    title: Proceedings of the 6th USENIX Conference on File and Storage Technologies
+    publisher:
+      name: USENIX Association
+      location: USA
+    location: San Jose, California
+  article-number: 18
+
+meyer2012:
+  type: article
+  title: A study of practical deduplication
+  author:
+    - Meyer, Dutch T.
+    - Bolosky, William J.
+  date: 2012-01
+  serial-number:
+    doi: 10.1145/2078861.2078864
+  parent:
+    type: Periodical
+    title: ACM Transactions on Storage
+    publisher:
+      name: Association for Computing Machinery
+      location: New York, NY, USA
+    volume: 7
+    issue: 4
+  article-number: 14
+
+policroniades2004:
+  type: article
+  title: Alternatives for detecting redundancy in storage systems data
+  author:
+    - Policroniades, Calicrates
+    - Pratt, Ian
+  date: 2004
+  parent:
+    type: Proceedings
+    title: Proceedings of the USENIX Annual Technical Conference
+    publisher:
+      name: USENIX Association
+      location: USA
+    location: Boston, MA
+  page-range: 6
 
 ren2023:
   type: article
@@ -190,6 +255,42 @@ traeger2008:
     issue: 2
   article-number: 5
 
+ruwart2001:
+  type: article
+  title: File System Benchmarks, Then, Now, and Tomorrow
+  author:
+    - Ruwart, T. M.
+  date: 2001
+  serial-number:
+    doi: 10.1109/MSS.2001.10012
+  parent:
+    type: Proceedings
+    title: Eighteenth IEEE Symposium on Mass Storage Systems and Technologies
+    publisher:
+      name: IEEE
+    location: San Diego, CA, USA
+  page-range: 117-117
+
+tarasov2011:
+  type: article
+  title: "Benchmarking file system benchmarking: it *IS* rocket science"
+  author:
+    - Tarasov, Vasily
+    - Bhanage, Saumitra
+    - Zadok, Erez
+    - Seltzer, Margo
+  date: 2011
+  serial-number:
+    doi: 10.5555/1991596.1991609
+  parent:
+    type: Proceedings
+    title: Proceedings of the 13th USENIX Conference on Hot Topics in Operating Systems
+    publisher:
+      name: USENIX Association
+      location: USA
+    location: Napa, California
+  page-range: 9
+
 borrill2007:
   type: article
   title: Investigation of leading HPC I/O performance using a scientific-application derived benchmark
@@ -248,6 +349,46 @@ pang2026:
     issue: 1
   article-number: 9
   page-range: 1-29
+
+ameri2016:
+  type: article
+  title: "NoWog: A Workload Generator for Database Performance Benchmarking"
+  author:
+    - Ameri, P.
+    - Schlitter, N.
+    - Meyer, J.
+    - Streit, A.
+  date: 2016
+  serial-number:
+    doi: 10.1109/DASC-PICom-DataCom-CyberSciTec.2016.120
+  parent:
+    type: Proceedings
+    title: 2016 IEEE 14th International Conference on Dependable, Autonomic and Secure Computing / 14th International Conference on Pervasive Intelligence and Computing / 2nd International Conference on Big Data Intelligence and Computing / Cyber Science and Technology Congress
+    publisher:
+      name: IEEE
+    location: Auckland, New Zealand
+  page-range: 666-673
+
+tracegen2024:
+  type: article
+  title: "TraceGen: A Block-level Storage System Performance Evaluation Tool for Analyzing and Generating I/O Traces"
+  author:
+    - Li, Cheng
+    - Wei, Jiahe
+    - Xie, Huiru
+    - Wang, Jinjiang
+    - Zhao, Xiaonan
+    - Han, Shujie
+    - Zhang, Xiao
+  date: 2024
+  serial-number:
+    doi: 10.1109/HPCC64274.2024.00030
+  parent:
+    type: Proceedings
+    title: 2024 IEEE International Conference on High Performance Computing and Communications (HPCC)
+    publisher:
+      name: IEEE
+  page-range: 152-159
 
 gracia-tinedo2018:
   type: article

@@ -58,7 +58,7 @@ uint32_t shannon_entropy(const char* data, size_t length) {
     return static_cast<uint32_t>(std::round(percent));
 }
 
-void update_compression_db( uint32_t compression, CompressionDB& db) {
+void update_compression_db(uint32_t compression, CompressionDB& db) {
     db[compression]++;
 }
 
