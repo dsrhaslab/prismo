@@ -36,7 +36,7 @@
 
 - key: iops
   short: IOPS
-  long: Input/output Operations per Second
+  long: Input/Output Operations per Second
 
 - key: nvme
   short: NVMe
