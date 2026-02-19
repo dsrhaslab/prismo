@@ -104,6 +104,7 @@ namespace Generator {
             };
 
             explicit ZipfianAccessGenerator(const json& j) : AccessGenerator(j) {
+                skew = j.at("skew").get<float>();
                 normalized_limit = limit / block_size - 1;
                 distribution.setParams(0, normalized_limit, skew);
             };

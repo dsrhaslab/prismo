@@ -19,9 +19,20 @@ spdk_inc = include_directories(
     is_system: true,
 )
 
-inc = [project_inc, spdk_inc]
+zstd_inc = include_directories('include/lib/zstd', is_system: true)
+shishua_inc = include_directories('include/lib/shishua', is_system: true)
+komihash_inc = include_directories('include/lib/komihash', is_system: true)
+concurrentqueue_inc = include_directories('include/lib/concurrentqueue', is_system: true)
 
-# Define source files
+inc = [
+    project_inc,
+    spdk_inc,
+    zstd_inc,
+    shishua_inc,
+    komihash_inc,
+    concurrentqueue_inc,
+]
+
 src = files(
     'src/engine/aio.cpp',
     'src/engine/posix.cpp',

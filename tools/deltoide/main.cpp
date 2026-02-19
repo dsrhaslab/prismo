@@ -16,7 +16,7 @@ void analyse_file(
     CompressionDB& compression_db
 ) {
     ssize_t bytes_read = 0;
-    std::vector<char> buffer(block_size);
+    std::vector<uint8_t> buffer(block_size);
 
     int fd = open(path, O_RDONLY);
     if (fd == -1) {
@@ -26,7 +26,7 @@ void analyse_file(
     while ((bytes_read = read(fd, buffer.data(), block_size)) > 0) {
         std::memset(buffer.data() + bytes_read, 0, block_size - static_cast<size_t>(bytes_read));
 
-        uint32_t compression = shannon_entropy(buffer.data(), block_size);
+        uint32_t compression = zstd_compress(buffer);
         uint64_t header = komihash(buffer.data(), block_size, 0);
 
         update_compression_db(compression, compression_db);
@@ -82,7 +82,7 @@ int main(int argc, char** argv) {
     }
 
     try {
-        if (S_ISBLK(st.st_mode)) {
+        if (S_ISBLK(st.st_mode) || S_ISREG(st.st_mode)) {
             files.push_back(dataset);
         } else if (S_ISDIR(st.st_mode)) {
             for (const fs::directory_entry& entry :
@@ -90,7 +90,7 @@ int main(int argc, char** argv) {
                 files.push_back(entry.path());
             }
         } else {
-            std::cerr << dataset << " is neither a directory nor a block device" << std::endl;
+            std::cerr << dataset << " is neither a file/directory nor a block device" << std::endl;
             return 1;
         }
 

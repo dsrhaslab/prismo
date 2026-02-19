@@ -5,15 +5,15 @@
     "iterations": 1000,
     "filename": "testfile",
     "block_size": 4096,
-    "limit": 65536,
+    "limit": 4096000,
     "metric": "full"
   },
   "operation": {
     "type": "constant",
     "operation": "write",
     "percentages": {
-      "read": 50,
-      "write": 50
+      "read": 25,
+      "write": 75
     },
     "operations": [
       "read",
@@ -22,21 +22,39 @@
       "fdatasync",
       "nop",
       "nop",
+      "nop",
       "write",
       "read"
-    ]
+    ],
+    "trace": "/home/digo/Desktop/prismo/traces/webmail+online.cs.fiu.edu-110108-113008.10.blkparse.prismo",
+    "memory": 128,
+    "extension": "repeat"
   },
   "access": {
     "type": "sequential",
     "skew": 0.9,
-    "trace": "/home/digo/Desktop/prismo/traces/webmail+online.cs.fiu.edu-110108-113008.1.blkparse.prismo",
-    "memory": 262144
+    "trace": "/home/digo/Desktop/prismo/traces/webmail+online.cs.fiu.edu-110108-113008.10.blkparse.prismo",
+    "memory": 128,
+    "extension": "repeat"
   },
   "generator": {
-    "type": "dedup",
+    "type": "random",
+    "compression": [
+      {
+        "percentage": 70,
+        "reduction": 15
+      },
+      {
+        "percentage": 12,
+        "reduction": 20
+      },
+      {
+        "percentage": 18,
+        "reduction": 80
+      }
+    ],
+
     "refill": false,
-
-
     "distribution": [
       {
         "percentage": 20,
@@ -67,7 +85,7 @@
         ]
       },
       {
-        "percentage": 10,
+        "percentage": 15,
         "repeats": 3,
         "compression": [
           {
@@ -77,7 +95,7 @@
         ]
       },
       {
-        "percentage": 40,
+        "percentage": 35,
         "repeats": 5,
         "compression": [
           {
@@ -114,7 +132,7 @@
     "queue_size": 8192,
     "thread_count": 1,
     "truncate": true,
-    "to_stdout": true,
+    "to_stdout": false,
     "files": [
       "./log1.log",
       "./log2.log",

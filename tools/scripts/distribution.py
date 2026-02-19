@@ -80,6 +80,7 @@ if __name__ == '__main__':
         'offset',
         'ret',
         'errno',
+        'type'
     ]
 
     output_file = 'png/offset_dist.png'

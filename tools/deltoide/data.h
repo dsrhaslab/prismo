@@ -1,6 +1,7 @@
 #ifndef DATA_H
 #define DATA_H
 
+#include "zstdpp.hpp"
 #include <nlohmann/json.hpp>
 
 using json = nlohmann::json;
@@ -33,29 +34,18 @@ namespace std {
     }
 }
 
-uint32_t shannon_entropy(const char* data, size_t length) {
-    double entropy = 0.0;
-    std::vector<uint64_t> freq(256, 0);
+uint32_t zstd_compress(const std::vector<uint8_t>& data) {
+    auto compressed = zstdpp::compress(data);
+    size_t compressed_size = compressed.size();
 
-    for (size_t index = 0; index < length; index++) {
-        uint8_t byte = static_cast<uint8_t>(data[index]);
-        freq[byte]++;
-    }
+    double reduction =
+        100.0 * (1.0 -
+            static_cast<double>(compressed_size) /
+            static_cast<double>(data.size())
+        );
 
-    for (size_t index = 0; index < 256; index++) {
-        if (freq[index] != 0) {
-            double prob =
-                static_cast<double>(freq[index]) /
-                static_cast<double>(length);
-            entropy -= prob * std::log2(prob);
-        }
-    }
-
-    constexpr double max_entropy = 8.0;
-    double percent = (entropy / max_entropy) * 100.0;
-
-    percent = std::clamp(percent, 0.0, 100.0);
-    return static_cast<uint32_t>(std::round(percent));
+    reduction = std::clamp(reduction, 0.0, 100.0);
+    return static_cast<uint32_t>(std::round(reduction));
 }
 
 void update_compression_db(uint32_t compression, CompressionDB& db) {
