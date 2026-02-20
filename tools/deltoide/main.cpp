@@ -5,7 +5,6 @@
 #include <iostream>
 #include <filesystem>
 #include <argparse/argparse.hpp>
-#include <lib/komihash/komihash.h>
 
 namespace fs = std::filesystem;
 
@@ -15,6 +14,7 @@ void analyse_file(
     DuplicationDB& duplication_db,
     CompressionDB& compression_db
 ) {
+    uint64_t header;
     ssize_t bytes_read = 0;
     std::vector<uint8_t> buffer(block_size);
 
@@ -27,7 +27,7 @@ void analyse_file(
         std::memset(buffer.data() + bytes_read, 0, block_size - static_cast<size_t>(bytes_read));
 
         uint32_t compression = zstd_compress(buffer);
-        uint64_t header = komihash(buffer.data(), block_size, 0);
+        std::memcpy(&header, buffer.data(), sizeof(header));
 
         update_compression_db(compression, compression_db);
         update_duplication_db(header, compression, duplication_db);

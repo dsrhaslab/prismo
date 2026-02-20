@@ -59,7 +59,7 @@ namespace Generator {
         // maybe not because size could be strange for random generator
         refill(element.buffer, size);
         element.compression =
-            compression_generator.apply(element.buffer,size);
+            compression_generator.apply(element.buffer, size);
 
         std::memcpy(
             element.buffer,
@@ -79,15 +79,16 @@ namespace Generator {
     ) {
         std::vector<DedupElement>& window = dedup_windows[repeats];
         uint32_t index = rng.nextValue() % window.size();
-        DedupElement& element = window[index];
 
-        element.left_repeats--;
+        DedupElement element = window[index];
         std::memcpy(buffer, element.buffer, size);
 
-        if (element.left_repeats == 0) {
+        window[index].left_repeats--;
+
+        if (window[index].left_repeats == 0) {
+            pool.free(window[index].buffer);
             std::swap(window[index], window.back());
             window.pop_back();
-            pool.free(element.buffer);
         }
 
         return element;

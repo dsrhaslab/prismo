@@ -66,10 +66,14 @@ namespace Worker {
                             );
 
                             if (compression.has_value()) {
-                                packet->request.metadata.compression = compression->apply(
+                                uint32_t compression_value = compression->apply(
                                     packet->request.buffer,
                                     packet->request.size
                                 );
+
+                                packet->request.metadata.compression =
+                                    compression_value > packet->request.metadata.compression ?
+                                    compression_value : packet->request.metadata.compression;
                             }
                         }
                     }

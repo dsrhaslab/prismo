@@ -3,6 +3,7 @@
 
 #include "zstdpp.hpp"
 #include <nlohmann/json.hpp>
+#include <prismo/generator/content/metadata.h>
 
 using json = nlohmann::json;
 using CompressionDB = std::map<uint32_t, uint64_t>;
@@ -35,13 +36,18 @@ namespace std {
 }
 
 uint32_t zstd_compress(const std::vector<uint8_t>& data) {
-    auto compressed = zstdpp::compress(data);
+    std::vector<uint8_t> sliced(
+        data.begin() + sizeof(Generator::BlockMetadata::block_id),
+        data.end()
+    );
+
+    auto compressed = zstdpp::compress(sliced);
     size_t compressed_size = compressed.size();
 
     double reduction =
         100.0 * (1.0 -
             static_cast<double>(compressed_size) /
-            static_cast<double>(data.size())
+            static_cast<double>(sliced.size())
         );
 
     reduction = std::clamp(reduction, 0.0, 100.0);

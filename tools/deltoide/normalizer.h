@@ -75,20 +75,20 @@ void normalize(DuplicationDB& db) {
     std::vector<double> percentages;
 
     for (const auto& [hash, value] : db) {
-        result_db[value.first].first++;
+        result_db[value.first - 1].first++;
         for (const auto& [compression, count] : value.second) {
-            result_db[value.first].second[compression] += count;
+            result_db[value.first - 1].second[compression] += count;
         }
     }
 
     for (auto& [repeats, value] : result_db) {
-        total += value.first;
+        total += value.first * (repeats + 1);
         normalize(value.second);
     }
 
     for (const auto& [repeats, value] : result_db) {
         percentages.push_back(
-            static_cast<double>(value.first) /
+            static_cast<double>(value.first * (repeats + 1)) /
             static_cast<double>(total) * 100.0
         );
     }

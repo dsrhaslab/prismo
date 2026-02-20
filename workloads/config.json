@@ -38,23 +38,18 @@
     "extension": "repeat"
   },
   "generator": {
-    "type": "random",
+    "type": "dedup",
+    "refill": false,
     "compression": [
       {
-        "percentage": 70,
-        "reduction": 15
+        "percentage": 50,
+        "reduction": 0
       },
       {
-        "percentage": 12,
-        "reduction": 20
-      },
-      {
-        "percentage": 18,
-        "reduction": 80
+        "percentage": 50,
+        "reduction": 50
       }
     ],
-
-    "refill": false,
     "distribution": [
       {
         "percentage": 20,
@@ -85,22 +80,16 @@
         ]
       },
       {
-        "percentage": 15,
-        "repeats": 3,
+        "percentage": 50,
+        "repeats": 2,
         "compression": [
           {
-            "percentage": 100,
-            "reduction": 0
-          }
-        ]
-      },
-      {
-        "percentage": 35,
-        "repeats": 5,
-        "compression": [
+            "percentage": 70,
+            "reduction": 30
+          },
           {
-            "percentage": 100,
-            "reduction": 100
+            "percentage": 30,
+            "reduction": 20
           }
         ]
       }
