@@ -1,5 +1,7 @@
-- verificar se o prismo está a funcionar relativamente à geração de conteudo
-- validar o conteudo gerado pelo fio com o astroide
+- verificar se o prismo está a funcionar relativamente à geração de conteudo   ------------------------------
+- validar o conteudo gerado pelo prismo com o astroide  -----------------------------------------------------
 - adicionar uma extensão baseada em distribuições
 - speedup e slow down
 - multiplas threads
+- adicionar coleção de metricas
+- avaliar a questão dos validate

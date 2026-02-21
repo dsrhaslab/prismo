@@ -37,7 +37,7 @@ bool parse_line(const std::string& line, Trace::Record& record) {
 int main(int argc, char** argv) {
     argparse::ArgumentParser program("Astroide");
 
-    program.add_description("Parse .blkparse files into binary trace format.");
+    program.add_description("Parse .blkparse files into prismo binary trace format.");
 
     program.add_argument("-i", "--input")
         .required()

@@ -6,7 +6,6 @@
 #include <iostream>
 #include <nlohmann/json.hpp>
 #include <prismo/generator/content/metadata.h>
-#include <lib/distribution/percentage.h>
 #include <lib/distribution/distribution.h>
 
 using json = nlohmann::json;
@@ -15,8 +14,7 @@ namespace Generator {
 
     struct CompressionGenerator {
         private:
-            Distribution::UniformDistribution<uint32_t> rng;
-            std::vector<PercentageElement<uint32_t, uint32_t>> distribution;
+            Distribution::DiscreteDistribution<uint32_t> distribution;
 
         public:
             CompressionGenerator() = default;
@@ -25,19 +23,20 @@ namespace Generator {
                 std::cout << "~Destroying CompressionGenerator" << std::endl;
             };
 
-            explicit CompressionGenerator(const json& j) : rng(0,99) {
-                uint32_t cumulative = 0;
-                for (const auto& item : j) {
-                    cumulative += item.at("percentage").get<uint32_t>();
-                    distribution.push_back(PercentageElement<uint32_t, uint32_t> {
-                        .cumulative_percentage = cumulative,
-                        .value = item.at("reduction").get<uint32_t>(),
-                    });
-                }
-            };
+            CompressionGenerator(const json& j)
+                : distribution([&] {
+                    std::vector<uint32_t> values, weights;
+                    for (const auto& item : j) {
+                        values.push_back(item.at("reduction").get<uint32_t>());
+                        weights.push_back(item.at("percentage").get<uint32_t>());
+                    }
+                    return Distribution::DiscreteDistribution<uint32_t>(
+                        "compression_generator", values, weights);
+                }())
+            {}
 
             uint32_t select_compression(void) {
-                return select_from_percentage_vector(rng.nextValue(), distribution);
+                return distribution.nextValue();
             }
 
             uint32_t apply(uint8_t* buffer, size_t size) {
@@ -46,10 +45,6 @@ namespace Generator {
                 std::memset(buffer + sizeof(BlockMetadata::block_id), 0, compressed_size);
                 return compression;
             }
-
-            void validate(void) const {
-                validate_percentage_vector(distribution, "compression");
-            };
     };
 }
 

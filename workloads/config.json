@@ -12,8 +12,8 @@
     "type": "constant",
     "operation": "write",
     "percentages": {
-      "read": 25,
-      "write": 75
+      "read": 30,
+      "write": 70
     },
     "operations": [
       "read",
@@ -40,16 +40,6 @@
   "generator": {
     "type": "dedup",
     "refill": false,
-    "compression": [
-      {
-        "percentage": 50,
-        "reduction": 0
-      },
-      {
-        "percentage": 50,
-        "reduction": 50
-      }
-    ],
     "distribution": [
       {
         "percentage": 20,

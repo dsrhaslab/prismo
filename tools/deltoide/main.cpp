@@ -14,7 +14,7 @@ void analyse_file(
     DuplicationDB& duplication_db,
     CompressionDB& compression_db
 ) {
-    uint64_t header;
+    uint64_t header = 0;
     ssize_t bytes_read = 0;
     std::vector<uint8_t> buffer(block_size);
 
@@ -45,7 +45,7 @@ int main(int argc, char** argv) {
 
     program.add_argument("-i", "--input")
         .required()
-        .help("specify the dataset directory or block device");
+        .help("specify the dataset file, directory or block device");
 
     program.add_argument("-b", "--block-size")
         .default_value(static_cast<uint32_t>(4096))
@@ -90,7 +90,7 @@ int main(int argc, char** argv) {
                 files.push_back(entry.path());
             }
         } else {
-            std::cerr << dataset << " is neither a file/directory nor a block device" << std::endl;
+            std::cerr << dataset << " is not a file, a directory, or a block device" << std::endl;
             return 1;
         }
 

@@ -6,7 +6,6 @@
 #include <nlohmann/json.hpp>
 #include <common/operation.h>
 #include <lib/distribution/distribution.h>
-#include <lib/distribution/percentage.h>
 
 using json = nlohmann::json;
 
@@ -50,8 +49,7 @@ namespace Generator {
 
     class PercentageOperationGenerator : public OperationGenerator {
         private:
-            Distribution::UniformDistribution<uint32_t> rng;
-            std::vector<PercentageElement<uint32_t, Operation::OperationType>> op_percentages;
+            Distribution::DiscreteDistribution<Operation::OperationType> distribution;
 
         public:
             PercentageOperationGenerator() = delete;
@@ -60,23 +58,26 @@ namespace Generator {
                 std::cout << "~Destroying PercentageOperationGenerator" << std::endl;
             };
 
-            explicit PercentageOperationGenerator(const json& j) : rng(0,99) {
-                uint32_t cumulative = 0;
-                for (const auto& item: j.at("percentages").items()) {
-                    cumulative += item.value().get<uint32_t>();
-                    op_percentages.push_back(PercentageElement<uint32_t, Operation::OperationType> {
-                        .cumulative_percentage = cumulative,
-                        .value = Operation::operation_from_str(item.key()),
-                    });
-                }
-            };
+            explicit PercentageOperationGenerator(const json& j)
+                : distribution(
+                    [&]() {
+                        std::vector<uint32_t> weights;
+                        std::vector<Operation::OperationType> values;
+                        for (const auto& item : j.at("percentages").items()) {
+                            weights.push_back(item.value().get<uint32_t>());
+                            values.push_back(Operation::operation_from_str(item.key()));
+                        }
+                        return Distribution::DiscreteDistribution<
+                            Operation::OperationType>(
+                            "percentage_operation_generator", values, weights);
+                    }()
+                )
+            {}
 
-            void validate(void) const override {
-                validate_percentage_vector(op_percentages, "percentage_operation");
-            };
+            void validate(void) const override {};
 
             Operation::OperationType next_operation(void) override {
-                return select_from_percentage_vector(rng.nextValue(), op_percentages);
+                return distribution.nextValue();
             };
     };
 

@@ -10,6 +10,8 @@ namespace Parser {
 
         if (type == "repeat") {
             extension = std::make_unique<Extension::RepeatExtension>(config);
+        } else if (type == "sample") {
+            extension = std::make_unique<Extension::SampleExtension>(config);
         } else {
             throw std::invalid_argument(
                 "get_extension: type '" + type + "' not recognized");
@@ -113,16 +115,9 @@ namespace Parser {
     std::optional<Generator::CompressionGenerator> get_compression_generator(
         const json& config
     ) {
-        std::optional<Generator::CompressionGenerator> compression_generator =
-            std::nullopt;
-
-        if (config.contains("compression")) {
-            compression_generator =
-                compression_generator.emplace(config.at("compression"));
-            compression_generator->validate();
-        }
-
-        return compression_generator;
+        return config.contains("compression")
+            ? std::optional<Generator::CompressionGenerator>{config.at("compression")}
+            : std::nullopt;
     }
 
     std::unique_ptr<Logger::Logger> get_logger(

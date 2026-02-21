@@ -3,28 +3,29 @@
 namespace Generator {
 
     DeduplicationContentGenerator::DeduplicationContentGenerator(const json& j)
-        : ContentGenerator(j), pool(j.at("block_size").get<size_t>()), rng(0, 99)
-    {
-        uint32_t cumulative_deduplication = 0;
-        for (const auto& dedup_item : j.at("distribution")) {
-            uint32_t repeats = dedup_item.at("repeats").get<uint32_t>();
-            cumulative_deduplication += dedup_item.at("percentage").get<uint32_t>();
-
-            compression_generators.emplace(repeats, dedup_item.at("compression"));
-            dedup_percentages.push_back(PercentageElement<uint32_t, uint32_t> {
-                .cumulative_percentage = cumulative_deduplication,
-                .value = repeats,
-            });
-        }
-    }
+        : ContentGenerator(j),
+        pool(j.at("block_size").get<size_t>()),
+        dedup_distribution(
+            [&]() {
+                std::vector<uint32_t> values, weights;
+                for (const auto& item : j.at("distribution")) {
+                    uint32_t repeats = item.at("repeats").get<uint32_t>();
+                    values.push_back(repeats);
+                    weights.push_back(item.at("percentage").get<uint32_t>());
+                    compression_generators.emplace(repeats, item.at("compression"));
+                }
+                return Distribution::DiscreteDistribution<uint32_t>(
+                    "deduplication_distribution", values, weights);
+            }()
+        )
+    {}
 
     BlockMetadata DeduplicationContentGenerator::next_block(
         uint8_t* buffer,
         size_t size
     ) {
         DedupElement element;
-        uint32_t dedup_roll = rng.nextValue();
-        uint32_t repeats = select_from_percentage_vector(dedup_roll, dedup_percentages);
+        uint32_t repeats = dedup_distribution.nextValue();
 
         if (repeats == 0) {
             element = create_dedup_element(repeats, buffer, size);
