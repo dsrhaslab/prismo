@@ -35,12 +35,8 @@ namespace Generator {
                 }())
             {}
 
-            uint32_t select_compression(void) {
-                return distribution.nextValue();
-            }
-
             uint32_t apply(uint8_t* buffer, size_t size) {
-                uint32_t compression = select_compression();
+                uint32_t compression = distribution.nextValue();
                 size_t compressed_size = (size - sizeof(BlockMetadata::block_id)) * compression / 100;
                 std::memset(buffer + sizeof(BlockMetadata::block_id), 0, compressed_size);
                 return compression;

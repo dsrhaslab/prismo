@@ -12,7 +12,10 @@ namespace Generator {
                     uint32_t repeats = item.at("repeats").get<uint32_t>();
                     values.push_back(repeats);
                     weights.push_back(item.at("percentage").get<uint32_t>());
-                    compression_generators.emplace(repeats, item.at("compression"));
+
+                    if (item.contains("compression")) {
+                        compression_generators.emplace(repeats, item.at("compression"));
+                    }
                 }
                 return Distribution::DiscreteDistribution<uint32_t>(
                     "deduplication_distribution", values, weights);
@@ -47,20 +50,22 @@ namespace Generator {
         uint8_t* buffer,
         size_t size
     ) {
-        auto& compression_generator = compression_generators[repeats];
+        auto compression_generator = compression_generators.find(repeats);
 
         DedupElement element = {
             .block_id = block_id++,
             .left_repeats = repeats,
-            .compression = compression_generator.select_compression(),
+            .compression = 0,
             .buffer = static_cast<uint8_t*>(pool.malloc()),
         };
 
         // improve memcpy to not overlap compression area
         // maybe not because size could be strange for random generator
         refill(element.buffer, size);
-        element.compression =
-            compression_generator.apply(element.buffer, size);
+        if (compression_generator != compression_generators.end()) {
+            element.compression =
+                compression_generator->second.apply(element.buffer, size);
+        }
 
         std::memcpy(
             element.buffer,

@@ -39,7 +39,7 @@ namespace Generator {
             }
 
             uint64_t next_offset(void) override {
-                return extension->next_record().offset;
+                return extension->next_record().offset % limit;
             }
     };
 
