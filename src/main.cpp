@@ -32,13 +32,12 @@ int main(int argc, char** argv) {
     }
 
     json config_json = json::parse(config_file);
-
-    json job_json = config_json.at("job");
-    json access_json = config_json.at("access");
-    json operation_json = config_json.at("operation");
-    json generator_json = config_json.at("generator");
-    json engine_json = config_json.at("engine");
-    json logging_json = config_json.at("logging");
+    json job_json = config_json.value("job", json::object());
+    json access_json = config_json.value("access", json::object());
+    json operation_json = config_json.value("operation", json::object());
+    json generator_json = config_json.value("generator", json::object());
+    json engine_json = config_json.value("engine", json::object());
+    json logging_json = config_json.value("logging", json::object());
 
     access_json.merge_patch(job_json);
     engine_json.merge_patch(job_json);
@@ -69,10 +68,10 @@ int main(int argc, char** argv) {
         Parser::get_multiple_barrier(operation_json);
 
     std::cout << "Parse Metric" << std::endl;
-    std::unique_ptr metric = Parser::get_metric(job_json);
+    Metric::MetricVariant metric = Parser::get_metric(job_json);
 
     std::cout << "Parse Logger" << std::endl;
-    std::unique_ptr<Logger::Logger> logger = Parser::get_logger(logging_json);
+    std::shared_ptr<Logger::Logger> logger = Parser::get_logger(logging_json);
 
     std::cout << "Parse Engine" << std::endl;
     std::unique_ptr<Engine::Engine> engine =

@@ -4,16 +4,16 @@
     "numjobs": 1,
     "filename": "testfile",
     "block_size": 4096,
-    "limit": 4096000,
-    "metric": "full",
+    "limit": 65536,
+    "metric": "base",
     "termination": {
-      "type": "runtime",
-      "value": 2500
+      "type": "iterations",
+      "value": 1e7
     }
   },
   "operation": {
     "type": "constant",
-    "operation": "write",
+    "operation": "nop",
     "percentages": {
       "read": 30,
       "write": 70
@@ -107,18 +107,5 @@
     "reactor_mask": "0xF",
     "spdk_threads": 1,
     "json_config_file": "/home/digo/Desktop/prismo/workloads/spdk/spdk_bdev.json"
-  },
-  "logging": {
-    "type": "spdlog",
-    "name": "prismo",
-    "queue_size": 8192,
-    "thread_count": 1,
-    "truncate": true,
-    "to_stdout": false,
-    "files": [
-      "./log1.log",
-      "./log2.log",
-      "./log3.log"
-    ]
   }
 }

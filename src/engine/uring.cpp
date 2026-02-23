@@ -3,13 +3,10 @@
 namespace Engine {
 
     UringEngine::UringEngine(
-        std::unique_ptr<Metric::Metric> _metric,
-        std::unique_ptr<Logger::Logger> _logger,
+        Metric::MetricVariant _metric,
+        std::shared_ptr<Logger::Logger> _logger,
         const UringConfig& _config
-    ) : Engine(
-            std::move(_metric),
-            std::move(_logger)
-    ) {
+    ) : Engine(_metric, _logger) {
         UringConfig config = _config;
         int ret = io_uring_queue_init_params(config.entries, &ring, &config.params);
         if (ret)
@@ -145,18 +142,19 @@ namespace Engine {
             UringUserData* uring_user_data = static_cast<UringUserData*>(io_uring_cqe_get_data(cqe));
 
             Metric::fill_metric(
-                *Engine::metric,
+                metric,
                 uring_user_data->metric_data.operation_type,
                 uring_user_data->metric_data.metadata.block_id,
                 uring_user_data->metric_data.metadata.compression,
                 uring_user_data->metric_data.start_timestamp,
-                Metric::get_current_timestamp(),
                 cqe->res,
                 uring_user_data->metric_data.size,
                 uring_user_data->metric_data.offset
             );
 
-            Engine::logger->info(*Engine::metric);
+            Engine::log_metric(metric);
+            Engine::record_metric(metric);
+
             available_indexes.push_back(uring_user_data->index);
             io_uring_cqe_seen(&ring, cqe);
         }

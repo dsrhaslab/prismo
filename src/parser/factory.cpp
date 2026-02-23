@@ -5,7 +5,7 @@ namespace Parser {
     std::unique_ptr<Extension::TraceExtension> get_trace_extension(
         const json& config
     ) {
-        std::string type = config.at("extension").get<std::string>();
+        std::string type = config.value("extension", "repeat");
         std::unique_ptr<Extension::TraceExtension> extension;
 
         if (type == "repeat") {
@@ -23,7 +23,7 @@ namespace Parser {
     std::unique_ptr<Generator::AccessGenerator> get_access_generator(
         const json& config
     ) {
-        std::string type = config.at("type").get<std::string>();
+        std::string type = config.value("type", "sequential");
         std::unique_ptr<Generator::AccessGenerator> access_generator;
 
         if (type == "sequential") {
@@ -51,7 +51,7 @@ namespace Parser {
     std::unique_ptr<Generator::OperationGenerator> get_operation_generator(
         const json& config
     ) {
-        std::string type = config.at("type").get<std::string>();
+        std::string type = config.value("type", "constant");
         std::unique_ptr<Generator::OperationGenerator> operation_generator;
 
         if (type == "constant") {
@@ -79,7 +79,7 @@ namespace Parser {
     std::unique_ptr<Generator::ContentGenerator> get_content_generator(
         const json& config
     ) {
-        std::string type = config.at("type").get<std::string>();
+        std::string type = config.value("type", "constant");
         std::unique_ptr<Generator::ContentGenerator> content_generator;
 
         if (type == "constant") {
@@ -120,72 +120,63 @@ namespace Parser {
             : std::nullopt;
     }
 
-    std::unique_ptr<Logger::Logger> get_logger(
-        const json& config
-    ) {
-        const std::string type = config.at("type").get<std::string>();
-        std::unique_ptr<Logger::Logger> logger;
+    std::shared_ptr<Logger::Logger> get_logger(const json& config) {
+        const std::string type = config.value("type", "null");
 
         if (type == "spdlog") {
-            logger = std::make_unique<Logger::Spdlog>(config);
-        } else {
-            throw std::invalid_argument(
-                "get_logger: type '" + type + "' not recognized");
+            return std::make_shared<Logger::Spdlog>(config);
         }
 
-        return logger;
+        return nullptr;
     }
 
-    std::unique_ptr<Metric::Metric> get_metric(
+    Metric::MetricVariant get_metric(
         const json& config
     ) {
-        std::string type = config.at("metric").get<std::string>();
-        std::unique_ptr<Metric::Metric> metric;
+        std::string type = config.value("metric", "base");
 
         if (type == "none") {
-            metric = std::make_unique<Metric::NoneMetric>();
+            return Metric::NoneMetric{};
         } else if (type == "base") {
-            metric = std::make_unique<Metric::BaseMetric>();
+            return Metric::BaseMetric{};
         } else if (type == "standard") {
-            metric = std::make_unique<Metric::StandardMetric>();
+            return Metric::StandardMetric{};
         } else if (type == "full") {
-            metric = std::make_unique<Metric::FullMetric>();
+            return Metric::FullMetric{};
         } else {
             throw std::invalid_argument(
                 "get_metric: type '" + type + "' not recognized");
         }
-
-        return metric;
     }
 
     std::unique_ptr<Engine::Engine> get_engine(
         const json& config,
-        std::unique_ptr<Metric::Metric> metric,
-        std::unique_ptr<Logger::Logger> logger
+        Metric::MetricVariant metric,
+        std::shared_ptr<Logger::Logger> logger
     ) {
-        std::string type = config.at("type").get<std::string>();
+        std::string type = config.value("type", "posix");
 
         if (type == "posix") {
             return std::make_unique<Engine::PosixEngine>(
                 std::move(metric),
-                std::move(logger)
+                logger
             );
         } else if (type == "uring") {
             return std::make_unique<Engine::UringEngine>(
                 std::move(metric),
-                std::move(logger),
+                logger,
                 config.get<Engine::UringConfig>()
             );
         } else if (type == "aio") {
             return std::make_unique<Engine::AioEngine>(
                 std::move(metric),
-                std::move(logger),
+                logger,
                 config.get<Engine::AioConfig>()
             );
         } else if (type == "spdk") {
             return std::make_unique<Engine::SpdkEngine>(
                 std::move(metric),
-                std::move(logger),
+                logger,
                 config.get<Engine::SpdkConfig>()
             );
         } else {

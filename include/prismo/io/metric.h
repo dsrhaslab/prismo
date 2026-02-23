@@ -4,82 +4,74 @@
 #include <cstdint>
 #include <chrono>
 #include <thread>
+#include <variant>
 #include <common/operation.h>
 
 namespace Metric {
 
-    enum class MetricType {
-        None = 0,
-        Base = 1,
-        Standard = 2,
-        Full = 3,
-    };
-
-    struct Metric {
-        MetricType type;
-
-        explicit Metric(MetricType t) : type(t) {}
-        virtual ~Metric() = default;
-
-        Metric(const Metric&) = default;
-        Metric& operator=(const Metric&) = default;
-
-        Metric(Metric&&) = default;
-        Metric& operator=(Metric&&) = default;
-
-        virtual Metric* clone() const = 0;
-    };
-
-    struct NoneMetric : Metric {
-        NoneMetric() : Metric(MetricType::None) {}
-
-        NoneMetric* clone() const override {
-            return new NoneMetric(*this);
+    struct NoneMetric {
+        ~NoneMetric() {
+            std::cout << "~Destroying NoneMetric" << std::endl;
         }
     };
 
-    struct BaseMetric : Metric {
-        uint64_t block_id;
-        uint32_t compression;
-        uint64_t start_timestamp;
-        uint64_t end_timestamp;
-        Operation::OperationType operation_type{};
+    struct BaseMetric {
+        uint64_t block_id = 0;
+        uint32_t compression = 0;
+        uint64_t start_timestamp = 0;
+        uint64_t end_timestamp = 0;
+        size_t processed_bytes = 0;
+        Operation::OperationType operation_type = Operation::OperationType::NOP;
 
-        BaseMetric() : Metric(MetricType::Base) {}
-
-        BaseMetric* clone() const override {
-            return new BaseMetric(*this);
+        ~BaseMetric() {
+            std::cout << "~Destroying BaseMetric" << std::endl;
         }
     };
 
-    struct StandardMetric : BaseMetric {
-        pid_t pid;
-        uint64_t tid;
+    struct StandardMetric {
+        uint64_t block_id = 0;
+        uint32_t compression = 0;
+        uint64_t start_timestamp = 0;
+        uint64_t end_timestamp = 0;
+        Operation::OperationType operation_type = Operation::OperationType::NOP;
+        size_t processed_bytes = 0;
 
-        StandardMetric() : BaseMetric() {
-            this->type = MetricType::Standard;
+        pid_t pid = 0;
+        uint64_t tid = 0;
+
+        ~StandardMetric() {
+            std::cout << "~Destroying StandardMetric" << std::endl;
         }
+    };
 
-        StandardMetric* clone() const override {
-            return new StandardMetric(*this);
+    struct FullMetric {
+        uint64_t block_id = 0;
+        uint32_t compression = 0;
+        uint64_t start_timestamp = 0;
+        uint64_t end_timestamp = 0;
+        Operation::OperationType operation_type = Operation::OperationType::NOP;
+        size_t processed_bytes = 0;
+
+        pid_t pid = 0;
+        uint64_t tid = 0;
+
+        size_t requested_bytes = 0;
+        uint64_t offset = 0;
+        int32_t return_code = 0;
+        int32_t error_no = 0;
+
+        ~FullMetric() {
+            std::cout << "~Destroying FullMetric" << std::endl;
         }
     };
 
-    struct FullMetric : StandardMetric {
-        size_t requested_bytes;
-        size_t processed_bytes;
-        uint64_t offset;
-        int32_t return_code;
-        int32_t error_no;
 
-        FullMetric() : StandardMetric() {
-            this->type = MetricType::Full;
-        }
-
-        FullMetric* clone() const override {
-            return new FullMetric(*this);
-        }
-    };
+    using MetricVariant = std::variant<
+        NoneMetric,
+        BaseMetric,
+        StandardMetric,
+        FullMetric
+    >;
 
     inline uint64_t get_current_timestamp() noexcept {
         return static_cast<uint64_t>(
@@ -90,45 +82,54 @@ namespace Metric {
     }
 
     inline void fill_metric(
-        Metric& metric,
+        MetricVariant& metric,
         Operation::OperationType op,
         uint64_t block_id,
         uint32_t compression,
         uint64_t start_ts,
-        uint64_t end_ts,
         ssize_t result,
         size_t size,
         uint64_t offset
     ) {
-        if (metric.type < MetricType::Base) {
-            return;
-        }
+        std::visit([&](auto& m) {
+            using T = std::decay_t<decltype(m)>;
 
-        auto& base = static_cast<BaseMetric&>(metric);
-        base.operation_type     = op;
-        base.block_id           = block_id;
-        base.compression        = compression;
-        base.start_timestamp    = start_ts;
-        base.end_timestamp      = end_ts;
-
-        if (metric.type < MetricType::Standard) {
-            return;
-        }
-
-        auto& standard = static_cast<StandardMetric&>(metric);
-        standard.pid = ::getpid();
-        standard.tid = std::hash<std::thread::id>{}(std::this_thread::get_id());
-
-        if (metric.type < MetricType::Full) {
-            return;
-        }
-
-        auto& full = static_cast<FullMetric&>(metric);
-        full.requested_bytes = size;
-        full.offset          = offset;
-        full.processed_bytes = (result > 0) ? static_cast<size_t>(result) : 0;
-        full.return_code     = static_cast<int32_t>(result);
-        full.error_no        = (result < 0) ? errno : 0;
+            if constexpr (std::is_same_v<T, NoneMetric>) {
+                return;
+            }
+            else if constexpr (std::is_same_v<T, BaseMetric>) {
+                m.operation_type = op;
+                m.block_id = block_id;
+                m.compression = compression;
+                m.start_timestamp = start_ts;
+                m.end_timestamp = get_current_timestamp();
+                m.processed_bytes = (result > 0) ? static_cast<size_t>(result) : 0;
+            }
+            else if constexpr (std::is_same_v<T, StandardMetric>) {
+                m.operation_type = op;
+                m.block_id = block_id;
+                m.compression = compression;
+                m.start_timestamp = start_ts;
+                m.end_timestamp = get_current_timestamp();
+                m.processed_bytes = (result > 0) ? static_cast<size_t>(result) : 0;
+                m.pid = ::getpid();
+                m.tid = std::hash<std::thread::id>{}(std::this_thread::get_id());
+            }
+            else if constexpr (std::is_same_v<T, FullMetric>) {
+                m.operation_type = op;
+                m.block_id = block_id;
+                m.compression = compression;
+                m.start_timestamp = start_ts;
+                m.end_timestamp = get_current_timestamp();
+                m.processed_bytes = (result > 0) ? static_cast<size_t>(result) : 0;
+                m.pid = ::getpid();
+                m.tid = std::hash<std::thread::id>{}(std::this_thread::get_id());
+                m.requested_bytes = size;
+                m.offset = offset;
+                m.return_code = static_cast<int32_t>(result);
+                m.error_no = (result < 0) ? errno : 0;
+            }
+        }, metric);
     }
 }
 

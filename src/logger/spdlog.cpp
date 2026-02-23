@@ -31,57 +31,52 @@ namespace Logger {
         spdlog::register_logger(logger);
     }
 
-    void Spdlog::info(Metric::Metric& metric) {
-        switch (metric.type) {
-            case Metric::MetricType::None:
-                break;
-            case Metric::MetricType::Base:
-                logger->info(static_cast<Metric::BaseMetric&>(metric));
-                break;
-            case Metric::MetricType::Standard:
-                logger->info(static_cast<Metric::StandardMetric&>(metric));
-                break;
-            case Metric::MetricType::Full:
-                logger->info(static_cast<Metric::FullMetric&>(metric));
-                break;
-        }
+    void Spdlog::info(const Metric::MetricVariant& metric) {
+        std::visit([this](const auto& m) {
+            using T = std::decay_t<decltype(m)>;
+            if constexpr (!std::is_same_v<T, Metric::NoneMetric>) {
+                logger->info(m);
+            }
+        }, metric);
     }
 };
 
 auto fmt::formatter<Metric::BaseMetric>::format(
-    const Metric::BaseMetric metric,
+    const Metric::BaseMetric& metric,
     fmt::format_context& ctx
 ) const -> decltype(ctx.out()) {
     return fmt::format_to(
         ctx.out(),
-        "[type={} block={:016x} cpr={} sts={} ets={}]",
-        static_cast<uint8_t>(metric.operation_type),
-        metric.block_id,
-        metric.compression,
-        metric.start_timestamp,
-        metric.end_timestamp
-    );
-}
-
-auto fmt::formatter<Metric::StandardMetric>::format(
-    const Metric::StandardMetric metric,
-    fmt::format_context& ctx
-) const -> decltype(ctx.out()) {
-    return fmt::format_to(
-        ctx.out(),
-        "[type={} block={:016x} cpr={} sts={} ets={} pid={} tid={}]",
+        "[type={} block={:016x} cpr={} sts={} ets={} proc={}]",
         static_cast<uint8_t>(metric.operation_type),
         metric.block_id,
         metric.compression,
         metric.start_timestamp,
         metric.end_timestamp,
+        metric.processed_bytes
+    );
+}
+
+auto fmt::formatter<Metric::StandardMetric>::format(
+    const Metric::StandardMetric& metric,
+    fmt::format_context& ctx
+) const -> decltype(ctx.out()) {
+    return fmt::format_to(
+        ctx.out(),
+        "[type={} block={:016x} cpr={} sts={} ets={} proc={} pid={} tid={}]",
+        static_cast<uint8_t>(metric.operation_type),
+        metric.block_id,
+        metric.compression,
+        metric.start_timestamp,
+        metric.end_timestamp,
+        metric.processed_bytes,
         metric.pid,
         metric.tid
     );
 }
 
 auto fmt::formatter<Metric::FullMetric>::format(
-    const Metric::FullMetric metric,
+    const Metric::FullMetric& metric,
     fmt::format_context& ctx
 ) const -> decltype(ctx.out()) {
     return fmt::format_to(

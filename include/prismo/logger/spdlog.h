@@ -26,14 +26,14 @@ namespace Logger {
 
             explicit Spdlog(const json& j);
 
-            void info(Metric::Metric& metric) override;
+            void info(const Metric::MetricVariant& metric) override;
         };
 };
 
 template<>
 struct fmt::formatter<Metric::BaseMetric> : fmt::formatter<std::string> {
     auto format(
-        const Metric::BaseMetric metric,
+        const Metric::BaseMetric& metric,
         fmt::format_context& ctx
     ) const -> decltype(ctx.out());
 };
@@ -41,7 +41,7 @@ struct fmt::formatter<Metric::BaseMetric> : fmt::formatter<std::string> {
 template<>
 struct fmt::formatter<Metric::StandardMetric> : fmt::formatter<std::string> {
     auto format(
-        const Metric::StandardMetric metric,
+        const Metric::StandardMetric& metric,
         fmt::format_context& ctx
     ) const -> decltype(ctx.out());
 };
@@ -49,7 +49,7 @@ struct fmt::formatter<Metric::StandardMetric> : fmt::formatter<std::string> {
 template<>
 struct fmt::formatter<Metric::FullMetric> : fmt::formatter<std::string> {
     auto format(
-        const Metric::FullMetric metric,
+        const Metric::FullMetric& metric,
         fmt::format_context& ctx
     ) const -> decltype(ctx.out());
 };

@@ -2,35 +2,37 @@
 #include <sstream>
 #include <iomanip>
 
-namespace Stats {
+namespace Metric {
 
     void Statistics::start() {
-        start_time_ns = Metric::get_current_timestamp();
+        start_time_ns = get_current_timestamp();
         started = true;
         finished = false;
         stats_per_operation.clear();
     }
 
     void Statistics::finish() {
-        end_time_ns = Metric::get_current_timestamp();
+        end_time_ns = get_current_timestamp();
         finished = true;
     }
 
-    void Statistics::record_metric(const Metric::Metric& metric) {
-        if (!started || finished || metric.type < Metric::MetricType::Base) {
-            return;
-        }
+    void Statistics::record_metric(const MetricVariant& metric) {
+        std::visit([this](const auto& m) {
+            using T = std::decay_t<decltype(m)>;
 
-        const auto& base_metric = static_cast<const Metric::BaseMetric&>(metric);
-        uint64_t bytes = 0;
-        uint64_t latency_ns = base_metric.end_timestamp - base_metric.start_timestamp;
+            if constexpr (std::is_same_v<T, NoneMetric>) {
+                return;
+            }
 
-        if (metric.type == Metric::MetricType::Full) {
-            const auto& full_metric = static_cast<const Metric::FullMetric&>(metric);
-            bytes = full_metric.processed_bytes;
-        }
-
-        stats_per_operation[base_metric.operation_type].record(latency_ns, bytes);
+            else if constexpr (
+                std::is_same_v<T, BaseMetric> ||
+                std::is_same_v<T, StandardMetric> ||
+                std::is_same_v<T, FullMetric>
+            ) {
+                uint64_t latency_ns = m.end_timestamp - m.start_timestamp;
+                stats_per_operation[m.operation_type].record(latency_ns, m.processed_bytes);
+            }
+        }, metric);
     }
 
     std::string Statistics::format_bytes(uint64_t bytes) const {

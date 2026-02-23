@@ -31,7 +31,7 @@ namespace Engine {
     struct SpdkThreadCallBackContext {
         void* spdk_engine;
         MetricData metric_data;
-        Metric::Metric* metric_ptr;
+        Metric::MetricVariant metric;
 
         int index;
         std::atomic<int>* out_standing;
@@ -140,8 +140,8 @@ namespace Engine {
 
         public:
             explicit SpdkEngine(
-                std::unique_ptr<Metric::Metric> _metric,
-                std::unique_ptr<Logger::Logger> _logger,
+                Metric::MetricVariant _metric,
+                std::shared_ptr<Logger::Logger> _logger,
                 const SpdkConfig& config
             );
 

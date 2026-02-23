@@ -17,7 +17,6 @@
 #include <prismo/io/metric.h>
 #include <prismo/logger/logger.h>
 #include <prismo/logger/spdlog.h>
-#include <memory>
 
 namespace Parser {
 
@@ -39,14 +38,14 @@ namespace Parser {
     std::optional<Generator::CompressionGenerator> get_compression_generator(
         const json& config);
 
-    std::unique_ptr<Metric::Metric> get_metric(const json& config);
+    Metric::MetricVariant get_metric(const json& config);
 
-    std::unique_ptr<Logger::Logger> get_logger(const json& config);
+    std::shared_ptr<Logger::Logger> get_logger(const json& config);
 
     std::unique_ptr<Engine::Engine> get_engine(
         const json& config,
-        std::unique_ptr<Metric::Metric> metric,
-        std::unique_ptr<Logger::Logger> logger);
+        Metric::MetricVariant metric,
+        std::shared_ptr<Logger::Logger> logger);
 };
 
 #endif

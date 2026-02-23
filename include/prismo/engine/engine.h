@@ -18,18 +18,28 @@ namespace Engine {
 
     class Engine {
         protected:
-            Stats::Statistics statistics;
-            std::unique_ptr<Metric::Metric> metric;
-            std::unique_ptr<Logger::Logger> logger;
+            Metric::MetricVariant metric;
+
+            void record_metric(const Metric::MetricVariant& metric) {
+                statistics.record_metric(metric);
+            }
+
+            void log_metric(const Metric::MetricVariant& metric) {
+                if (logger) logger->info(metric);
+            }
+
+        private:
+            Metric::Statistics statistics;
+            std::shared_ptr<Logger::Logger> logger = nullptr;
 
         public:
             Engine(
-                std::unique_ptr<Metric::Metric> _metric,
-                std::unique_ptr<Logger::Logger> _logger
+                Metric::MetricVariant _metric,
+                std::shared_ptr<Logger::Logger> _logger = nullptr
             ) :
-                metric(std::move(_metric)),
-                logger(std::move(_logger)
-            ) {
+                metric(_metric),
+                logger(_logger)
+            {
                 statistics.start();
             }
 

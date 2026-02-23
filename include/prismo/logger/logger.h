@@ -13,7 +13,7 @@ namespace Logger {
                 std::cout << "~Destroying Logger" << std::endl;
             }
 
-            virtual void info(Metric::Metric& metric) = 0;
+            virtual void info(const Metric::MetricVariant& metric) = 0;
     };
 };
 

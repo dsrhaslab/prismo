@@ -3,13 +3,10 @@
 namespace Engine {
 
     SpdkEngine::SpdkEngine(
-        std::unique_ptr<Metric::Metric> _metric,
-        std::unique_ptr<Logger::Logger> _logger,
+        Metric::MetricVariant _metric,
+        std::shared_ptr<Logger::Logger> _logger,
         const SpdkConfig& config
-    ) : Engine(
-            std::move(_metric),
-            std::move(_logger)
-    ) {
+    ) : Engine(_metric, _logger) {
         spdk_main_thread = std::thread([this, config]() {
             start_spdk_app(this, config, &(this->trigger_atomic));
         });
@@ -238,7 +235,7 @@ namespace Engine {
             SpdkThreadCallBackContext* thread_cb_context = new SpdkThreadCallBackContext();
             thread_cb_context->spdk_engine = app_context->spdk_engine;
             thread_cb_context->available_indexes = &available_indexes;
-            thread_cb_context->metric_ptr = engine->metric->clone();
+            thread_cb_context->metric = engine->metric;
             thread_cb_context->out_standing = out_standing;
             thread_cb_contexts[i] = thread_cb_context;
         }
@@ -322,7 +319,6 @@ namespace Engine {
         std::vector<SpdkThreadCallBackContext*>& thread_cb_contexts
     ) {
         for (auto& thread_cb_context : thread_cb_contexts) {
-            delete thread_cb_context->metric_ptr;
             delete thread_cb_context;
         }
     }
@@ -557,18 +553,19 @@ namespace Engine {
         }
 
         Metric::fill_metric(
-            *spdk_engine->metric,
+            spdk_engine->metric,
             thread_cb_context->metric_data.operation_type,
             thread_cb_context->metric_data.metadata.block_id,
             thread_cb_context->metric_data.metadata.compression,
             thread_cb_context->metric_data.start_timestamp,
-            Metric::get_current_timestamp(),
             success ? thread_cb_context->metric_data.size : 0,
             thread_cb_context->metric_data.size,
             thread_cb_context->metric_data.offset
         );
 
-        spdk_engine->logger->info(*spdk_engine->metric);
+        spdk_engine->log_metric(spdk_engine->metric);
+        spdk_engine->record_metric(spdk_engine->metric);
+
         thread_cb_context->out_standing->fetch_sub(1);
         thread_cb_context->available_indexes->enqueue(thread_cb_context->index);
 

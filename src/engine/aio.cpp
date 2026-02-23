@@ -3,13 +3,10 @@
 namespace Engine {
 
     AioEngine::AioEngine(
-        std::unique_ptr<Metric::Metric> _metric,
-        std::unique_ptr<Logger::Logger> _logger,
+        Metric::MetricVariant _metric,
+        std::shared_ptr<Logger::Logger> _logger,
         const AioConfig& _config
-    ) : Engine(
-            std::move(_metric),
-            std::move(_logger)
-    ) {
+    ) : Engine(_metric, _logger) {
         int ret = io_queue_init(_config.entries, &io_context);
         if (ret < 0)
             throw std::runtime_error("aio_queue_init: failed: " + std::string(strerror(-ret)));
@@ -126,18 +123,19 @@ namespace Engine {
             AioTask* completed_task = static_cast<AioTask*>(ev.data);
 
             Metric::fill_metric(
-                *Engine::metric,
+                metric,
                 completed_task->metric_data.operation_type,
                 completed_task->metric_data.metadata.block_id,
                 completed_task->metric_data.metadata.compression,
                 completed_task->metric_data.start_timestamp,
-                Metric::get_current_timestamp(),
                 ev.res,
                 completed_task->metric_data.size,
                 completed_task->metric_data.offset
             );
 
-            Engine::logger->info(*Engine::metric);
+            Engine::log_metric(metric);
+            Engine::record_metric(metric);
+
             available_indexes.push_back(completed_task->index);
         }
     }

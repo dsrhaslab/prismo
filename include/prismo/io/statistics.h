@@ -7,7 +7,7 @@
 #include <iostream>
 #include <prismo/io/metric.h>
 
-namespace Stats {
+namespace Metric {
 
     struct OperationStats {
         uint64_t count = 0;
@@ -57,17 +57,15 @@ namespace Stats {
             std::map<Operation::OperationType, OperationStats> stats_per_operation;
 
         public:
-            Statistics() = default;
+         Statistics() = default;
 
-            ~Statistics() {
-                std::cout << "~Destroying Statistics" << std::endl;
-            };
+         ~Statistics() { std::cout << "~Destroying Statistics" << std::endl; };
 
-            void start();
-            void finish();
+         void start();
+         void finish();
 
-            void record_metric(const Metric::Metric& metric);
-            void print_report(std::ostream& os = std::cout) const;
+         void record_metric(const MetricVariant& metric);
+         void print_report(std::ostream& os = std::cout) const;
 
         private:
             std::string format_bytes(uint64_t bytes) const;
