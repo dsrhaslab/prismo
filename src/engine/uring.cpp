@@ -6,14 +6,10 @@ namespace Engine {
         std::unique_ptr<Metric::Metric> _metric,
         std::unique_ptr<Logger::Logger> _logger,
         const UringConfig& _config
-    ) :
-        Engine(std::move(_metric), std::move(_logger)),
-        ring(),
-        iovecs(),
-        user_data(),
-        available_indexes(),
-        completed_cqes()
-    {
+    ) : Engine(
+            std::move(_metric),
+            std::move(_logger)
+    ) {
         UringConfig config = _config;
         int ret = io_uring_queue_init_params(config.entries, &ring, &config.params);
         if (ret)

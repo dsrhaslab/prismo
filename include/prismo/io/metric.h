@@ -105,11 +105,11 @@ namespace Metric {
         }
 
         auto& base = static_cast<BaseMetric&>(metric);
-        base.operation_type  = op;
-        base.block_id = block_id;
-        base.compression = compression;
-        base.start_timestamp = start_ts;
-        base.end_timestamp   = end_ts;
+        base.operation_type     = op;
+        base.block_id           = block_id;
+        base.compression        = compression;
+        base.start_timestamp    = start_ts;
+        base.end_timestamp      = end_ts;
 
         if (metric.type < MetricType::Standard) {
             return;

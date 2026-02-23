@@ -6,10 +6,10 @@ namespace Engine {
         std::unique_ptr<Metric::Metric> _metric,
         std::unique_ptr<Logger::Logger> _logger,
         const SpdkConfig& config
-    ) :
-        Engine(std::move(_metric), std::move(_logger)),
-        trigger_atomic()
-    {
+    ) : Engine(
+            std::move(_metric),
+            std::move(_logger)
+    ) {
         spdk_main_thread = std::thread([this, config]() {
             start_spdk_app(this, config, &(this->trigger_atomic));
         });

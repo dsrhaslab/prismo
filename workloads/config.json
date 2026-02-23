@@ -7,13 +7,13 @@
     "limit": 4096000,
     "metric": "full",
     "termination": {
-      "type": "iterations",
-      "value": 1000
+      "type": "runtime",
+      "value": 2500
     }
   },
   "operation": {
     "type": "constant",
-    "operation": "nop",
+    "operation": "write",
     "percentages": {
       "read": 30,
       "write": 70
@@ -41,7 +41,7 @@
     "extension": "repeat"
   },
   "generator": {
-    "type": "dedup",
+    "type": "constant",
     "refill": false,
     "distribution": [
       {

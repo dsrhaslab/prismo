@@ -6,15 +6,10 @@ namespace Engine {
         std::unique_ptr<Metric::Metric> _metric,
         std::unique_ptr<Logger::Logger> _logger,
         const AioConfig& _config
-    ) :
-        Engine(std::move(_metric), std::move(_logger)),
-        io_context(0),
-        iocbs(),
-        iocb_ptrs(),
-        io_events(),
-        tasks(),
-        available_indexes()
-    {
+    ) : Engine(
+            std::move(_metric),
+            std::move(_logger)
+    ) {
         int ret = io_queue_init(_config.entries, &io_context);
         if (ret < 0)
             throw std::runtime_error("aio_queue_init: failed: " + std::string(strerror(-ret)));

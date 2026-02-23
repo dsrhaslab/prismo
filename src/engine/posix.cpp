@@ -5,7 +5,10 @@ namespace Engine {
     PosixEngine::PosixEngine(
         std::unique_ptr<Metric::Metric> _metric,
         std::unique_ptr<Logger::Logger> _logger
-    ) : Engine(std::move(_metric), std::move(_logger)) {}
+    ) : Engine(
+        std::move(_metric),
+        std::move(_logger)
+    ) {}
 
     PosixEngine::~PosixEngine() {
         std::cout << "~Destroying PosixEngine" << std::endl;
@@ -80,5 +83,6 @@ namespace Engine {
         );
 
         Engine::logger->info(*Engine::metric);
+        Engine::statistics.record_metric(*Engine::metric);
     }
 }

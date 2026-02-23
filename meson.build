@@ -39,6 +39,7 @@ src = files(
     'src/engine/spdk.cpp',
     'src/engine/uring.cpp',
     'src/engine/utils.cpp',
+    'src/io/statistics.cpp',
     'src/parser/factory.cpp',
     'src/generator/content/deduplication.cpp',
     'src/logger/spdlog.cpp',

@@ -10,6 +10,7 @@
 #include <stdexcept>
 #include <prismo/io/metric.h>
 #include <prismo/io/protocol.h>
+#include <prismo/io/statistics.h>
 #include <prismo/engine/utils.h>
 #include <prismo/logger/logger.h>
 
@@ -17,6 +18,7 @@ namespace Engine {
 
     class Engine {
         protected:
+            Stats::Statistics statistics;
             std::unique_ptr<Metric::Metric> metric;
             std::unique_ptr<Logger::Logger> logger;
 
@@ -26,10 +28,15 @@ namespace Engine {
                 std::unique_ptr<Logger::Logger> _logger
             ) :
                 metric(std::move(_metric)),
-                logger(std::move(_logger)) {}
+                logger(std::move(_logger)
+            ) {
+                statistics.start();
+            }
 
             virtual ~Engine() {
                 std::cout << "~Destroying Engine" << std::endl;
+                statistics.finish();
+                statistics.print_report();
             }
 
             virtual int open(Protocol::OpenRequest& request) = 0;

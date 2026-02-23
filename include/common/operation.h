@@ -31,6 +31,15 @@ namespace Operation {
             : (operation == "nop") ? OperationType::NOP
             : throw std::invalid_argument("operation_from_str: operation of type '" + operation + "' not recognized");
     };
+
+    inline std::string operation_to_str(const OperationType& operation) {
+        return (operation == OperationType::READ) ? "read"
+            : (operation == OperationType::WRITE) ? "write"
+            : (operation == OperationType::FSYNC) ? "fsync"
+            : (operation == OperationType::FDATASYNC) ? "fdatasync"
+            : (operation == OperationType::NOP) ? "nop"
+            : throw std::invalid_argument("operation_to_str: operation of type '" + std::to_string(static_cast<int>(operation)) + "' not recognized");
+    };
 };
 
 #endif
