@@ -2,6 +2,7 @@
 #define PRODUCER_WORKER_H
 
 #include <prismo/worker/utils.h>
+#include <prismo/worker/termination.h>
 #include <prismo/generator/access/generator.h>
 #include <prismo/generator/content/generator.h>
 #include <prismo/generator/content/compression.h>
@@ -38,15 +39,26 @@ namespace Worker {
                 to_producer(_to_producer),
                 to_consumer(_to_consumer) {}
 
-            void run(uint64_t iterations, int fd) {
+            void run(
+                int fd,
+                const Termination& termination
+            ) {
                 Protocol::Packet* packet;
                 Protocol::Packet* packets[BULK_SIZE];
 
-                while (iterations > 0) {
+                uint64_t iterations_count = 0;
+                auto start_time = std::chrono::steady_clock::now();
+
+                while (TerminationManager::should_continue(
+                    termination, start_time, iterations_count)
+                ) {
                     size_t ready = 0;
                     size_t count = to_producer->try_dequeue_bulk(packets, BULK_SIZE);
 
-                    for (ready = 0; ready < count && iterations != 0; ready++, iterations--) {
+                    while (ready < count &&
+                           TerminationManager::should_continue(
+                               termination, start_time, iterations_count)
+                    ) {
                         packet = packets[ready];
                         packet->request.fd = fd;
                         packet->request.offset = access->next_offset();
@@ -76,6 +88,9 @@ namespace Worker {
                                     compression_value : packet->request.metadata.compression;
                             }
                         }
+
+                        ready++;
+                        iterations_count++;
                     }
 
                     to_consumer->enqueue_bulk(packets, ready);

@@ -3,6 +3,7 @@
 #include <prismo/parser/factory.h>
 #include <prismo/worker/producer.h>
 #include <prismo/worker/consumer.h>
+#include <prismo/worker/termination.h>
 
 
 int main(int argc, char** argv) {
@@ -44,10 +45,8 @@ int main(int argc, char** argv) {
     generator_json.merge_patch(job_json);
 
     const size_t block_size = job_json.at("block_size").get<size_t>();
-    const uint64_t iterations = job_json.at("iterations").get<uint64_t>();
     const std::string filename = job_json.at("filename").get<std::string>();
-
-    Engine::OpenFlags open_flags = engine_json.at("openflags").get<Engine::OpenFlags>();
+    const Engine::OpenFlags open_flags = engine_json.at("openflags").get<Engine::OpenFlags>();
 
     std::cout << "Parse AccessGenerator" << std::endl;
     std::unique_ptr<Generator::AccessGenerator> access =
@@ -79,8 +78,17 @@ int main(int argc, char** argv) {
     std::unique_ptr<Engine::Engine> engine =
         Parser::get_engine(engine_json, std::move(metric), std::move(logger));
 
-    auto to_producer = std::make_shared<moodycamel::ConcurrentQueue<Protocol::Packet*>>(QUEUE_INITIAL_CAPACITY);
-    auto to_consumer = std::make_shared<moodycamel::ConcurrentQueue<Protocol::Packet*>>(QUEUE_INITIAL_CAPACITY);
+    std::cout << "Parse Termination Configuration" << std::endl;
+    Worker::Termination termination =
+        Worker::TerminationManager::parse(job_json.at("termination"));
+
+    auto to_producer =
+        std::make_shared<moodycamel::ConcurrentQueue<Protocol::Packet*>>(
+            QUEUE_INITIAL_CAPACITY);
+
+    auto to_consumer =
+        std::make_shared<moodycamel::ConcurrentQueue<Protocol::Packet*>>(
+            QUEUE_INITIAL_CAPACITY);
 
     Worker::init_queue_packet(
         *to_producer,
@@ -112,7 +120,7 @@ int main(int argc, char** argv) {
     int fd = consumer.open(open_request);
 
     std::cout << "Parse Start Producer" << std::endl;
-    std::thread producer_thread(&Worker::Producer::run, &producer, iterations, fd);
+    std::thread producer_thread(&Worker::Producer::run, &producer, fd, termination);
 
     std::cout << "Parse Start Consumer" << std::endl;
     std::thread consumer_thread(&Worker::Consumer::run, &consumer);

@@ -2,15 +2,18 @@
   "job": {
     "name": "job",
     "numjobs": 1,
-    "iterations": 1000,
     "filename": "testfile",
     "block_size": 4096,
     "limit": 4096000,
-    "metric": "full"
+    "metric": "full",
+    "termination": {
+      "type": "iterations",
+      "value": 1000
+    }
   },
   "operation": {
     "type": "constant",
-    "operation": "write",
+    "operation": "nop",
     "percentages": {
       "read": 30,
       "write": 70
