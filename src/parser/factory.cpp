@@ -14,7 +14,7 @@ namespace Parser {
             extension = std::make_unique<Extension::SampleExtension>(config);
         } else {
             throw std::invalid_argument(
-                "get_extension: type '" + type + "' not recognized");
+                "get_trace_extension: type '" + type + "' not recognized");
         }
 
         return extension;
@@ -41,10 +41,9 @@ namespace Parser {
                     config, get_trace_extension(config));
         } else {
             throw std::invalid_argument(
-                "get_access: type '" + type + "' not recognized");
+                "get_access_generator: type '" + type + "' not recognized");
         }
 
-        access_generator->validate();
         return access_generator;
     }
 
@@ -69,10 +68,9 @@ namespace Parser {
                     get_trace_extension(config));
         } else {
             throw std::invalid_argument(
-                "get_operation: type '" + type + "' not recognized");
+                "get_operation_generator: type '" + type + "' not recognized");
         }
 
-        operation_generator->validate();
         return operation_generator;
     }
 
@@ -97,10 +95,9 @@ namespace Parser {
                     config, get_trace_extension(config));
         } else {
             throw std::invalid_argument(
-                "get_generator: type '" + type + "' not recognized");
+                "get_content_generator: type '" + type + "' not recognized");
         }
 
-        content_generator->validate();
         return content_generator;
     }
 
@@ -125,6 +122,9 @@ namespace Parser {
 
         if (type == "spdlog") {
             return std::make_shared<Logger::Spdlog>(config);
+        } else if (type != "null") {
+            throw std::invalid_argument(
+                "get_logger: type '" + type + "' not recognized");
         }
 
         return nullptr;

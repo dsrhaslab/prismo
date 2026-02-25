@@ -20,6 +20,12 @@ namespace Generator {
             explicit AccessGenerator(const json& j) {
                 block_size = j.at("block_size").get<size_t>();
                 limit = j.at("limit").get<size_t>();
+
+                if (block_size == 0) {
+                    throw std::invalid_argument("AccessGenerator: block_size must be greater than zero");
+                } else if (block_size > limit) {
+                    throw std::invalid_argument("AccessGenerator: block_size must be less than or equal to limit");
+                }
             }
 
         public:
@@ -28,14 +34,6 @@ namespace Generator {
             };
 
             virtual uint64_t next_offset(void) = 0;
-
-            virtual void validate(void) const {
-                if (block_size == 0) {
-                    throw std::invalid_argument("access_validate: block_size must be greater than zero");
-                } else if (block_size > limit) {
-                    throw std::invalid_argument("access_validate: block_size must be less than or equal to limit");
-                }
-            };
     };
 
     class SequentialAccessGenerator : public AccessGenerator {
@@ -51,10 +49,6 @@ namespace Generator {
 
             explicit SequentialAccessGenerator(const json& j) : AccessGenerator(j) {
                 limit = block_size * (limit / block_size);
-            };
-
-            void validate(void) const override {
-                AccessGenerator::validate();
             };
 
             uint64_t next_offset(void) override {
@@ -81,10 +75,6 @@ namespace Generator {
                 rng.setParams(0, normalized_limit);
             };
 
-            void validate(void) const override {
-                AccessGenerator::validate();
-            };
-
             uint64_t next_offset(void) override {
                 return static_cast<uint64_t>(rng.nextValue() * block_size);
             };
@@ -105,15 +95,13 @@ namespace Generator {
 
             explicit ZipfianAccessGenerator(const json& j) : AccessGenerator(j) {
                 skew = j.at("skew").get<float>();
+
+                if (skew <= 0 || skew >= 1) {
+                    throw std::invalid_argument("ZipfianAccessGenerator: skew must belong to range [0; 1]");
+                }
+
                 normalized_limit = limit / block_size - 1;
                 distribution.setParams(0, normalized_limit, skew);
-            };
-
-            void validate(void) const override {
-                AccessGenerator::validate();
-                if (skew <= 0 || skew >= 1) {
-                    throw std::invalid_argument("zipfian_validate: skew must belong to range [0; 1]");
-                }
             };
 
             uint64_t next_offset(void) override {

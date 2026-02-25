@@ -20,7 +20,6 @@ namespace Generator {
                 std::cout << "~Destroying Operation" << std::endl;
             };
 
-            virtual void validate(void) const = 0;
             virtual Operation::OperationType next_operation(void) = 0;
     };
 
@@ -39,8 +38,6 @@ namespace Generator {
                 std::string op_str = j.at("operation").get<std::string>();
                 operation = Operation::operation_from_str(op_str);
             };
-
-            void validate(void) const override {};
 
             Operation::OperationType next_operation(void) override {
                 return operation;
@@ -74,8 +71,6 @@ namespace Generator {
                 )
             {}
 
-            void validate(void) const override {};
-
             Operation::OperationType next_operation(void) override {
                 return distribution.nextValue();
             };
@@ -98,11 +93,9 @@ namespace Generator {
                     auto op_str = item.get<std::string>();
                     operations.push_back(Operation::operation_from_str(op_str));
                 }
-            };
 
-            void validate(void) const override {
-                if (operations.size() == 0) {
-                    throw std::invalid_argument("validate: invalid sequence of operations");
+                if (operations.empty()) {
+                    throw std::invalid_argument("SequenceOperationGeneator: operations cannot be empty");
                 }
             };
 

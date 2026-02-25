@@ -31,7 +31,8 @@ namespace Parser {
 
                 if (memory_bytes < sizeof(Trace::Record)) {
                     throw std::invalid_argument(
-                        "Memory should be equal or greater than " + std::to_string(sizeof(Trace::Record))
+                        "TraceReader: memory should be equal or greater than " +
+                            std::to_string(sizeof(Trace::Record))
                     );
                 }
 

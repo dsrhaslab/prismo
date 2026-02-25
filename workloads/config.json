@@ -8,12 +8,12 @@
     "metric": "base",
     "termination": {
       "type": "iterations",
-      "value": 1e7
+      "value": 1e3
     }
   },
   "operation": {
     "type": "constant",
-    "operation": "nop",
+    "operation": "write",
     "percentages": {
       "read": 30,
       "write": 70
@@ -34,14 +34,14 @@
     "extension": "repeat"
   },
   "access": {
-    "type": "sequential",
-    "skew": 0.9,
+    "type": "zipfian",
+    "skew": 1,
     "trace": "/home/digo/Desktop/prismo/traces/webmail+online.cs.fiu.edu-110108-113008.10.blkparse.prismo",
     "memory": 128,
     "extension": "repeat"
   },
   "generator": {
-    "type": "constant",
+    "type": "dedup",
     "refill": false,
     "distribution": [
       {

@@ -40,13 +40,6 @@ namespace Generator {
             }
 
             BlockMetadata next_block(uint8_t* buffer, size_t size) override;
-
-            void validate(void) const override {
-                // validate_percentage_vector(dedup_percentages, "deduplication");
-                // for (const auto& [_, generator] : compression_generators) {
-                //     generator.validate();
-                // }
-            };
     };
 }
 

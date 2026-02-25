@@ -49,7 +49,7 @@ namespace Worker {
                     }
 
                     default:
-                        throw std::invalid_argument("Invalid termination type");
+                        throw std::invalid_argument("should_continue: invalid termination type");
                 }
             }
 
@@ -64,9 +64,7 @@ namespace Worker {
                     type = TerminationType::RUNTIME;
                 } else {
                     throw std::invalid_argument(
-                        "Unknown termination type: " + type_str +
-                        ". Valid types are: 'iterations', 'runtime'"
-                    );
+                        "parse: unknown termination type '" + type_str + "'");
                 }
 
                 return Termination{.type = type, .value = value};

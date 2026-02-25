@@ -49,7 +49,6 @@ namespace Generator {
                 std::cout << "~Destroying ContentGenerator" << std::endl;
             }
 
-            virtual void validate(void) const = 0;
             virtual BlockMetadata next_block(uint8_t* buffer, size_t size) = 0;
     };
 
@@ -63,8 +62,6 @@ namespace Generator {
 
             explicit ConstantContentGenerator(const json& j)
                 : ContentGenerator(j, false) {}
-
-            void validate(void) const override {}
 
             BlockMetadata next_block(uint8_t* buffer, size_t size) override {
                 refill(buffer, size);
@@ -89,8 +86,6 @@ namespace Generator {
 
             explicit RandomContentGenerator(const json& j)
                 : ContentGenerator(j) {}
-
-            void validate(void) const override {}
 
             BlockMetadata next_block(uint8_t* buffer, size_t size) override {
                 refill(buffer, size);

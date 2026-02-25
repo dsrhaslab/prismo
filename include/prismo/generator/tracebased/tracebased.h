@@ -34,10 +34,6 @@ namespace Generator {
             explicit TraceBasedAccessGenerator(const json& j, std::unique_ptr<Extension::TraceExtension> ext)
                 : AccessGenerator(j), TraceBased(std::move(ext)) {}
 
-            void validate(void) const override {
-                AccessGenerator::validate();
-            }
-
             uint64_t next_offset(void) override {
                 return extension->next_record().offset % limit;
             }
@@ -55,8 +51,6 @@ namespace Generator {
             explicit TraceBasedOperationGenerator(std::unique_ptr<Extension::TraceExtension> ext)
                 : OperationGenerator(), TraceBased(std::move(ext)) {}
 
-            void validate(void) const override {};
-
             Operation::OperationType next_operation(void) override {
                 return extension->next_record().operation;
             };
@@ -73,8 +67,6 @@ namespace Generator {
 
             explicit TraceBasedContentGenerator(const json& j, std::unique_ptr<Extension::TraceExtension> ext)
                 : ContentGenerator(j, false), TraceBased(std::move(ext)) {}
-
-            void validate(void) const override {}
 
             BlockMetadata next_block(uint8_t* buffer, size_t size) override {
                 refill(buffer, size);
