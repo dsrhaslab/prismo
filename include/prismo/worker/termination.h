@@ -7,8 +7,6 @@
 #include <stdexcept>
 #include <nlohmann/json.hpp>
 
-constexpr uint64_t CHECK_INTERVAL = 4096;
-
 namespace Worker {
 
     enum class TerminationType {
@@ -22,6 +20,9 @@ namespace Worker {
     };
 
     class TerminationManager {
+        private:
+            static constexpr uint64_t CHECK_INTERVAL = 4096;
+
         public:
             static inline bool should_continue(
                 const Termination& termination,

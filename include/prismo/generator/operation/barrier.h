@@ -11,7 +11,7 @@ namespace Generator {
 
     class Barrier {
         private:
-            uint64_t counter;
+            uint64_t counter = 0;
             uint64_t threshold;
 
             Operation::OperationType barrier_operation;

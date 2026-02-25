@@ -8,7 +8,7 @@
     "metric": "base",
     "termination": {
       "type": "iterations",
-      "value": 1e3
+      "value": 1e7
     }
   },
   "operation": {

@@ -109,31 +109,28 @@ namespace Metric {
         const OperationStats& stats,
         double runtime_sec
     ) const {
-        if (stats.count == 0) return;
+        if (!stats.has_data()) return;
 
-        double iops = runtime_sec > 0 ? stats.count / runtime_sec : 0;
-        double bw = runtime_sec > 0 ? stats.total_bytes / runtime_sec : 0;
+        double iops = stats.get_iops(runtime_sec);
+        double bw = stats.get_bandwidth(runtime_sec);
 
         os << "  " << op_name << ":\n";
-        os << "    IOPS: " << format_iops(iops) << " (" << stats.count << " ops)\n";
+        os << "    IOPS: " << format_iops(iops) << " (" << stats.get_count() << " ops)\n";
         os << "    Bandwidth: " << format_bandwidth(bw)
-           << " (" << format_bytes(stats.total_bytes) << " total)\n";
+           << " (" << format_bytes(stats.get_total_bytes()) << " total)\n";
 
         os << "    Latency:\n";
-        os << "      min: " << format_latency(stats.min_latency_ns) << "\n";
+        os << "      min: " << format_latency(stats.get_min_latency_ns()) << "\n";
         os << "      avg: " << format_latency(stats.get_avg_latency_ns()) << "\n";
-        os << "      max: " << format_latency(stats.max_latency_ns) << "\n";
+        os << "      max: " << format_latency(stats.get_max_latency_ns()) << "\n";
 
-        if (!stats.latencies.empty()) {
-            OperationStats mutable_stats = stats;
-            os << "    Percentiles:\n";
-            os << "      50th: " << format_latency(mutable_stats.get_percentile(50.0)) << "\n";
-            os << "      90th: " << format_latency(mutable_stats.get_percentile(90.0)) << "\n";
-            os << "      95th: " << format_latency(mutable_stats.get_percentile(95.0)) << "\n";
-            os << "      99th: " << format_latency(mutable_stats.get_percentile(99.0)) << "\n";
-            os << "      99.9th: " << format_latency(mutable_stats.get_percentile(99.9)) << "\n";
-            os << "      99.99th: " << format_latency(mutable_stats.get_percentile(99.99)) << "\n";
-        }
+        os << "    Percentiles:\n";
+        os << "      50th: " << format_latency(stats.get_percentile(50.0)) << "\n";
+        os << "      90th: " << format_latency(stats.get_percentile(90.0)) << "\n";
+        os << "      95th: " << format_latency(stats.get_percentile(95.0)) << "\n";
+        os << "      99th: " << format_latency(stats.get_percentile(99.0)) << "\n";
+        os << "      99.9th: " << format_latency(stats.get_percentile(99.9)) << "\n";
+        os << "      99.99th: " << format_latency(stats.get_percentile(99.99)) << "\n";
     }
 
     void Statistics::print_report(std::ostream& os) const {
@@ -151,17 +148,21 @@ namespace Metric {
         uint64_t total_bytes = 0;
 
         for (const auto& [_, stats] : stats_per_operation) {
-            total_ops += stats.count;
-            total_bytes += stats.total_bytes;
+            total_ops += stats.get_count();
+            total_bytes += stats.get_total_bytes();
         }
 
-        os << "Total Operations: " << total_ops << "\n";
-        os << "Total Data: " << format_bytes(total_bytes) << "\n";
-        os << "\n";
-
-        for (const auto& [op, stats]: stats_per_operation) {
-            print_operation_stats(os, operation_to_str(op), stats, runtime_sec);
+        if (total_ops == 0) {
+            os << "No operations recorded\n";
+        } else {
+            os << "Total Operations: " << total_ops << "\n";
+            os << "Total Data: " << format_bytes(total_bytes) << "\n";
             os << "\n";
+
+            for (const auto& [op, stats]: stats_per_operation) {
+                print_operation_stats(os, operation_to_str(op), stats, runtime_sec);
+                os << "\n";
+            }
         }
 
         os << "==================================================================\n";
