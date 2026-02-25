@@ -6,8 +6,6 @@
 #include <nlohmann/json.hpp>
 #include <lib/distribution/distribution.h>
 
-using json = nlohmann::json;
-
 namespace Generator {
 
     class AccessGenerator {
@@ -17,7 +15,7 @@ namespace Generator {
 
             AccessGenerator() = delete;
 
-            explicit AccessGenerator(const json& j) {
+            explicit AccessGenerator(const nlohmann::json& j) {
                 block_size = j.at("block_size").get<size_t>();
                 limit = j.at("limit").get<size_t>();
 
@@ -47,7 +45,7 @@ namespace Generator {
                 std::cout << "~Destroying SequentialAccessGenerator" << std::endl;
             }
 
-            explicit SequentialAccessGenerator(const json& j) : AccessGenerator(j) {
+            explicit SequentialAccessGenerator(const nlohmann::json& j) : AccessGenerator(j) {
                 limit = block_size * (limit / block_size);
             };
 
@@ -70,7 +68,7 @@ namespace Generator {
                 std::cout << "~Destroying RandomAccessGenerator" << std::endl;
             }
 
-            explicit RandomAccessGenerator(const json& j) : AccessGenerator(j) {
+            explicit RandomAccessGenerator(const nlohmann::json& j) : AccessGenerator(j) {
                 normalized_limit = limit / block_size - 1;
                 rng.setParams(0, normalized_limit);
             };
@@ -93,7 +91,7 @@ namespace Generator {
                 std::cout << "~Destroying ZipfianAccessGenerator" << std::endl;
             };
 
-            explicit ZipfianAccessGenerator(const json& j) : AccessGenerator(j) {
+            explicit ZipfianAccessGenerator(const nlohmann::json& j) : AccessGenerator(j) {
                 skew = j.at("skew").get<float>();
 
                 if (skew <= 0 || skew >= 1) {

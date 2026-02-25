@@ -2,10 +2,10 @@
 
 namespace Generator {
 
-    DeduplicationContentGenerator::DeduplicationContentGenerator(const json& j)
+    DeduplicationContentGenerator::DeduplicationContentGenerator(const nlohmann::json& j)
         : ContentGenerator(j),
-        pool(j.at("block_size").get<size_t>()),
-        dedup_distribution(
+          pool(j.at("block_size").get<size_t>()),
+          dedup_distribution(
             [&]() {
                 std::vector<uint32_t> values, weights;
                 for (const auto& item : j.at("distribution")) {

@@ -7,8 +7,6 @@
 #include <nlohmann/json.hpp>
 #include <common/operation.h>
 
-using json = nlohmann::json;
-
 namespace Generator {
 
     class Barrier {
@@ -22,7 +20,7 @@ namespace Generator {
         public:
             Barrier() = delete;
 
-            explicit Barrier(const json& j) : counter(0) {
+            explicit Barrier(const nlohmann::json& j) {
                 threshold = j.at("threshold").get<size_t>();
                 barrier_operation = Operation::operation_from_str(
                     j.at("operation").get<std::string>()
@@ -56,7 +54,7 @@ namespace Generator {
                 std::cout << "~Destroying MultipleBarrier" << std::endl;
             }
 
-            explicit MultipleBarrier(const json& j) : barriers() {
+            explicit MultipleBarrier(const nlohmann::json& j) {
                 for (const auto& barrier_json : j) {
                     barriers.emplace_back(barrier_json);
                 }

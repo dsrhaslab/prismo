@@ -26,7 +26,7 @@ namespace Engine {
         // {"IORING_SETUP_HYBRID_IOPOLL", IORING_SETUP_HYBRID_IOPOLL},
     };
 
-    void from_json(const json& j, OpenFlags& config) {
+    void from_json(const nlohmann::json& j, OpenFlags& config) {
         for (const auto& value : j) {
             auto it = flag_map.find(value);
             if (it != flag_map.end()) {
@@ -37,13 +37,13 @@ namespace Engine {
         }
     };
 
-    void from_json(const json& j, AioConfig& config) {
+    void from_json(const nlohmann::json& j, AioConfig& config) {
         j.at("entries").get_to(config.entries);
         j.at("block_size").get_to(config.block_size);
     };
 
-    void from_json(const json& j, UringConfig& config) {
-        const json params_j = j.at("params");
+    void from_json(const nlohmann::json& j, UringConfig& config) {
+        const nlohmann::json params_j = j.at("params");
 
         j.at("entries").get_to(config.entries);
         j.at("block_size").get_to(config.block_size);
@@ -62,7 +62,7 @@ namespace Engine {
         }
     };
 
-    void from_json(const json& j, SpdkConfig& config) {
+    void from_json(const nlohmann::json& j, SpdkConfig& config) {
         j.at("bdev_name").get_to(config.bdev_name);
         j.at("reactor_mask").get_to(config.reactor_mask);
         j.at("json_config_file").get_to(config.json_config_file);

@@ -86,11 +86,13 @@ int main(int argc, char** argv) {
             files.push_back(dataset);
         } else if (S_ISDIR(st.st_mode)) {
             for (const fs::directory_entry& entry :
-                    fs::recursive_directory_iterator(dataset)) {
+                 fs::recursive_directory_iterator(dataset)) {
                 files.push_back(entry.path());
             }
         } else {
-            std::cerr << dataset << " is not a file, a directory, or a block device" << std::endl;
+            std::cerr << dataset
+                      << " is not a file, a directory, or a block device"
+                      << std::endl;
             return 1;
         }
 
@@ -105,12 +107,14 @@ int main(int argc, char** argv) {
 
     if (program["--compression"] == true) {
         normalize(compression_db);
-        std::cout << static_cast<json>(compression_db).dump(4) << std::endl;
+        std::cout << static_cast<nlohmann::json>(compression_db).dump(4)
+                  << std::endl;
     }
 
     if (program["--duplication"] == true) {
         normalize(duplication_db);
-        std::cout << static_cast<json>(duplication_db).dump(4) << std::endl;
+        std::cout << static_cast<nlohmann::json>(duplication_db).dump(4)
+                  << std::endl;
     }
 
     return 0;

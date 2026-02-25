@@ -3,7 +3,7 @@
 namespace Parser {
 
     std::unique_ptr<Extension::TraceExtension> get_trace_extension(
-        const json& config
+        const nlohmann::json& config
     ) {
         std::string type = config.value("extension", "repeat");
         std::unique_ptr<Extension::TraceExtension> extension;
@@ -21,7 +21,7 @@ namespace Parser {
     }
 
     std::unique_ptr<Generator::AccessGenerator> get_access_generator(
-        const json& config
+        const nlohmann::json& config
     ) {
         std::string type = config.value("type", "sequential");
         std::unique_ptr<Generator::AccessGenerator> access_generator;
@@ -48,7 +48,7 @@ namespace Parser {
     }
 
     std::unique_ptr<Generator::OperationGenerator> get_operation_generator(
-        const json& config
+        const nlohmann::json& config
     ) {
         std::string type = config.value("type", "constant");
         std::unique_ptr<Generator::OperationGenerator> operation_generator;
@@ -75,7 +75,7 @@ namespace Parser {
     }
 
     std::unique_ptr<Generator::ContentGenerator> get_content_generator(
-        const json& config
+        const nlohmann::json& config
     ) {
         std::string type = config.value("type", "constant");
         std::unique_ptr<Generator::ContentGenerator> content_generator;
@@ -102,7 +102,7 @@ namespace Parser {
     }
 
     std::optional<Generator::MultipleBarrier> get_multiple_barrier(
-        const json& config
+        const nlohmann::json& config
     ) {
         return config.contains("barrier")
             ? std::optional<Generator::MultipleBarrier>{config.at("barrier")}
@@ -110,7 +110,7 @@ namespace Parser {
     }
 
     std::optional<Generator::CompressionGenerator> get_compression_generator(
-        const json& config
+        const nlohmann::json& config
     ) {
         return config.contains("compression")
             ? std::optional<Generator::CompressionGenerator>{config.at("compression")}
@@ -118,14 +118,14 @@ namespace Parser {
     }
 
     std::optional<Worker::Ramp> get_ramp(
-        const json& config
+        const nlohmann::json& config
     ) {
         return config.contains("ramp")
             ? std::optional<Worker::Ramp>{config.at("ramp")}
             : std::nullopt;
     }
 
-    std::shared_ptr<Logger::Logger> get_logger(const json& config) {
+    std::shared_ptr<Logger::Logger> get_logger(const nlohmann::json& config) {
         const std::string type = config.value("type", "null");
 
         if (type == "spdlog") {
@@ -139,7 +139,7 @@ namespace Parser {
     }
 
     Metric::MetricVariant get_metric(
-        const json& config
+        const nlohmann::json& config
     ) {
         std::string type = config.value("metric", "base");
 
@@ -158,7 +158,7 @@ namespace Parser {
     }
 
     std::unique_ptr<Engine::Engine> get_engine(
-        const json& config,
+        const nlohmann::json& config,
         Metric::MetricVariant metric,
         std::shared_ptr<Logger::Logger> logger
     ) {

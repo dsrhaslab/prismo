@@ -9,8 +9,6 @@
 #include <lib/shishua/shishua.h>
 #include <lib/shishua/utils.h>
 
-using json = nlohmann::json;
-
 namespace Generator {
 
     class ContentGenerator {
@@ -24,10 +22,10 @@ namespace Generator {
 
             ContentGenerator() = delete;
 
-            explicit ContentGenerator(const json& j)
+            explicit ContentGenerator(const nlohmann::json& j)
                 : ContentGenerator(j, j.at("refill").get<bool>()) {}
 
-            explicit ContentGenerator(const json& j, bool _refill_flag)
+            explicit ContentGenerator(const nlohmann::json& j, bool _refill_flag)
                 :
                 refill_flag(_refill_flag),
                 base_buffer(j.at("block_size").get<size_t>())
@@ -60,7 +58,7 @@ namespace Generator {
                 std::cout << "~Destroying ConstantContentGenerator" << std::endl;
             }
 
-            explicit ConstantContentGenerator(const json& j)
+            explicit ConstantContentGenerator(const nlohmann::json& j)
                 : ContentGenerator(j, false) {}
 
             BlockMetadata next_block(uint8_t* buffer, size_t size) override {
@@ -84,7 +82,7 @@ namespace Generator {
                 std::cout << "~Destroying RandomContentGenerator" << std::endl;
             }
 
-            explicit RandomContentGenerator(const json& j)
+            explicit RandomContentGenerator(const nlohmann::json& j)
                 : ContentGenerator(j) {}
 
             BlockMetadata next_block(uint8_t* buffer, size_t size) override {

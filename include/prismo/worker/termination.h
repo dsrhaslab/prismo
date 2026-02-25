@@ -7,8 +7,6 @@
 #include <stdexcept>
 #include <nlohmann/json.hpp>
 
-using json = nlohmann::json;
-
 constexpr uint64_t CHECK_INTERVAL = 4096;
 
 namespace Worker {
@@ -53,7 +51,7 @@ namespace Worker {
                 }
             }
 
-            static Termination parse(const json& config) {
+            static Termination parse(const nlohmann::json& config) {
                 TerminationType type;
                 uint64_t value = config.at("value").get<uint64_t>();
                 std::string type_str = config.at("type").get<std::string>();

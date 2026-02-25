@@ -8,8 +8,6 @@
 #include <prismo/generator/content/metadata.h>
 #include <lib/distribution/distribution.h>
 
-using json = nlohmann::json;
-
 namespace Generator {
 
     struct CompressionGenerator {
@@ -23,7 +21,7 @@ namespace Generator {
                 std::cout << "~Destroying CompressionGenerator" << std::endl;
             };
 
-            CompressionGenerator(const json& j)
+            CompressionGenerator(const nlohmann::json& j)
                 : distribution([&] {
                     std::vector<uint32_t> values, weights;
                     for (const auto& item : j) {

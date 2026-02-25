@@ -2,7 +2,7 @@
 
 namespace Logger {
 
-    Spdlog::Spdlog(const json& j) : Logger() {
+    Spdlog::Spdlog(const nlohmann::json& j) : Logger() {
         std::vector<spdlog::sink_ptr> sinks;
         spdlog::init_thread_pool(
             j.at("queue_size").get<size_t>(),

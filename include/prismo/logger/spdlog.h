@@ -9,8 +9,6 @@
 #include <prismo/logger/logger.h>
 #include <nlohmann/json.hpp>
 
-using json = nlohmann::json;
-
 namespace Logger {
 
     class Spdlog : public Logger {
@@ -24,7 +22,7 @@ namespace Logger {
                 std::cout << "~Destroying Spdlog Logger" << std::endl;
             };
 
-            explicit Spdlog(const json& j);
+            explicit Spdlog(const nlohmann::json& j);
 
             void info(const Metric::MetricVariant& metric) override;
         };

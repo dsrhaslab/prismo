@@ -14,8 +14,6 @@
 #include <prismo/parser/tracereader.h>
 #include <lib/distribution/distribution.h>
 
-using json = nlohmann::json;
-
 namespace Extension {
 
     class TraceExtension {
@@ -24,7 +22,7 @@ namespace Extension {
 
             TraceExtension() = delete;
 
-            explicit TraceExtension(const json& j)
+            explicit TraceExtension(const nlohmann::json& j)
                 : trace_reader(j) {}
 
         public:
@@ -43,7 +41,7 @@ namespace Extension {
                 std::cout << "~Destroying RepeatExtension" << std::endl;
             }
 
-            explicit RepeatExtension(const json& j)
+            explicit RepeatExtension(const nlohmann::json& j)
                 : TraceExtension(j) {}
 
             Trace::Record next_record() override {
@@ -117,7 +115,7 @@ namespace Extension {
                 std::cout << "~Destroying SampleExtension" << std::endl;
             }
 
-            explicit SampleExtension(const json& j)
+            explicit SampleExtension(const nlohmann::json& j)
                 : TraceExtension(j) {}
 
             Trace::Record next_record() override {

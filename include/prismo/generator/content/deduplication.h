@@ -33,7 +33,7 @@ namespace Generator {
         public:
             DeduplicationContentGenerator() = delete;
 
-            explicit DeduplicationContentGenerator(const json& j);
+            explicit DeduplicationContentGenerator(const nlohmann::json& j);
 
             ~DeduplicationContentGenerator() override {
                 std::cout << "~Destroying DeduplicationContentGenerator" << std::endl;

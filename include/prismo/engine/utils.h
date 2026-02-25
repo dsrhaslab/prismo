@@ -10,8 +10,6 @@
 #include <common/operation.h>
 #include <prismo/generator/content/metadata.h>
 
-using json = nlohmann::json;
-
 namespace Engine {
 
     struct OpenFlags {
@@ -56,10 +54,10 @@ namespace Engine {
         struct MetricData metric_data;
     };
 
-    void from_json(const json& j, OpenFlags& config);
-    void from_json(const json& j, AioConfig& config);
-    void from_json(const json& j, UringConfig& config);
-    void from_json(const json& j, SpdkConfig& config);
+    void from_json(const nlohmann::json& j, OpenFlags& config);
+    void from_json(const nlohmann::json& j, AioConfig& config);
+    void from_json(const nlohmann::json& j, UringConfig& config);
+    void from_json(const nlohmann::json& j, SpdkConfig& config);
 
     std::vector<u_int32_t> get_pinned_cores(uint64_t mask);
 };

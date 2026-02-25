@@ -31,7 +31,7 @@ namespace Generator {
                 std::cout << "~Destroying TraceBasedAccessGenerator" << std::endl;
             }
 
-            explicit TraceBasedAccessGenerator(const json& j, std::unique_ptr<Extension::TraceExtension> ext)
+            explicit TraceBasedAccessGenerator(const nlohmann::json& j, std::unique_ptr<Extension::TraceExtension> ext)
                 : AccessGenerator(j), TraceBased(std::move(ext)) {}
 
             uint64_t next_offset(void) override {
@@ -49,7 +49,7 @@ namespace Generator {
             }
 
             explicit TraceBasedOperationGenerator(std::unique_ptr<Extension::TraceExtension> ext)
-                : OperationGenerator(), TraceBased(std::move(ext)) {}
+                : TraceBased(std::move(ext)) {}
 
             Operation::OperationType next_operation(void) override {
                 return extension->next_record().operation;
@@ -65,7 +65,7 @@ namespace Generator {
                 std::cout << "~Destroying TraceBasedContentGenerator" << std::endl;
             }
 
-            explicit TraceBasedContentGenerator(const json& j, std::unique_ptr<Extension::TraceExtension> ext)
+            explicit TraceBasedContentGenerator(const nlohmann::json& j, std::unique_ptr<Extension::TraceExtension> ext)
                 : ContentGenerator(j, false), TraceBased(std::move(ext)) {}
 
             BlockMetadata next_block(uint8_t* buffer, size_t size) override {

@@ -31,13 +31,13 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    json config_json = json::parse(config_file);
-    json job_json = config_json.value("job", json::object());
-    json access_json = config_json.value("access", json::object());
-    json operation_json = config_json.value("operation", json::object());
-    json generator_json = config_json.value("generator", json::object());
-    json engine_json = config_json.value("engine", json::object());
-    json logging_json = config_json.value("logging", json::object());
+    nlohmann::json config_json = nlohmann::json::parse(config_file);
+    nlohmann::json job_json = config_json.value("job", nlohmann::json::object());
+    nlohmann::json access_json = config_json.value("access", nlohmann::json::object());
+    nlohmann::json operation_json = config_json.value("operation", nlohmann::json::object());
+    nlohmann::json generator_json = config_json.value("generator", nlohmann::json::object());
+    nlohmann::json engine_json = config_json.value("engine", nlohmann::json::object());
+    nlohmann::json logging_json = config_json.value("logging", nlohmann::json::object());
 
     access_json.merge_patch(job_json);
     engine_json.merge_patch(job_json);

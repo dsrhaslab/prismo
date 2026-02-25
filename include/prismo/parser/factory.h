@@ -22,32 +22,32 @@
 namespace Parser {
 
     std::unique_ptr<Extension::TraceExtension> get_trace_extension(
-        const json& config);
+        const nlohmann::json& config);
 
     std::unique_ptr<Generator::AccessGenerator> get_access_generator(
-        const json& config);
+        const nlohmann::json& config);
 
     std::unique_ptr<Generator::OperationGenerator> get_operation_generator(
-        const json& config);
+        const nlohmann::json& config);
 
     std::unique_ptr<Generator::ContentGenerator> get_content_generator(
-        const json& config);
+        const nlohmann::json& config);
 
     std::optional<Generator::MultipleBarrier> get_multiple_barrier(
-        const json& config);
+        const nlohmann::json& config);
 
     std::optional<Generator::CompressionGenerator> get_compression_generator(
-        const json& config);
+        const nlohmann::json& config);
 
     std::optional<Worker::Ramp> get_ramp(
-        const json& config);
+        const nlohmann::json& config);
 
-    Metric::MetricVariant get_metric(const json& config);
+    Metric::MetricVariant get_metric(const nlohmann::json& config);
 
-    std::shared_ptr<Logger::Logger> get_logger(const json& config);
+    std::shared_ptr<Logger::Logger> get_logger(const nlohmann::json& config);
 
     std::unique_ptr<Engine::Engine> get_engine(
-        const json& config,
+        const nlohmann::json& config,
         Metric::MetricVariant metric,
         std::shared_ptr<Logger::Logger> logger);
 };

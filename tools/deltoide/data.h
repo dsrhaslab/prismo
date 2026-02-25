@@ -5,13 +5,11 @@
 #include <nlohmann/json.hpp>
 #include <prismo/generator/content/metadata.h>
 
-using json = nlohmann::json;
 using CompressionDB = std::map<uint32_t, uint64_t>;
 using DuplicationDB = std::map<uint64_t, std::pair<uint64_t, CompressionDB>>;
 
 namespace std {
-
-    void to_json(json& j, const CompressionDB& db) {
+    void to_json(nlohmann::json& j, const CompressionDB& db) {
         for (const auto& [compression, percentage] : db) {
             if (percentage > 0) {
                 j.push_back({
@@ -22,13 +20,13 @@ namespace std {
         }
     }
 
-    void to_json(json& j, const DuplicationDB db) {
+    void to_json(nlohmann::json& j, const DuplicationDB db) {
         for (const auto& [repeats, value] : db) {
             if (value.first > 0) {
                 j.push_back({
                     {"repeats", repeats },
                     {"percentage", value.first},
-                    {"compression", static_cast<json>(value.second)}
+                    {"compression", static_cast<nlohmann::json>(value.second)}
                 });
             }
         }

@@ -10,8 +10,6 @@
 #include <common/trace.h>
 #include <nlohmann/json.hpp>
 
-using json = nlohmann::json;
-
 namespace Parser {
 
     class TraceReader {
@@ -25,7 +23,7 @@ namespace Parser {
         public:
             TraceReader() = delete;
 
-            explicit TraceReader(const json& j) {
+            explicit TraceReader(const nlohmann::json& j) {
                 const std::string trace_path = j.at("trace").get<std::string>();
                 const size_t memory_bytes = j.at("memory").get<size_t>();
 

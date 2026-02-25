@@ -7,8 +7,6 @@
 #include <common/operation.h>
 #include <lib/distribution/distribution.h>
 
-using json = nlohmann::json;
-
 namespace Generator {
 
     class OperationGenerator {
@@ -34,7 +32,7 @@ namespace Generator {
                 std::cout << "~Destroying ConstantOperationGenerator" << std::endl;
             };
 
-            explicit ConstantOperationGenerator(const json& j) {
+            explicit ConstantOperationGenerator(const nlohmann::json& j) {
                 std::string op_str = j.at("operation").get<std::string>();
                 operation = Operation::operation_from_str(op_str);
             };
@@ -55,7 +53,7 @@ namespace Generator {
                 std::cout << "~Destroying PercentageOperationGenerator" << std::endl;
             };
 
-            explicit PercentageOperationGenerator(const json& j)
+            explicit PercentageOperationGenerator(const nlohmann::json& j)
                 : distribution(
                     [&]() {
                         std::vector<uint32_t> weights;
@@ -88,7 +86,7 @@ namespace Generator {
                 std::cout << "~Destroying SequenceOperationGeneator" << std::endl;
             };
 
-            explicit SequenceOperationGeneator(const json& j) {
+            explicit SequenceOperationGeneator(const nlohmann::json& j) {
                 for (auto& item : j.at("operations")) {
                     auto op_str = item.get<std::string>();
                     operations.push_back(Operation::operation_from_str(op_str));
