@@ -1,6 +1,7 @@
 #ifndef PRODUCER_WORKER_H
 #define PRODUCER_WORKER_H
 
+#include <prismo/worker/ramp.h>
 #include <prismo/worker/utils.h>
 #include <prismo/worker/termination.h>
 #include <prismo/generator/access/generator.h>
@@ -18,6 +19,7 @@ namespace Worker {
             std::unique_ptr<Generator::ContentGenerator> content;
             std::optional<Generator::CompressionGenerator> compression;
             std::optional<Generator::MultipleBarrier> barrier;
+            std::optional<Ramp> ramp;
             std::shared_ptr<moodycamel::ConcurrentQueue<Protocol::Packet*>> to_producer;
             std::shared_ptr<moodycamel::ConcurrentQueue<Protocol::Packet*>> to_consumer;
 
@@ -28,6 +30,7 @@ namespace Worker {
                 std::unique_ptr<Generator::ContentGenerator> _content,
                 std::optional<Generator::CompressionGenerator> _compression,
                 std::optional<Generator::MultipleBarrier> _barrier,
+                std::optional<Ramp> _ramp,
                 std::shared_ptr<moodycamel::ConcurrentQueue<Protocol::Packet*>> _to_producer,
                 std::shared_ptr<moodycamel::ConcurrentQueue<Protocol::Packet*>> _to_consumer
             ) :
@@ -36,6 +39,7 @@ namespace Worker {
                 content(std::move(_content)),
                 compression(std::move(_compression)),
                 barrier(std::move(_barrier)),
+                ramp(std::move(_ramp)),
                 to_producer(_to_producer),
                 to_consumer(_to_consumer) {}
 
@@ -52,6 +56,7 @@ namespace Worker {
                 while (TerminationManager::should_continue(
                     termination, start_time, iterations_count)
                 ) {
+                    auto batch_start = std::chrono::steady_clock::now();
                     size_t ready = 0;
                     size_t count = to_producer->try_dequeue_bulk(packets, BULK_SIZE);
 
@@ -95,6 +100,10 @@ namespace Worker {
 
                     to_consumer->enqueue_bulk(packets, ready);
                     to_producer->enqueue_bulk(packets + ready, count - ready); // enqueue unused packets
+
+                    if (ramp.has_value()) {
+                        ramp->throttle(start_time, batch_start);
+                    }
                 }
 
                 while (!to_producer->try_dequeue(packet));

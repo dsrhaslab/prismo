@@ -18,8 +18,8 @@ namespace Metric {
     struct BaseMetric {
         uint64_t block_id = 0;
         uint32_t compression = 0;
-        uint64_t start_timestamp = 0;
-        uint64_t end_timestamp = 0;
+        uint64_t start_ns = 0;
+        uint64_t end_ns = 0;
         size_t processed_bytes = 0;
         Operation::OperationType operation_type = Operation::OperationType::NOP;
 
@@ -28,14 +28,7 @@ namespace Metric {
         }
     };
 
-    struct StandardMetric {
-        uint64_t block_id = 0;
-        uint32_t compression = 0;
-        uint64_t start_timestamp = 0;
-        uint64_t end_timestamp = 0;
-        Operation::OperationType operation_type = Operation::OperationType::NOP;
-        size_t processed_bytes = 0;
-
+    struct StandardMetric : BaseMetric {
         pid_t pid = 0;
         uint64_t tid = 0;
 
@@ -44,17 +37,7 @@ namespace Metric {
         }
     };
 
-    struct FullMetric {
-        uint64_t block_id = 0;
-        uint32_t compression = 0;
-        uint64_t start_timestamp = 0;
-        uint64_t end_timestamp = 0;
-        Operation::OperationType operation_type = Operation::OperationType::NOP;
-        size_t processed_bytes = 0;
-
-        pid_t pid = 0;
-        uint64_t tid = 0;
-
+    struct FullMetric : StandardMetric {
         size_t requested_bytes = 0;
         uint64_t offset = 0;
         int32_t return_code = 0;
@@ -94,36 +77,21 @@ namespace Metric {
         std::visit([&](auto& m) {
             using T = std::decay_t<decltype(m)>;
 
-            if constexpr (std::is_same_v<T, NoneMetric>) {
-                return;
-            }
-            else if constexpr (std::is_same_v<T, BaseMetric>) {
+            if constexpr (std::is_base_of_v<BaseMetric, T>) {
                 m.operation_type = op;
                 m.block_id = block_id;
                 m.compression = compression;
-                m.start_timestamp = start_ts;
-                m.end_timestamp = get_current_timestamp();
+                m.start_ns = start_ts;
+                m.end_ns = get_current_timestamp();
                 m.processed_bytes = (result > 0) ? static_cast<size_t>(result) : 0;
             }
-            else if constexpr (std::is_same_v<T, StandardMetric>) {
-                m.operation_type = op;
-                m.block_id = block_id;
-                m.compression = compression;
-                m.start_timestamp = start_ts;
-                m.end_timestamp = get_current_timestamp();
-                m.processed_bytes = (result > 0) ? static_cast<size_t>(result) : 0;
+
+            if constexpr (std::is_base_of_v<StandardMetric, T>) {
                 m.pid = ::getpid();
                 m.tid = std::hash<std::thread::id>{}(std::this_thread::get_id());
             }
-            else if constexpr (std::is_same_v<T, FullMetric>) {
-                m.operation_type = op;
-                m.block_id = block_id;
-                m.compression = compression;
-                m.start_timestamp = start_ts;
-                m.end_timestamp = get_current_timestamp();
-                m.processed_bytes = (result > 0) ? static_cast<size_t>(result) : 0;
-                m.pid = ::getpid();
-                m.tid = std::hash<std::thread::id>{}(std::this_thread::get_id());
+
+            if constexpr (std::is_base_of_v<FullMetric, T>) {
                 m.requested_bytes = size;
                 m.offset = offset;
                 m.return_code = static_cast<int32_t>(result);

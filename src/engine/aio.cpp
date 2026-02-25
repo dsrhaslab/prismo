@@ -89,7 +89,7 @@ namespace Engine {
         aio_task.metric_data.offset = request.offset;
         aio_task.metric_data.metadata = request.metadata;
         aio_task.metric_data.operation_type = request.operation;
-        aio_task.metric_data.start_timestamp = Metric::get_current_timestamp();
+        aio_task.metric_data.start_ns = Metric::get_current_timestamp();
 
         switch (request.operation) {
             case Operation::OperationType::READ:
@@ -127,7 +127,7 @@ namespace Engine {
                 completed_task->metric_data.operation_type,
                 completed_task->metric_data.metadata.block_id,
                 completed_task->metric_data.metadata.compression,
-                completed_task->metric_data.start_timestamp,
+                completed_task->metric_data.start_ns,
                 ev.res,
                 completed_task->metric_data.size,
                 completed_task->metric_data.offset

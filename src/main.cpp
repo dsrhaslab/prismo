@@ -67,6 +67,10 @@ int main(int argc, char** argv) {
     std::optional<Generator::MultipleBarrier> barrier =
         Parser::get_multiple_barrier(operation_json);
 
+    std::cout << "Parse Ramp" << std::endl;
+    std::optional<Worker::Ramp> ramp =
+        Parser::get_ramp(job_json);
+
     std::cout << "Parse Metric" << std::endl;
     Metric::MetricVariant metric = Parser::get_metric(job_json);
 
@@ -100,6 +104,7 @@ int main(int argc, char** argv) {
         std::move(content),
         std::move(compression),
         std::move(barrier),
+        std::move(ramp),
         to_producer,
         to_consumer
     );

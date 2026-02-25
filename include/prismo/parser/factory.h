@@ -17,6 +17,7 @@
 #include <prismo/io/metric.h>
 #include <prismo/logger/logger.h>
 #include <prismo/logger/spdlog.h>
+#include <prismo/worker/ramp.h>
 
 namespace Parser {
 
@@ -36,6 +37,9 @@ namespace Parser {
         const json& config);
 
     std::optional<Generator::CompressionGenerator> get_compression_generator(
+        const json& config);
+
+    std::optional<Worker::Ramp> get_ramp(
         const json& config);
 
     Metric::MetricVariant get_metric(const json& config);

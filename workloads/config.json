@@ -13,7 +13,7 @@
   },
   "operation": {
     "type": "constant",
-    "operation": "write",
+    "operation": "nop",
     "percentages": {
       "read": 30,
       "write": 70
@@ -34,14 +34,14 @@
     "extension": "repeat"
   },
   "access": {
-    "type": "zipfian",
+    "type": "sequential",
     "skew": 1,
     "trace": "/home/digo/Desktop/prismo/traces/webmail+online.cs.fiu.edu-110108-113008.10.blkparse.prismo",
     "memory": 128,
     "extension": "repeat"
   },
   "generator": {
-    "type": "dedup",
+    "type": "constant",
     "refill": false,
     "distribution": [
       {

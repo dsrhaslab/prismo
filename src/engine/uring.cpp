@@ -105,7 +105,7 @@ namespace Engine {
         uring_user_data.metric_data.offset = request.offset;
         uring_user_data.metric_data.metadata = request.metadata;
         uring_user_data.metric_data.operation_type = request.operation;
-        uring_user_data.metric_data.start_timestamp = Metric::get_current_timestamp();
+        uring_user_data.metric_data.start_ns = Metric::get_current_timestamp();
 
         switch (request.operation) {
             case Operation::OperationType::READ:
@@ -146,7 +146,7 @@ namespace Engine {
                 uring_user_data->metric_data.operation_type,
                 uring_user_data->metric_data.metadata.block_id,
                 uring_user_data->metric_data.metadata.compression,
-                uring_user_data->metric_data.start_timestamp,
+                uring_user_data->metric_data.start_ns,
                 cqe->res,
                 uring_user_data->metric_data.size,
                 uring_user_data->metric_data.offset

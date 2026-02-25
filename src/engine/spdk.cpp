@@ -384,7 +384,7 @@ namespace Engine {
             thread_context->thread_cb_ctx->metric_data = {
                 .size = thread_context->request->size,
                 .offset = thread_context->request->offset,
-                .start_timestamp = Metric::get_current_timestamp(),
+                .start_ns = Metric::get_current_timestamp(),
                 .metadata = Generator::BlockMetadata {
                     .block_id = thread_context->request->metadata.block_id,
                     .compression = thread_context->request->metadata.compression
@@ -557,7 +557,7 @@ namespace Engine {
             thread_cb_context->metric_data.operation_type,
             thread_cb_context->metric_data.metadata.block_id,
             thread_cb_context->metric_data.metadata.compression,
-            thread_cb_context->metric_data.start_timestamp,
+            thread_cb_context->metric_data.start_ns,
             success ? thread_cb_context->metric_data.size : 0,
             thread_cb_context->metric_data.size,
             thread_cb_context->metric_data.offset

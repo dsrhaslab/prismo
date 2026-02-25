@@ -117,6 +117,14 @@ namespace Parser {
             : std::nullopt;
     }
 
+    std::optional<Worker::Ramp> get_ramp(
+        const json& config
+    ) {
+        return config.contains("ramp")
+            ? std::optional<Worker::Ramp>{config.at("ramp")}
+            : std::nullopt;
+    }
+
     std::shared_ptr<Logger::Logger> get_logger(const json& config) {
         const std::string type = config.value("type", "null");
 

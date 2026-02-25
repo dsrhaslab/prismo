@@ -47,7 +47,7 @@ namespace Engine {
 
     void PosixEngine::submit(Protocol::IORequest& request) {
         ssize_t result = 0;
-        uint64_t start_timestamp = Metric::get_current_timestamp();
+        uint64_t start_ns = Metric::get_current_timestamp();
 
         switch (request.operation) {
             case Operation::OperationType::READ:
@@ -72,7 +72,7 @@ namespace Engine {
             request.operation,
             request.metadata.block_id,
             request.metadata.compression,
-            start_timestamp,
+            start_ns,
             result,
             request.size,
             request.offset

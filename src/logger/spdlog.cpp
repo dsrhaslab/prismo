@@ -51,8 +51,8 @@ auto fmt::formatter<Metric::BaseMetric>::format(
         static_cast<uint8_t>(metric.operation_type),
         metric.block_id,
         metric.compression,
-        metric.start_timestamp,
-        metric.end_timestamp,
+        metric.start_ns,
+        metric.end_ns,
         metric.processed_bytes
     );
 }
@@ -67,8 +67,8 @@ auto fmt::formatter<Metric::StandardMetric>::format(
         static_cast<uint8_t>(metric.operation_type),
         metric.block_id,
         metric.compression,
-        metric.start_timestamp,
-        metric.end_timestamp,
+        metric.start_ns,
+        metric.end_ns,
         metric.processed_bytes,
         metric.pid,
         metric.tid
@@ -85,8 +85,8 @@ auto fmt::formatter<Metric::FullMetric>::format(
         static_cast<uint8_t>(metric.operation_type),
         metric.block_id,
         metric.compression,
-        metric.start_timestamp,
-        metric.end_timestamp,
+        metric.start_ns,
+        metric.end_ns,
         metric.pid,
         metric.tid,
         metric.requested_bytes,

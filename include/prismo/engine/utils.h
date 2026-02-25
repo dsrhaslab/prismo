@@ -40,7 +40,7 @@ namespace Engine {
     struct MetricData {
         size_t size;
         uint64_t offset;
-        uint64_t start_timestamp;
+        uint64_t start_ns;
         Generator::BlockMetadata metadata;
         Operation::OperationType operation_type;
     };

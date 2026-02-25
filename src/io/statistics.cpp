@@ -29,7 +29,7 @@ namespace Metric {
                 std::is_same_v<T, StandardMetric> ||
                 std::is_same_v<T, FullMetric>
             ) {
-                uint64_t latency_ns = m.end_timestamp - m.start_timestamp;
+                uint64_t latency_ns = m.end_ns - m.start_ns;
                 stats_per_operation[m.operation_type].record(latency_ns, m.processed_bytes);
             }
         }, metric);
