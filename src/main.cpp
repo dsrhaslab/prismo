@@ -32,12 +32,24 @@ int main(int argc, char** argv) {
     }
 
     nlohmann::json config_json = nlohmann::json::parse(config_file);
-    nlohmann::json job_json = config_json.value("job", nlohmann::json::object());
-    nlohmann::json access_json = config_json.value("access", nlohmann::json::object());
-    nlohmann::json operation_json = config_json.value("operation", nlohmann::json::object());
-    nlohmann::json generator_json = config_json.value("generator", nlohmann::json::object());
-    nlohmann::json engine_json = config_json.value("engine", nlohmann::json::object());
-    nlohmann::json logging_json = config_json.value("logging", nlohmann::json::object());
+
+    nlohmann::json job_json =
+        config_json.value("job", nlohmann::json::object());
+
+    nlohmann::json access_json =
+        config_json.value("access", nlohmann::json::object());
+
+    nlohmann::json operation_json =
+        config_json.value("operation", nlohmann::json::object());
+
+    nlohmann::json generator_json =
+        config_json.value("generator", nlohmann::json::object());
+
+    nlohmann::json engine_json =
+        config_json.value("engine", nlohmann::json::object());
+
+    nlohmann::json logging_json =
+        config_json.value("logging", nlohmann::json::object());
 
     access_json.merge_patch(job_json);
     engine_json.merge_patch(job_json);
@@ -45,7 +57,8 @@ int main(int argc, char** argv) {
 
     const size_t block_size = job_json.at("block_size").get<size_t>();
     const std::string filename = job_json.at("filename").get<std::string>();
-    const Engine::OpenFlags open_flags = engine_json.at("openflags").get<Engine::OpenFlags>();
+    const Engine::OpenFlags open_flags =
+        engine_json.at("openflags").get<Engine::OpenFlags>();
 
     std::cout << "Parse AccessGenerator" << std::endl;
     std::unique_ptr<Generator::AccessGenerator> access =
