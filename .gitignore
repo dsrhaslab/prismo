@@ -2,4 +2,4 @@ builddir/
 external/
 traces/
 log*
-testfile
+testfile*

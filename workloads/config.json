@@ -5,10 +5,10 @@
     "filename": "testfile",
     "block_size": 4096,
     "limit": 65536,
-    "metric": "none",
+    "metric": "base",
     "termination": {
       "type": "iterations",
-      "value": 1e3
+      "value": 1e7
     }
   },
   "operation": {
@@ -41,7 +41,7 @@
     "extension": "repeat"
   },
   "generator": {
-    "type": "dedup",
+    "type": "constant",
     "refill": false,
     "distribution": [
       {

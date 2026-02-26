@@ -9,6 +9,7 @@ namespace Worker {
 
     class Consumer {
         private:
+            nlohmann::json report;
             std::unique_ptr<Engine::Base> engine;
             std::shared_ptr<moodycamel::ConcurrentQueue<Protocol::Packet*>> to_producer;
             std::shared_ptr<moodycamel::ConcurrentQueue<Protocol::Packet*>> to_consumer;
@@ -31,6 +32,10 @@ namespace Worker {
                 engine->close(request);
             }
 
+            const nlohmann::json& get_report(void) const {
+                return report;
+            }
+
             void run(void) {
                 bool shudown = false;
                 Protocol::Packet* packet;
@@ -49,7 +54,7 @@ namespace Worker {
                         if (packet->isShutDown) {
                             shudown = true;
                             break;
-                        } // nothing after shutdown (FIFO)
+                        }
 
                         engine->submit(packet->request);
                     }
@@ -59,9 +64,7 @@ namespace Worker {
 
                 engine->reap_left_completions();
                 engine->finish_statistics();
-
-                nlohmann::json report = engine->get_statistics_report();
-                std::cout << report.dump(2) << std::endl;
+                report = engine->get_statistics_report();
             }
     };
 };
