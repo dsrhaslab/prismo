@@ -2,9 +2,6 @@
 #define PRISMO_METRIC_STATISTICS_H
 
 #include <map>
-#include <cmath>
-#include <numeric>
-#include <iostream>
 #include <prismo/metric/metric.h>
 #include <common/percentile.h>
 

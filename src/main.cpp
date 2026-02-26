@@ -3,7 +3,6 @@
 #include <prismo/factory/factory.h>
 #include <prismo/worker/producer.h>
 #include <prismo/worker/consumer.h>
-#include <prismo/worker/termination.h>
 
 
 int main(int argc, char** argv) {

@@ -1,6 +1,4 @@
 #include <prismo/metric/statistics.h>
-#include <sstream>
-#include <iomanip>
 
 namespace Metric {
 
