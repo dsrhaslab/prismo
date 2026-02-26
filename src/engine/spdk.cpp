@@ -554,13 +554,15 @@ namespace Engine {
 
         Metric::fill_metric(
             spdk_engine->metric,
+            spdk_engine->process_id,
+            spdk_engine->thread_id,
             thread_cb_context->metric_data.operation_type,
             thread_cb_context->metric_data.metadata.block_id,
             thread_cb_context->metric_data.metadata.compression,
-            thread_cb_context->metric_data.start_ns,
-            success ? thread_cb_context->metric_data.size : 0,
+            thread_cb_context->metric_data.offset,
             thread_cb_context->metric_data.size,
-            thread_cb_context->metric_data.offset
+            thread_cb_context->metric_data.start_ns,
+            success ? thread_cb_context->metric_data.size : 0
         );
 
         spdk_engine->log_metric(spdk_engine->metric);

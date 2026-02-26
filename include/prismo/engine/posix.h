@@ -1,6 +1,8 @@
 #ifndef PRISMO_ENGINE_POSIX_H
 #define PRISMO_ENGINE_POSIX_H
 
+#include <cerrno>
+#include <cstring>
 #include <prismo/engine/engine.h>
 
 namespace Engine {

@@ -1,24 +1,18 @@
 #ifndef PRISMO_ENGINE_ENGINE_H
 #define PRISMO_ENGINE_ENGINE_H
 
-#include <vector>
-#include <fcntl.h>
-#include <unistd.h>
-#include <cstring>
-#include <memory>
-#include <iostream>
-#include <stdexcept>
-#include <prismo/metric/metric.h>
+#include <thread>
+#include <prismo/logger/logger.h>
 #include <prismo/protocol/protocol.h>
 #include <prismo/metric/statistics.h>
-#include <prismo/engine/config.h>
-#include <prismo/logger/logger.h>
 
 namespace Engine {
 
     class Base {
         protected:
             Metric::MetricVariant metric;
+            pid_t process_id = 0;
+            uint64_t thread_id = 0;
 
             void record_metric(const Metric::MetricVariant& metric) {
                 statistics.record_metric(metric);
@@ -40,7 +34,17 @@ namespace Engine {
                 metric(_metric),
                 logger(_logger)
             {
+                process_id = ::getpid();
+                thread_id =
+                    std::hash<std::thread::id>{}(std::this_thread::get_id());
                 statistics.start();
+            }
+
+            void set_process_id_current(void) { process_id = ::getpid(); }
+
+            void set_thread_id_current(void) {
+                thread_id =
+                    std::hash<std::thread::id>{}(std::this_thread::get_id());
             }
 
             virtual ~Base() {

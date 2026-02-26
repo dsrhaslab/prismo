@@ -3,8 +3,8 @@
 
 #include <cstdint>
 #include <chrono>
-#include <thread>
 #include <variant>
+#include <iostream>
 #include <common/operation.h>
 
 namespace Metric {
@@ -66,13 +66,15 @@ namespace Metric {
 
     inline void fill_metric(
         MetricVariant& metric,
+        pid_t pid,
+        uint64_t tid,
         Operation::OperationType op,
         uint64_t block_id,
         uint32_t compression,
-        uint64_t start_ts,
-        ssize_t result,
+        uint64_t offset,
         size_t size,
-        uint64_t offset
+        uint64_t start_ts,
+        ssize_t result
     ) {
         std::visit([&](auto& m) {
             using T = std::decay_t<decltype(m)>;
@@ -87,8 +89,8 @@ namespace Metric {
             }
 
             if constexpr (std::is_base_of_v<StandardMetric, T>) {
-                m.pid = ::getpid();
-                m.tid = std::hash<std::thread::id>{}(std::this_thread::get_id());
+                m.pid = pid;
+                m.tid = tid;
             }
 
             if constexpr (std::is_base_of_v<FullMetric, T>) {

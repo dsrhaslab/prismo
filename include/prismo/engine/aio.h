@@ -1,7 +1,11 @@
 #ifndef PRISMO_ENGINE_AIO_H
 #define PRISMO_ENGINE_AIO_H
 
+#include <cerrno>
+#include <cstring>
+#include <libaio.h>
 #include <prismo/engine/engine.h>
+#include <prismo/engine/config.h>
 
 namespace Engine {
 

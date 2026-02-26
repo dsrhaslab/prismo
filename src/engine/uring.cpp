@@ -143,13 +143,15 @@ namespace Engine {
 
             Metric::fill_metric(
                 metric,
+                process_id,
+                thread_id,
                 uring_user_data->metric_data.operation_type,
                 uring_user_data->metric_data.metadata.block_id,
                 uring_user_data->metric_data.metadata.compression,
-                uring_user_data->metric_data.start_ns,
-                cqe->res,
+                uring_user_data->metric_data.offset,
                 uring_user_data->metric_data.size,
-                uring_user_data->metric_data.offset
+                uring_user_data->metric_data.start_ns,
+                cqe->res
             );
 
             Base::log_metric(metric);

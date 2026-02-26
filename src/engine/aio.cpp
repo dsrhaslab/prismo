@@ -124,13 +124,15 @@ namespace Engine {
 
             Metric::fill_metric(
                 metric,
+                process_id,
+                thread_id,
                 completed_task->metric_data.operation_type,
                 completed_task->metric_data.metadata.block_id,
                 completed_task->metric_data.metadata.compression,
-                completed_task->metric_data.start_ns,
-                ev.res,
+                completed_task->metric_data.offset,
                 completed_task->metric_data.size,
-                completed_task->metric_data.offset
+                completed_task->metric_data.start_ns,
+                ev.res
             );
 
             Base::log_metric(metric);

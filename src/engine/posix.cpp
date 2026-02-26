@@ -69,13 +69,15 @@ namespace Engine {
 
         Metric::fill_metric(
             metric,
+            process_id,
+            thread_id,
             request.operation,
             request.metadata.block_id,
             request.metadata.compression,
-            start_ns,
-            result,
+            request.offset,
             request.size,
-            request.offset
+            start_ns,
+            result
         );
 
         Base::log_metric(metric);

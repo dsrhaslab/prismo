@@ -36,6 +36,9 @@ namespace Worker {
                 Protocol::Packet* packet;
                 Protocol::Packet* packets[BULK_SIZE];
 
+                engine->set_thread_id_current();
+                engine->set_process_id_current();
+
                 while (!shudown) {
                     size_t count = to_consumer->try_dequeue_bulk(packets, BULK_SIZE);
 

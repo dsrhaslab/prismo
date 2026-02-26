@@ -1,7 +1,11 @@
 #ifndef PRISMO_ENGINE_URING_H
 #define PRISMO_ENGINE_URING_H
 
+#include <cerrno>
+#include <cstring>
+#include <liburing.h>
 #include <prismo/engine/engine.h>
+#include <prismo/engine/config.h>
 
 namespace Engine {
 
