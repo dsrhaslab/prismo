@@ -1,14 +1,14 @@
 {
   "job": {
     "name": "job",
-    "numjobs": 1,
+    "numjobs": 3,
     "filename": "testfile",
     "block_size": 4096,
     "limit": 65536,
-    "metric": "base",
+    "metric": "none",
     "termination": {
       "type": "iterations",
-      "value": 1e7
+      "value": 1e4
     }
   },
   "operation": {
@@ -107,5 +107,18 @@
     "reactor_mask": "0xF",
     "spdk_threads": 1,
     "json_config_file": "/home/digo/Desktop/prismo/workloads/spdk/spdk_bdev.json"
+  },
+    "logging": {
+    "type": "spdlog",
+    "name": "prismo",
+    "queue_size": 8192,
+    "thread_count": 1,
+    "truncate": true,
+    "to_stdout": true,
+    "files": [
+      "./log1.log",
+      "./log2.log",
+      "./log3.log"
+    ]
   }
 }

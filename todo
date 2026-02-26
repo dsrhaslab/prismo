@@ -3,7 +3,8 @@
 - adicionar uma extensão baseada em distribuições discretas
 - adicionar uma extensão baseada numa regressão multivariada
 - speedup e slow down ---------------------------------------------------------------------------------------
-- multiplas threads
+- multiplas threads -----------------------------------------------------------------------------------------
+- verificar o thread/process id nos logs --------------------------------------------------------------------
 - adicionar coleção de metricas -----------------------------------------------------------------------------
 - avaliar a questão dos validate ----------------------------------------------------------------------------
 - condicao de termino em tempo ou iterações -----------------------------------------------------------------

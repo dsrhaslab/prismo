@@ -3,6 +3,8 @@
 
 #include <thread>
 #include <vector>
+#include <spdlog/spdlog.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
 #include <prismo/factory/factory.h>
 #include <prismo/worker/consumer.h>
 #include <prismo/worker/producer.h>
@@ -37,6 +39,8 @@ namespace Worker {
 
         public:
             JobManager(const nlohmann::json& config_json) {
+                spdlog::info("JobManager initialization started");
+
                 job_json =config_json
                     .value("job", nlohmann::json::object());
                 access_json = config_json
@@ -62,40 +66,72 @@ namespace Worker {
             }
 
             void setup_jobs(void) {
+                spdlog::info("Setting up {} job(s)", numjobs);
                 jobs.resize(numjobs);
                 threads.reserve(numjobs * 2);
 
+                // Create logger once and share it across all engines (thread-safe)
+                spdlog::debug("Parsing logger config (shared across all jobs)");
+                auto shared_logger = Factory::get_logger(logging_json);
+
                 for (size_t i = 0; i < numjobs; i++) {
+                    spdlog::debug("Setting up job {}", i);
+                    spdlog::debug("Parsing access generator config");
                     auto access =
                         Factory::get_access_generator(access_json);
+
+                    spdlog::debug("Parsing operation generator config");
                     auto operation =
                         Factory::get_operation_generator(operation_json);
+
+                    spdlog::debug("Parsing content generator config");
                     auto content =
                         Factory::get_content_generator(generator_json);
+
+                    spdlog::debug("Parsing compression generator config");
                     auto compression =
                         Factory::get_compression_generator(generator_json);
+
+                    spdlog::debug("Parsing barrier config");
                     auto barrier =
                         Factory::get_multiple_barrier(operation_json);
+
+                    spdlog::debug("Parsing ramp config");
                     auto ramp =
                         Factory::get_ramp(job_json);
+
+                    spdlog::debug("Parsing metric config");
                     auto  metric =
                         Factory::get_metric(job_json);
-                    auto logger =
-                        Factory::get_logger(logging_json);
+
+                    spdlog::debug("Creating engine with shared logger");
                     auto engine =
                         Factory::get_engine(
-                            engine_json, std::move(metric), std::move(logger));
+                            engine_json, std::move(metric), shared_logger);
+
+                    spdlog::debug(
+                        "Creating to_producer queue with initial capacity {}",
+                        QUEUE_INITIAL_CAPACITY);
 
                     auto to_producer = std::make_shared<
                         moodycamel::ConcurrentQueue<Protocol::Packet*>>(
+                        QUEUE_INITIAL_CAPACITY);
+
+                    spdlog::debug(
+                        "Creating to_consumer queue with initial capacity {}",
                         QUEUE_INITIAL_CAPACITY);
 
                     auto to_consumer = std::make_shared<
                         moodycamel::ConcurrentQueue<Protocol::Packet*>>(
                         QUEUE_INITIAL_CAPACITY);
 
+                    spdlog::debug(
+                        "Initializing packet pool for to_producer queue with block size {}",
+                        block_size);
+
                     init_queue_packet(*to_producer, block_size);
 
+                    spdlog::debug("Creating producer");
                     auto producer = std::make_unique<Producer>(
                         std::move(access),
                         std::move(operation),
@@ -107,6 +143,7 @@ namespace Worker {
                         to_consumer
                     );
 
+                    spdlog::debug("Creating consumer");
                     auto consumer = std::make_unique<Consumer>(
                         std::move(engine),
                         to_producer,
@@ -124,11 +161,19 @@ namespace Worker {
                     jobs[i].to_consumer = to_consumer;
                     jobs[i].producer = std::move(producer);
                     jobs[i].consumer = std::move(consumer);
+
+                    spdlog::info("Job {} setup complete: fd={}, filename={}", i,
+                                jobs[i].fd, open_request.filename);
                 }
+
+                spdlog::info("All {} jobs configured and ready", numjobs);
             }
 
             void run_jobs(void) {
+                spdlog::info("Launching {} producer-consumer pair(s)", numjobs);
+
                 for (size_t i = 0; i < numjobs; i++) {
+                    spdlog::debug("Starting producer thread for job {}", i);
                     threads.emplace_back(
                         &Producer::run,
                         jobs[i].producer.get(),
@@ -136,35 +181,65 @@ namespace Worker {
                         termination
                     );
 
+                    spdlog::debug("Starting consumer thread for job {}", i);
                     threads.emplace_back(
                         &Consumer::run,
                         jobs[i].consumer.get()
                     );
                 }
 
-                for (auto& thread : threads) {
-                    thread.join();
+                spdlog::info("All threads started, waiting for completion...");
+
+                for (size_t i = 0; i < threads.size(); i++) {
+                    threads[i].join();
+                    spdlog::debug("Thread {} completed", i);
                 }
+
+                spdlog::info("All threads completed");
             }
 
             void teardown(void) {
+                spdlog::info("Tearing down {} job(s)", numjobs);
+
                 for (size_t i = 0; i < numjobs; i++) {
+                    spdlog::debug("Closing job {}: fd={}", i, jobs[i].fd);
+
                     Protocol::CloseRequest close_request{.fd = jobs[i].fd};
                     jobs[i].consumer->close(close_request);
+
+                    spdlog::debug("Destroying packet pool for job {}", i);
                     destroy_queue_packet(*jobs[i].to_producer, QUEUE_INITIAL_CAPACITY);
+
+                    spdlog::debug("Job {} teardown complete", i);
                 }
+
+                spdlog::info("All jobs torn down successfully");
             }
 
             nlohmann::json collect_reports(void) {
+                spdlog::info("Collecting reports from {} job(s)", numjobs);
+
                 nlohmann::json final_report;
                 final_report["jobs"] = nlohmann::json::array();
 
                 for (size_t i = 0; i < numjobs; i++) {
+                    spdlog::debug("Collecting report for job {}", i);
+
                     nlohmann::json job_report = jobs[i].consumer->get_report();
                     job_report["job_id"] = i;
                     final_report["jobs"].push_back(job_report);
+
+                    if (job_report.contains("total_operations")) {
+                        spdlog::info("Job {}: {} operations, {} bytes, {:.2f}s runtime",
+                            i,
+                            job_report["total_operations"].get<uint64_t>(),
+                            job_report["total_bytes"].get<uint64_t>(),
+                            job_report["runtime_sec"].get<double>()
+                        );
+                    }
                 }
 
+                spdlog::info("All reports collected successfully");
                 return final_report;
             }
     };
