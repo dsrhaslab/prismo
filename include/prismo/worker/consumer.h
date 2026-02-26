@@ -38,6 +38,7 @@ namespace Worker {
 
                 engine->set_thread_id_current();
                 engine->set_process_id_current();
+                engine->start_statistics();
 
                 while (!shudown) {
                     size_t count = to_consumer->try_dequeue_bulk(packets, BULK_SIZE);
@@ -57,6 +58,10 @@ namespace Worker {
                 }
 
                 engine->reap_left_completions();
+                engine->finish_statistics();
+
+                nlohmann::json report = engine->get_statistics_report();
+                std::cout << report.dump(2) << std::endl;
             }
     };
 };

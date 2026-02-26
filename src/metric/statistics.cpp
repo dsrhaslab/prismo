@@ -2,168 +2,102 @@
 
 namespace Metric {
 
-    void Statistics::start() {
+    void Statistics::start(void) {
         start_time_ns = get_current_timestamp();
         started = true;
         finished = false;
         stats_per_operation.clear();
     }
 
-    void Statistics::finish() {
+    void Statistics::finish(void) {
         end_time_ns = get_current_timestamp();
         finished = true;
     }
 
     void Statistics::record_metric(const MetricVariant& metric) {
-        std::visit([this](const auto& m) {
-            using T = std::decay_t<decltype(m)>;
+        std::visit(
+            [this](const auto& m) {
+                using T = std::decay_t<decltype(m)>;
 
-            if constexpr (std::is_same_v<T, NoneMetric>) {
-                return;
-            }
+                if constexpr (std::is_same_v<T, NoneMetric>) {
+                    return;
+                }
 
-            else if constexpr (
-                std::is_same_v<T, BaseMetric> ||
-                std::is_same_v<T, StandardMetric> ||
-                std::is_same_v<T, FullMetric>
-            ) {
-                uint64_t latency_ns = m.end_ns - m.start_ns;
-                stats_per_operation[m.operation_type].record(latency_ns, m.processed_bytes);
-            }
-        }, metric);
+                else if constexpr (
+                    std::is_same_v<T, BaseMetric> ||
+                    std::is_same_v<T, StandardMetric> ||
+                    std::is_same_v<T, FullMetric>
+                ) {
+                    uint64_t latency_ns = m.end_ns - m.start_ns;
+                    stats_per_operation[m.operation_type].record(
+                        latency_ns, m.processed_bytes);
+                }
+            },
+            metric);
     }
 
-    std::string Statistics::format_bytes(uint64_t bytes) const {
-        std::ostringstream oss;
-        oss << std::fixed << std::setprecision(2);
-
-        if (bytes >= 1024ULL * 1024 * 1024 * 1024) {
-            oss << (bytes / (1024.0 * 1024 * 1024 * 1024)) << " TiB";
-        } else if (bytes >= 1024ULL * 1024 * 1024) {
-            oss << (bytes / (1024.0 * 1024 * 1024)) << " GiB";
-        } else if (bytes >= 1024ULL * 1024) {
-            oss << (bytes / (1024.0 * 1024)) << " MiB";
-        } else if (bytes >= 1024ULL) {
-            oss << (bytes / 1024.0) << " KiB";
-        } else {
-            oss << bytes << " B";
-        }
-
-        return oss.str();
-    }
-
-    std::string Statistics::format_iops(double iops) const {
-        std::ostringstream oss;
-        oss << std::fixed << std::setprecision(2);
-
-        if (iops >= 1000000) {
-            oss << (iops / 1000000.0) << "M";
-        } else if (iops >= 1000) {
-            oss << (iops / 1000.0) << "k";
-        } else {
-            oss << iops;
-        }
-
-        return oss.str();
-    }
-
-    std::string Statistics::format_bandwidth(double bw_bytes_per_sec) const {
-        std::ostringstream oss;
-        oss << std::fixed << std::setprecision(2);
-
-        if (bw_bytes_per_sec >= 1024.0 * 1024 * 1024) {
-            oss << (bw_bytes_per_sec / (1024.0 * 1024 * 1024)) << " GiB/s";
-        } else if (bw_bytes_per_sec >= 1024.0 * 1024) {
-            oss << (bw_bytes_per_sec / (1024.0 * 1024)) << " MiB/s";
-        } else if (bw_bytes_per_sec >= 1024.0) {
-            oss << (bw_bytes_per_sec / 1024.0) << " KiB/s";
-        } else {
-            oss << bw_bytes_per_sec << " B/s";
-        }
-
-        return oss.str();
-    }
-
-    std::string Statistics::format_latency(uint64_t latency_ns) const {
-        std::ostringstream oss;
-        oss << std::fixed << std::setprecision(2);
-
-        if (latency_ns >= 1000000000) {
-            oss << (latency_ns / 1000000000.0) << " s";
-        } else if (latency_ns >= 1000000) {
-            oss << (latency_ns / 1000000.0) << " ms";
-        } else if (latency_ns >= 1000) {
-            oss << (latency_ns / 1000.0) << " us";
-        } else {
-            oss << latency_ns << " ns";
-        }
-
-        return oss.str();
-    }
-
-    void Statistics::print_operation_stats(
-        std::ostream& os,
+    nlohmann::json Statistics::get_operation_stats_json(
         const std::string& op_name,
         const OperationStats& stats,
         double runtime_sec
     ) const {
-        if (!stats.has_data()) return;
+        nlohmann::json op_json;
 
-        double iops = stats.get_iops(runtime_sec);
-        double bw = stats.get_bandwidth(runtime_sec);
+        op_json["operation"] = op_name;
+        op_json["count"] = stats.get_count();
+        op_json["total_bytes"] = stats.get_total_bytes();
+        op_json["iops"] = Statistics::round_to(stats.get_iops(runtime_sec));
+        op_json["bandwidth_bytes_per_sec"] =
+            Statistics::round_to(stats.get_bandwidth(runtime_sec));
 
-        os << "  " << op_name << ":\n";
-        os << "    IOPS: " << format_iops(iops) << " (" << stats.get_count() << " ops)\n";
-        os << "    Bandwidth: " << format_bandwidth(bw)
-           << " (" << format_bytes(stats.get_total_bytes()) << " total)\n";
+        op_json["latency_ns"] = {
+            {"min", stats.get_min_latency_ns()},
+            {"avg", stats.get_avg_latency_ns()},
+            {"max", stats.get_max_latency_ns()}
+        };
 
-        os << "    Latency:\n";
-        os << "      min: " << format_latency(stats.get_min_latency_ns()) << "\n";
-        os << "      avg: " << format_latency(stats.get_avg_latency_ns()) << "\n";
-        os << "      max: " << format_latency(stats.get_max_latency_ns()) << "\n";
+        op_json["percentiles_ns"] = {
+            {"p50", stats.get_percentile(50.0)},
+            {"p90", stats.get_percentile(90.0)},
+            {"p95", stats.get_percentile(95.0)},
+            {"p99", stats.get_percentile(99.0)},
+            {"p99_9", stats.get_percentile(99.9)},
+            {"p99_99", stats.get_percentile(99.99)}
+        };
 
-        os << "    Percentiles:\n";
-        os << "      50th: " << format_latency(stats.get_percentile(50.0)) << "\n";
-        os << "      90th: " << format_latency(stats.get_percentile(90.0)) << "\n";
-        os << "      95th: " << format_latency(stats.get_percentile(95.0)) << "\n";
-        os << "      99th: " << format_latency(stats.get_percentile(99.0)) << "\n";
-        os << "      99.9th: " << format_latency(stats.get_percentile(99.9)) << "\n";
-        os << "      99.99th: " << format_latency(stats.get_percentile(99.99)) << "\n";
+        return op_json;
     }
 
-    void Statistics::print_report(std::ostream& os) const {
-        double runtime_sec = static_cast<double>(end_time_ns - start_time_ns) / 1e9;
-
-        os << "\n";
-        os << "==================================================================\n";
-        os << "                   Performance Statistics Report                  \n";
-        os << "==================================================================\n";
-        os << "\n";
-        os << "Runtime: " << std::fixed << std::setprecision(3) << runtime_sec << " seconds\n";
-        os << "\n";
-
+    nlohmann::json Statistics::get_report_json(void) const {
+        nlohmann::json report;
         uint64_t total_ops = 0;
         uint64_t total_bytes = 0;
+
+        const double runtime_sec =
+           static_cast<double>(end_time_ns - start_time_ns) / 1e9;
 
         for (const auto& [_, stats] : stats_per_operation) {
             total_ops += stats.get_count();
             total_bytes += stats.get_total_bytes();
         }
 
-        if (total_ops == 0) {
-            os << "No operations recorded\n";
-        } else {
-            os << "Total Operations: " << total_ops << "\n";
-            os << "Total Data: " << format_bytes(total_bytes) << "\n";
-            os << "\n";
+        report["total_operations"] = total_ops;
+        report["total_bytes"] = total_bytes;
+        report["runtime_sec"] = Statistics::round_to(runtime_sec, 5);
+        report["overall_iops"] =
+            runtime_sec > 0 ? Statistics::round_to(total_ops / runtime_sec) : 0;
 
-            for (const auto& [op, stats]: stats_per_operation) {
-                print_operation_stats(os, operation_to_str(op), stats, runtime_sec);
-                os << "\n";
+        report["overall_bandwidth_bytes_per_sec"] =
+            runtime_sec > 0 ? Statistics::round_to(total_bytes / runtime_sec) : 0;
+
+        if (total_ops > 0) {
+            report["operations"] = nlohmann::json::array();
+            for (const auto& [op, stats] : stats_per_operation) {
+                report["operations"].push_back(get_operation_stats_json(
+                    operation_to_str(op), stats, runtime_sec));
             }
         }
 
-        os << "==================================================================\n";
-        os << "\n";
+        return report;
     }
 }

@@ -107,13 +107,13 @@ int main(int argc, char** argv) {
 
     if (program["--compression"] == true) {
         normalize(compression_db);
-        std::cout << static_cast<nlohmann::json>(compression_db).dump(4)
+        std::cout << static_cast<nlohmann::json>(compression_db).dump(2)
                   << std::endl;
     }
 
     if (program["--duplication"] == true) {
         normalize(duplication_db);
-        std::cout << static_cast<nlohmann::json>(duplication_db).dump(4)
+        std::cout << static_cast<nlohmann::json>(duplication_db).dump(2)
                   << std::endl;
     }
 

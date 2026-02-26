@@ -2,6 +2,7 @@
 #define PRISMO_METRIC_STATISTICS_H
 
 #include <map>
+#include <nlohmann/json.hpp>
 #include <prismo/metric/metric.h>
 #include <common/percentile.h>
 
@@ -80,20 +81,19 @@ namespace Metric {
                 std::cout << "~Destroying Statistics" << std::endl;
             };
 
-            void start();
-            void finish();
+            void start(void);
+            void finish(void);
 
             void record_metric(const MetricVariant& metric);
-            void print_report(std::ostream& os = std::cout) const;
+            nlohmann::json get_report_json(void) const;
 
         private:
-            std::string format_bytes(uint64_t bytes) const;
-            std::string format_iops(double iops) const;
-            std::string format_bandwidth(double bw_bytes_per_sec) const;
-            std::string format_latency(uint64_t latency_ns) const;
+            static double round_to(double value, int precision = 2) {
+                const double scale = std::pow(10.0, precision);
+                return std::round(value * scale) / scale;
+            }
 
-            void print_operation_stats(
-                std::ostream& os,
+            nlohmann::json get_operation_stats_json(
                 const std::string& op_name,
                 const OperationStats& stats,
                 double runtime_sec

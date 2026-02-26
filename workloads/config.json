@@ -8,7 +8,7 @@
     "metric": "none",
     "termination": {
       "type": "iterations",
-      "value": 1e1
+      "value": 1e3
     }
   },
   "operation": {
@@ -107,18 +107,5 @@
     "reactor_mask": "0xF",
     "spdk_threads": 1,
     "json_config_file": "/home/digo/Desktop/prismo/workloads/spdk/spdk_bdev.json"
-  },
-    "logging": {
-    "type": "spdlog",
-    "name": "prismo",
-    "queue_size": 8192,
-    "thread_count": 1,
-    "truncate": true,
-    "to_stdout": true,
-    "files": [
-      "./log1.log",
-      "./log2.log",
-      "./log3.log"
-    ]
   }
 }

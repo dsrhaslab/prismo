@@ -37,20 +37,25 @@ namespace Engine {
                 process_id = ::getpid();
                 thread_id =
                     std::hash<std::thread::id>{}(std::this_thread::get_id());
-                statistics.start();
+            }
+
+            void set_thread_id_current(void) {
+                thread_id =
+                std::hash<std::thread::id>{}(std::this_thread::get_id());
             }
 
             void set_process_id_current(void) { process_id = ::getpid(); }
 
-            void set_thread_id_current(void) {
-                thread_id =
-                    std::hash<std::thread::id>{}(std::this_thread::get_id());
+            void start_statistics(void) { statistics.start(); }
+
+            void finish_statistics(void) { statistics.finish(); }
+
+            nlohmann::json get_statistics_report(void) const {
+                return statistics.get_report_json();
             }
 
             virtual ~Base() {
                 std::cout << "~Destroying Engine" << std::endl;
-                statistics.finish();
-                statistics.print_report();
             }
 
             virtual int open(Protocol::OpenRequest& request) = 0;
