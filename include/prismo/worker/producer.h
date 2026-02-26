@@ -1,9 +1,9 @@
-#ifndef PRODUCER_WORKER_H
-#define PRODUCER_WORKER_H
+#ifndef PRISMO_WORKER_PRODUCER_H
+#define PRISMO_WORKER_PRODUCER_H
 
 #include <prismo/worker/ramp.h>
-#include <prismo/worker/utils.h>
 #include <prismo/worker/termination.h>
+#include <prismo/worker/packet_pool.h>
 #include <prismo/generator/access/generator.h>
 #include <prismo/generator/content/generator.h>
 #include <prismo/generator/content/compression.h>

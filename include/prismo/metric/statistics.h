@@ -1,12 +1,12 @@
-#ifndef IO_STATISTICS_H
-#define IO_STATISTICS_H
+#ifndef PRISMO_METRIC_STATISTICS_H
+#define PRISMO_METRIC_STATISTICS_H
 
 #include <map>
 #include <cmath>
 #include <numeric>
 #include <iostream>
-#include <prismo/io/metric.h>
-#include <prismo/io/percentile.h>
+#include <prismo/metric/metric.h>
+#include <common/percentile.h>
 
 namespace Metric {
 
@@ -17,7 +17,7 @@ namespace Metric {
             uint64_t total_latency_ns = 0;
             uint64_t min_latency_ns = UINT64_MAX;
             uint64_t max_latency_ns = 0;
-            PercentileCalculator percentile_calc;
+            Percentile::Calculator percentile_calc;
 
         public:
             bool has_data(void) const {

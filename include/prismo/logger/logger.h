@@ -1,15 +1,15 @@
-#ifndef LOGGER_H
-#define LOGGER_H
+#ifndef PRISMO_LOGGER_LOGGER_H
+#define PRISMO_LOGGER_LOGGER_H
 
 #include <iostream>
-#include <prismo/io/metric.h>
+#include <prismo/metric/metric.h>
 
 namespace Logger {
 
-    class Logger {
+    class Base {
         public:
-            Logger() = default;
-            virtual ~Logger() {
+            Base() = default;
+            virtual ~Base() {
                 std::cout << "~Destroying Logger" << std::endl;
             }
 

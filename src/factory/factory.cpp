@@ -1,17 +1,17 @@
-#include <prismo/parser/factory.h>
+#include <prismo/factory/factory.h>
 
-namespace Parser {
+namespace Factory {
 
-    std::unique_ptr<Extension::TraceExtension> get_trace_extension(
+    std::unique_ptr<Generator::Extension::TraceExtension> get_trace_extension(
         const nlohmann::json& config
     ) {
         std::string type = config.value("extension", "repeat");
-        std::unique_ptr<Extension::TraceExtension> extension;
+        std::unique_ptr<Generator::Extension::TraceExtension> extension;
 
         if (type == "repeat") {
-            extension = std::make_unique<Extension::RepeatExtension>(config);
+            extension = std::make_unique<Generator::Extension::RepeatExtension>(config);
         } else if (type == "sample") {
-            extension = std::make_unique<Extension::SampleExtension>(config);
+            extension = std::make_unique<Generator::Extension::SampleExtension>(config);
         } else {
             throw std::invalid_argument(
                 "get_trace_extension: type '" + type + "' not recognized");
@@ -61,7 +61,7 @@ namespace Parser {
                 std::make_unique<Generator::PercentageOperationGenerator>(config);
         } else if (type == "sequence") {
             operation_generator =
-                std::make_unique<Generator::SequenceOperationGeneator>(config);
+                std::make_unique<Generator::SequenceOperationGenerator>(config);
         } else if (type == "trace") {
             operation_generator =
                 std::make_unique<Generator::TraceBasedOperationGenerator>(
@@ -125,7 +125,7 @@ namespace Parser {
             : std::nullopt;
     }
 
-    std::shared_ptr<Logger::Logger> get_logger(const nlohmann::json& config) {
+    std::shared_ptr<Logger::Base> get_logger(const nlohmann::json& config) {
         const std::string type = config.value("type", "null");
 
         if (type == "spdlog") {
@@ -157,10 +157,10 @@ namespace Parser {
         }
     }
 
-    std::unique_ptr<Engine::Engine> get_engine(
+    std::unique_ptr<Engine::Base> get_engine(
         const nlohmann::json& config,
         Metric::MetricVariant metric,
-        std::shared_ptr<Logger::Logger> logger
+        std::shared_ptr<Logger::Base> logger
     ) {
         std::string type = config.value("type", "posix");
 

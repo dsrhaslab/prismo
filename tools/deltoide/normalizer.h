@@ -1,5 +1,5 @@
-#ifndef NORMALIZER_H
-#define NORMALIZER_H
+#ifndef DELTOIDE_NORMALIZER_H
+#define DELTOIDE_NORMALIZER_H
 
 #include <data.h>
 #include <iostream>

@@ -1,5 +1,5 @@
-#ifndef ENGINE_H
-#define ENGINE_H
+#ifndef PRISMO_ENGINE_ENGINE_H
+#define PRISMO_ENGINE_ENGINE_H
 
 #include <vector>
 #include <fcntl.h>
@@ -8,15 +8,15 @@
 #include <memory>
 #include <iostream>
 #include <stdexcept>
-#include <prismo/io/metric.h>
-#include <prismo/io/protocol.h>
-#include <prismo/io/statistics.h>
-#include <prismo/engine/utils.h>
+#include <prismo/metric/metric.h>
+#include <prismo/protocol/protocol.h>
+#include <prismo/metric/statistics.h>
+#include <prismo/engine/config.h>
 #include <prismo/logger/logger.h>
 
 namespace Engine {
 
-    class Engine {
+    class Base {
         protected:
             Metric::MetricVariant metric;
 
@@ -30,12 +30,12 @@ namespace Engine {
 
         private:
             Metric::Statistics statistics;
-            std::shared_ptr<Logger::Logger> logger = nullptr;
+            std::shared_ptr<Logger::Base> logger = nullptr;
 
         public:
-            Engine(
+            Base(
                 Metric::MetricVariant _metric,
-                std::shared_ptr<Logger::Logger> _logger = nullptr
+                std::shared_ptr<Logger::Base> _logger = nullptr
             ) :
                 metric(_metric),
                 logger(_logger)
@@ -43,7 +43,7 @@ namespace Engine {
                 statistics.start();
             }
 
-            virtual ~Engine() {
+            virtual ~Base() {
                 std::cout << "~Destroying Engine" << std::endl;
                 statistics.finish();
                 statistics.print_report();

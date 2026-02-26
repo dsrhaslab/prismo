@@ -1,5 +1,5 @@
-#ifndef SPDLOG_LOGGER_H
-#define SPDLOG_LOGGER_H
+#ifndef PRISMO_LOGGER_SPDLOG_H
+#define PRISMO_LOGGER_SPDLOG_H
 
 #include <spdlog/spdlog.h>
 #include <spdlog/async.h>
@@ -11,7 +11,7 @@
 
 namespace Logger {
 
-    class Spdlog : public Logger {
+    class Spdlog : public Base {
         private:
             std::shared_ptr<spdlog::logger> logger;
 

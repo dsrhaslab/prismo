@@ -1,5 +1,5 @@
-#ifndef IO_METRIC_H
-#define IO_METRIC_H
+#ifndef PRISMO_METRIC_METRIC_H
+#define PRISMO_METRIC_METRIC_H
 
 #include <cstdint>
 #include <chrono>

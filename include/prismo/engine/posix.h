@@ -1,11 +1,11 @@
-#ifndef POSIX_ENGINE_H
-#define POSIX_ENGINE_H
+#ifndef PRISMO_ENGINE_POSIX_H
+#define PRISMO_ENGINE_POSIX_H
 
 #include <prismo/engine/engine.h>
 
 namespace Engine {
 
-    class PosixEngine : public Engine {
+    class PosixEngine : public Base {
         private:
             int nop(void);
             int fsync(Protocol::IORequest& request);
@@ -17,7 +17,7 @@ namespace Engine {
         public:
             explicit PosixEngine(
                 Metric::MetricVariant _metric,
-                std::shared_ptr<Logger::Logger> _logger = nullptr
+                std::shared_ptr<Logger::Base> _logger = nullptr
             );
 
             ~PosixEngine() override;

@@ -1,20 +1,19 @@
-#ifndef WORKER_UTILS_H
-#define WORKER_UTILS_H
+#ifndef PRISMO_WORKER_PACKET_POOL_H
+#define PRISMO_WORKER_PACKET_POOL_H
 
-#include <iostream>
-#include <prismo/io/protocol.h>
+#include <prismo/protocol/protocol.h>
 #include <lib/concurrentqueue/concurrentqueue.h>
 
-#define BULK_SIZE 64
-#define QUEUE_INITIAL_CAPACITY 1024
-
 namespace Worker {
+
+    inline constexpr size_t BULK_SIZE = 64;
+    inline constexpr size_t QUEUE_INITIAL_CAPACITY = 1024;
 
     inline void init_queue_packet(
         moodycamel::ConcurrentQueue<Protocol::Packet*>& queue,
         size_t block_size
     ) {
-        for (int index = 0; index < QUEUE_INITIAL_CAPACITY; index++) {
+        for (size_t i = 0; i < QUEUE_INITIAL_CAPACITY; i++) {
             Protocol::Packet* packet = new Protocol::Packet();
             packet->isShutDown = false;
             packet->request.fd = 0;

@@ -1,5 +1,5 @@
-#ifndef CONTENT_GENERATOR_H
-#define CONTENT_GENERATOR_H
+#ifndef PRISMO_GENERATOR_CONTENT_GENERATOR_H
+#define PRISMO_GENERATOR_CONTENT_GENERATOR_H
 
 #include <cstring>
 #include <iostream>

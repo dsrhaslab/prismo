@@ -1,11 +1,11 @@
-#ifndef AIO_ENGINE_H
-#define AIO_ENGINE_H
+#ifndef PRISMO_ENGINE_AIO_H
+#define PRISMO_ENGINE_AIO_H
 
 #include <prismo/engine/engine.h>
 
 namespace Engine {
 
-    class AioEngine : public Engine {
+    class AioEngine : public Base {
         private:
             io_context_t io_context;
             std::vector<iocb> iocbs;
@@ -27,7 +27,7 @@ namespace Engine {
         public:
             AioEngine(
                 Metric::MetricVariant _metric,
-                std::shared_ptr<Logger::Logger> _logger,
+                std::shared_ptr<Logger::Base> _logger,
                 const AioConfig& _config
             );
 

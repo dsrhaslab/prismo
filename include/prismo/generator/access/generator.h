@@ -1,5 +1,5 @@
-#ifndef ACCESS_GENERATOR_H
-#define ACCESS_GENERATOR_H
+#ifndef PRISMO_GENERATOR_ACCESS_GENERATOR_H
+#define PRISMO_GENERATOR_ACCESS_GENERATOR_H
 
 #include <cstddef>
 #include <iostream>

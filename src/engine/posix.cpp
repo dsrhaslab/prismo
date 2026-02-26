@@ -4,8 +4,8 @@ namespace Engine {
 
     PosixEngine::PosixEngine(
         Metric::MetricVariant _metric,
-        std::shared_ptr<Logger::Logger> _logger
-    ) : Engine(_metric, _logger) {}
+        std::shared_ptr<Logger::Base> _logger
+    ) : Base(_metric, _logger) {}
 
     PosixEngine::~PosixEngine() {
         std::cout << "~Destroying PosixEngine" << std::endl;
@@ -78,7 +78,7 @@ namespace Engine {
             request.offset
         );
 
-        log_metric(metric);
-        record_metric(metric);
+        Base::log_metric(metric);
+        Base::record_metric(metric);
     }
 }

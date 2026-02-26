@@ -1,5 +1,5 @@
-#ifndef TERMINATION_WORKER_H
-#define TERMINATION_WORKER_H
+#ifndef PRISMO_WORKER_TERMINATION_H
+#define PRISMO_WORKER_TERMINATION_H
 
 #include <chrono>
 #include <cstdint>

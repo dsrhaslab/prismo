@@ -1,5 +1,5 @@
-#ifndef TRACE_BASED_GENERATOR_H
-#define TRACE_BASED_GENERATOR_H
+#ifndef PRISMO_GENERATOR_TRACEBASED_TRACEBASED_H
+#define PRISMO_GENERATOR_TRACEBASED_TRACEBASED_H
 
 #include <prismo/generator/access/generator.h>
 #include <prismo/generator/operation/generator.h>

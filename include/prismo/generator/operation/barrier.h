@@ -1,5 +1,5 @@
-#ifndef OPERATION_BARRIER_H
-#define OPERATION_BARRIER_H
+#ifndef PRISMO_GENERATOR_OPERATION_BARRIER_H
+#define PRISMO_GENERATOR_OPERATION_BARRIER_H
 
 #include <cstdint>
 #include <vector>

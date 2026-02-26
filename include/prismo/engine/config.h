@@ -1,5 +1,5 @@
-#ifndef ENGINE_CONFIG_H
-#define ENGINE_CONFIG_H
+#ifndef PRISMO_ENGINE_CONFIG_H
+#define PRISMO_ENGINE_CONFIG_H
 
 #include <cstdint>
 #include <fcntl.h>
@@ -8,7 +8,7 @@
 #include <liburing.h>
 #include <nlohmann/json.hpp>
 #include <common/operation.h>
-#include <prismo/generator/content/metadata.h>
+#include <common/metadata.h>
 
 namespace Engine {
 
@@ -39,7 +39,7 @@ namespace Engine {
         size_t size;
         uint64_t offset;
         uint64_t start_ns;
-        Generator::BlockMetadata metadata;
+        Common::BlockMetadata metadata;
         Operation::OperationType operation_type;
     };
 

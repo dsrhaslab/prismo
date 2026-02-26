@@ -1,5 +1,5 @@
-#ifndef PARSER_TRACE_READER_H
-#define PARSER_TRACE_READER_H
+#ifndef PRISMO_GENERATOR_TRACEBASED_TRACEREADER_H
+#define PRISMO_GENERATOR_TRACEBASED_TRACEREADER_H
 
 #include <vector>
 #include <cstddef>
@@ -7,10 +7,10 @@
 #include <fstream>
 #include <optional>
 #include <iostream>
-#include <common/trace.h>
 #include <nlohmann/json.hpp>
+#include <common/trace.h>
 
-namespace Parser {
+namespace Generator::Parser {
 
     class TraceReader {
         private:

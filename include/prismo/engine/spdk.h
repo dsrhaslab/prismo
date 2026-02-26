@@ -1,5 +1,5 @@
-#ifndef SPDK_ENGINE_H
-#define SPDK_ENGINE_H
+#ifndef PRISMO_ENGINE_SPDK_H
+#define PRISMO_ENGINE_SPDK_H
 
 #include <spdk/env.h>
 #include <spdk/bdev.h>
@@ -49,7 +49,7 @@ namespace Engine {
         SpdkThreadCallBackContext* thread_cb_ctx;
     };
 
-    class SpdkEngine : public Engine {
+    class SpdkEngine : public Base {
         private:
             std::thread spdk_main_thread;
             std::atomic<TriggerData> trigger_atomic;
@@ -141,7 +141,7 @@ namespace Engine {
         public:
             explicit SpdkEngine(
                 Metric::MetricVariant _metric,
-                std::shared_ptr<Logger::Logger> _logger,
+                std::shared_ptr<Logger::Base> _logger,
                 const SpdkConfig& config
             );
 

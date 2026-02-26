@@ -1,6 +1,6 @@
 #include <fstream>
 #include <argparse/argparse.hpp>
-#include <prismo/parser/factory.h>
+#include <prismo/factory/factory.h>
 #include <prismo/worker/producer.h>
 #include <prismo/worker/consumer.h>
 #include <prismo/worker/termination.h>
@@ -62,37 +62,37 @@ int main(int argc, char** argv) {
 
     std::cout << "Parse AccessGenerator" << std::endl;
     std::unique_ptr<Generator::AccessGenerator> access =
-        Parser::get_access_generator(access_json);
+        Factory::get_access_generator(access_json);
 
     std::cout << "Parse OperationGenerator" << std::endl;
     std::unique_ptr<Generator::OperationGenerator> operation =
-        Parser::get_operation_generator(operation_json);
+        Factory::get_operation_generator(operation_json);
 
     std::cout << "Parse ContentGenerator" << std::endl;
     std::unique_ptr<Generator::ContentGenerator> content =
-        Parser::get_content_generator(generator_json);
+        Factory::get_content_generator(generator_json);
 
     std::cout << "Parse CompressionGenerator" << std::endl;
     std::optional<Generator::CompressionGenerator> compression =
-        Parser::get_compression_generator(generator_json);
+        Factory::get_compression_generator(generator_json);
 
     std::cout << "Parse MultipleBarrier" << std::endl;
     std::optional<Generator::MultipleBarrier> barrier =
-        Parser::get_multiple_barrier(operation_json);
+        Factory::get_multiple_barrier(operation_json);
 
     std::cout << "Parse Ramp" << std::endl;
     std::optional<Worker::Ramp> ramp =
-        Parser::get_ramp(job_json);
+        Factory::get_ramp(job_json);
 
     std::cout << "Parse Metric" << std::endl;
-    Metric::MetricVariant metric = Parser::get_metric(job_json);
+    Metric::MetricVariant metric = Factory::get_metric(job_json);
 
     std::cout << "Parse Logger" << std::endl;
-    std::shared_ptr<Logger::Logger> logger = Parser::get_logger(logging_json);
+    std::shared_ptr<Logger::Base> logger = Factory::get_logger(logging_json);
 
     std::cout << "Parse Engine" << std::endl;
-    std::unique_ptr<Engine::Engine> engine =
-        Parser::get_engine(engine_json, std::move(metric), std::move(logger));
+    std::unique_ptr<Engine::Base> engine =
+        Factory::get_engine(engine_json, std::move(metric), std::move(logger));
 
     std::cout << "Parse Termination Configuration" << std::endl;
     Worker::Termination termination =
@@ -100,11 +100,11 @@ int main(int argc, char** argv) {
 
     auto to_producer =
         std::make_shared<moodycamel::ConcurrentQueue<Protocol::Packet*>>(
-            QUEUE_INITIAL_CAPACITY);
+            Worker::QUEUE_INITIAL_CAPACITY);
 
     auto to_consumer =
         std::make_shared<moodycamel::ConcurrentQueue<Protocol::Packet*>>(
-            QUEUE_INITIAL_CAPACITY);
+            Worker::QUEUE_INITIAL_CAPACITY);
 
     Worker::init_queue_packet(
         *to_producer,
@@ -150,7 +150,7 @@ int main(int argc, char** argv) {
     };
 
     consumer.close(close_request);
-    Worker::destroy_queue_packet(*to_producer, QUEUE_INITIAL_CAPACITY);
+    Worker::destroy_queue_packet(*to_producer, Worker::QUEUE_INITIAL_CAPACITY);
     config_file.close();
 
     return 0;

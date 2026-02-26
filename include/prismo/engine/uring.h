@@ -1,11 +1,11 @@
-#ifndef URING_ENGINE_H
-#define URING_ENGINE_H
+#ifndef PRISMO_ENGINE_URING_H
+#define PRISMO_ENGINE_URING_H
 
 #include <prismo/engine/engine.h>
 
 namespace Engine {
 
-    class UringEngine : public Engine {
+    class UringEngine : public Base {
         private:
             io_uring ring;
             std::vector<iovec> iovecs;
@@ -25,7 +25,7 @@ namespace Engine {
         public:
             explicit UringEngine(
                 Metric::MetricVariant _metric,
-                std::shared_ptr<Logger::Logger> _logger,
+                std::shared_ptr<Logger::Base> _logger,
                 const UringConfig& _config
             );
 

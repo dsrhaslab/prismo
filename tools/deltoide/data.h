@@ -1,9 +1,9 @@
-#ifndef DATA_H
-#define DATA_H
+#ifndef DELTOIDE_DATA_H
+#define DELTOIDE_DATA_H
 
 #include "zstdpp.hpp"
 #include <nlohmann/json.hpp>
-#include <prismo/generator/content/metadata.h>
+#include <common/metadata.h>
 
 using CompressionDB = std::map<uint32_t, uint64_t>;
 using DuplicationDB = std::map<uint64_t, std::pair<uint64_t, CompressionDB>>;
@@ -35,7 +35,7 @@ namespace std {
 
 uint32_t zstd_compress(const std::vector<uint8_t>& data) {
     std::vector<uint8_t> sliced(
-        data.begin() + sizeof(Generator::BlockMetadata::block_id),
+        data.begin() + sizeof(Common::BlockMetadata::block_id),
         data.end()
     );
 

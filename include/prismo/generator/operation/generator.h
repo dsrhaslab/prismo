@@ -1,5 +1,5 @@
-#ifndef OPERATION_GENERATOR_H
-#define OPERATION_GENERATOR_H
+#ifndef PRISMO_GENERATOR_OPERATION_GENERATOR_H
+#define PRISMO_GENERATOR_OPERATION_GENERATOR_H
 
 #include <vector>
 #include <iostream>
@@ -74,26 +74,26 @@ namespace Generator {
             };
     };
 
-    class SequenceOperationGeneator : public OperationGenerator {
+    class SequenceOperationGenerator : public OperationGenerator {
         private:
             size_t index = 0;
             std::vector<Operation::OperationType> operations;
 
         public:
-            SequenceOperationGeneator() = delete;
+            SequenceOperationGenerator() = delete;
 
-            ~SequenceOperationGeneator() override {
-                std::cout << "~Destroying SequenceOperationGeneator" << std::endl;
+            ~SequenceOperationGenerator() override {
+                std::cout << "~Destroying SequenceOperationGenerator" << std::endl;
             };
 
-            explicit SequenceOperationGeneator(const nlohmann::json& j) {
+            explicit SequenceOperationGenerator(const nlohmann::json& j) {
                 for (auto& item : j.at("operations")) {
                     auto op_str = item.get<std::string>();
                     operations.push_back(Operation::operation_from_str(op_str));
                 }
 
                 if (operations.empty()) {
-                    throw std::invalid_argument("SequenceOperationGeneator: operations cannot be empty");
+                    throw std::invalid_argument("SequenceOperationGenerator: operations cannot be empty");
                 }
             };
 

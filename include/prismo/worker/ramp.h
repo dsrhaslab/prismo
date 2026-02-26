@@ -1,5 +1,5 @@
-#ifndef WORKER_RAMP_H
-#define WORKER_RAMP_H
+#ifndef PRISMO_WORKER_RAMP_H
+#define PRISMO_WORKER_RAMP_H
 
 #include <algorithm>
 #include <chrono>

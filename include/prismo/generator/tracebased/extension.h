@@ -1,5 +1,5 @@
-#ifndef TRACE_BASED_EXTENSION_H
-#define TRACE_BASED_EXTENSION_H
+#ifndef PRISMO_GENERATOR_TRACEBASED_EXTENSION_H
+#define PRISMO_GENERATOR_TRACEBASED_EXTENSION_H
 
 #include <iostream>
 #include <optional>
@@ -9,16 +9,14 @@
 #include <algorithm>
 #include <random>
 #include <numeric>
-#include <common/trace.h>
-#include <nlohmann/json.hpp>
-#include <prismo/parser/tracereader.h>
+#include <prismo/generator/tracebased/tracereader.h>
 #include <lib/distribution/distribution.h>
 
-namespace Extension {
+namespace Generator::Extension {
 
     class TraceExtension {
         protected:
-            std::optional<Parser::TraceReader> trace_reader;
+            std::optional<Generator::Parser::TraceReader> trace_reader;
 
             TraceExtension() = delete;
 

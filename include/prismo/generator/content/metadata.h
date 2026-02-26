@@ -1,13 +1,10 @@
-#ifndef TYPE_GENERATOR_H
-#define TYPE_GENERATOR_H
+#ifndef PRISMO_GENERATOR_CONTENT_METADATA_H
+#define PRISMO_GENERATOR_CONTENT_METADATA_H
 
-#include <cstdint>
+#include <common/metadata.h>
 
 namespace Generator {
-    struct BlockMetadata {
-        uint64_t block_id;
-        uint32_t compression;
-    };
+    using BlockMetadata = Common::BlockMetadata;
 }
 
 #endif

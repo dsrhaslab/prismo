@@ -4,9 +4,9 @@ namespace Engine {
 
     UringEngine::UringEngine(
         Metric::MetricVariant _metric,
-        std::shared_ptr<Logger::Logger> _logger,
+        std::shared_ptr<Logger::Base> _logger,
         const UringConfig& _config
-    ) : Engine(_metric, _logger) {
+    ) : Base(_metric, _logger) {
         UringConfig config = _config;
         int ret = io_uring_queue_init_params(config.entries, &ring, &config.params);
         if (ret)
@@ -152,8 +152,8 @@ namespace Engine {
                 uring_user_data->metric_data.offset
             );
 
-            Engine::log_metric(metric);
-            Engine::record_metric(metric);
+            Base::log_metric(metric);
+            Base::record_metric(metric);
 
             available_indexes.push_back(uring_user_data->index);
             io_uring_cqe_seen(&ring, cqe);

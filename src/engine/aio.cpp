@@ -4,9 +4,9 @@ namespace Engine {
 
     AioEngine::AioEngine(
         Metric::MetricVariant _metric,
-        std::shared_ptr<Logger::Logger> _logger,
+        std::shared_ptr<Logger::Base> _logger,
         const AioConfig& _config
-    ) : Engine(_metric, _logger) {
+    ) : Base(_metric, _logger) {
         int ret = io_queue_init(_config.entries, &io_context);
         if (ret < 0)
             throw std::runtime_error("aio_queue_init: failed: " + std::string(strerror(-ret)));
@@ -133,8 +133,8 @@ namespace Engine {
                 completed_task->metric_data.offset
             );
 
-            Engine::log_metric(metric);
-            Engine::record_metric(metric);
+            Base::log_metric(metric);
+            Base::record_metric(metric);
 
             available_indexes.push_back(completed_task->index);
         }

@@ -1,4 +1,4 @@
-#include <prismo/io/statistics.h>
+#include <prismo/metric/statistics.h>
 #include <sstream>
 #include <iomanip>
 

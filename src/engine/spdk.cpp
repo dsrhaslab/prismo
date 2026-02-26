@@ -4,9 +4,9 @@ namespace Engine {
 
     SpdkEngine::SpdkEngine(
         Metric::MetricVariant _metric,
-        std::shared_ptr<Logger::Logger> _logger,
+        std::shared_ptr<Logger::Base> _logger,
         const SpdkConfig& config
-    ) : Engine(_metric, _logger) {
+    ) : Base(_metric, _logger) {
         spdk_main_thread = std::thread([this, config]() {
             start_spdk_app(this, config, &(this->trigger_atomic));
         });
@@ -385,7 +385,7 @@ namespace Engine {
                 .size = thread_context->request->size,
                 .offset = thread_context->request->offset,
                 .start_ns = Metric::get_current_timestamp(),
-                .metadata = Generator::BlockMetadata {
+                .metadata = Common::BlockMetadata {
                     .block_id = thread_context->request->metadata.block_id,
                     .compression = thread_context->request->metadata.compression
                 },

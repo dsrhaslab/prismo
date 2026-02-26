@@ -1,10 +1,10 @@
-#ifndef IO_PROTOCOL_H
-#define IO_PROTOCOL_H
+#ifndef PRISMO_PROTOCOL_PROTOCOL_H
+#define PRISMO_PROTOCOL_PROTOCOL_H
 
 #include <cstddef>
 #include <fcntl.h>
 #include <cstdint>
-#include <prismo/generator/content/metadata.h>
+#include <common/metadata.h>
 
 namespace Protocol {
 
@@ -23,7 +23,7 @@ namespace Protocol {
         size_t size;
         uint64_t offset;
         uint8_t* buffer;
-        Generator::BlockMetadata metadata;
+        Common::BlockMetadata metadata;
         Operation::OperationType operation;
     };
 

@@ -1,14 +1,14 @@
-#ifndef DEDUPLICATION_CONTENT_GENERATOR_H
-#define DEDUPLICATION_CONTENT_GENERATOR_H
+#ifndef PRISMO_GENERATOR_CONTENT_DEDUPLICATION_H
+#define PRISMO_GENERATOR_CONTENT_DEDUPLICATION_H
 
 #include <boost/pool/pool.hpp>
 #include <prismo/generator/content/generator.h>
 #include <prismo/generator/content/compression.h>
 #include <lib/distribution/distribution.h>
 
-#define DEDUP_WINDOW_SIZE 5
-
 namespace Generator {
+
+    inline constexpr size_t DEDUP_WINDOW_SIZE = 5;
 
     struct DedupElement {
         uint64_t block_id;

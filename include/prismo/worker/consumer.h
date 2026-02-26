@@ -1,22 +1,21 @@
-#ifndef CONSUMER_WORKER_H
-#define CONSUMER_WORKER_H
+#ifndef PRISMO_WORKER_CONSUMER_H
+#define PRISMO_WORKER_CONSUMER_H
 
-#include <memory>
-#include <prismo/worker/utils.h>
 #include <prismo/engine/engine.h>
+#include <prismo/worker/packet_pool.h>
 #include <lib/concurrentqueue/concurrentqueue.h>
 
 namespace Worker {
 
     class Consumer {
         private:
-            std::unique_ptr<Engine::Engine> engine;
+            std::unique_ptr<Engine::Base> engine;
             std::shared_ptr<moodycamel::ConcurrentQueue<Protocol::Packet*>> to_producer;
             std::shared_ptr<moodycamel::ConcurrentQueue<Protocol::Packet*>> to_consumer;
 
         public:
             Consumer(
-                std::unique_ptr<Engine::Engine> _engine,
+                std::unique_ptr<Engine::Base> _engine,
                 std::shared_ptr<moodycamel::ConcurrentQueue<Protocol::Packet*>> _to_producer,
                 std::shared_ptr<moodycamel::ConcurrentQueue<Protocol::Packet*>> _to_consumer
             ) :
