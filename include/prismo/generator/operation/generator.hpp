@@ -4,8 +4,8 @@
 #include <vector>
 #include <iostream>
 #include <nlohmann/json.hpp>
-#include <common/operation.h>
-#include <lib/distribution/distribution.h>
+#include <common/operation.hpp>
+#include <lib/distribution/distribution.hpp>
 
 namespace Generator {
 

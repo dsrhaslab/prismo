@@ -1,10 +1,10 @@
 #ifndef PRISMO_GENERATOR_TRACEBASED_TRACEBASED_H
 #define PRISMO_GENERATOR_TRACEBASED_TRACEBASED_H
 
-#include <prismo/generator/access/generator.h>
-#include <prismo/generator/operation/generator.h>
-#include <prismo/generator/content/generator.h>
-#include <prismo/generator/tracebased/extension.h>
+#include <prismo/generator/access/generator.hpp>
+#include <prismo/generator/operation/generator.hpp>
+#include <prismo/generator/content/generator.hpp>
+#include <prismo/generator/tracebased/extension.hpp>
 
 namespace Generator {
 

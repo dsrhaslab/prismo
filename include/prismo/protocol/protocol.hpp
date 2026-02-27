@@ -4,7 +4,7 @@
 #include <cstddef>
 #include <fcntl.h>
 #include <cstdint>
-#include <common/metadata.h>
+#include <common/metadata.hpp>
 
 namespace Protocol {
 

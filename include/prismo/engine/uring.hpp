@@ -4,8 +4,8 @@
 #include <cerrno>
 #include <cstring>
 #include <liburing.h>
-#include <prismo/engine/engine.h>
-#include <prismo/engine/config.h>
+#include <prismo/engine/engine.hpp>
+#include <prismo/engine/config.hpp>
 
 namespace Engine {
 

@@ -1,23 +1,23 @@
 #ifndef PRISMO_FACTORY_FACTORY_H
 #define PRISMO_FACTORY_FACTORY_H
 
-#include <prismo/engine/aio.h>
-#include <prismo/engine/engine.h>
-#include <prismo/engine/posix.h>
-#include <prismo/engine/spdk.h>
-#include <prismo/engine/uring.h>
-#include <prismo/generator/access/generator.h>
-#include <prismo/generator/content/compression.h>
-#include <prismo/generator/content/generator.h>
-#include <prismo/generator/content/deduplication.h>
-#include <prismo/generator/operation/barrier.h>
-#include <prismo/generator/operation/generator.h>
-#include <prismo/generator/tracebased/extension.h>
-#include <prismo/generator/tracebased/tracebased.h>
-#include <prismo/logger/logger.h>
-#include <prismo/logger/spdlog.h>
-#include <prismo/metric/metric.h>
-#include <prismo/worker/ramp.h>
+#include <prismo/engine/aio.hpp>
+#include <prismo/engine/engine.hpp>
+#include <prismo/engine/posix.hpp>
+#include <prismo/engine/spdk.hpp>
+#include <prismo/engine/uring.hpp>
+#include <prismo/generator/access/generator.hpp>
+#include <prismo/generator/content/compression.hpp>
+#include <prismo/generator/content/generator.hpp>
+#include <prismo/generator/content/deduplication.hpp>
+#include <prismo/generator/operation/barrier.hpp>
+#include <prismo/generator/operation/generator.hpp>
+#include <prismo/generator/tracebased/extension.hpp>
+#include <prismo/generator/tracebased/tracebased.hpp>
+#include <prismo/logger/logger.hpp>
+#include <prismo/logger/spdlog.hpp>
+#include <prismo/metric/metric.hpp>
+#include <prismo/worker/ramp.hpp>
 
 namespace Factory {
 

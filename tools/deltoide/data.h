@@ -3,7 +3,7 @@
 
 #include "zstdpp.hpp"
 #include <nlohmann/json.hpp>
-#include <common/metadata.h>
+#include <common/metadata.hpp>
 
 using CompressionDB = std::map<uint32_t, uint64_t>;
 using DuplicationDB = std::map<uint64_t, std::pair<uint64_t, CompressionDB>>;

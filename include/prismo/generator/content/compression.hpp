@@ -5,8 +5,8 @@
 #include <cstdint>
 #include <iostream>
 #include <nlohmann/json.hpp>
-#include <prismo/generator/content/metadata.h>
-#include <lib/distribution/distribution.h>
+#include <prismo/generator/content/metadata.hpp>
+#include <lib/distribution/distribution.hpp>
 
 namespace Generator {
 

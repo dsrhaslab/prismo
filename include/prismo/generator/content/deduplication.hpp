@@ -2,9 +2,9 @@
 #define PRISMO_GENERATOR_CONTENT_DEDUPLICATION_H
 
 #include <boost/pool/pool.hpp>
-#include <prismo/generator/content/generator.h>
-#include <prismo/generator/content/compression.h>
-#include <lib/distribution/distribution.h>
+#include <prismo/generator/content/generator.hpp>
+#include <prismo/generator/content/compression.hpp>
+#include <lib/distribution/distribution.hpp>
 
 namespace Generator {
 

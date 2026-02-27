@@ -1,4 +1,4 @@
-#include <prismo/engine/config.h>
+#include <prismo/engine/config.hpp>
 
 namespace Engine {
 

@@ -3,7 +3,7 @@
 
 #include <cerrno>
 #include <cstring>
-#include <prismo/engine/engine.h>
+#include <prismo/engine/engine.hpp>
 
 namespace Engine {
 

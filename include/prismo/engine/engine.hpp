@@ -2,9 +2,9 @@
 #define PRISMO_ENGINE_ENGINE_H
 
 #include <thread>
-#include <prismo/logger/logger.h>
-#include <prismo/protocol/protocol.h>
-#include <prismo/metric/statistics.h>
+#include <prismo/logger/logger.hpp>
+#include <prismo/protocol/protocol.hpp>
+#include <prismo/metric/statistics.hpp>
 
 namespace Engine {
 

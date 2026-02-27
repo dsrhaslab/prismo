@@ -28,7 +28,7 @@ namespace Distribution {
 
             void setParams(DistributionTypeT _min, DistributionTypeT _max) {
                 distribution.param(typename std::uniform_int_distribution<
-                                DistributionTypeT>::param_type(_min, _max));
+                    DistributionTypeT>::param_type(_min, _max));
             }
 
             DistributionTypeT nextValue() {
@@ -89,7 +89,8 @@ namespace Distribution {
                 }
 
                 if (std::accumulate(_weights.begin(), _weights.end(), 0) != 100) {
-                    throw std::invalid_argument(context_tag + ": weights must sum to 100");
+                    throw std::invalid_argument(
+                        context_tag + ": weights must sum to 100");
                 }
             }
 

@@ -5,7 +5,7 @@
 #include <chrono>
 #include <variant>
 #include <iostream>
-#include <common/operation.h>
+#include <common/operation.hpp>
 
 namespace Metric {
 

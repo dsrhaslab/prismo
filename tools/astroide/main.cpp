@@ -1,8 +1,8 @@
 #include <cstring>
 #include <fstream>
 #include <iostream>
-#include <common/trace.h>
-#include <common/operation.h>
+#include <common/trace.hpp>
+#include <common/operation.hpp>
 #include <argparse/argparse.hpp>
 #include <lib/komihash/komihash.h>
 

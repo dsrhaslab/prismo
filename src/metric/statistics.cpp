@@ -1,4 +1,4 @@
-#include <prismo/metric/statistics.h>
+#include <prismo/metric/statistics.hpp>
 
 namespace Metric {
 

@@ -7,8 +7,8 @@
 #include <libaio.h>
 #include <liburing.h>
 #include <nlohmann/json.hpp>
-#include <common/operation.h>
-#include <common/metadata.h>
+#include <common/operation.hpp>
+#include <common/metadata.hpp>
 
 namespace Engine {
 

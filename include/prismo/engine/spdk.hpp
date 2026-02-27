@@ -5,8 +5,8 @@
 #include <spdk/bdev.h>
 #include <spdk/event.h>
 #include <spdk/thread.h>
-#include <prismo/engine/engine.h>
-#include <prismo/engine/config.h>
+#include <prismo/engine/engine.hpp>
+#include <prismo/engine/config.hpp>
 #include <lib/concurrentqueue/concurrentqueue.h>
 
 namespace Engine {

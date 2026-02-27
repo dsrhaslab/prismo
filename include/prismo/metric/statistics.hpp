@@ -3,8 +3,8 @@
 
 #include <map>
 #include <nlohmann/json.hpp>
-#include <prismo/metric/metric.h>
-#include <common/percentile.h>
+#include <prismo/metric/metric.hpp>
+#include <common/percentile.hpp>
 
 namespace Metric {
 

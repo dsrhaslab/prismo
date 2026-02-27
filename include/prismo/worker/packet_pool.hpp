@@ -1,7 +1,7 @@
 #ifndef PRISMO_WORKER_PACKET_POOL_H
 #define PRISMO_WORKER_PACKET_POOL_H
 
-#include <prismo/protocol/protocol.h>
+#include <prismo/protocol/protocol.hpp>
 #include <lib/concurrentqueue/concurrentqueue.h>
 
 namespace Worker {

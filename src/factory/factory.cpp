@@ -1,4 +1,4 @@
-#include <prismo/factory/factory.h>
+#include <prismo/factory/factory.hpp>
 
 namespace Factory {
 

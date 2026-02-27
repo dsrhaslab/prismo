@@ -8,7 +8,7 @@
 #include <optional>
 #include <iostream>
 #include <nlohmann/json.hpp>
-#include <common/trace.h>
+#include <common/trace.hpp>
 
 namespace Generator::Parser {
 

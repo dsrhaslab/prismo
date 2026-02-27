@@ -5,9 +5,9 @@
 #include <vector>
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
-#include <prismo/factory/factory.h>
-#include <prismo/worker/consumer.h>
-#include <prismo/worker/producer.h>
+#include <prismo/factory/factory.hpp>
+#include <prismo/worker/consumer.hpp>
+#include <prismo/worker/producer.hpp>
 
 namespace Worker {
 

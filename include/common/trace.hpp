@@ -2,7 +2,7 @@
 #define COMMON_TRACE_H
 
 #include <cstdint>
-#include <common/operation.h>
+#include <common/operation.hpp>
 
 namespace Trace {
     struct Record {

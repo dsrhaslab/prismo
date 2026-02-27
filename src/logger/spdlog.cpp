@@ -1,4 +1,4 @@
-#include <prismo/logger/spdlog.h>
+#include <prismo/logger/spdlog.hpp>
 
 namespace Logger {
 

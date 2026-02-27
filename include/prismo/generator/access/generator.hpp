@@ -4,7 +4,7 @@
 #include <cstddef>
 #include <iostream>
 #include <nlohmann/json.hpp>
-#include <lib/distribution/distribution.h>
+#include <lib/distribution/distribution.hpp>
 
 namespace Generator {
 

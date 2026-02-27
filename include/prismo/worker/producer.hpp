@@ -1,14 +1,14 @@
 #ifndef PRISMO_WORKER_PRODUCER_H
 #define PRISMO_WORKER_PRODUCER_H
 
-#include <prismo/worker/ramp.h>
-#include <prismo/worker/termination.h>
-#include <prismo/worker/packet_pool.h>
-#include <prismo/generator/access/generator.h>
-#include <prismo/generator/content/generator.h>
-#include <prismo/generator/content/compression.h>
-#include <prismo/generator/operation/barrier.h>
-#include <prismo/generator/operation/generator.h>
+#include <prismo/worker/ramp.hpp>
+#include <prismo/worker/termination.hpp>
+#include <prismo/worker/packet_pool.hpp>
+#include <prismo/generator/access/generator.hpp>
+#include <prismo/generator/content/generator.hpp>
+#include <prismo/generator/content/compression.hpp>
+#include <prismo/generator/operation/barrier.hpp>
+#include <prismo/generator/operation/generator.hpp>
 
 namespace Worker {
 

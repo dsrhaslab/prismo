@@ -5,7 +5,7 @@
 #include <vector>
 #include <iostream>
 #include <nlohmann/json.hpp>
-#include <common/operation.h>
+#include <common/operation.hpp>
 
 namespace Generator {
 

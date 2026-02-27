@@ -1,6 +1,6 @@
 #include <fstream>
 #include <argparse/argparse.hpp>
-#include <prismo/worker/job_manager.h>
+#include <prismo/worker/job_manager.hpp>
 
 
 int main(int argc, char** argv) {

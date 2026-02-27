@@ -1,8 +1,8 @@
 #ifndef PRISMO_WORKER_CONSUMER_H
 #define PRISMO_WORKER_CONSUMER_H
 
-#include <prismo/engine/engine.h>
-#include <prismo/worker/packet_pool.h>
+#include <prismo/engine/engine.hpp>
+#include <prismo/worker/packet_pool.hpp>
 #include <lib/concurrentqueue/concurrentqueue.h>
 
 namespace Worker {
