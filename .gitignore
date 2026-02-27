@@ -1,5 +1,5 @@
 builddir/
 external/
 traces/
-log*
+*.log
 testfile*
