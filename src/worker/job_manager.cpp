@@ -1,5 +1,4 @@
 #include <prismo/worker/job_manager.hpp>
-#include <format>
 
 namespace Worker {
 
