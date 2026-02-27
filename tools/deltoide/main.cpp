@@ -1,9 +1,8 @@
-#include <data.h>
-#include <normalizer.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <iostream>
 #include <filesystem>
+#include <normalizer.hpp>
 #include <argparse/argparse.hpp>
 
 namespace fs = std::filesystem;

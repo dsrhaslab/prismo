@@ -1,8 +1,7 @@
 #ifndef DELTOIDE_NORMALIZER_H
 #define DELTOIDE_NORMALIZER_H
 
-#include <data.h>
-#include <iostream>
+#include <data.hpp>
 
 std::vector<uint64_t> largest_remainder(const std::vector<double>& values) {
     if (values.empty()) {

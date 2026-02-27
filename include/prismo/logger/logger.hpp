@@ -17,7 +17,4 @@ namespace Logger {
     };
 };
 
-
-
-
 #endif
