@@ -14,9 +14,7 @@ namespace Generator {
             OperationGenerator() = default;
 
         public:
-            virtual ~OperationGenerator() {
-                std::cout << "~Destroying Operation" << std::endl;
-            };
+            virtual ~OperationGenerator();
 
             virtual Operation::OperationType next_operation(void) = 0;
     };
@@ -28,18 +26,11 @@ namespace Generator {
         public:
             ConstantOperationGenerator() = delete;
 
-            ~ConstantOperationGenerator() override {
-                std::cout << "~Destroying ConstantOperationGenerator" << std::endl;
-            };
+            ~ConstantOperationGenerator() override;
 
-            explicit ConstantOperationGenerator(const nlohmann::json& j) {
-                std::string op_str = j.at("operation").get<std::string>();
-                operation = Operation::operation_from_str(op_str);
-            };
+            explicit ConstantOperationGenerator(const nlohmann::json& j);
 
-            Operation::OperationType next_operation(void) override {
-                return operation;
-            };
+            Operation::OperationType next_operation(void) override;
     };
 
     class PercentageOperationGenerator : public OperationGenerator {
@@ -49,29 +40,11 @@ namespace Generator {
         public:
             PercentageOperationGenerator() = delete;
 
-            ~PercentageOperationGenerator() override {
-                std::cout << "~Destroying PercentageOperationGenerator" << std::endl;
-            };
+            ~PercentageOperationGenerator() override;
 
-            explicit PercentageOperationGenerator(const nlohmann::json& j)
-                : distribution(
-                    [&]() {
-                        std::vector<uint32_t> weights;
-                        std::vector<Operation::OperationType> values;
-                        for (const auto& item : j.at("percentages").items()) {
-                            weights.push_back(item.value().get<uint32_t>());
-                            values.push_back(Operation::operation_from_str(item.key()));
-                        }
-                        return Distribution::DiscreteDistribution<
-                            Operation::OperationType>(
-                            "percentage_operation_generator", values, weights);
-                    }()
-                )
-            {}
+            explicit PercentageOperationGenerator(const nlohmann::json& j);
 
-            Operation::OperationType next_operation(void) override {
-                return distribution.nextValue();
-            };
+            Operation::OperationType next_operation(void) override;
     };
 
     class SequenceOperationGenerator : public OperationGenerator {
@@ -82,26 +55,11 @@ namespace Generator {
         public:
             SequenceOperationGenerator() = delete;
 
-            ~SequenceOperationGenerator() override {
-                std::cout << "~Destroying SequenceOperationGenerator" << std::endl;
-            };
+            ~SequenceOperationGenerator() override;
 
-            explicit SequenceOperationGenerator(const nlohmann::json& j) {
-                for (auto& item : j.at("operations")) {
-                    auto op_str = item.get<std::string>();
-                    operations.push_back(Operation::operation_from_str(op_str));
-                }
+            explicit SequenceOperationGenerator(const nlohmann::json& j);
 
-                if (operations.empty()) {
-                    throw std::invalid_argument("SequenceOperationGenerator: operations cannot be empty");
-                }
-            };
-
-            Operation::OperationType next_operation(void) override {
-                Operation::OperationType operation = operations.at(index);
-                index = (index + 1) % operations.size();
-                return operation;
-            };
+            Operation::OperationType next_operation(void) override;
     };
 };
 

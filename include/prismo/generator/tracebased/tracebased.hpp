@@ -14,12 +14,9 @@ namespace Generator {
 
             TraceBased() = delete;
 
-            virtual ~TraceBased() {
-                std::cout << "~Destroying TraceBased" << std::endl;
-            }
+            virtual ~TraceBased();
 
-            explicit TraceBased(std::unique_ptr<Extension::TraceExtension> ext)
-                : extension(std::move(ext)) {}
+            explicit TraceBased(std::unique_ptr<Extension::TraceExtension> ext);
     };
 
 
@@ -27,16 +24,11 @@ namespace Generator {
         public:
             TraceBasedAccessGenerator() = delete;
 
-            virtual ~TraceBasedAccessGenerator() {
-                std::cout << "~Destroying TraceBasedAccessGenerator" << std::endl;
-            }
+            virtual ~TraceBasedAccessGenerator();
 
-            explicit TraceBasedAccessGenerator(const nlohmann::json& j, std::unique_ptr<Extension::TraceExtension> ext)
-                : AccessGenerator(j), TraceBased(std::move(ext)) {}
+            explicit TraceBasedAccessGenerator(const nlohmann::json& j, std::unique_ptr<Extension::TraceExtension> ext);
 
-            uint64_t next_offset(void) override {
-                return extension->next_record().offset % limit;
-            }
+            uint64_t next_offset(void) override;
     };
 
 
@@ -44,16 +36,11 @@ namespace Generator {
         public:
             TraceBasedOperationGenerator() = delete;
 
-            virtual ~TraceBasedOperationGenerator() {
-                std::cout << "~Destroying TraceBasedOperationGenerator" << std::endl;
-            }
+            virtual ~TraceBasedOperationGenerator();
 
-            explicit TraceBasedOperationGenerator(std::unique_ptr<Extension::TraceExtension> ext)
-                : TraceBased(std::move(ext)) {}
+            explicit TraceBasedOperationGenerator(std::unique_ptr<Extension::TraceExtension> ext);
 
-            Operation::OperationType next_operation(void) override {
-                return extension->next_record().operation;
-            };
+            Operation::OperationType next_operation(void) override;
     };
 
 
@@ -61,22 +48,11 @@ namespace Generator {
         public:
             TraceBasedContentGenerator() = delete;
 
-            virtual ~TraceBasedContentGenerator() {
-                std::cout << "~Destroying TraceBasedContentGenerator" << std::endl;
-            }
+            virtual ~TraceBasedContentGenerator();
 
-            explicit TraceBasedContentGenerator(const nlohmann::json& j, std::unique_ptr<Extension::TraceExtension> ext)
-                : ContentGenerator(j, false), TraceBased(std::move(ext)) {}
+            explicit TraceBasedContentGenerator(const nlohmann::json& j, std::unique_ptr<Extension::TraceExtension> ext);
 
-            BlockMetadata next_block(uint8_t* buffer, size_t size) override {
-                refill(buffer, size);
-                Trace::Record record = extension->next_record();
-                std::memcpy(buffer, &record.block_id, sizeof(record.block_id));
-                return BlockMetadata {
-                    .block_id = record.block_id,
-                    .compression = 0
-                };
-            }
+            BlockMetadata next_block(uint8_t* buffer, size_t size) override;
     };
 
 }

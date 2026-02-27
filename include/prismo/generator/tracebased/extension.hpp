@@ -19,13 +19,10 @@ namespace Generator::Extension {
 
             TraceExtension() = delete;
 
-            explicit TraceExtension(const nlohmann::json& j)
-                : trace_reader(j) {}
+            explicit TraceExtension(const nlohmann::json& j);
 
         public:
-            virtual ~TraceExtension() {
-                std::cout << "~Destroying TraceExtension" << std::endl;
-            }
+            virtual ~TraceExtension();
 
             virtual Trace::Record next_record() = 0;
     };
@@ -34,98 +31,40 @@ namespace Generator::Extension {
         public:
             RepeatExtension() = delete;
 
-            ~RepeatExtension() override {
-                std::cout << "~Destroying RepeatExtension" << std::endl;
-            }
+            ~RepeatExtension() override;
 
-            explicit RepeatExtension(const nlohmann::json& j)
-                : TraceExtension(j) {}
+            explicit RepeatExtension(const nlohmann::json& j);
 
-            Trace::Record next_record() override {
-                auto record = trace_reader->next_record();
-                if (!record.has_value()) {
-                    trace_reader->reset();
-                    record = trace_reader->next_record();
-                }
-                return record.value();
-            }
+            Trace::Record next_record(void) override;
     };
 
     class SampleExtension : public TraceExtension {
         private:
             bool collection_phase_done = false;
-            static constexpr size_t RESERVOIR_SIZE = 100'000;
+            static constexpr size_t RESERVOIR_SIZE = 1e6;
 
-            // Phase 1: reservoir samplers collect bounded samples online
-            Distribution::ReservoirSampler<uint64_t> offset_sampler{RESERVOIR_SIZE};
-            Distribution::ReservoirSampler<uint64_t> block_id_sampler{RESERVOIR_SIZE};
+            Distribution::ReservoirSampler<uint64_t> offset_sampler;
+            Distribution::ReservoirSampler<uint64_t> block_id_sampler;
             std::map<Operation::OperationType, uint64_t> operation_frequencies;
 
-            // Phase 2: alias tables for O(1) weighted generation
             Distribution::AliasTable<uint64_t> offset_alias;
             Distribution::AliasTable<uint64_t> block_id_alias;
             Distribution::AliasTable<Operation::OperationType> operation_alias;
 
-            Trace::Record generate_record() {
-                Trace::Record generated{};
+            void save_record(const Trace::Record& record);
 
-                generated.offset = !offset_alias.empty()
-                    ? offset_alias.sample() : 0;
+            void build_alias_tables(void);
 
-                generated.operation = !operation_alias.empty()
-                    ? operation_alias.sample()
-                    : Operation::OperationType::READ;
-
-                generated.block_id = !block_id_alias.empty()
-                    ? block_id_alias.sample() : 0;
-
-                return generated;
-            }
+            Trace::Record generate_record(void);
 
         public:
             SampleExtension() = delete;
 
-            ~SampleExtension() override {
-                std::cout << "~Destroying SampleExtension" << std::endl;
-            }
+            ~SampleExtension() override;
 
-            explicit SampleExtension(const nlohmann::json& j)
-                : TraceExtension(j) {}
+            explicit SampleExtension(const nlohmann::json& j);
 
-            Trace::Record next_record() override {
-                if (!collection_phase_done) {
-                    auto record = trace_reader->next_record();
-                    if (record.has_value()) {
-                        Trace::Record rec = record.value();
-
-                        offset_sampler.insert(rec.offset);
-                        block_id_sampler.insert(rec.block_id);
-                        operation_frequencies[rec.operation]++;
-
-                        return rec;
-                    } else {
-                        // EOF — build alias tables, free samplers
-                        collection_phase_done = true;
-
-                        offset_alias   = offset_sampler.build_alias();
-                        block_id_alias = block_id_sampler.build_alias();
-
-                        // Build operation alias from exact frequency counts
-                        std::vector<Operation::OperationType> op_vals;
-                        std::vector<uint64_t> op_weights;
-                        for (const auto& [op, count] : operation_frequencies) {
-                            op_vals.push_back(op);
-                            op_weights.push_back(count);
-                        }
-                        operation_alias.build(op_vals, op_weights);
-                        operation_frequencies.clear();
-
-                        return generate_record();
-                    }
-                }
-
-                return generate_record();
-            }
+            Trace::Record next_record() override;
     };
 }
 

@@ -10,51 +10,49 @@
 
 namespace Distribution {
 
-    // Reservoir sampler (Algorithm R) with bounded memory.
-    // Collects up to CAPACITY samples online; frequent values naturally
-    // occupy more slots. After collection, the reservoir can be converted
-    // into an AliasTable for O(1) weighted generation.
     template <typename T>
     class ReservoirSampler {
         private:
             size_t capacity;
             uint64_t count = 0;
             std::vector<T> reservoir;
+            std::uniform_int_distribution<size_t> dist;
 
         public:
+            ReservoirSampler() = delete;
+
             explicit ReservoirSampler(size_t capacity)
                 : capacity(capacity) {
                 reservoir.reserve(capacity);
             }
 
-            ReservoirSampler() : capacity(0) {}
-
-            // Feed one observed value. O(1) amortized.
             void insert(T value) {
                 count++;
                 if (reservoir.size() < capacity) {
                     reservoir.push_back(value);
                 } else {
-                    auto& rng = Distribution::get_shared_engine();
-                    uint64_t j = std::uniform_int_distribution<uint64_t>(
-                        0, count - 1)(rng);
+                    dist.param(
+                        std::uniform_int_distribution<size_t>::param_type(
+                            0, count - 1));
+                    size_t j = dist(Distribution::get_shared_engine());
                     if (j < capacity) {
                         reservoir[j] = value;
                     }
                 }
             }
 
-            // Build an AliasTable from the reservoir contents.
-            // Counts unique values in the reservoir to derive weights.
-            // Clears the reservoir afterwards to free memory.
             AliasTable<T> build_alias() {
                 AliasTable<T> table;
-                if (reservoir.empty()) return table;
+
+                if (reservoir.empty()) {
+                    return table;
+                }
 
                 std::sort(reservoir.begin(), reservoir.end());
 
                 std::vector<T> vals;
                 std::vector<uint64_t> weights;
+
                 vals.push_back(reservoir[0]);
                 weights.push_back(1);
 
@@ -69,7 +67,6 @@ namespace Distribution {
 
                 table.build(vals, weights);
 
-                // Free reservoir memory
                 reservoir.clear();
                 reservoir.shrink_to_fit();
 
@@ -79,7 +76,6 @@ namespace Distribution {
             bool empty() const { return reservoir.empty(); }
             size_t size() const { return reservoir.size(); }
     };
-
-} // namespace Distribution
+}
 
 #endif

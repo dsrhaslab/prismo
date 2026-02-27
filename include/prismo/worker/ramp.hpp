@@ -49,7 +49,6 @@ namespace Worker {
                 auto batch_duration = now - batch_start;
                 auto sleep_time = std::chrono::duration_cast<std::chrono::microseconds>(
                     batch_duration * (1.0 / ratio - 1.0));
-                std::cout << "ratio: " << ratio << " elapsed_ms: " << elapsed_ms << "sleep: " << sleep_time.count() << "us" << std::endl;
                 std::this_thread::sleep_for(sleep_time);
             }
         }

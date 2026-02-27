@@ -1,5 +1,5 @@
-#ifndef DISTRIBUTION_H
-#define DISTRIBUTION_H
+#ifndef LIB_DISTRIBUTION_H
+#define LIB_DISTRIBUTION_H
 
 #include <cstdint>
 #include <random>

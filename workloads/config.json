@@ -5,14 +5,14 @@
     "filename": "testfile",
     "block_size": 4096,
     "limit": 65536,
-    "metric": "none",
+    "metric": "full",
     "termination": {
       "type": "iterations",
-      "value": 1e4
+      "value": 1e3
     }
   },
   "operation": {
-    "type": "constant",
+    "type": "sequence",
     "operation": "nop",
     "percentages": {
       "read": 30,

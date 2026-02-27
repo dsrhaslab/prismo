@@ -15,21 +15,10 @@ namespace Generator {
 
             AccessGenerator() = delete;
 
-            explicit AccessGenerator(const nlohmann::json& j) {
-                block_size = j.at("block_size").get<size_t>();
-                limit = j.at("limit").get<size_t>();
-
-                if (block_size == 0) {
-                    throw std::invalid_argument("AccessGenerator: block_size must be greater than zero");
-                } else if (block_size > limit) {
-                    throw std::invalid_argument("AccessGenerator: block_size must be less than or equal to limit");
-                }
-            }
+            explicit AccessGenerator(const nlohmann::json& j);
 
         public:
-            virtual ~AccessGenerator() {
-                std::cout << "~Destroying AccessGenerator" << std::endl;
-            };
+            virtual ~AccessGenerator();
 
             virtual uint64_t next_offset(void) = 0;
     };
@@ -41,19 +30,11 @@ namespace Generator {
         public:
             SequentialAccessGenerator() = delete;
 
-            ~SequentialAccessGenerator() override {
-                std::cout << "~Destroying SequentialAccessGenerator" << std::endl;
-            }
+            ~SequentialAccessGenerator() override;
 
-            explicit SequentialAccessGenerator(const nlohmann::json& j) : AccessGenerator(j) {
-                limit = block_size * (limit / block_size);
-            };
+            explicit SequentialAccessGenerator(const nlohmann::json& j);
 
-            uint64_t next_offset(void) override {
-                const uint64_t offset = current_offset;
-                current_offset = static_cast<uint64_t>((current_offset + block_size) % limit);
-                return offset;
-            };
+            uint64_t next_offset(void) override;
     };
 
     class RandomAccessGenerator : public AccessGenerator {
@@ -64,18 +45,11 @@ namespace Generator {
         public:
             RandomAccessGenerator() = delete;
 
-            ~RandomAccessGenerator() override {
-                std::cout << "~Destroying RandomAccessGenerator" << std::endl;
-            }
+            ~RandomAccessGenerator() override;
 
-            explicit RandomAccessGenerator(const nlohmann::json& j) : AccessGenerator(j) {
-                normalized_limit = limit / block_size - 1;
-                rng.setParams(0, normalized_limit);
-            };
+            explicit RandomAccessGenerator(const nlohmann::json& j);
 
-            uint64_t next_offset(void) override {
-                return static_cast<uint64_t>(rng.nextValue() * block_size);
-            };
+            uint64_t next_offset(void) override;
     };
 
     class ZipfianAccessGenerator : public AccessGenerator {
@@ -87,24 +61,11 @@ namespace Generator {
         public:
             ZipfianAccessGenerator() = delete;
 
-            ~ZipfianAccessGenerator() override {
-                std::cout << "~Destroying ZipfianAccessGenerator" << std::endl;
-            };
+            ~ZipfianAccessGenerator() override;
 
-            explicit ZipfianAccessGenerator(const nlohmann::json& j) : AccessGenerator(j) {
-                skew = j.at("skew").get<float>();
+            explicit ZipfianAccessGenerator(const nlohmann::json& j);
 
-                if (skew <= 0 || skew >= 1) {
-                    throw std::invalid_argument("ZipfianAccessGenerator: skew must belong to range [0; 1]");
-                }
-
-                normalized_limit = limit / block_size - 1;
-                distribution.setParams(0, normalized_limit, skew);
-            };
-
-            uint64_t next_offset(void) override {
-                return static_cast<uint64_t>(distribution.nextValue() * block_size);
-            };
+            uint64_t next_offset(void) override;
     };
 };
 

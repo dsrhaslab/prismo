@@ -22,30 +22,14 @@ namespace Generator {
 
             ContentGenerator() = delete;
 
-            explicit ContentGenerator(const nlohmann::json& j)
-                : ContentGenerator(j, j.at("refill").get<bool>()) {}
+            explicit ContentGenerator(const nlohmann::json& j);
 
-            explicit ContentGenerator(const nlohmann::json& j, bool _refill_flag)
-                :
-                refill_flag(_refill_flag),
-                base_buffer(j.at("block_size").get<size_t>())
-            {
-                prng_init(&shishua_prng, generate_seed().data());
-                prng_gen(&shishua_prng, base_buffer.data(), base_buffer.size());
-            }
+            explicit ContentGenerator(const nlohmann::json& j, bool _refill_flag);
 
-            void refill(uint8_t* buffer, size_t size) {
-                if (refill_flag) {
-                    prng_gen(&shishua_prng, buffer, size);
-                } else {
-                    std::memcpy(buffer, base_buffer.data(), size);
-                }
-            }
+            void refill(uint8_t* buffer, size_t size);
 
         public:
-            virtual ~ContentGenerator() {
-                std::cout << "~Destroying ContentGenerator" << std::endl;
-            }
+            virtual ~ContentGenerator();
 
             virtual BlockMetadata next_block(uint8_t* buffer, size_t size) = 0;
     };
@@ -54,21 +38,11 @@ namespace Generator {
         public:
             ConstantContentGenerator() = delete;
 
-            ~ConstantContentGenerator() override {
-                std::cout << "~Destroying ConstantContentGenerator" << std::endl;
-            }
+            ~ConstantContentGenerator() override;
 
-            explicit ConstantContentGenerator(const nlohmann::json& j)
-                : ContentGenerator(j, false) {}
+            explicit ConstantContentGenerator(const nlohmann::json& j);
 
-            BlockMetadata next_block(uint8_t* buffer, size_t size) override {
-                refill(buffer, size);
-                std::memcpy(buffer, &block_id, sizeof(block_id));
-                return BlockMetadata {
-                    .block_id = block_id,
-                    .compression = 0
-                };
-            }
+            BlockMetadata next_block(uint8_t* buffer, size_t size) override;
     };
 
     class RandomContentGenerator : public ContentGenerator {
@@ -78,22 +52,11 @@ namespace Generator {
         public:
             RandomContentGenerator() = delete;
 
-            ~RandomContentGenerator() override {
-                std::cout << "~Destroying RandomContentGenerator" << std::endl;
-            }
+            ~RandomContentGenerator() override;
 
-            explicit RandomContentGenerator(const nlohmann::json& j)
-                : ContentGenerator(j) {}
+            explicit RandomContentGenerator(const nlohmann::json& j);
 
-            BlockMetadata next_block(uint8_t* buffer, size_t size) override {
-                refill(buffer, size);
-                block_id = rng.nextValue();
-                std::memcpy(buffer, &block_id, sizeof(block_id));
-                return BlockMetadata {
-                    .block_id = block_id,
-                    .compression = 0
-                };
-            }
+            BlockMetadata next_block(uint8_t* buffer, size_t size) override;
     };
 }
 

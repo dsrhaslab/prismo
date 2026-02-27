@@ -5,6 +5,7 @@
 #include <fcntl.h>
 #include <cstdint>
 #include <common/metadata.hpp>
+#include <common/operation.hpp>
 
 namespace Protocol {
 
