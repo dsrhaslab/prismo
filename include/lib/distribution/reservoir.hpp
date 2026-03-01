@@ -10,6 +10,8 @@
 
 namespace Distribution {
 
+    inline constexpr size_t DEFAULT_RESERVOIR_SIZE = 1e6;
+
     template <typename T>
     class ReservoirSampler {
         private:
@@ -21,7 +23,7 @@ namespace Distribution {
         public:
             ReservoirSampler() = delete;
 
-            explicit ReservoirSampler(size_t capacity)
+            explicit ReservoirSampler(size_t capacity = DEFAULT_RESERVOIR_SIZE)
                 : capacity(capacity) {
                 reservoir.reserve(capacity);
             }
@@ -72,9 +74,6 @@ namespace Distribution {
 
                 return table;
             }
-
-            bool empty() const { return reservoir.empty(); }
-            size_t size() const { return reservoir.size(); }
     };
 }
 

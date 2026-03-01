@@ -12,7 +12,6 @@
 #include <prismo/generator/content/deduplication.hpp>
 #include <prismo/generator/operation/barrier.hpp>
 #include <prismo/generator/operation/generator.hpp>
-#include <prismo/generator/tracebased/extension.hpp>
 #include <prismo/generator/tracebased/tracebased.hpp>
 #include <prismo/logger/logger.hpp>
 #include <prismo/logger/spdlog.hpp>

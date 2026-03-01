@@ -60,9 +60,10 @@ src = files(
 cc = meson.get_compiler('cpp')
 
 libaio_dep = cc.find_library('aio', required: true)
-json_dep = dependency('nlohmann_json', required: true)
-spdlog_dep = dependency('spdlog', required: true)
 liburing_dep = dependency('liburing', required: true)
+spdlog_dep = dependency('spdlog', required: true)
+eigen_dep = dependency('eigen3', required: true)
+json_dep = dependency('nlohmann_json', required: true)
 boost_dep = dependency('boost', modules: ['pool'], required: true)
 
 spdk_env_dpdk_dep = dependency('spdk_env_dpdk', required: true, static: true)
@@ -208,6 +209,7 @@ prismo = executable(
     include_directories: inc,
     dependencies: [
         json_dep,
+        eigen_dep,
         spdlog_dep,
         liburing_dep,
         libaio_dep,
@@ -230,4 +232,4 @@ prismo = executable(
     install: true,
 )
 
-test('prismo_basic_test', prismo, args: ['-c', '../workloads/config.json'])
+test('prismo_basic_test', prismo, args: ['-c', '/home/digo/Desktop/prismo/workloads/config.json'])

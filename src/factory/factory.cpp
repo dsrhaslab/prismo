@@ -9,9 +9,17 @@ namespace Factory {
         std::unique_ptr<Generator::Extension::TraceExtension> extension;
 
         if (type == "repeat") {
-            extension = std::make_unique<Generator::Extension::RepeatExtension>(config);
+            extension =
+                std::make_unique<Generator::Extension::RepeatExtension>(config);
         } else if (type == "sample") {
-            extension = std::make_unique<Generator::Extension::SampleExtension>(config);
+            extension =
+                std::make_unique<Generator::Extension::SampleExtension>(config);
+        } else if (type == "sample") {
+            extension =
+                std::make_unique<Generator::Extension::SampleExtension>(config);
+        } else if (type == "regression") {
+            extension =
+                std::make_unique<Generator::Extension::RegressionExtension>(config);
         } else {
             throw std::invalid_argument(
                 "get_trace_extension: type '" + type + "' not recognized");
