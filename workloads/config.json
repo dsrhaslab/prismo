@@ -1,19 +1,19 @@
 {
   "job": {
     "name": "job",
-    "numjobs": 3,
+    "numjobs": 1,
     "filename": "testfile",
     "block_size": 4096,
-    "limit": 65536,
+    "limit": 90112,
     "metric": "full",
     "termination": {
       "type": "iterations",
-      "value": 1e3
+      "value": 1e4
     }
   },
   "operation": {
-    "type": "sequence",
-    "operation": "nop",
+    "type": "constant",
+    "operation": "write",
     "percentages": {
       "read": 30,
       "write": 70
@@ -29,16 +29,16 @@
       "write",
       "read"
     ],
-    "trace": "/home/digo/Desktop/prismo/traces/webmail+online.cs.fiu.edu-110108-113008.10.blkparse.prismo",
-    "memory": 128,
+    "trace": "/home/digo/Desktop/prismo/tests/test_trace_seq.prismo",
+    "memory": 10240,
     "extension": "repeat"
   },
   "access": {
-    "type": "sequential",
+    "type": "trace",
     "skew": 1,
-    "trace": "/home/digo/Desktop/prismo/traces/webmail+online.cs.fiu.edu-110108-113008.10.blkparse.prismo",
-    "memory": 128,
-    "extension": "repeat"
+    "trace": "/home/digo/Desktop/prismo/tests/test_trace_dist.prismo",
+    "memory": 10220,
+    "extension": "sample"
   },
   "generator": {
     "type": "constant",

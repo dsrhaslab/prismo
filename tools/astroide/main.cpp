@@ -9,7 +9,7 @@
 bool parse_line(const std::string& line, Trace::Record& record) {
     std::istringstream iss(line);
     std::string process;
-    std::string block_id;
+    // std::string block_id;
     char operation;
 
     iss >> record.timestamp
@@ -20,7 +20,7 @@ bool parse_line(const std::string& line, Trace::Record& record) {
         >> operation
         >> record.major
         >> record.minor
-        >> block_id;
+        >> record.block_id;
 
     if (iss.fail()) {
         return false;
@@ -28,7 +28,9 @@ bool parse_line(const std::string& line, Trace::Record& record) {
 
     record.operation = Operation::operation_from_char(operation);
     record.process = komihash(process.data(), process.size(), 0);
-    record.block_id = komihash(block_id.data(), block_id.size(), 0);
+    // record.block_id = komihash(block_id.data(), block_id.size(), 0);
+
+
 
     return true;
 }

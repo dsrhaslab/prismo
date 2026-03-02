@@ -3,3 +3,4 @@ external/
 traces/
 *.log
 testfile*
+tests/

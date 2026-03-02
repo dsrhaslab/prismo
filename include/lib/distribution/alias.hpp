@@ -1,7 +1,9 @@
 #ifndef LIB_DISTRIBUTION_ALIAS_H
 #define LIB_DISTRIBUTION_ALIAS_H
 
-#include "lib/distribution/distribution.hpp"
+#include <iomanip>
+#include <iostream>
+#include <lib/distribution/distribution.hpp>
 
 namespace Distribution {
 
@@ -36,7 +38,7 @@ namespace Distribution {
                 }
 
                 std::vector<double> scaled(n);
-                std::vector<size_t> small(n), large(n);
+                std::vector<size_t> small, large;
 
                 for (size_t i = 0; i < n; ++i)
                     scaled[i] = static_cast<double>(weights[i]) * n / total;
@@ -86,6 +88,24 @@ namespace Distribution {
                 size_t col = std::uniform_int_distribution<size_t>(0, n - 1)(rng);
                 double coin = std::uniform_real_distribution<double>(0.0, 1.0)(rng);
                 return (coin < prob[col]) ? values[col] : values[alias[col]];
+            }
+
+            void print(std::ostream& os = std::cout) const {
+                size_t n = values.size();
+                os << std::left
+                   << std::setw(8)  << "Index"
+                   << std::setw(20) << "Value"
+                   << std::setw(16) << "Probability"
+                   << std::setw(8)  << "Alias"
+                   << "Alias Value\n"
+                   << std::string(64, '-') << '\n';
+                for (size_t i = 0; i < n; ++i) {
+                    os << std::setw(8)  << i
+                       << std::setw(20) << static_cast<int>(values[i])
+                       << std::setw(16) << std::fixed << std::setprecision(6) << prob[i]
+                       << std::setw(8)  << alias[i]
+                       << static_cast<int>(values[alias[i]]) << '\n';
+                }
             }
     };
 }
