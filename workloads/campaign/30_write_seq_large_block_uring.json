@@ -1,0 +1,40 @@
+{
+  "job": {
+    "name": "30_write_seq_large_block_uring",
+    "numjobs": 1,
+    "filename": "testfile_campaign",
+    "block_size": 65536,
+    "limit": 1073741824,
+    "metric": "full",
+    "termination": {
+      "type": "iterations",
+      "value": 100000
+    }
+  },
+  "operation": {
+    "type": "constant",
+    "operation": "write",
+    "barrier": []
+  },
+  "access": {
+    "type": "sequential"
+  },
+  "generator": {
+    "type": "random",
+    "refill": true
+  },
+  "engine": {
+    "type": "uring",
+    "openflags": [
+      "O_CREAT",
+      "O_RDWR"
+    ],
+    "entries": 128,
+    "params": {
+      "cq_entries": 256,
+      "sq_thread_cpu": 0,
+      "sq_thread_idle": 0,
+      "flags": []
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "job": {
+    "name": "44_read_seq_const_aio",
+    "numjobs": 1,
+    "filename": "testfile_campaign",
+    "block_size": 4096,
+    "limit": 268435456,
+    "metric": "full",
+    "termination": {
+      "type": "iterations",
+      "value": 300000
+    }
+  },
+  "operation": {
+    "type": "constant",
+    "operation": "read",
+    "barrier": []
+  },
+  "access": {
+    "type": "sequential"
+  },
+  "generator": {
+    "type": "constant"
+  },
+  "engine": {
+    "type": "aio",
+    "openflags": [
+      "O_CREAT",
+      "O_RDWR",
+      "O_DIRECT"
+    ],
+    "entries": 128
+  }
+}

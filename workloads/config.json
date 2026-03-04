@@ -8,11 +8,11 @@
     "metric": "full",
     "termination": {
       "type": "iterations",
-      "value": 1e4
+      "value": 20
     }
   },
   "operation": {
-    "type": "constant",
+    "type": "trace",
     "operation": "write",
     "percentages": {
       "read": 30,
@@ -31,7 +31,7 @@
     ],
     "trace": "/home/digo/Desktop/prismo/tests/test_trace_seq.prismo",
     "memory": 10240,
-    "extension": "repeat"
+    "extension": "regression"
   },
   "access": {
     "type": "trace",
@@ -41,8 +41,11 @@
     "extension": "sample"
   },
   "generator": {
-    "type": "constant",
+    "type": "trace",
     "refill": false,
+    "trace": "/home/digo/Desktop/prismo/tests/test_trace_seq.prismo",
+    "memory": 10220,
+    "extension": "regression",
     "distribution": [
       {
         "percentage": 20,

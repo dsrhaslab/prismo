@@ -1,0 +1,36 @@
+{
+  "job": {
+    "name": "13_rw_random_multijob",
+    "numjobs": 4,
+    "filename": "testfile_campaign",
+    "block_size": 4096,
+    "limit": 268435456,
+    "metric": "full",
+    "termination": {
+      "type": "iterations",
+      "value": 200000
+    }
+  },
+  "operation": {
+    "type": "percentage",
+    "percentages": {
+      "read": 50,
+      "write": 50
+    },
+    "barrier": []
+  },
+  "access": {
+    "type": "random"
+  },
+  "generator": {
+    "type": "random",
+    "refill": true
+  },
+  "engine": {
+    "type": "posix",
+    "openflags": [
+      "O_CREAT",
+      "O_RDWR"
+    ]
+  }
+}

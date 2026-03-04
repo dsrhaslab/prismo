@@ -1,0 +1,40 @@
+{
+  "job": {
+    "name": "57_rw_random_random_spdk",
+    "numjobs": 1,
+    "filename": "testfile_campaign",
+    "block_size": 4096,
+    "limit": 268435456,
+    "metric": "full",
+    "termination": {
+      "type": "iterations",
+      "value": 400000
+    }
+  },
+  "operation": {
+    "type": "percentage",
+    "percentages": {
+      "read": 70,
+      "write": 30
+    },
+    "barrier": []
+  },
+  "access": {
+    "type": "random"
+  },
+  "generator": {
+    "type": "random",
+    "refill": true
+  },
+  "engine": {
+    "type": "spdk",
+    "openflags": [
+      "O_CREAT",
+      "O_RDWR"
+    ],
+    "bdev_name": "Malloc0",
+    "reactor_mask": "0xF",
+    "spdk_threads": 1,
+    "json_config_file": "/home/digo/Desktop/prismo/workloads/spdk/spdk_bdev.json"
+  }
+}

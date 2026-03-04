@@ -1,0 +1,52 @@
+{
+  "job": {
+    "name": "32_fdatasync_barrier_zipf_uring",
+    "numjobs": 1,
+    "filename": "testfile_campaign",
+    "block_size": 4096,
+    "limit": 268435456,
+    "metric": "full",
+    "termination": {
+      "type": "iterations",
+      "value": 300000
+    }
+  },
+  "operation": {
+    "type": "sequence",
+    "operations": [
+      "write",
+      "write",
+      "read",
+      "write"
+    ],
+    "barrier": [
+      {
+        "operation": "fdatasync",
+        "trigger": "write",
+        "threshold": 512
+      }
+    ]
+  },
+  "access": {
+    "type": "zipfian",
+    "skew": 0.7
+  },
+  "generator": {
+    "type": "random",
+    "refill": false
+  },
+  "engine": {
+    "type": "uring",
+    "openflags": [
+      "O_CREAT",
+      "O_RDWR"
+    ],
+    "entries": 128,
+    "params": {
+      "cq_entries": 256,
+      "sq_thread_cpu": 0,
+      "sq_thread_idle": 0,
+      "flags": []
+    }
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "job": {
+    "name": "15_all_ops_random",
+    "numjobs": 1,
+    "filename": "testfile_campaign",
+    "block_size": 4096,
+    "limit": 268435456,
+    "metric": "full",
+    "termination": {
+      "type": "iterations",
+      "value": 300000
+    }
+  },
+  "operation": {
+    "type": "sequence",
+    "operations": [
+      "read",
+      "write",
+      "fsync",
+      "write",
+      "read",
+      "fdatasync",
+      "nop",
+      "write"
+    ],
+    "barrier": []
+  },
+  "access": {
+    "type": "random"
+  },
+  "generator": {
+    "type": "random",
+    "refill": true
+  },
+  "engine": {
+    "type": "posix",
+    "openflags": [
+      "O_CREAT",
+      "O_RDWR"
+    ]
+  }
+}

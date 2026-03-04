@@ -1,0 +1,46 @@
+{
+  "job": {
+    "name": "25_trace_all_uring",
+    "numjobs": 1,
+    "filename": "testfile_campaign",
+    "block_size": 4096,
+    "limit": 268435456,
+    "metric": "full",
+    "termination": {
+      "type": "iterations",
+      "value": 250000
+    }
+  },
+  "operation": {
+    "type": "trace",
+    "trace": "/home/digo/Desktop/prismo/tests/test_trace_seq.prismo",
+    "memory": 16384,
+    "extension": "sample"
+  },
+  "access": {
+    "type": "trace",
+    "trace": "/home/digo/Desktop/prismo/tests/test_trace_dist.prismo",
+    "memory": 16384,
+    "extension": "sample"
+  },
+  "generator": {
+    "type": "trace",
+    "trace": "/home/digo/Desktop/prismo/tests/test_trace_seq.prismo",
+    "memory": 16384,
+    "extension": "sample"
+  },
+  "engine": {
+    "type": "uring",
+    "openflags": [
+      "O_CREAT",
+      "O_RDWR"
+    ],
+    "entries": 128,
+    "params": {
+      "cq_entries": 256,
+      "sq_thread_cpu": 0,
+      "sq_thread_idle": 0,
+      "flags": []
+    }
+  }
+}

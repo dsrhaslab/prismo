@@ -1,0 +1,32 @@
+{
+  "job": {
+    "name": "01_nop_seq_const",
+    "numjobs": 1,
+    "filename": "testfile_campaign",
+    "block_size": 4096,
+    "limit": 67108864,
+    "metric": "full",
+    "termination": {
+      "type": "iterations",
+      "value": 200000
+    }
+  },
+  "operation": {
+    "type": "constant",
+    "operation": "nop",
+    "barrier": []
+  },
+  "access": {
+    "type": "sequential"
+  },
+  "generator": {
+    "type": "constant"
+  },
+  "engine": {
+    "type": "posix",
+    "openflags": [
+      "O_CREAT",
+      "O_RDWR"
+    ]
+  }
+}

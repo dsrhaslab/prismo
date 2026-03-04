@@ -1,0 +1,86 @@
+{
+  "job": {
+    "name": "24_zipf_dedup_uring",
+    "numjobs": 1,
+    "filename": "testfile_campaign",
+    "block_size": 4096,
+    "limit": 268435456,
+    "metric": "full",
+    "termination": {
+      "type": "iterations",
+      "value": 350000
+    }
+  },
+  "operation": {
+    "type": "sequence",
+    "operations": [
+      "read",
+      "write",
+      "nop",
+      "write"
+    ],
+    "barrier": []
+  },
+  "access": {
+    "type": "zipfian",
+    "skew": 0.9
+  },
+  "generator": {
+    "type": "dedup",
+    "refill": false,
+    "distribution": [
+      {
+        "percentage": 50,
+        "repeats": 0,
+        "compression": [
+          {
+            "percentage": 50,
+            "reduction": 0
+          },
+          {
+            "percentage": 50,
+            "reduction": 50
+          }
+        ]
+      },
+      {
+        "percentage": 35,
+        "repeats": 1,
+        "compression": [
+          {
+            "percentage": 70,
+            "reduction": 30
+          },
+          {
+            "percentage": 30,
+            "reduction": 20
+          }
+        ]
+      },
+      {
+        "percentage": 15,
+        "repeats": 3,
+        "compression": [
+          {
+            "percentage": 100,
+            "reduction": 0
+          }
+        ]
+      }
+    ]
+  },
+  "engine": {
+    "type": "uring",
+    "openflags": [
+      "O_CREAT",
+      "O_RDWR"
+    ],
+    "entries": 128,
+    "params": {
+      "cq_entries": 256,
+      "sq_thread_cpu": 0,
+      "sq_thread_idle": 0,
+      "flags": []
+    }
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "job": {
+    "name": "48_write_seq_large_block_aio",
+    "numjobs": 1,
+    "filename": "testfile_campaign",
+    "block_size": 65536,
+    "limit": 1073741824,
+    "metric": "full",
+    "termination": {
+      "type": "iterations",
+      "value": 100000
+    }
+  },
+  "operation": {
+    "type": "constant",
+    "operation": "write",
+    "barrier": []
+  },
+  "access": {
+    "type": "sequential"
+  },
+  "generator": {
+    "type": "random",
+    "refill": true
+  },
+  "engine": {
+    "type": "aio",
+    "openflags": [
+      "O_CREAT",
+      "O_RDWR",
+      "O_DIRECT"
+    ],
+    "entries": 128
+  }
+}
