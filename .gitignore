@@ -4,3 +4,4 @@ traces/
 *.log
 testfile*
 tests/
+workloads/results/

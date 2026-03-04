@@ -8,6 +8,7 @@
 #   -b, --binary PATH       Path to prismo binary       (default: builddir/prismo)
 #   -o, --output DIR        Results output directory     (default: report/results/campaign_<ts>)
 #   -e, --engine ENGINE     Filter by engine: posix | uring | aio | spdk | all  (default: all)
+#   -w, --workloads X:Y     Run only workloads numbered X to Y (e.g. 1:18, 55:72)
 #   -r, --repetitions N     Repetitions per workload     (default: 1)
 #   -n, --dry-run           List workloads without executing
 #   -h, --help              Show this help
@@ -88,6 +89,8 @@ get_engine() {
 BINARY="$ROOT_DIR/builddir/prismo"
 RESULTS_DIR=""
 ENGINE_FILTER="all"
+WORKLOAD_FROM=0
+WORKLOAD_TO=0
 REPETITIONS=1
 DRY_RUN=false
 
@@ -97,6 +100,15 @@ parse_args() {
             -b|--binary)      BINARY="$2";         shift 2 ;;
             -o|--output)      RESULTS_DIR="$2";    shift 2 ;;
             -e|--engine)      ENGINE_FILTER="$2";  shift 2 ;;
+            -w|--workloads)
+                if [[ "$2" =~ ^([0-9]+):([0-9]+)$ ]]; then
+                    WORKLOAD_FROM=$((10#${BASH_REMATCH[1]}))
+                    WORKLOAD_TO=$((10#${BASH_REMATCH[2]}))
+                else
+                    log_fail "invalid range '$2' — expected X:Y (e.g. 1:18)"
+                    exit 1
+                fi
+                shift 2 ;;
             -r|--repetitions) REPETITIONS="$2";    shift 2 ;;
             -n|--dry-run)     DRY_RUN=true;        shift   ;;
             -h|--help)        usage ;;
@@ -109,7 +121,7 @@ parse_args() {
 
     # Default results directory includes a timestamp
     if [[ -z "$RESULTS_DIR" ]]; then
-        RESULTS_DIR="$ROOT_DIR/report/results/campaign_$(date +%Y%m%d_%H%M%S)"
+        RESULTS_DIR="$ROOT_DIR/workloads/results/campaign_$(date +%Y%m%d_%H%M%S)"
     fi
 }
 
@@ -135,12 +147,18 @@ discover_workloads() {
     for cfg in "$WORKLOAD_DIR"/*.json; do
         [[ -f "$cfg" ]] || continue
 
-        local name engine
+        local name num engine
         name="$(basename "$cfg" .json)"
+        num=$((10#${name%%_*}))
         engine="$(get_engine "$name")"
 
         # Apply engine filter
         [[ "$ENGINE_FILTER" != "all" && "$engine" != "$ENGINE_FILTER" ]] && continue
+
+        # Apply workload range filter
+        if (( WORKLOAD_FROM > 0 && WORKLOAD_TO > 0 )); then
+            (( num < WORKLOAD_FROM || num > WORKLOAD_TO )) && continue
+        fi
 
         CONFIGS+=("$cfg")
     done
@@ -167,6 +185,11 @@ print_header() {
     log_info "Workloads:    $WORKLOAD_DIR"
     log_info "Results:      $RESULTS_DIR"
     log_info "Engine:       $ENGINE_FILTER"
+    if (( WORKLOAD_FROM > 0 && WORKLOAD_TO > 0 )); then
+        log_info "Workloads:    $WORKLOAD_FROM — $WORKLOAD_TO"
+    else
+        log_info "Workloads:    all"
+    fi
     log_info "Repetitions:  $REPETITIONS"
     log_info "Total runs:   $total workload(s) × $REPETITIONS rep(s) = $((total * REPETITIONS))"
     echo ""

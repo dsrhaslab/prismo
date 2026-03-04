@@ -2,7 +2,7 @@
 
 72 workloads organized across 4 I/O engines (posix, io_uring, libaio, SPDK). Each engine runs the same 18 base workloads, enabling direct engine-to-engine comparisons.
 
-## Base workloads (posix, 01–18)
+## Base Workloads
 
 | #  | Name                        | Description                                                  |
 |----|-----------------------------|--------------------------------------------------------------|
@@ -25,7 +25,7 @@
 | 17 | `runtime_mixed_random`      | Runtime-based (30s), percentage mix with fsync, 16 KiB blocks|
 | 18 | `multijob_dedup_barrier`    | 4 jobs + full sequence + dedup + barriers + Zipf(0.9)        |
 
-## Engine mirrors
+## Engine Mirrors
 
 Each base workload is replicated for three additional engines with the same configuration (only the engine section differs):
 
@@ -45,6 +45,9 @@ Each base workload is replicated for three additional engines with the same conf
 # Run only posix workloads
 ./tools/scripts/run_campaign.sh -e posix
 
+# Run only workloads 1 to 18
+./tools/scripts/run_campaign.sh -w 1:18
+
 # Run with 5 repetitions
 ./tools/scripts/run_campaign.sh -r 5
 
@@ -55,38 +58,8 @@ Each base workload is replicated for three additional engines with the same conf
 ./tools/scripts/run_campaign.sh -b /path/to/prismo -o /path/to/results
 ```
 
-### Options
-
-| Flag                 | Description                                     | Default                              |
-|----------------------|-------------------------------------------------|--------------------------------------|
-| `-b, --binary PATH`  | Path to prismo binary                           | `builddir/prismo`                    |
-| `-o, --output DIR`   | Results output directory                        | `report/results/campaign_<timestamp>`|
-| `-e, --engine ENGINE`| Filter by engine: `posix`, `uring`, `aio`, `spdk`, `all` | `all`                    |
-| `-r, --repetitions N`| Repetitions per workload                        | `1`                                  |
-| `-n, --dry-run`      | List workloads without executing                |                                      |
-| `-h, --help`         | Show help                                       |                                      |
-
 ### Outputs
 
 - `<name>.raw.log` — full execution output per workload
 - `<name>.report.json` — extracted JSON report per workload
 - `summary.csv` — aggregated metrics table
-
-## Suggested article methodology
-
-- Run each workload with at least 5 repetitions (`-r 5`).
-- Report median and interquartile range for:
-  - overall IOPS
-  - overall bandwidth
-  - weighted average latency
-  - weighted p99 latency
-- Keep hardware/software setup fixed across all runs.
-- Compare engines using the 1:1 mirror workloads.
-
-## Suggested factors for extended experiments
-
-- `numjobs`: 1, 2, 4, 8
-- `block_size`: 4 KiB, 16 KiB, 64 KiB
-- `operation.percentages`: read-heavy, balanced, write-heavy
-- `access.skew` for Zipf: 0.6, 0.8, 0.95
-- Dedup distributions (higher/lower repeats)
