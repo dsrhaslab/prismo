@@ -63,6 +63,7 @@ libaio_dep = cc.find_library('aio', required: true)
 liburing_dep = dependency('liburing', required: true)
 spdlog_dep = dependency('spdlog', required: true)
 eigen_dep = dependency('eigen3', required: true)
+zstd_dep = dependency('libzstd', required: true)
 json_dep = dependency('nlohmann_json', required: true)
 boost_dep = dependency('boost', modules: ['pool'], required: true)
 
