@@ -31,7 +31,7 @@ namespace Worker {
         uint64_t iterations_count = 0;
         auto start_time = std::chrono::steady_clock::now();
 
-        while (TerminationManager::should_continue(
+        while (should_continue(
             termination, start_time, iterations_count)
         ) {
             auto batch_start = std::chrono::steady_clock::now();
@@ -39,8 +39,8 @@ namespace Worker {
             size_t count = to_producer->try_dequeue_bulk(packets, BULK_SIZE);
 
             while (ready < count &&
-                    TerminationManager::should_continue(
-                        termination, start_time, iterations_count)
+                   should_continue(
+                    termination, start_time, iterations_count)
             ) {
                 packet = packets[ready];
                 packet->request.fd = fd;

@@ -82,7 +82,6 @@ def main() -> int:
         writer.writeheader()
         writer.writerows(rows)
 
-    print(f"wrote {out_csv}")
     return 0
 
 

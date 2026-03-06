@@ -62,6 +62,15 @@ namespace Metric {
                 max_latency_ns = std::max(max_latency_ns, latency_ns);
                 percentile_calc.record(latency_ns);
             }
+
+            void merge(const OperationStats& other) {
+                count += other.count;
+                total_bytes += other.total_bytes;
+                total_latency_ns += other.total_latency_ns;
+                min_latency_ns = std::min(min_latency_ns, other.min_latency_ns);
+                max_latency_ns = std::max(max_latency_ns, other.max_latency_ns);
+                percentile_calc.merge(other.percentile_calc);
+            }
     };
 
     class Statistics {
@@ -85,7 +94,9 @@ namespace Metric {
             void finish(void);
 
             void record_metric(const MetricVariant& metric);
-            nlohmann::json get_report_json(void) const;
+            void merge(const Statistics& other);
+
+            nlohmann::json to_json(void) const;
 
         private:
             static double round_to(double value, int precision = 2) {

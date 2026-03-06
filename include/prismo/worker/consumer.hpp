@@ -9,7 +9,6 @@ namespace Worker {
 
     class Consumer {
         private:
-            nlohmann::json report;
             std::unique_ptr<Engine::Base> engine;
             std::shared_ptr<moodycamel::ConcurrentQueue<Protocol::Packet*>> to_producer;
             std::shared_ptr<moodycamel::ConcurrentQueue<Protocol::Packet*>> to_consumer;
@@ -25,7 +24,7 @@ namespace Worker {
 
             void close(Protocol::CloseRequest& request);
 
-            const nlohmann::json& get_report(void) const;
+            const Metric::Statistics get_statistics(void) const;
 
             void run(void);
     };

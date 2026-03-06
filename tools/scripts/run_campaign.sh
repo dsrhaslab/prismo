@@ -178,7 +178,7 @@ print_header() {
 
     echo ""
     log "╔══════════════════════════════════════════════════════════════════╗"
-    log "║                    PRISMO CAMPAIGN RUNNER                      ║"
+    log "║                    PRISMO CAMPAIGN RUNNER                        ║"
     log "╚══════════════════════════════════════════════════════════════════╝"
     echo ""
     log_info "Binary:       $BINARY"

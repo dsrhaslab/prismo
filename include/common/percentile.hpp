@@ -36,6 +36,15 @@ namespace Percentile {
             buckets[bucket]++;
         }
 
+        void merge(const Calculator& other) {
+            for (int i = 0; i < NUM_BUCKETS; i++) {
+                buckets[i] += other.buckets[i];
+            }
+            total_count += other.total_count;
+            min_value = std::min(min_value, other.min_value);
+            max_value = std::max(max_value, other.max_value);
+        }
+
         uint64_t get_percentile(double percentile) const {
             if (total_count == 0)
                 return 0;

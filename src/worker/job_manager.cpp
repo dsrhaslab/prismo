@@ -3,7 +3,7 @@
 namespace Worker {
 
     JobManager::JobManager(const nlohmann::json& config_json) {
-        spdlog::info("JobManager initialization started");
+        spdlog::debug("JobManager initialization started");
 
         job_json = config_json
             .value("job", nlohmann::json::object());
@@ -26,11 +26,11 @@ namespace Worker {
         block_size = job_json.value("block_size", 4096);
         filename = job_json.value("filename", "config.json");
         open_flags = engine_json.at("openflags").get<Engine::OpenFlags>();
-        termination = TerminationManager::parse(job_json.at("termination"));
+        termination = job_json.at("termination").get<Worker::Termination>();
     }
 
     void JobManager::setup_jobs(void) {
-        spdlog::info("Setting up {} job(s)", numjobs);
+        spdlog::debug("Setting up {} job(s)", numjobs);
         jobs.resize(numjobs);
         threads.reserve(numjobs * 2);
 
@@ -125,15 +125,15 @@ namespace Worker {
             jobs[i].producer = std::move(producer);
             jobs[i].consumer = std::move(consumer);
 
-            spdlog::info("Job {} setup complete: fd={}, filename={}", i,
+            spdlog::debug("Job {} setup complete: fd={}, filename={}", i,
                         jobs[i].fd, open_request.filename);
         }
 
-        spdlog::info("All {} jobs configured and ready", numjobs);
+        spdlog::debug("All {} jobs configured and ready", numjobs);
     }
 
     void JobManager::run_jobs(void) {
-        spdlog::info("Launching {} producer-consumer pair(s)", numjobs);
+        spdlog::debug("Launching {} producer-consumer pair(s)", numjobs);
 
         for (size_t i = 0; i < numjobs; i++) {
             spdlog::debug("Starting producer thread for job {}", i);
@@ -151,18 +151,18 @@ namespace Worker {
             );
         }
 
-        spdlog::info("All threads started, waiting for completion...");
+        spdlog::debug("All threads started, waiting for completion...");
 
         for (size_t i = 0; i < threads.size(); i++) {
             threads[i].join();
             spdlog::debug("Thread {} completed", i);
         }
 
-        spdlog::info("All threads completed");
+        spdlog::debug("All threads completed");
     }
 
     void JobManager::teardown(void) {
-        spdlog::info("Tearing down {} job(s)", numjobs);
+        spdlog::debug("Tearing down {} job(s)", numjobs);
 
         for (size_t i = 0; i < numjobs; i++) {
             spdlog::debug("Closing job {}: fd={}", i, jobs[i].fd);
@@ -176,11 +176,11 @@ namespace Worker {
             spdlog::debug("Job {} teardown complete", i);
         }
 
-        spdlog::info("All jobs torn down successfully");
+        spdlog::debug("All jobs torn down successfully");
     }
 
     nlohmann::json JobManager::collect_reports(void) {
-        spdlog::info("Collecting reports from {} job(s)", numjobs);
+        spdlog::debug("Collecting reports from {} job(s)", numjobs);
 
         nlohmann::json final_report;
         final_report["jobs"] = nlohmann::json::array();
@@ -188,12 +188,12 @@ namespace Worker {
         for (size_t i = 0; i < numjobs; i++) {
             spdlog::debug("Collecting report for job {}", i);
 
-            nlohmann::json job_report = jobs[i].consumer->get_report();
+            nlohmann::json job_report = jobs[i].consumer->get_statistics().to_json();
             job_report["job_id"] = i;
             final_report["jobs"].push_back(job_report);
 
             if (job_report.contains("total_operations")) {
-                spdlog::info("Job {}: {} operations, {} bytes, {:.2f}s runtime",
+                spdlog::debug("Job {}: {} operations, {} bytes, {:.2f}s runtime",
                     i,
                     job_report["total_operations"].get<uint64_t>(),
                     job_report["total_bytes"].get<uint64_t>(),
@@ -202,7 +202,22 @@ namespace Worker {
             }
         }
 
-        spdlog::info("All reports collected successfully");
+        if (numjobs > 1) {
+            spdlog::debug("Merging metrics from all {} jobs into 'all' entry", numjobs);
+
+            Metric::Statistics merged;
+            for (size_t i = 0; i < numjobs; i++) {
+                merged.merge(jobs[i].consumer->get_statistics());
+            }
+
+            nlohmann::json all_report = merged.to_json();
+            all_report["job_id"] = "all";
+            final_report["jobs"].push_back(all_report);
+
+            spdlog::debug("Merged 'all' entry added");
+        }
+
+        spdlog::debug("All reports collected successfully");
         return final_report;
     }
 }

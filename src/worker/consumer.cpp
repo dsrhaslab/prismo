@@ -19,8 +19,8 @@ namespace Worker {
         engine->close(request);
     }
 
-    const nlohmann::json& Consumer::get_report(void) const {
-        return report;
+    const Metric::Statistics Consumer::get_statistics(void) const {
+        return engine->get_statistics();
     }
 
     void Consumer::run(void) {
@@ -51,6 +51,5 @@ namespace Worker {
 
         engine->reap_left_completions();
         engine->finish_statistics();
-        report = engine->get_statistics_report();
     }
 }

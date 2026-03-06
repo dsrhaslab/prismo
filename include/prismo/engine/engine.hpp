@@ -50,8 +50,8 @@ namespace Engine {
 
             void finish_statistics(void) { statistics.finish(); }
 
-            nlohmann::json get_statistics_report(void) const {
-                return statistics.get_report_json();
+            const Metric::Statistics get_statistics(void) const {
+                return statistics;
             }
 
             virtual ~Base() {

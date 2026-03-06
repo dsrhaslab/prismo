@@ -68,7 +68,27 @@ namespace Metric {
         return op_json;
     }
 
-    nlohmann::json Statistics::get_report_json(void) const {
+    void Statistics::merge(const Statistics& other) {
+        if (other.started) {
+            if (!started || other.start_time_ns < start_time_ns) {
+                start_time_ns = other.start_time_ns;
+            }
+            started = true;
+        }
+
+        if (other.finished) {
+            if (!finished || other.end_time_ns > end_time_ns) {
+                end_time_ns = other.end_time_ns;
+            }
+            finished = true;
+        }
+
+        for (const auto& [op, other_stats] : other.stats_per_operation) {
+            stats_per_operation[op].merge(other_stats);
+        }
+    }
+
+    nlohmann::json Statistics::to_json(void) const {
         nlohmann::json report;
         uint64_t total_ops = 0;
         uint64_t total_bytes = 0;
