@@ -11,7 +11,7 @@ meson setup builddir
 meson compile -C builddir
 ```
 
-The binary is placed in `builddir/tools/deltoide`
+The binary is placed in `builddir/tools/deltoide`.
 
 ## Usage
 

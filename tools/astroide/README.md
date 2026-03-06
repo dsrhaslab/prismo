@@ -4,7 +4,7 @@ Astroide converts `.blkparse` trace files into Prismo's compact binary trace for
 
 ## Building
 
-Astroide is built alongside Prismo via Meson:
+From the project root, Astroide is built alongside Prismo via Meson.
 
 ```
 meson setup builddir
