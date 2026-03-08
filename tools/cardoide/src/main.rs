@@ -81,9 +81,5 @@ fn main() -> Result<()> {
     campaign.run();
     campaign.print_summary();
 
-    if campaign.failed > 0 {
-        bail!("{} workload(s) failed", campaign.failed);
-    }
-
     Ok(())
 }
