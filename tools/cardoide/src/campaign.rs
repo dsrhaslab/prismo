@@ -112,24 +112,22 @@ impl Campaign {
         );
     }
 
-    fn run_single(&mut self,wl_idx: usize,progress: &str) {
-        let wl = &self.workloads[wl_idx as usize];
-        let wl_name = wl.name.clone();
-        let wl_config = wl.config.clone();
+    fn run_single(&mut self, wl_idx: usize, progress: &str) {
+        let wl = &self.workloads[wl_idx];
 
         for rep in 1..=self.repetitions {
             let rep_suffix = format!("_rep{}", rep);
             let rep_label = format!(" (rep {}/{})", rep, self.repetitions);
             let out_json = self
                 .results_dir
-                .join(format!("{}{}.report.json", wl_name, rep_suffix));
+                .join(format!("{}{}.report.json", &wl.name, rep_suffix));
 
-            log_workload_start(progress, &wl_name);
+            log_workload_start(progress, &wl.name);
 
             let start = Instant::now();
             let result = Command::new(&self.binary)
                 .arg("-c")
-                .arg(&wl_config)
+                .arg(&wl.config)
                 .arg("-o")
                 .arg(&out_json)
                 .output();
