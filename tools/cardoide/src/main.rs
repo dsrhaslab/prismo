@@ -1,13 +1,13 @@
 mod campaign;
 mod logging;
+use anyhow::{Result, bail};
 use chrono::Local;
 use clap::Parser;
 use std::path::{Path, PathBuf};
 use campaign::Campaign;
-use logging::{log_fail, log_dim};
 
 #[derive(Parser, Debug)]
-#[command(name = "campagne", about = "Campaign runner for prismo workloads")]
+#[command(name = "cardoide", about = "Campaign runner for prismo workloads")]
 struct Cli {
     /// Path to the Prismo binary
     #[arg(short, long, default_value = "../../builddir/prismo")]
@@ -38,7 +38,7 @@ struct Cli {
     repetitions: usize,
 }
 
-fn main() {
+fn main() -> Result<()> {
     let cli = Cli::parse();
     let binary = cli.prismo;
     let workload_dir = PathBuf::from(&cli.workloads_dir);
@@ -49,14 +49,11 @@ fn main() {
     );
 
     if !Path::new(&binary).exists() {
-        log_fail!("binary not found: {}", binary);
-        log_dim!("hint: run 'meson compile -C builddir' first");
-        std::process::exit(1);
+        bail!("binary not found: {}", binary);
     }
 
     if !workload_dir.is_dir() {
-        log_fail!("workloads directory not found: {}", workload_dir.display());
-        std::process::exit(1);
+        bail!("workloads directory not found: {}", workload_dir.display());
     }
 
     let mut campaign = Campaign {
@@ -77,13 +74,16 @@ fn main() {
     campaign.discover();
 
     if campaign.workloads.is_empty() {
-        log_fail!("no workloads matched (engine={})", campaign.engine_filter);
-        std::process::exit(1);
+        bail!("no workloads matched (engine={})", campaign.engine_filter);
     }
 
     campaign.print_header();
     campaign.run();
     campaign.print_summary();
 
-    std::process::exit(if campaign.failed > 0 { 1 } else { 0 });
+    if campaign.failed > 0 {
+        bail!("{} workload(s) failed", campaign.failed);
+    }
+
+    Ok(())
 }

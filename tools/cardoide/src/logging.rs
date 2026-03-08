@@ -1,19 +1,3 @@
-macro_rules! log_fail {
-    ($($arg:tt)*) => {{
-        use colored::Colorize;
-        println!("{} {}", "::".red(), format!($($arg)*));
-    }};
-}
-
-macro_rules! log_dim {
-    ($($arg:tt)*) => {{
-        use colored::Colorize;
-        println!("{} {}", "::".yellow(), format!("{}", format!($($arg)*)).dimmed());
-    }};
-}
-
-pub(crate) use {log_dim, log_fail};
-
 const PROGRESS_WIDTH: usize = 30;
 
 fn term_width() -> usize {
