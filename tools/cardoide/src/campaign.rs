@@ -74,20 +74,14 @@ impl Campaign {
             let engine = get_engine(&name).to_string();
             let num = parse_workload_number(&name).unwrap_or(0);
 
-            if self.engine_filter != "all" && engine != self.engine_filter {
-                continue;
-            }
-
-            if self.workload_from > 0 && self.workload_to > 0 {
-                if num < self.workload_from || num > self.workload_to {
-                    continue;
+            if self.engine_filter == "all" || engine == self.engine_filter {
+                if num >= self.workload_from && num <= self.workload_to {
+                    self.workloads.push(Workload {
+                        name: name,
+                        config: cfg,
+                    });
                 }
             }
-
-            self.workloads.push(Workload {
-                name: name,
-                config: cfg,
-            });
         }
     }
 

@@ -26,7 +26,7 @@ cardoide [OPTIONS]
 | `--output-dir` | `-o` | `../../workloads/results` | Base directory for results |
 | `--engine` | `-e` | `all` | Filter by engine: `posix`, `uring`, `aio`, `spdk`, or `all` |
 | `--workload-from` | | `0` | Run workloads starting from this number (inclusive) |
-| `--workload-to` | | `0` | Run workloads up to this number (inclusive, `0` means no limit) |
+| `--workload-to` | | `max` | Run workloads up to this number (inclusive) |
 | `--repetitions` | `-r` | `1` | Number of times each workload is repeated |
 
 ### Examples
@@ -62,7 +62,7 @@ results/campaign_20260308_171126/
 Cardoide scans `--workloads-dir` for `.json` files. Each file is expected to be a prismo workload configuration. Files are sorted and optionally filtered by engine suffix and number prefix.
 
 > [!IMPORTANT]
-> Workload names must follow the format `num_something_engine`, bearing in mind that `num` must be padded with leading zeros to preserve order and must be greater than zero.
+> Workload names must follow the format `num_something_engine`, bearing in mind that `num` must be padded with leading zeros to preserve order.
 
 Engine is inferred from the filename:
 - `*_posix.json` → `posix`
