@@ -7,7 +7,7 @@ Deltoide analyses a dataset (file, directory, or block device) and produces comp
 From the project root, Deltoide is built alongside Prismo using Meson (requires **libzstd**).
 
 ```
-meson setup builddir
+meson setup builddir --buildtype=release -Dpkg_config_path=/path/to/spdk/build/lib/pkgconfig/
 meson compile -C builddir
 ```
 

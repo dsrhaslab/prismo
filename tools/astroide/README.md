@@ -7,7 +7,7 @@ Astroide converts `.blkparse` trace files into Prismo's compact binary trace for
 From the project root, Astroide is built alongside Prismo via Meson.
 
 ```
-meson setup builddir
+meson setup builddir --buildtype=release -Dpkg_config_path=/path/to/spdk/build/lib/pkgconfig/
 meson compile -C builddir
 ```
 

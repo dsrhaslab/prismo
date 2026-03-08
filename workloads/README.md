@@ -27,11 +27,11 @@
 
 ## Engine Mirrors
 
-Each base workload is replicated for three additional engines with the same configuration (only the engine section differs):
+Each base workload is replicated to four engines with the same configuration (only the engine section differs):
 
 | Engine   | Range  | Suffix   | Notes                    |
 |----------|--------|----------|--------------------------|
-| posix    | 01–18  | *(none)* | Default engine           |
+| posix    | 01–18  | `_posix` | Default engine           |
 | io_uring | 19–36  | `_uring` | 1:1 mirror of posix      |
 | libaio   | 37–54  | `_aio`   | 1:1 mirror, `O_DIRECT`   |
 | SPDK     | 55–72  | `_spdk`  | 1:1 mirror, requires bdev|
