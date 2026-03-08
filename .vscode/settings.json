@@ -9,4 +9,7 @@
     "C_Cpp.default.compileCommands": "/home/digo/Desktop/prismo/builddir/compile_commands.json",
     "C_Cpp.default.configurationProvider": "mesonbuild.mesonbuild",
     "files.trimTrailingWhitespace": true,
+    "rust-analyzer.linkedProjects": [
+        "${workspaceFolder}/tools/cardoide/Cargo.toml"
+    ]
 }

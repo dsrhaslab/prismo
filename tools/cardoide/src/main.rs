@@ -1,13 +1,8 @@
 mod campaign;
 mod logging;
-mod report;
-
-use std::fs;
-use std::path::{Path, PathBuf};
-
 use chrono::Local;
 use clap::Parser;
-
+use std::path::{Path, PathBuf};
 use campaign::Campaign;
 use logging::{log_fail, log_dim};
 
@@ -41,10 +36,6 @@ struct Cli {
     /// Repetitions for each workload
     #[arg(short, long, default_value_t = 1)]
     repetitions: usize,
-
-    /// List workloads without executing
-    #[arg(short = 'n', long)]
-    dry_run: bool,
 }
 
 fn main() {
@@ -69,18 +60,18 @@ fn main() {
     }
 
     let mut campaign = Campaign {
-        binary,
-        workload_dir,
-        results_dir,
+        binary: binary,
+        workload_dir: workload_dir,
+        results_dir: results_dir,
         engine_filter: cli.engine,
         workload_from: cli.workload_from,
         workload_to: cli.workload_to,
         repetitions: cli.repetitions,
-        dry_run: cli.dry_run,
         workloads: Vec::new(),
+        start_time: std::time::Instant::now(),
+        duration: std::time::Duration::new(0, 0),
         passed: 0,
         failed: 0,
-        failed_names: Vec::new(),
     };
 
     campaign.discover();
@@ -91,12 +82,8 @@ fn main() {
     }
 
     campaign.print_header();
-
-    if !campaign.dry_run {
-        let _ = fs::create_dir_all(&campaign.results_dir);
-    }
-
     campaign.run();
+    campaign.print_summary();
 
     std::process::exit(if campaign.failed > 0 { 1 } else { 0 });
 }

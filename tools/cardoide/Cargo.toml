@@ -1,5 +1,5 @@
 [package]
-name = "campaign"
+name = "cardoide"
 version = "0.1.0"
 edition = "2024"
 
@@ -7,6 +7,6 @@ edition = "2024"
 chrono = "0.4.44"
 colored = "2"
 clap = { version = "4.5.60", features = ["derive"] }
-csv = "1.4.0"
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.149"
+terminal_size = "0.4"

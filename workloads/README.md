@@ -35,31 +35,3 @@ Each base workload is replicated for three additional engines with the same conf
 | io_uring | 19–36  | `_uring` | 1:1 mirror of posix      |
 | libaio   | 37–54  | `_aio`   | 1:1 mirror, `O_DIRECT`   |
 | SPDK     | 55–72  | `_spdk`  | 1:1 mirror, requires bdev|
-
-## Usage
-
-```bash
-# Run all 72 workloads
-./tools/scripts/run_campaign.sh
-
-# Run only posix workloads
-./tools/scripts/run_campaign.sh -e posix
-
-# Run only workloads 1 to 18
-./tools/scripts/run_campaign.sh -w 1:18
-
-# Run with 5 repetitions
-./tools/scripts/run_campaign.sh -r 5
-
-# Preview what would run (no execution)
-./tools/scripts/run_campaign.sh -n
-
-# Custom binary and output directory
-./tools/scripts/run_campaign.sh -b /path/to/prismo -o /path/to/results
-```
-
-### Outputs
-
-- `<name>.raw.log` — full execution output per workload
-- `<name>.report.json` — extracted JSON report per workload
-- `summary.csv` — aggregated metrics table
