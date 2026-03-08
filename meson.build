@@ -19,18 +19,9 @@ spdk_inc = include_directories(
     is_system: true,
 )
 
-zstd_inc = include_directories('include/lib/zstd', is_system: true)
-shishua_inc = include_directories('include/lib/shishua', is_system: true)
-komihash_inc = include_directories('include/lib/komihash', is_system: true)
-concurrentqueue_inc = include_directories('include/lib/concurrentqueue', is_system: true)
-
 inc = [
     project_inc,
     spdk_inc,
-    zstd_inc,
-    shishua_inc,
-    komihash_inc,
-    concurrentqueue_inc,
 ]
 
 src = files(
@@ -63,7 +54,6 @@ libaio_dep = cc.find_library('aio', required: true)
 liburing_dep = dependency('liburing', required: true)
 spdlog_dep = dependency('spdlog', required: true)
 eigen_dep = dependency('eigen3', required: true)
-zstd_dep = dependency('libzstd', required: true)
 json_dep = dependency('nlohmann_json', required: true)
 boost_dep = dependency('boost', modules: ['pool'], required: true)
 

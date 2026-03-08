@@ -8,7 +8,7 @@ From the project root, Astroide is built alongside Prismo via Meson.
 
 ```
 meson setup builddir --buildtype=release -Dpkg_config_path=/path/to/spdk/build/lib/pkgconfig/
-meson compile -C builddir
+meson compile -C builddir astroide
 ```
 
 The binary is placed in `builddir/tools/astroide`.

@@ -8,7 +8,7 @@ From the project root, Deltoide is built alongside Prismo using Meson (requires 
 
 ```
 meson setup builddir --buildtype=release -Dpkg_config_path=/path/to/spdk/build/lib/pkgconfig/
-meson compile -C builddir
+meson compile -C builddir deltoide
 ```
 
 The binary is placed in `builddir/tools/deltoide`.

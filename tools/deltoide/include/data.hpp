@@ -1,7 +1,7 @@
 #ifndef DELTOIDE_DATA_H
 #define DELTOIDE_DATA_H
 
-#include "zstdpp.hpp"
+#include <lib/zstd/zstdpp.hpp>
 #include <nlohmann/json.hpp>
 #include <common/metadata.hpp>
 
