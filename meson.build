@@ -19,11 +19,6 @@ spdk_inc = include_directories(
     is_system: true,
 )
 
-inc = [
-    project_inc,
-    spdk_inc,
-]
-
 src = files(
     'src/engine/aio.cpp',
     'src/engine/config.cpp',
@@ -111,7 +106,10 @@ subdir('tools/deltoide')
 prismo = executable(
     'prismo',
     sources: src,
-    include_directories: inc,
+    include_directories: [
+        project_inc,
+        spdk_inc,
+    ],
     dependencies: [
         json_dep,
         eigen_dep,
@@ -126,7 +124,8 @@ prismo = executable(
         spdk_syslibs_dep,
     ],
     link_args: [
-        '-Wl,--whole-archive', dpdk_libs,
+        '-Wl,--whole-archive',
+        dpdk_libs,
         spdk_libs,
         '-Wl,--no-whole-archive',
         '-fsanitize=address',
