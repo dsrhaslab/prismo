@@ -22,11 +22,11 @@ astroide -i traces/homes.blkparse -o traces/homes.prismo -b 512
 
 ### Options
 
-| Flag | Description | Default |
-|------|-------------|---------|
-| `-i`, `--input` | Path to the `.blkparse` input file | *(required)* |
-| `-o`, `--output` | Path to the output binary file | *(required)* |
-| `-b`, `--block-size` | Block size in bytes used to scale offsets and sizes | `512` |
+| Flag                  | Description                                           | Default       |
+|-----------------------|-------------------------------------------------------|---------------|
+| `-i`, `--input`       | Path to the `.blkparse` input file                    | *(required)*  |
+| `-o`, `--output`      | Path to the output binary file                        | *(required)*  |
+| `-b`, `--block-size`  | Block size in bytes used to scale offsets and sizes   | `512`         |
 
 ## Input format
 

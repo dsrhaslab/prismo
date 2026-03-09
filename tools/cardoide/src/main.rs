@@ -30,7 +30,7 @@ struct Cli {
     workload_from: usize,
 
     /// Run only workloads up to this number (inclusive)
-    #[arg(long, default_value_t = usize::MAX, default_value = "inf")]
+    #[arg(long, default_value_t = usize::MAX)]
     workload_to: usize,
 
     /// Repetitions for each workload

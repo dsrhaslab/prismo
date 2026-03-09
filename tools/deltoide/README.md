@@ -25,12 +25,12 @@ deltoide -i /dev/sdb -b 8192 -c
 
 ### Options
 
-| Flag | Description | Default |
-|------|-------------|---------|
-| `-i`, `--input` | File, directory, or block device to analyse | *(required)* |
-| `-b`, `--block-size` | Block size in bytes | `4096` |
-| `-c`, `--compression` | Print the compression ratio distribution | off |
-| `-d`, `--duplication` | Print the deduplication distribution (with per-group compression) | off |
+| Flag                    | Description                                                       | Default       |
+|-------------------------|-------------------------------------------------------------------|---------------|
+| `-i`, `--input`         | File, directory, or block device to analyse                       | *(required)*  |
+| `-b`, `--block-size`    | Block size in bytes                                               | `4096`        |
+| `-c`, `--compression`   | Print the compression ratio distribution                          | off           |
+| `-d`, `--duplication`   | Print the deduplication distribution (with per-group compression) | off           |
 
 ## Output
 

@@ -19,15 +19,15 @@ cardoide [OPTIONS]
 
 ### Options
 
-| Flag | Short | Default | Description |
-|------|-------|---------|-------------|
-| `--prismo` | `-p` | `../../builddir/prismo` | Path to the prismo binary |
-| `--workloads-dir` | `-d` | `../../workloads/campaign` | Directory containing workload `.json` files |
-| `--output-dir` | `-o` | `../../workloads/results` | Base directory for results |
-| `--engine` | `-e` | `all` | Filter by engine: `posix`, `uring`, `aio`, `spdk`, or `all` |
-| `--workload-from` | | `0` | Run workloads starting from this number (inclusive) |
-| `--workload-to` | | `max` | Run workloads up to this number (inclusive) |
-| `--repetitions` | `-r` | `1` | Number of times each workload is repeated |
+| Flag                    | Description                                                 | Default                     |
+|------------------------ |-------------------------------------------------------------|-----------------------------|
+| `-p`, `--prismo`        | Path to the prismo binary                                   | `../../builddir/prismo`     |
+| `-d`, `--workloads-dir` | Directory containing workload `.json` files                 | `../../workloads/campaign`  |
+| `-o`, `--output-dir`    | Base directory for results                                  | `../../workloads/results`   |
+| `-e`, `--engine`        | Filter by engine: `posix`, `uring`, `aio`, `spdk`, or `all` | `all`                       |
+| `-r`, `--repetitions`   | Number of times each workload is repeated                   | `1`                         |
+| `--workload-from`       | Run workloads starting from this number (inclusive)         | `0`                         |
+| `--workload-to`         | Run workloads up to this number (inclusive)                 | `inf`                       |
 
 ### Examples
 
