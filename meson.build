@@ -22,6 +22,7 @@ spdk_inc = include_directories(
 src = files(
     'src/engine/aio.cpp',
     'src/engine/config.cpp',
+    'src/engine/engine.cpp',
     'src/engine/posix.cpp',
     'src/engine/spdk.cpp',
     'src/engine/uring.cpp',
