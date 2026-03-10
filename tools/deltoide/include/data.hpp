@@ -5,8 +5,8 @@
 #include <nlohmann/json.hpp>
 #include <common/metadata.hpp>
 
-using CompressionDB = std::map<uint32_t, uint64_t>;
-using DuplicationDB = std::map<uint64_t, std::pair<uint64_t, CompressionDB>>;
+using CompressionDB = std::unordered_map<uint32_t, uint64_t>;
+using DuplicationDB = std::unordered_map<uint64_t, std::pair<uint64_t, CompressionDB>>;
 
 namespace std {
     void to_json(nlohmann::json& j, const CompressionDB& db) {

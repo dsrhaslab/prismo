@@ -1,7 +1,6 @@
 #ifndef PRISMO_METRIC_STATISTICS_H
 #define PRISMO_METRIC_STATISTICS_H
 
-#include <map>
 #include <nlohmann/json.hpp>
 #include <prismo/metric/metric.hpp>
 #include <common/percentile.hpp>
@@ -45,7 +44,7 @@ namespace Metric {
             uint64_t start_time_ns = UINT64_MAX;
             uint64_t end_time_ns = 0;
 
-            std::map<Operation::OperationType, OperationStats> stats_per_operation;
+            std::unordered_map<Operation::OperationType, OperationStats> stats_per_operation;
 
         public:
             Statistics() = default;

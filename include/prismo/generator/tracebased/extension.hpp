@@ -4,7 +4,6 @@
 #include <iostream>
 #include <optional>
 #include <vector>
-#include <map>
 #include <cstdint>
 #include <Eigen/Dense>
 #include <prismo/generator/tracebased/tracereader.hpp>
@@ -46,7 +45,7 @@ namespace Generator::Extension {
 
             Distribution::ReservoirSampler<uint64_t> offset_sampler;
             Distribution::ReservoirSampler<uint64_t> block_id_sampler;
-            std::map<Operation::OperationType, uint64_t> operation_frequencies;
+            std::unordered_map<Operation::OperationType, uint64_t> operation_frequencies;
 
             Distribution::AliasTable<uint64_t> offset_alias;
             Distribution::AliasTable<uint64_t> block_id_alias;
