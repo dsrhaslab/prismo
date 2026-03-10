@@ -88,11 +88,11 @@ namespace Metric {
         report["total_operations"] = total_operations;
         report["total_bytes"] = total_bytes;
         report["runtime_sec"] = round_to(runtime_sec, 5);
-        report["overall_iops"] =
-            runtime_sec > 0.0 ? round_to(total_operations / runtime_sec) : 0;
+        report["overall_iops"] = runtime_sec > 0.0
+            ? round_to(total_operations / runtime_sec) : 0;
 
-        report["overall_bandwidth_bytes_per_sec"] =
-            runtime_sec > 0.0 ? round_to(total_bytes / runtime_sec) : 0;
+        report["overall_bandwidth_bytes_per_sec"] = runtime_sec > 0.0
+            ? round_to(total_bytes / runtime_sec) : 0;
 
         if (!stats_per_operation.empty()) {
             report["operations"] = nlohmann::json::array();
