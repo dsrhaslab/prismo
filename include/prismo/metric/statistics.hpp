@@ -14,7 +14,7 @@ namespace Metric {
     }
 
     struct OperationStats {
-        uint64_t count = 0;
+        uint64_t total_ops = 0;
         uint64_t total_bytes = 0;
         uint64_t total_latency_ns = 0;
         uint64_t min_latency_ns = UINT64_MAX;
@@ -22,7 +22,7 @@ namespace Metric {
         Percentile::Calculator percentile_calc;
 
         void record(uint64_t latency_ns, uint64_t bytes) {
-            count++;
+            total_ops++;
             total_bytes += bytes;
             total_latency_ns += latency_ns;
             min_latency_ns = std::min(min_latency_ns, latency_ns);
@@ -31,7 +31,7 @@ namespace Metric {
         }
 
         void merge(const OperationStats& other) {
-            count += other.count;
+            total_ops += other.total_ops;
             total_bytes += other.total_bytes;
             total_latency_ns += other.total_latency_ns;
             min_latency_ns = std::min(min_latency_ns, other.min_latency_ns);

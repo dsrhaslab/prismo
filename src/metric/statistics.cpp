@@ -46,18 +46,20 @@ namespace Metric {
         nlohmann::json op_json;
 
         op_json["operation"] = op_name;
-        op_json["count"] = stats.count;
+        op_json["count"] = stats.total_ops;
         op_json["total_bytes"] = stats.total_bytes;
         op_json["iops"] = runtime_sec > 0.0
-            ? round_to(stats.count / runtime_sec) : 0;
+            ? round_to(stats.total_ops / runtime_sec) : 0;
 
         op_json["bandwidth_bytes_per_sec"] = runtime_sec > 0.0
             ? round_to(stats.total_bytes / runtime_sec) : 0;
 
         op_json["latency_ns"] = {
             {"min", stats.min_latency_ns},
-            {"avg", stats.count > 0 ? stats.total_latency_ns / stats.count : 0},
-            {"max", stats.max_latency_ns}
+            {"max", stats.max_latency_ns},
+            {"avg", stats.total_ops > 0
+                ? stats.total_latency_ns / stats.total_ops : 0
+            },
         };
 
         op_json["percentiles_ns"] = {
@@ -78,7 +80,7 @@ namespace Metric {
         uint64_t total_bytes = 0;
 
         for (const auto& [_, stats] : stats_per_operation) {
-            total_operations += stats.count;
+            total_operations += stats.total_ops;
             total_bytes += stats.total_bytes;
         }
 
