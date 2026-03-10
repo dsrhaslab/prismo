@@ -25,8 +25,6 @@ namespace Worker {
         numjobs = job_json.value("numjobs", 1);
         block_size = job_json.value("block_size", 4096);
         filename = job_json.value("filename", "config.json");
-        open_flags = engine_json.at("openflags").get<Engine::OpenFlags>();
-        termination = job_json.at("termination").get<Worker::Termination>();
     }
 
     void JobManager::setup_jobs(void) {
@@ -63,45 +61,53 @@ namespace Worker {
             auto ramp =
                 Factory::get_ramp(job_json);
 
+            spdlog::debug("Parsing termination config");
+            auto termination =
+                Factory::get_termination(job_json);
+
             spdlog::debug("Parsing metric config");
             auto metric =
                 Factory::get_metric(job_json);
 
-            spdlog::debug("Creating engine with shared logger");
+            spdlog::debug("Parsing open flags");
+            auto open_flags =
+                engine_json.at("open_flags").get<Engine::OpenFlags>();
+
+            spdlog::debug("Parsing engine");
             auto engine =
-                Factory::get_engine(
-                    engine_json, std::move(metric), shared_logger);
+                Factory::get_engine(engine_json, metric, shared_logger);
 
             spdlog::debug(
                 "Creating to_producer queue with initial capacity {}",
-                QUEUE_INITIAL_CAPACITY);
+                Internal::QUEUE_INITIAL_CAPACITY);
 
             auto to_producer = std::make_shared<
                 moodycamel::ConcurrentQueue<Protocol::Packet*>>(
-                QUEUE_INITIAL_CAPACITY);
+                Internal::QUEUE_INITIAL_CAPACITY);
 
             spdlog::debug(
                 "Creating to_consumer queue with initial capacity {}",
-                QUEUE_INITIAL_CAPACITY);
+                Internal::QUEUE_INITIAL_CAPACITY);
 
             auto to_consumer = std::make_shared<
                 moodycamel::ConcurrentQueue<Protocol::Packet*>>(
-                QUEUE_INITIAL_CAPACITY);
+                Internal::QUEUE_INITIAL_CAPACITY);
 
             spdlog::debug(
                 "Initializing packet pool for to_producer queue with block size {}",
                 block_size);
 
-            init_queue_packet(*to_producer, block_size);
+            Internal::init_queue_packet(*to_producer, block_size);
 
             spdlog::debug("Creating producer");
             auto producer = std::make_unique<Producer>(
                 std::move(access),
                 std::move(operation),
                 std::move(content),
-                std::move(compression),
                 std::move(barrier),
+                std::move(compression),
                 std::move(ramp),
+                std::move(termination),
                 to_producer,
                 to_consumer
             );
@@ -113,17 +119,18 @@ namespace Worker {
                 to_consumer
             );
 
-            Protocol::OpenRequest open_request{
+            spdlog::debug("Creation open request");
+            Protocol::OpenRequest open_request {
                 .filename = std::format("{}_worker_{}", filename, i),
                 .flags = open_flags.value,
                 .mode = 0666,
             };
 
             jobs[i].fd = consumer->open(open_request);
-            jobs[i].to_producer = to_producer;
-            jobs[i].to_consumer = to_consumer;
             jobs[i].producer = std::move(producer);
             jobs[i].consumer = std::move(consumer);
+            jobs[i].to_consumer = std::move(to_consumer);
+            jobs[i].to_producer = std::move(to_producer);
 
             spdlog::debug("Job {} setup complete: fd={}, filename={}", i,
                         jobs[i].fd, open_request.filename);
@@ -140,8 +147,7 @@ namespace Worker {
             threads.emplace_back(
                 &Producer::run,
                 jobs[i].producer.get(),
-                jobs[i].fd,
-                termination
+                jobs[i].fd
             );
 
             spdlog::debug("Starting consumer thread for job {}", i);
@@ -171,7 +177,10 @@ namespace Worker {
             jobs[i].consumer->close(close_request);
 
             spdlog::debug("Destroying packet pool for job {}", i);
-            destroy_queue_packet(*jobs[i].to_producer, QUEUE_INITIAL_CAPACITY);
+            Internal::destroy_queue_packet(
+                *jobs[i].to_producer,
+                Internal::QUEUE_INITIAL_CAPACITY
+            );
 
             spdlog::debug("Job {} teardown complete", i);
         }

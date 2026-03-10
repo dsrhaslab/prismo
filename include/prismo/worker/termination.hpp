@@ -7,60 +7,67 @@
 #include <stdexcept>
 #include <nlohmann/json.hpp>
 
-namespace Worker {
-
-    inline constexpr uint64_t CHECK_INTERVAL = 4096;
+namespace Worker::Internal {
 
     enum class TerminationType {
         ITERATIONS,
         RUNTIME
     };
 
-    struct Termination {
-        TerminationType type;
-        uint64_t value;
-    };
+    class Termination {
+        private:
+            static constexpr uint64_t CHECK_INTERVAL = 4096;
+            TerminationType type;
+            uint64_t value;
 
-    inline void from_json(const nlohmann::json& j, Termination& termination) {
-        termination.value = j.at("value").get<uint64_t>();
-        std::string type_str = j.at("type").get<std::string>();
+        public:
+            Termination() = default;
 
-        if (type_str == "iterations") {
-            termination.type = TerminationType::ITERATIONS;
-        } else if (type_str == "runtime") {
-            termination.type = TerminationType::RUNTIME;
-        } else {
-            throw std::invalid_argument(
-                "from_json: unknown termination type '" + type_str + "'");
-        }
-    };
-
-    inline bool should_continue(
-        const Termination& termination,
-        const std::chrono::steady_clock::time_point& start_time,
-        uint64_t iterations_count
-    ) {
-        switch (termination.type) {
-            case TerminationType::ITERATIONS:
-                return iterations_count < termination.value;
-
-            case TerminationType::RUNTIME: {
-                auto current_time =
-                    (iterations_count % CHECK_INTERVAL == 0)
-                        ? std::chrono::steady_clock::now()
-                        : start_time;
-
-                auto elapsed =
-                    std::chrono::duration_cast<std::chrono::milliseconds>(
-                        current_time - start_time)
-                        .count();
-
-                return elapsed < static_cast<long>(termination.value);
+            ~Termination() {
+                std::cout << "~Destroying Termination" << std::endl;
             }
 
-            default:
-                throw std::invalid_argument("should_continue: invalid termination type");
-        }
+            explicit Termination(const nlohmann::json& j) {
+                value = j.at("value").get<uint64_t>();
+                std::string type_str = j.at("type").get<std::string>();
+
+                if (type_str == "iterations") {
+                    type = TerminationType::ITERATIONS;
+                } else if (type_str == "runtime") {
+                    type = TerminationType::RUNTIME;
+                } else {
+                    throw std::invalid_argument(
+                        "Termination: unknown type '" + type_str + "'");
+                }
+            }
+
+            bool should_continue(
+                const std::chrono::steady_clock::time_point& start_time,
+                uint64_t iterations_count
+            ) const {
+                switch (type) {
+                    case TerminationType::ITERATIONS:
+                        return iterations_count < value;
+
+                    case TerminationType::RUNTIME: {
+                        auto current_time =
+                            (iterations_count % CHECK_INTERVAL == 0)
+                                ? std::chrono::steady_clock::now()
+                                : start_time;
+
+                        auto elapsed =
+                            std::chrono::duration_cast<std::chrono::milliseconds>(
+                                current_time - start_time)
+                                .count();
+
+                        return elapsed < static_cast<long>(value);
+                    }
+
+                    default:
+                        throw std::invalid_argument(
+                            "should_continue: invalid termination type");
+                }
+            }
     };
 }
 

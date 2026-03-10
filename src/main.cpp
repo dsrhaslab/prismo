@@ -1,7 +1,5 @@
-#include <fstream>
 #include <argparse/argparse.hpp>
 #include <prismo/worker/job_manager.hpp>
-
 
 int main(int argc, char** argv) {
     argparse::ArgumentParser program("prismo");

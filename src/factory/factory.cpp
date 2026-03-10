@@ -113,7 +113,7 @@ namespace Factory {
         const nlohmann::json& config
     ) {
         return config.contains("barrier")
-            ? std::optional<Generator::MultipleBarrier>{config.at("barrier")}
+            ? std::make_optional<Generator::MultipleBarrier>(config.at("barrier"))
             : std::nullopt;
     }
 
@@ -121,16 +121,27 @@ namespace Factory {
         const nlohmann::json& config
     ) {
         return config.contains("compression")
-            ? std::optional<Generator::CompressionGenerator>{config.at("compression")}
+            ? std::make_optional<Generator::CompressionGenerator>(config.at("compression"))
             : std::nullopt;
     }
 
-    std::optional<Worker::Ramp> get_ramp(
+    std::optional<Worker::Internal::Ramp> get_ramp(
         const nlohmann::json& config
     ) {
         return config.contains("ramp")
-            ? std::optional<Worker::Ramp>{config.at("ramp")}
+            ? std::make_optional<Worker::Internal::Ramp>(config.at("ramp"))
             : std::nullopt;
+    }
+
+    std::unique_ptr<Worker::Internal::Termination> get_termination(
+        const nlohmann::json& config
+    ) {
+        if (!config.contains("termination")) {
+            throw std::invalid_argument(
+                "get_termination: 'termination' config is required");
+        }
+
+        return std::make_unique<Worker::Internal::Termination>(config.at("termination"));
     }
 
     std::shared_ptr<Logger::Base> get_logger(const nlohmann::json& config) {
@@ -152,13 +163,21 @@ namespace Factory {
         std::string type = config.value("metric", "base");
 
         if (type == "none") {
-            return Metric::NoneMetric{};
+            return Metric::MetricVariant {
+                std::in_place_type<Metric::NoneMetric>
+            };
         } else if (type == "base") {
-            return Metric::BaseMetric{};
+            return Metric::MetricVariant {
+                std::in_place_type<Metric::BaseMetric>
+            };
         } else if (type == "standard") {
-            return Metric::StandardMetric{};
+            return Metric::MetricVariant {
+                std::in_place_type<Metric::StandardMetric>
+            };
         } else if (type == "full") {
-            return Metric::FullMetric{};
+            return Metric::MetricVariant {
+                std::in_place_type<Metric::FullMetric>
+            };
         } else {
             throw std::invalid_argument(
                 "get_metric: type '" + type + "' not recognized");
@@ -175,24 +194,24 @@ namespace Factory {
         if (type == "posix") {
             return std::make_unique<Engine::PosixEngine>(
                 std::move(metric),
-                logger
+                std::move(logger)
             );
         } else if (type == "uring") {
             return std::make_unique<Engine::UringEngine>(
                 std::move(metric),
-                logger,
+                std::move(logger),
                 config.get<Engine::UringConfig>()
             );
         } else if (type == "aio") {
             return std::make_unique<Engine::AioEngine>(
                 std::move(metric),
-                logger,
+                std::move(logger),
                 config.get<Engine::AioConfig>()
             );
         } else if (type == "spdk") {
             return std::make_unique<Engine::SpdkEngine>(
                 std::move(metric),
-                logger,
+                std::move(logger),
                 config.get<Engine::SpdkConfig>()
             );
         } else {

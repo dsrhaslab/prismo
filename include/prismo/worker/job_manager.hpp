@@ -27,8 +27,6 @@ namespace Worker {
             size_t numjobs;
             size_t block_size;
             std::string filename;
-            Engine::OpenFlags open_flags;
-            Termination termination;
 
             nlohmann::json job_json;
             nlohmann::json access_json;

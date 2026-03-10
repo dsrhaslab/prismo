@@ -4,7 +4,7 @@
 #include <prismo/protocol/protocol.hpp>
 #include <lib/concurrentqueue/concurrentqueue.h>
 
-namespace Worker {
+namespace Worker::Internal {
 
     inline constexpr size_t BULK_SIZE = 64;
     inline constexpr size_t QUEUE_INITIAL_CAPACITY = 1024;
@@ -29,7 +29,7 @@ namespace Worker {
 
             queue.enqueue(packet);
         }
-    }
+    };
 
     inline void destroy_queue_packet(
         moodycamel::ConcurrentQueue<Protocol::Packet*>& queue,
@@ -41,7 +41,7 @@ namespace Worker {
             std::free(packet->request.buffer);
             delete packet;
         }
-    }
+    };
 };
 
 #endif

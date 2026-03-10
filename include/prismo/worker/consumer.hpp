@@ -20,13 +20,13 @@ namespace Worker {
                 std::shared_ptr<moodycamel::ConcurrentQueue<Protocol::Packet*>> _to_consumer
             );
 
-            int open(Protocol::OpenRequest& request);
+            int open(Protocol::OpenRequest& request) const;
 
-            void close(Protocol::CloseRequest& request);
+            void close(Protocol::CloseRequest& request) const;
 
             const Metric::Statistics get_statistics(void) const;
 
-            void run(void);
+            void run(void) const;
     };
 };
 

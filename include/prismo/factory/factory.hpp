@@ -17,6 +17,7 @@
 #include <prismo/logger/spdlog.hpp>
 #include <prismo/metric/metric.hpp>
 #include <prismo/worker/ramp.hpp>
+#include <prismo/worker/termination.hpp>
 
 namespace Factory {
 
@@ -38,7 +39,10 @@ namespace Factory {
     std::optional<Generator::CompressionGenerator> get_compression_generator(
         const nlohmann::json& config);
 
-    std::optional<Worker::Ramp> get_ramp(
+    std::optional<Worker::Internal::Ramp> get_ramp(
+        const nlohmann::json& config);
+
+    std::unique_ptr<Worker::Internal::Termination> get_termination(
         const nlohmann::json& config);
 
     Metric::MetricVariant get_metric(

@@ -36,7 +36,7 @@
   },
   "engine": {
     "type": "spdk",
-    "openflags": [
+    "open_flags": [
       "O_CREAT",
       "O_RDWR"
     ],

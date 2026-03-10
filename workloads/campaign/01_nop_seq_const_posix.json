@@ -1,14 +1,14 @@
 {
   "job": {
     "name": "01_nop_seq_const",
-    "numjobs": 1,
+    "numjobs": 2,
     "filename": "testfile_campaign",
     "block_size": 4096,
-    "limit": 67108864,
-    "metric": "full",
+    "limit": 65536,
+    "metric": "base",
     "termination": {
       "type": "iterations",
-      "value": 200000
+      "value": 2e6
     }
   },
   "operation": {
@@ -24,7 +24,7 @@
   },
   "engine": {
     "type": "posix",
-    "openflags": [
+    "open_flags": [
       "O_CREAT",
       "O_RDWR"
     ]

@@ -6,16 +6,17 @@ namespace Worker {
         std::unique_ptr<Engine::Base> _engine,
         std::shared_ptr<moodycamel::ConcurrentQueue<Protocol::Packet*>> _to_producer,
         std::shared_ptr<moodycamel::ConcurrentQueue<Protocol::Packet*>> _to_consumer
-    ) :
-        engine(std::move(_engine)),
-        to_producer(_to_producer),
-        to_consumer(_to_consumer) {}
+    )
+        : engine(std::move(_engine))
+        , to_producer(std::move(_to_producer))
+        , to_consumer(std::move(_to_consumer))
+    {}
 
-    int Consumer::open(Protocol::OpenRequest& request) {
+    int Consumer::open(Protocol::OpenRequest& request) const {
         return engine->open(request);
     }
 
-    void Consumer::close(Protocol::CloseRequest& request) {
+    void Consumer::close(Protocol::CloseRequest& request) const {
         engine->close(request);
     }
 
@@ -23,17 +24,17 @@ namespace Worker {
         return engine->get_statistics();
     }
 
-    void Consumer::run(void) {
+    void Consumer::run(void) const {
         bool shudown = false;
         Protocol::Packet* packet;
-        Protocol::Packet* packets[BULK_SIZE];
+        Protocol::Packet* packets[Internal::BULK_SIZE];
 
         engine->set_thread_id_current();
         engine->set_process_id_current();
         engine->start_statistics();
 
         while (!shudown) {
-            size_t count = to_consumer->try_dequeue_bulk(packets, BULK_SIZE);
+            size_t count = to_consumer->try_dequeue_bulk(packets, Internal::BULK_SIZE);
 
             for (size_t index = 0; index < count; index++) {
                 packet = packets[index];
