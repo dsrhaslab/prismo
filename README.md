@@ -17,7 +17,7 @@ Prismo is a configurable block-based I/O benchmark tool designed to stress-test 
 ```sh
 sudo apt update
 sudo apt install -y meson ninja-build
-sudo apt install -y liburing-dev libspdlog-dev libeigen3-dev nlohmann-json3-dev libboost-pool-dev
+sudo apt install -y libaio1 liburing-dev libspdlog-dev libeigen3-dev nlohmann-json3-dev libboost-all-dev
 ```
 
 2. Download and install [SPDK](https://github.com/spdk/spdk)
