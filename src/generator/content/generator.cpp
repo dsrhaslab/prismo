@@ -3,7 +3,7 @@
 namespace Generator {
 
     ContentGenerator::ContentGenerator(const nlohmann::json& j)
-        : ContentGenerator(j, j.at("refill").get<bool>()) {}
+        : ContentGenerator(j, j.value("refill", false)) {}
 
     ContentGenerator::ContentGenerator(const nlohmann::json& j, bool _refill_flag)
         : refill_flag(_refill_flag),

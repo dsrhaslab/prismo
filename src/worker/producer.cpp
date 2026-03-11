@@ -10,8 +10,8 @@ namespace Worker {
         std::optional<Generator::CompressionGenerator> _compression,
         std::optional<Internal::Ramp> _ramp,
         std::unique_ptr<Internal::Termination> _termination,
-        std::shared_ptr<moodycamel::ConcurrentQueue<Protocol::Packet*>> _to_producer,
-        std::shared_ptr<moodycamel::ConcurrentQueue<Protocol::Packet*>> _to_consumer
+        std::shared_ptr<moodycamel::ConcurrentQueue<std::unique_ptr<Protocol::Packet>>> _to_producer,
+        std::shared_ptr<moodycamel::ConcurrentQueue<std::unique_ptr<Protocol::Packet>>> _to_consumer
     )
         : access(std::move(_access))
         , operation(std::move(_operation))
@@ -25,8 +25,8 @@ namespace Worker {
     {}
 
     void Producer::run(int fd) {
-        Protocol::Packet* packet;
-        Protocol::Packet* packets[Internal::BULK_SIZE];
+        std::unique_ptr<Protocol::Packet> shutdown_packet;
+        std::unique_ptr<Protocol::Packet> packets[Internal::BULK_SIZE];
 
         uint64_t iterations_count = 0;
         auto start_time = std::chrono::steady_clock::now();
@@ -38,7 +38,7 @@ namespace Worker {
 
             while (ready < count &&
                    termination->should_continue(start_time, iterations_count)) {
-                packet = packets[ready];
+                auto& packet = packets[ready];
                 packet->request.fd = fd;
                 packet->request.offset = access->next_offset();
                 packet->request.operation = operation->next_operation();
@@ -62,9 +62,10 @@ namespace Worker {
                             packet->request.size
                         );
 
-                        packet->request.metadata.compression =
-                            compression_value > packet->request.metadata.compression ?
-                            compression_value : packet->request.metadata.compression;
+                        packet->request.metadata.compression = std::max(
+                            compression_value,
+                            packet->request.metadata.compression
+                        );
                     }
                 }
 
@@ -72,17 +73,17 @@ namespace Worker {
                 iterations_count++;
             }
 
-            to_consumer->enqueue_bulk(packets, ready);
-            to_producer->enqueue_bulk(packets + ready, count - ready);
+            to_consumer->enqueue_bulk(std::make_move_iterator(packets), ready);
+            to_producer->enqueue_bulk(std::make_move_iterator(packets + ready), count - ready);
 
             if (ramp.has_value()) {
                 ramp->throttle(start_time, batch_start);
             }
         }
 
-        while (!to_producer->try_dequeue(packet));
+        while (!to_producer->try_dequeue(shutdown_packet));
 
-        packet->isShutDown = true;
-        to_consumer->enqueue(packet);
+        shutdown_packet->isShutDown = true;
+        to_consumer->enqueue(std::move(shutdown_packet));
     }
 }

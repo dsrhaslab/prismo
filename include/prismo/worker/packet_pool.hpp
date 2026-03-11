@@ -1,6 +1,7 @@
 #ifndef PRISMO_WORKER_PACKET_POOL_H
 #define PRISMO_WORKER_PACKET_POOL_H
 
+#include <memory>
 #include <prismo/protocol/protocol.hpp>
 #include <lib/concurrentqueue/concurrentqueue.h>
 
@@ -10,11 +11,11 @@ namespace Worker::Internal {
     inline constexpr size_t QUEUE_INITIAL_CAPACITY = 1024;
 
     inline void init_queue_packet(
-        moodycamel::ConcurrentQueue<Protocol::Packet*>& queue,
+        moodycamel::ConcurrentQueue<std::unique_ptr<Protocol::Packet>>& queue,
         size_t block_size
     ) {
         for (size_t i = 0; i < QUEUE_INITIAL_CAPACITY; i++) {
-            Protocol::Packet* packet = new Protocol::Packet();
+            auto packet = std::make_unique<Protocol::Packet>();
             packet->isShutDown = false;
             packet->request.fd = 0;
             packet->request.offset = 0;
@@ -27,19 +28,18 @@ namespace Worker::Internal {
                 throw std::bad_alloc();
             }
 
-            queue.enqueue(packet);
+            queue.enqueue(std::move(packet));
         }
     };
 
     inline void destroy_queue_packet(
-        moodycamel::ConcurrentQueue<Protocol::Packet*>& queue,
+        moodycamel::ConcurrentQueue<std::unique_ptr<Protocol::Packet>>& queue,
         size_t queue_size
     ) {
-        Protocol::Packet* packet;
+        std::unique_ptr<Protocol::Packet> packet;
         for (size_t index = 0; index < queue_size; index++) {
             while (!queue.try_dequeue(packet));
             std::free(packet->request.buffer);
-            delete packet;
         }
     };
 };

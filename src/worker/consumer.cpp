@@ -4,8 +4,8 @@ namespace Worker {
 
     Consumer::Consumer(
         std::unique_ptr<Engine::Base> _engine,
-        std::shared_ptr<moodycamel::ConcurrentQueue<Protocol::Packet*>> _to_producer,
-        std::shared_ptr<moodycamel::ConcurrentQueue<Protocol::Packet*>> _to_consumer
+        std::shared_ptr<moodycamel::ConcurrentQueue<std::unique_ptr<Protocol::Packet>>> _to_producer,
+        std::shared_ptr<moodycamel::ConcurrentQueue<std::unique_ptr<Protocol::Packet>>> _to_consumer
     )
         : engine(std::move(_engine))
         , to_producer(std::move(_to_producer))
@@ -26,8 +26,7 @@ namespace Worker {
 
     void Consumer::run(void) const {
         bool shudown = false;
-        Protocol::Packet* packet;
-        Protocol::Packet* packets[Internal::BULK_SIZE];
+        std::unique_ptr<Protocol::Packet> packets[Internal::BULK_SIZE];
 
         engine->set_thread_id_current();
         engine->set_process_id_current();
@@ -37,17 +36,15 @@ namespace Worker {
             size_t count = to_consumer->try_dequeue_bulk(packets, Internal::BULK_SIZE);
 
             for (size_t index = 0; index < count; index++) {
-                packet = packets[index];
-
-                if (packet->isShutDown) {
+                if (packets[index]->isShutDown) {
                     shudown = true;
                     break;
                 }
 
-                engine->submit(packet->request);
+                engine->submit(packets[index]->request);
             }
 
-            to_producer->enqueue_bulk(packets, count);
+            to_producer->enqueue_bulk(std::make_move_iterator(packets), count);
         }
 
         engine->reap_left_completions();

@@ -10,14 +10,14 @@ namespace Worker {
     class Consumer {
         private:
             std::unique_ptr<Engine::Base> engine;
-            std::shared_ptr<moodycamel::ConcurrentQueue<Protocol::Packet*>> to_producer;
-            std::shared_ptr<moodycamel::ConcurrentQueue<Protocol::Packet*>> to_consumer;
+            std::shared_ptr<moodycamel::ConcurrentQueue<std::unique_ptr<Protocol::Packet>>> to_producer;
+            std::shared_ptr<moodycamel::ConcurrentQueue<std::unique_ptr<Protocol::Packet>>> to_consumer;
 
         public:
             Consumer(
                 std::unique_ptr<Engine::Base> _engine,
-                std::shared_ptr<moodycamel::ConcurrentQueue<Protocol::Packet*>> _to_producer,
-                std::shared_ptr<moodycamel::ConcurrentQueue<Protocol::Packet*>> _to_consumer
+                std::shared_ptr<moodycamel::ConcurrentQueue<std::unique_ptr<Protocol::Packet>>> _to_producer,
+                std::shared_ptr<moodycamel::ConcurrentQueue<std::unique_ptr<Protocol::Packet>>> _to_consumer
             );
 
             int open(Protocol::OpenRequest& request) const;

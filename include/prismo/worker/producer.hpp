@@ -24,8 +24,8 @@ namespace Worker {
             std::optional<Internal::Ramp> ramp;
             std::unique_ptr<Internal::Termination> termination;
 
-            std::shared_ptr<moodycamel::ConcurrentQueue<Protocol::Packet*>> to_producer;
-            std::shared_ptr<moodycamel::ConcurrentQueue<Protocol::Packet*>> to_consumer;
+            std::shared_ptr<moodycamel::ConcurrentQueue<std::unique_ptr<Protocol::Packet>>> to_producer;
+            std::shared_ptr<moodycamel::ConcurrentQueue<std::unique_ptr<Protocol::Packet>>> to_consumer;
 
         public:
             Producer(
@@ -36,8 +36,8 @@ namespace Worker {
                 std::optional<Generator::CompressionGenerator> _compression,
                 std::optional<Internal::Ramp> _ramp,
                 std::unique_ptr<Internal::Termination> _termination,
-                std::shared_ptr<moodycamel::ConcurrentQueue<Protocol::Packet*>> _to_producer,
-                std::shared_ptr<moodycamel::ConcurrentQueue<Protocol::Packet*>> _to_consumer
+                std::shared_ptr<moodycamel::ConcurrentQueue<std::unique_ptr<Protocol::Packet>>> _to_producer,
+                std::shared_ptr<moodycamel::ConcurrentQueue<std::unique_ptr<Protocol::Packet>>> _to_consumer
             );
 
             void run(int fd);

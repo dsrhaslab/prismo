@@ -82,7 +82,7 @@ namespace Worker {
                 Internal::QUEUE_INITIAL_CAPACITY);
 
             auto to_producer = std::make_shared<
-                moodycamel::ConcurrentQueue<Protocol::Packet*>>(
+                moodycamel::ConcurrentQueue<std::unique_ptr<Protocol::Packet>>>(
                 Internal::QUEUE_INITIAL_CAPACITY);
 
             spdlog::debug(
@@ -90,7 +90,7 @@ namespace Worker {
                 Internal::QUEUE_INITIAL_CAPACITY);
 
             auto to_consumer = std::make_shared<
-                moodycamel::ConcurrentQueue<Protocol::Packet*>>(
+                moodycamel::ConcurrentQueue<std::unique_ptr<Protocol::Packet>>>(
                 Internal::QUEUE_INITIAL_CAPACITY);
 
             spdlog::debug(

@@ -13,8 +13,15 @@ cargo build --release
 
 ## Usage
 
-```
-cardoide [OPTIONS]
+```sh
+# Run all workloads once:
+cardoide
+
+# Run only `io_uring` workloads, 3 times each:
+cardoide --engine uring --repetitions 3
+
+# Run workloads 5 through 10 with a custom binary:
+cardoide --prismo ./builddir/prismo --workload-from 5 --workload-to 10
 ```
 
 ### Options
@@ -29,32 +36,16 @@ cardoide [OPTIONS]
 | `--workload-from`       | Run workloads starting from this number (inclusive)         | `0`                         |
 | `--workload-to`         | Run workloads up to this number (inclusive)                 | `inf`                       |
 
-### Examples
-
-Run all workloads once:
-```sh
-cardoide
-```
-
-Run only `io_uring` workloads, 3 times each:
-```sh
-cardoide --engine uring --repetitions 3
-```
-
-Run workloads 5 through 10 with a custom binary:
-```sh
-cardoide --prismo ./builddir/prismo --workload-from 5 --workload-to 10
-```
-
 ## Results
 
 Each run writes a `.report.json` file to a timestamped subdirectory.
 
 ```
-results/campaign_20260308_171126/
-  01_nop_seq_const_rep1.report.json
-  01_nop_seq_const_rep2.report.json
-  ...
+results/
+└── campaign_20260308_171126/
+    ├── 01_nop_seq_const_rep1.report.json
+    ├── 01_nop_seq_const_rep2.report.json
+    └── ...
 ```
 
 ## Workload discovery
