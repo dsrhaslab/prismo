@@ -1,14 +1,14 @@
 <img width="1727" height="565" alt="prismo1" src="https://github.com/user-attachments/assets/5ff36010-987f-49ee-9621-3948897c2fed" />
 
-Prismo is a configurable I/O benchmark tool designed to stress-test storage systems. Each workload is specified in a JSON file and drives a producer–consumer pipeline of I/O packets against a target file. Operations, access patterns, block content, and engine are all independently configurable, enabling reproducible experiments across synthetic and trace-driven workloads.
+Prismo is a configurable block-based I/O benchmark tool designed to stress-test storage systems. Each workload is specified in a JSON file and drives a producer–consumer pipeline of I/O packets against a target file. Operations, access patterns, block content, and engine are all independently configurable, enabling reproducible experiments across synthetic and trace-driven workloads.
 
 ## Toolchain
 
-| Tool                                      | Description                                                                                                                           |
-|-------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------|
-| [**Astroide**](tools/astroide/README.md)  | Converts `.blkparse` block traces into the compact binary `.prismo` format used by trace-driven generators                            |
-| [**Deltoide**](tools/deltoide/README.md)  | Analyses a dataset or device and emits compression/deduplication distribution profiles, ready to paste into a workload config         |
-| [**Cardoide**](tools/cardoide/README.md)  | Campaign runner — discovers workload JSON files, filters by engine/range, runs each workload N times, and stores timestamped reports  |
+| Tool                                      | Description                                                                                                                      |
+|-------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------|
+| [**Astroide**](tools/astroide/README.md)  | Converts `.blkparse` block traces into the compact binary `.prismo` format used by trace-driven generators                       |
+| [**Deltoide**](tools/deltoide/README.md)  | Analyses a dataset or device and emits compression/deduplication distribution profiles, ready to paste into a workload config    |
+| [**Cardoide**](tools/cardoide/README.md)  | Campaign runner, simplifies the execution of multiple workloads by allowing repeated runs and providing configurable filters     |
 
 ## Prerequisites
 
@@ -62,14 +62,18 @@ sudo make install
 ## Building
 
 > [!IMPORTANT]
-> **Important:** GCC >= 13.4 is required.
+> To build this project, the Meson Build System must be able to locate a compatible C++ compiler on your system. When using GCC, the required version is 13.4 or newer.
 
 ```sh
 meson setup builddir --buildtype=release -Dpkg_config_path=/path/to/spdk/build/lib/pkgconfig/
 meson compile -C builddir
 ```
 
-The binary is placed at `builddir/prismo`. The tools (`astroide`, `deltoide`) are built alongside it.
+The binary is placed at `builddir/prismo`. The tools (`astroide`, `deltoide`) are built alongside it. For convenience, the program can also be installed system-wide, allowing you to run it from any location without specifying the full path.
+
+```sh
+meson install -C builddir
+```
 
 ## Usage
 
