@@ -17,10 +17,10 @@ Prismo is a configurable block-based I/O benchmark tool designed to stress-test 
 ```sh
 sudo apt update
 sudo apt install -y meson ninja-build
-sudo apt install -y libaio1 liburing-dev libspdlog-dev libeigen3-dev nlohmann-json3-dev libboost-all-dev
+sudo apt install -y liburing-dev libspdlog-dev libeigen3-dev nlohmann-json3-dev libboost-all-dev libzstd-dev
 ```
 
-2. Download and install [SPDK](https://github.com/spdk/spdk)
+2. Download and install [**SPDK**](https://github.com/spdk/spdk)
 
 ```sh
 # Clone the repository
@@ -39,7 +39,7 @@ make
 ./test/unit/unittest.sh
 ```
 
-3. Download and install [argparse](https://github.com/p-ranav/argparse)
+3. Download and install [**argparse**](https://github.com/p-ranav/argparse)
 
 ```sh
 # Clone the repository
@@ -98,38 +98,65 @@ prismo -c workload.json -l
 
 ## Configuration
 
-Workloads are JSON files with five top-level sections. Fields in `job` are merged into `engine`, `access`, and `generator` as defaults, so common values (e.g. `block_size`) only need to appear once.
+Workloads are defined using a JSON file divided into six independent sections. Each section can be freely combined, enabling the creation of purely synthetic workloads, trace-driven workloads, or hybrids.
 
-### `job`
+### Job
 
 ```json
 "job": {
-  "name":       "my_workload",
-  "numjobs":    1,
-  "filename":   "testfile",
+  "name": "my_workload",
+  "numjobs": 1,
+  "filename": "testfile",
   "block_size": 4096,
-  "limit":      268435456,
-  "metric":     "full",
-  "termination": { "type": "iterations", "value": 200000 }
+  "limit": 268435456,
+  "metric": "full",
+  "termination": {
+    "type": "iterations",
+    "value": 200000
+  }
 }
 ```
 
-| Field | Description |
-|-------|-------------|
-| `numjobs` | Number of parallel producer–consumer pairs (each writes to `filename_worker_N`) |
-| `filename` | Base path of the target file |
-| `block_size` | I/O block size in bytes |
-| `limit` | Maximum file size in bytes |
-| `metric` | `"base"` (aggregate only) or `"full"` (per-operation breakdown) |
-| `termination` | `{ "type": "iterations", "value": N }` — stop after N operations; or `{ "type": "runtime", "value": Ms }` — stop after Ms milliseconds |
+| Field         | Description                                                                 | Default       |
+|---------------|-----------------------------------------------------------------------------|---------------|
+| `numjobs`     | Number of parallel producer-consumer pairs                                  | *(required)*  |
+| `filename`    | Base path of the target file                                                | *(required)*  |
+| `block_size`  | I/O block size in bytes                                                     | *(required)*  |
+| `limit`       | Maximum file size in bytes                                                  | *(required)*  |
+| `metric`      | Granularity of metric collection                                            | *(required)*  |
+| `termination` | Termination condition: stop after N operations or after M milliseconds      | *(required)*  |
+| `ramp`        | Linear increase or decrease of throughput                                   | *(optional)*  |
 
-Optional throttling ramp:
+The `metric` parameter accepts values `none | base | standard | full`, progressively collecting more metrics and consequently reducing performance. For maximum performance, disable metric collection by selecting `none`.
+
+The `termination` condition can be expressed in two ways: one limits the number of operations to N, while the other limits execution time to M milliseconds.
 
 ```json
-"ramp": { "start_ratio": 0.1, "end_ratio": 1.0, "duration": 5000 }
+"termination": {
+  "type": "iterations",
+  "value": 2e6
+}
 ```
 
-Linearly scales I/O throughput from `start_ratio` (10%) to `end_ratio` (100%) over `duration` milliseconds.
+```json
+"termination": {
+  "type": "runtime",
+  "value": 30000
+}
+```
+
+The `ramp` parameter linearly increases or decreases throughput based on `start_ratio` and `end_ratio`. Throughput begins at `start_ratio` and reaches `end_ratio` after `duration` milliseconds. When `start_ratio < end_ratio`, a speed-up is simulated; otherwise, a slow-down occurs.
+
+```json
+"ramp": {
+  "start_ratio": 0.1,
+  "end_ratio": 1.0,
+  "duration": 5000
+}
+```
+
+> [!NOTE]
+> This parameter is optional. When not specified, the benchmark runs at maximum throughput for the entire execution duration.
 
 ---
 

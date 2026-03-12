@@ -1,10 +1,10 @@
 # Deltoide
 
-Deltoide analyses a dataset (file, directory, or block device) and produces compression and deduplication distribution profiles, the output is JSON suitable for configuring [prismo](../../README.md) content generators.
+Deltoide analyses a dataset (file, directory, or block device) and produces compression and deduplication distribution profiles, the output is JSON suitable for configuring [**prismo**](../../README.md) content generators.
 
 ## Building
 
-From the project root, Deltoide is built alongside [prismo](../../README.md) using Meson (requires **libzstd**).
+From the project root, Deltoide is built alongside [**prismo**](../../README.md) using Meson (requires **libzstd**).
 
 ```
 meson setup builddir --buildtype=release -Dpkg_config_path=/path/to/spdk/build/lib/pkgconfig/
