@@ -281,7 +281,7 @@ For the `dedup` generator, you must define a discrete distribution of duplicate 
 }
 ```
 
-> [!IMPORTANT]
+> [!CAUTION]
 > Do not combine the top-level compressor with the `dedup` generator; otherwise, the compression settings defined for each `repeats` group will be overwritten.
 
 ----
@@ -297,63 +297,64 @@ Controls how a trace is extended after it reaches the end. The goal is to contin
 
 While reading the `.prismo` binary file, records are buffered to improve deserialization performance. The `memory` field defines how many bytes are reserved for this buffering step.
 
-| Extension     | Description                                       |
-|---------------|---------------------------------------------------|
-| `repeat`      | Restart from the beginning                        |
-| `sample`      | Samples records according to their observed distribution |
-| `regression`  | Extrapolate via linear regression                 |
+| Extension     | Description                                               |
+|---------------|-----------------------------------------------------------|
+| `repeat`      | Restart from the beginning                                |
+| `sample`      | Samples records according to their observed distribution  |
+| `regression`  | Extrapolate via linear regression                         |
 
 > [!NOTE]
 > Trace-based generation is available in the [operation](#operation), [access](#access), and [content](#content) generators. This makes hybrid workloads possible, where one generator can replay traces while the others produce synthetic data.
 
 ---
 
-### `engine`
+### Engine
 
-Selects the I/O backend.
+Defines the backend engine responsible for executing I/O requests. Both synchronous and asynchronous implementations are available. In general, asynchronous engines with polling are recommended for higher throughput because they reduce interruption overhead from blocking system calls.
 
-**posix**
-```json
-"engine": { "type": "posix", "open_flags": ["O_CREAT", "O_RDWR"] }
-```
-
-**io_uring**
 ```json
 "engine": {
-  "type": "uring",
-  "open_flags": ["O_CREAT", "O_RDWR"],
-  "entries": 128,
-  "params": {
-    "cq_entries": 256,
-    "sq_thread_cpu": 0,
-    "sq_thread_idle": 0,
-    "flags": []
-  }
+  "type": "posix",
+  "open_flags": [
+    "O_CREAT",
+    "O_RDWR"
+  ]
 }
 ```
 
-**libaio** (requires `O_DIRECT`)
-```json
-"engine": {
-  "type": "aio",
-  "open_flags": ["O_CREAT", "O_RDWR", "O_DIRECT"],
-  "entries": 128
-}
+| Type    | Description                                                                                                 | Example                                                                             |
+|---------|-------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|
+| `posix` | Synchronous I/O using the standard POSIX API                                                                | [**01_nop_seq_const_posix.json**](/workloads/campaign/01_nop_seq_const_posix.json)  |
+| `uring` | Asynchronous I/O using the Linux [**io_uring**](https://man7.org/linux/man-pages/man7/io_uring.7.html) API  | [**19_nop_seq_const_uring.json**](/workloads/campaign/19_nop_seq_const_uring.json)  |
+| `aio`   | POSIX asynchronous I/O using the [**AIO**](https://man7.org/linux/man-pages/man7/aio.7.html) interface      | [**37_nop_seq_const_aio.json**](/workloads/campaign/37_nop_seq_const_aio.json)      |
+| `spdk`  | High-performance user-space storage I/O via [**SPDK**](https://github.com/spdk/spdk)                        | [**55_nop_seq_const_spdk.json**](/workloads/campaign/55_nop_seq_const_spdk.json)    |
+
+The `posix`, `uring`, and `aio` engines open the files on which I/O operations are performed, while the `open_flags` field specifies the flags passed to [`open(2)`](https://man7.org/linux/man-pages/man2/open.2.html). The following flags are supported:
+
+```sh
+O_TRUNC | O_APPEND | O_RDONLY | O_WRONLY | O_RDWR | O_SYNC | O_DSYNC | O_RSYNC | O_DIRECT
 ```
 
-**SPDK** (requires a configured bdev)
-```json
-"engine": {
-  "type": "spdk",
-  "open_flags": [],
-  "bdev_name": "Malloc0",
-  "reactor_mask": "0x3",
-  "json_config_file": "/path/to/bdev.json",
-  "spdk_threads": 2
-}
+The `uring` interface supports several configuration flags defined by [`io_uring_setup(2)`](https://man7.org/linux/man-pages/man2/io_uring_setup.2.html). The following subset is currently available:
+
+```
+IORING_SETUP_IOPOLL | IORING_SETUP_SQPOLL | IORING_SETUP_SQ_AFF | IORING_SETUP_CLAMP | IORING_SETUP_CQSIZE | IORING_FEAT_NODROP | IORING_SETUP_SINGLE_ISSUER | IORING_SETUP_HYBRID_IOPOLL
 ```
 
-Supported `open_flags`: `O_CREAT`, `O_TRUNC`, `O_RDONLY`, `O_WRONLY`, `O_RDWR`, `O_SYNC`, `O_DSYNC`, `O_DIRECT`, `O_APPEND`.
+> [!WARNING]
+> The `IORING_SETUP_SINGLE_ISSUER` flag is available only from Linux kernel `6.0` onward. If this flag is enabled, builds targeting older kernels may fail. Upgrading the kernel is recommended.
+
+> [!WARNING]
+> The `aio` interface requires `O_DIRECT` in `open_flags`, because asynchronous behavior is fully effective only with direct I/O.
+
+The `spdk` engine uses the [**bdev**](https://spdk.io/doc/bdev.html) interface, so the target must be a *block device*. Its configuration is provided through the `json_config_file` parameter, which points to a JSON file containing the **bdev** configuration. Examples are available in [spdk](/workloads/spdk/).
+
+> [!WARNING]
+> `reactor_mask` should select at least two CPU cores. Otherwise, request execution may stall, as a single worker thread could remain busy polling and monopolize the only available core.
+
+---
+
+## Logger
 
 ---
 
