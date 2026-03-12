@@ -11,8 +11,8 @@ namespace Worker {
             .value("access", nlohmann::json::object());
         operation_json = config_json
             .value("operation", nlohmann::json::object());
-        generator_json = config_json
-            .value("generator", nlohmann::json::object());
+        content_json = config_json
+            .value("content", nlohmann::json::object());
         engine_json = config_json
             .value("engine", nlohmann::json::object());
         logging_json = config_json
@@ -20,7 +20,7 @@ namespace Worker {
 
         access_json.merge_patch(job_json);
         engine_json.merge_patch(job_json);
-        generator_json.merge_patch(job_json);
+        content_json.merge_patch(job_json);
 
         numjobs = job_json.value("numjobs", 1);
         block_size = job_json.value("block_size", 4096);
@@ -47,11 +47,11 @@ namespace Worker {
 
             spdlog::debug("Parsing content generator config");
             auto content =
-                Factory::get_content_generator(generator_json);
+                Factory::get_content_generator(content_json);
 
             spdlog::debug("Parsing compression generator config");
             auto compression =
-                Factory::get_compression_generator(generator_json);
+                Factory::get_compression_generator(content_json);
 
             spdlog::debug("Parsing barrier config");
             auto barrier =

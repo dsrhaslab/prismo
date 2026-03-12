@@ -23,7 +23,7 @@
     "memory": 16384,
     "extension": "sample"
   },
-  "generator": {
+  "content": {
     "type": "trace",
     "trace": "/home/digo/Desktop/prismo/tests/test_trace_seq.prismo",
     "memory": 16384,

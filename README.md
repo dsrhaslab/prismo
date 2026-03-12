@@ -1,6 +1,5 @@
 <img width="6908" height="2260" alt="prismo2" src="https://github.com/user-attachments/assets/baa77419-e6d5-4e91-b521-f48a4787cec4" />
 
-
 Prismo is a configurable block-based I/O benchmark tool designed to stress-test storage systems. Each workload is specified in a JSON file and drives a producer–consumer pipeline of I/O packets against a target file. Operations, access patterns, block content, and engine are all independently configurable, enabling reproducible experiments across synthetic and trace-driven workloads.
 
 ## Toolchain
@@ -65,6 +64,8 @@ sudo make install
 > [!IMPORTANT]
 > To build this project, the Meson Build System must be able to locate a compatible C++ compiler on your system. When using GCC, the required version is 13.4 or newer.
 
+Before compiling, Meson needs to know where to find the [**SPDK**](https://github.com/spdk/spdk) libraries. Update the `spdk_root` variable in [meson.build](meson.build) so it points to the SPDK repository path you installed earlier.
+
 ```sh
 meson setup builddir --buildtype=release -Dpkg_config_path=/path/to/spdk/build/lib/pkgconfig/
 meson compile -C builddir
@@ -120,6 +121,7 @@ Workloads are defined using a JSON file divided into six independent sections. E
 
 | Field         | Description                                                                 | Default       |
 |---------------|-----------------------------------------------------------------------------|---------------|
+| `name`        | Workload name                                                               | *(required)*  |
 | `numjobs`     | Number of parallel producer-consumer pairs                                  | *(required)*  |
 | `filename`    | Base path of the target file                                                | *(required)*  |
 | `block_size`  | I/O block size in bytes                                                     | *(required)*  |
@@ -161,38 +163,63 @@ The `ramp` parameter linearly increases or decreases throughput based on `start_
 
 ---
 
-### `operation`
+### Operation
 
-Controls which I/O operations are issued.
+Controls which I/O operations are issued by the benchmark. There are currently four operation generators, and they accept `read | write | fsync | fdatasync | nop` in their configurations. In the example below, the benchmark continuously issues `write`, but it could issue any of the listed operations.
 
-| `type` | Description | Extra fields |
-|--------|-------------|--------------|
-| `"constant"` | Always the same operation | `"operation": "read"\|"write"\|"nop"\|"fsync"\|"fdatasync"` |
-| `"percentage"` | Probabilistic mix | `"percentages": { "read": 50, "write": 40, "fsync": 10 }` |
-| `"sequence"` | Fixed repeating sequence | `"operations": ["write", "read", "write", "fsync"]` |
-| `"trace"` | Replay operations from a `.prismo` trace | `"trace": "path.prismo"` + `"extension"` + `"memory"` |
+```json
+"operation": {
+  "type": "constant",
+  "operation": "write"
+}
+```
 
-**Barriers** (optional, works with `sequence`/`percentage`) — inject a sync operation after every N triggers of a specific operation:
+| Type          | Description                                     | Example                                                                                   |
+|---------------|-------------------------------------------------|-------------------------------------------------------------------------------------------|
+| `constant`    | Repeatedly issues the same `operation`          | [**01_nop_seq_const_posix.json**](/workloads/campaign/01_nop_seq_const_posix.json)        |
+| `percentage`  | Operations sampled from a discrete distribution | [**03_rw_random_random_posix.json**](/workloads/campaign/03_rw_random_random_posix.json)  |
+| `sequence`    | Repeats a fixed operation pattern               | [**06_zipf_dedup_posix.json**](/workloads/campaign/06_zipf_dedup_posix.json)              |
+| `trace`       | Replay operations from a `.prismo` trace        | [**07_trace_all_posix.json**](/workloads/campaign/07_trace_all_posix.json)                |
+
+> [!NOTE]
+> Each generator has its own specific configuration. Reviewing the examples is recommended to better understand how they work.
+
+In some workloads, it is useful to force buffered data to be flushed. Barriers provide this behavior by issuing one operation after another operation has been triggered N times. In the example below, an `fsync` is issued every 1024 `write` operations, and an `fdatasync` every 512.
 
 ```json
 "barrier": [
-  { "operation": "fsync",     "trigger": "write", "threshold": 1024 },
-  { "operation": "fdatasync", "trigger": "write", "threshold": 512  }
+  {
+    "operation": "fsync",
+    "trigger": "write",
+    "threshold": 1024
+  },
+  {
+    "operation": "fdatasync",
+    "trigger": "write",
+    "threshold": 512
+  }
 ]
 ```
 
 ---
 
-### `access`
+### Access
 
-Controls which file offset each operation targets.
+Controls which file offset each operation targets. Offsets are bounded by the `limit` parameter defined in [**Job**](#job). The available access generators are intentionally simple, but they still model useful behaviors such as hot spots, cache-friendly locality, and production-style trace replay.
 
-| `type` | Description | Extra fields |
-|--------|-------------|--------------|
-| `"sequential"` | Monotonically increasing offsets (wraps at `limit`) | — |
-| `"random"` | Uniformly random offsets | — |
-| `"zipfian"` | Zipf-distributed offsets (hot-spot skew) | `"skew": 0.8` |
-| `"trace"` | Replay offsets from a `.prismo` trace | `"trace": "path.prismo"` + `"extension"` + `"memory"` |
+```json
+"access": {
+  "type": "zipfian",
+  "skew": 0.8
+}
+```
+
+| Type          | Description                                   | Example                                                                                   |
+|---------------|-----------------------------------------------|-------------------------------------------------------------------------------------------|
+| `sequential`  | Monotonically increasing offsets              | [**01_nop_seq_const_posix.json**](/workloads/campaign/01_nop_seq_const_posix.json)        |
+| `random`      | Uniformly random offsets                      | [**03_rw_random_random_posix.json**](/workloads/campaign/03_rw_random_random_posix.json)  |
+| `zipfian`     | Zipf-distributed offsets (hot-spot skew)      | [**04_rw_zipf_random_posix.json**](/workloads/campaign/04_rw_zipf_random_posix.json)      |
+| `trace`       | Replay offsets from a `.prismo` trace         | [**07_trace_all_posix.json**](workloads/campaign/07_trace_all_posix.json)                 |
 
 ---
 
@@ -210,7 +237,7 @@ Controls the content of write buffers.
 **Dedup content generator** — specify a distribution of duplication groups, each with its own compression profile:
 
 ```json
-"generator": {
+"content": {
   "type": "dedup",
   "refill": false,
   "distribution": [

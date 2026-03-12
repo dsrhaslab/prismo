@@ -28,7 +28,7 @@
   "access": {
     "type": "random"
   },
-  "generator": {
+  "content": {
     "type": "random",
     "refill": true
   },

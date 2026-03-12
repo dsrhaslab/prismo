@@ -35,7 +35,7 @@
     "type": "zipfian",
     "skew": 0.9
   },
-  "generator": {
+  "content": {
     "type": "dedup",
     "refill": false,
     "distribution": [

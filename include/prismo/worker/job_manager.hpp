@@ -31,7 +31,7 @@ namespace Worker {
             nlohmann::json job_json;
             nlohmann::json access_json;
             nlohmann::json operation_json;
-            nlohmann::json generator_json;
+            nlohmann::json content_json;
             nlohmann::json engine_json;
             nlohmann::json logging_json;
 

@@ -22,7 +22,7 @@
   "access": {
     "type": "sequential"
   },
-  "generator": {
+  "content": {
     "type": "random",
     "refill": true
   },

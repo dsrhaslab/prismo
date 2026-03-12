@@ -24,7 +24,7 @@
     "type": "zipfian",
     "skew": 0.75
   },
-  "generator": {
+  "content": {
     "type": "random",
     "refill": true
   },
