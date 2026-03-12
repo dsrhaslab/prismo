@@ -214,27 +214,48 @@ Controls which file offset each operation targets. Offsets are bounded by the `l
 }
 ```
 
-| Type          | Description                                   | Example                                                                                   |
-|---------------|-----------------------------------------------|-------------------------------------------------------------------------------------------|
-| `sequential`  | Monotonically increasing offsets              | [**01_nop_seq_const_posix.json**](/workloads/campaign/01_nop_seq_const_posix.json)        |
-| `random`      | Uniformly random offsets                      | [**03_rw_random_random_posix.json**](/workloads/campaign/03_rw_random_random_posix.json)  |
-| `zipfian`     | Zipf-distributed offsets (hot-spot skew)      | [**04_rw_zipf_random_posix.json**](/workloads/campaign/04_rw_zipf_random_posix.json)      |
-| `trace`       | Replay offsets from a `.prismo` trace         | [**07_trace_all_posix.json**](workloads/campaign/07_trace_all_posix.json)                 |
+| Type          | Description                                     | Example                                                                                   |
+|---------------|-------------------------------------------------|-------------------------------------------------------------------------------------------|
+| `sequential`  | Monotonically increasing offsets                | [**01_nop_seq_const_posix.json**](/workloads/campaign/01_nop_seq_const_posix.json)        |
+| `random`      | Uniformly random offsets                        | [**03_rw_random_random_posix.json**](/workloads/campaign/03_rw_random_random_posix.json)  |
+| `zipfian`     | Zipf-distributed offsets (hot-spot skew)        | [**04_rw_zipf_random_posix.json**](/workloads/campaign/04_rw_zipf_random_posix.json)      |
+| `trace`       | Replay offsets from a `.prismo` trace           | [**07_trace_all_posix.json**](workloads/campaign/07_trace_all_posix.json)                 |
 
 ---
 
-### `generator`
+### Content
 
-Controls the content of write buffers.
+Defines the contents of the buffers used by `write` operations. If a workload does not issue writes, the content generator is never invoked, which can improve the benchmark's operation rate.
 
-| `type` | Description | Extra fields |
-|--------|-------------|--------------|
-| `"constant"` | Zero-filled buffer | — |
-| `"random"` | Random bytes | `"refill": true\|false` (refill each block or reuse) |
-| `"dedup"` | Deduplication + compression profile | see below |
-| `"trace"` | Replay block content from a `.prismo` trace | `"trace": "path.prismo"` + `"extension"` + `"memory"` |
+```json
+"content": {
+  "type": "random",
+  "refill": true
+},
+```
 
-**Dedup content generator** — specify a distribution of duplication groups, each with its own compression profile:
+| Type        | Description                                       | Example                                                                                         |
+|-------------|---------------------------------------------------|-------------------------------------------------------------------------------------------------|
+| `constant`  | Zero-filled buffer                                | [**01_nop_seq_const_posix.json**](/workloads/campaign/01_nop_seq_const_posix.json)              |
+| `random`    | Random bytes                                      | [**04_rw_zipf_random_posix.json**](/workloads/campaign/04_rw_zipf_random_posix.json)            |
+| `dedup`     | Deduplication + compression profile               | [**16_dedup_heavy_barrier_posix.json**](/workloads/campaign/16_dedup_heavy_barrier_posix.json)  |
+| `trace`     | Replay block content from a `.prismo` trace       | [**07_trace_all_posix.json**](/workloads/campaign/07_trace_all_posix.json)                      |
+
+With the exception of `constant`, all content generators use the `refill` field. It controls whether buffers are regenerated from scratch or reuse the same base buffer. For `random`, when `refill == true`, the entire buffer is rewritten with random bytes; otherwise, only the buffer header changes, which allows higher throughput.
+
+The properties of generated content are important when evaluating systems, especially those that implement compression and deduplication optimizations. For this reason, generators can optionally include a compression profile that applies different reduction ratios according to a distribution. In the example below, half of the content remains uncompressed, while the other half is compressed by 50%.
+
+```json
+"compression": [
+  { "percentage": 50, "reduction": 0  },
+  { "percentage": 50, "reduction": 50 }
+]
+```
+
+For the `dedup` generator, you must define a discrete distribution of duplicate groups that determines how many times blocks repeat. In the example below, half of the written blocks are unique (`repeats = 0`), while the remaining half have three duplicates each. In addition, each `repeats` group can define its own compression profile.
+
+> [!TIP]
+> Use [Deltoide](tools/deltoide/README.md) to derive these distributions from a real dataset.
 
 ```json
 "content": {
@@ -260,22 +281,30 @@ Controls the content of write buffers.
 }
 ```
 
-`repeats` is the number of duplicate copies (0 = unique). Use [Deltoide](tools/deltoide/README.md) to derive these distributions from a real dataset.
+> [!IMPORTANT]
+> Do not combine the top-level compressor with the `dedup` generator; otherwise, the compression settings defined for each `repeats` group will be overwritten.
 
-**Trace extension** (for all `"trace"` types) — controls how the trace is replayed when it ends:
+----
 
-| `extension` | Description |
-|-------------|-------------|
-| `"repeat"` | Restart from the beginning |
-| `"sample"` | Randomly sample from the recorded values |
-| `"regression"` | Extrapolate via linear regression |
+### Trace Extension
+
+Controls how a trace is extended after it reaches the end. The goal is to continue generating operations indefinitely while preserving the statistical properties observed in the original data, allowing production-like conditions to be reproduced synthetically.
 
 ```json
 "extension": "sample",
 "memory": 16384
 ```
 
-`memory` is the number of trace records to keep in memory for sampling/regression.
+While reading the `.prismo` binary file, records are buffered to improve deserialization performance. The `memory` field defines how many bytes are reserved for this buffering step.
+
+| Extension     | Description                                       |
+|---------------|---------------------------------------------------|
+| `repeat`      | Restart from the beginning                        |
+| `sample`      | Samples records according to their observed distribution |
+| `regression`  | Extrapolate via linear regression                 |
+
+> [!NOTE]
+> Trace-based generation is available in the [operation](#operation), [access](#access), and [content](#content) generators. This makes hybrid workloads possible, where one generator can replay traces while the others produce synthetic data.
 
 ---
 
@@ -328,7 +357,7 @@ Supported `open_flags`: `O_CREAT`, `O_TRUNC`, `O_RDONLY`, `O_WRONLY`, `O_RDWR`, 
 
 ---
 
-## Report format
+## Report
 
 The JSON report contains one entry per job plus an `"all"` aggregate (when `numjobs > 1`):
 
@@ -359,3 +388,5 @@ The JSON report contains one entry per job plus an `"all"` aggregate (when `numj
   ]
 }
 ```
+
+## Contributing
