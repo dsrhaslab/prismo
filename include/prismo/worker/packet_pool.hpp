@@ -33,11 +33,10 @@ namespace Worker::Internal {
     };
 
     inline void destroy_queue_packet(
-        moodycamel::ConcurrentQueue<std::unique_ptr<Protocol::Packet>>& queue,
-        size_t queue_size
+        moodycamel::ConcurrentQueue<std::unique_ptr<Protocol::Packet>>& queue
     ) {
         std::unique_ptr<Protocol::Packet> packet;
-        for (size_t index = 0; index < queue_size; index++) {
+        for (size_t index = 0; index < QUEUE_INITIAL_CAPACITY; index++) {
             while (!queue.try_dequeue(packet));
             std::free(packet->request.buffer);
         }

@@ -177,10 +177,7 @@ namespace Worker {
             jobs[i].consumer->close(close_request);
 
             spdlog::debug("Destroying packet pool for job {}", i);
-            Internal::destroy_queue_packet(
-                *jobs[i].to_producer,
-                Internal::QUEUE_INITIAL_CAPACITY
-            );
+            Internal::destroy_queue_packet(*jobs[i].to_producer);
 
             spdlog::debug("Job {} teardown complete", i);
         }
