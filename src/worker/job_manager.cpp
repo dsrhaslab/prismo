@@ -16,7 +16,7 @@ namespace Worker {
         engine_json = config_json
             .value("engine", nlohmann::json::object());
         logging_json = config_json
-            .value("logging", nlohmann::json::object());
+            .value("logger", nlohmann::json::object());
 
         access_json.merge_patch(job_json);
         engine_json.merge_patch(job_json);

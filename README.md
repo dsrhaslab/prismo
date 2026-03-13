@@ -315,10 +315,7 @@ Defines the backend engine responsible for executing I/O requests. Both synchron
 ```json
 "engine": {
   "type": "posix",
-  "open_flags": [
-    "O_CREAT",
-    "O_RDWR"
-  ]
+  "open_flags": ["O_CREAT", "O_RDWR"]
 }
 ```
 
@@ -332,13 +329,30 @@ Defines the backend engine responsible for executing I/O requests. Both synchron
 The `posix`, `uring`, and `aio` engines open the files on which I/O operations are performed, while the `open_flags` field specifies the flags passed to [`open(2)`](https://man7.org/linux/man-pages/man2/open.2.html). The following flags are supported:
 
 ```sh
-O_TRUNC | O_APPEND | O_RDONLY | O_WRONLY | O_RDWR | O_SYNC | O_DSYNC | O_RSYNC | O_DIRECT
+# Core access modes (choose exactly one)
+O_RDONLY | O_WRONLY | O_RDWR
+
+# Common write behavior flags
+O_APPEND | O_TRUNC | O_CREAT
+
+# Strong consistency / performance flags
+O_SYNC | O_DSYNC | O_RSYNC | O_DIRECT
 ```
 
 The `uring` interface supports several configuration flags defined by [`io_uring_setup(2)`](https://man7.org/linux/man-pages/man2/io_uring_setup.2.html). The following subset is currently available:
 
-```
-IORING_SETUP_IOPOLL | IORING_SETUP_SQPOLL | IORING_SETUP_SQ_AFF | IORING_SETUP_CLAMP | IORING_SETUP_CQSIZE | IORING_FEAT_NODROP | IORING_SETUP_SINGLE_ISSUER | IORING_SETUP_HYBRID_IOPOLL
+```sh
+# Polling modes
+IORING_SETUP_IOPOLL | IORING_SETUP_SQPOLL | IORING_SETUP_HYBRID_IOPOLL
+
+# Thread and CPU control
+IORING_SETUP_SQ_AFF | IORING_SETUP_SINGLE_ISSUER
+
+# Queue tuning
+IORING_SETUP_CQSIZE | IORING_SETUP_CLAMP
+
+# Safety / semantic guarantees
+IORING_FEAT_NODROP
 ```
 
 > [!WARNING]
@@ -354,13 +368,33 @@ The `spdk` engine uses the [**bdev**](https://spdk.io/doc/bdev.html) interface, 
 
 ---
 
-## Logger
+### Logger
 
----
+The logger captures benchmark activity and writes detailed execution records. These logs are stored in a structured format, which can then be analyzed with the scripts inside [tools directory](/tools/scripts/) to generate plots and run statistical analysis.
+
+Logging detail follows the `metric` level selected in [**Job**](#job). As you move from `none` to `full`, records include progressively richer information.
+
+```json
+"logger": {
+  "type": "spdlog",
+  "name": "prismo",
+  "queue_size": 8192,
+  "thread_count": 1,
+  "truncate": true,
+  "to_stdout": true,
+  "files": [
+    "./log1.log",
+    "./log2.log",
+    "./log3.log"
+  ]
+}
+```
+> [!NOTE]
+> This component is optional. If your primary goal is maximum throughput, disable logging because it adds measurable overhead.
 
 ## Report
 
-The JSON report contains one entry per job plus an `"all"` aggregate (when `numjobs > 1`):
+The JSON report provides a detailed benchmark summary, with one entry per job and an `all` aggregate when multiple jobs run (`numjobs > 1`). When metric collection is enabled, each job entry includes overall statistics such as total operations, total bytes transferred, runtime, IOPS, and bandwidth, plus per-operation metrics.
 
 ```json
 {
@@ -381,7 +415,8 @@ The JSON report contains one entry per job plus an `"all"` aggregate (when `numj
           "bandwidth_bytes_per_sec": 3.32e8,
           "latency_ns": {
             "min": 1200, "avg": 6100, "max": 980000,
-            "p50": 5800, "p95": 12000, "p99": 45000, "p999": 210000
+            "p50": 5800, "p90": 12000, "p95": 45000,
+            "p99": 210000, "p99_9": 250000, "p99_99": 330000
           }
         }
       ]
@@ -391,3 +426,16 @@ The JSON report contains one entry per job plus an `"all"` aggregate (when `numj
 ```
 
 ## Contributing
+
+Currently there are only a few implementations of the top-level configuration components, which limits the range of workload properties that can be expressed. Adding more generators for [**operation**](#operation), [**access**](#access), [**content**](#content), [**engines**](#engine), and [**extensions**](#trace-extension) would be a valuable contribution.
+
+1. Implement the abstract base class for the desired component.
+
+2. Define a JSON configuration and accept it in the class constructor.
+
+3. Register the constructor in the component's parsing function, found in [**factory.cpp**](/src/factory/factory.cpp).
+
+> [!IMPORTANT]
+> [Logger](#logger) implementations must be thread-safe, because engines may share the same logger instance.
+
+Any other contributions are also welcome :smiling_face_with_three_hearts:.
