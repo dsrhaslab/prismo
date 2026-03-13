@@ -1,13 +1,13 @@
 <img width="6908" height="2260" alt="prismo2" src="https://github.com/user-attachments/assets/baa77419-e6d5-4e91-b521-f48a4787cec4" />
 
-Prismo is a configurable block-based I/O benchmark tool designed to stress-test storage systems. Each workload is specified in a JSON file and drives a producer–consumer pipeline of I/O packets against a target file. Operations, access patterns, block content, and engine are all independently configurable, enabling reproducible experiments across synthetic and trace-driven workloads.
+Prismo is a configurable block-based I/O benchmark tool designed to stress-test storage systems. Each workload is specified in a JSON file and drives a producer–consumer pipeline of I/O packets against a target file. Operations, access patterns, block content, and backend engine are all independently configurable, enabling reproducible experiments across synthetic and trace-driven workloads.
 
 ## Toolchain
 
 | Tool                                      | Description                                                                                                                      |
 |-------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------|
 | [**Astroide**](tools/astroide/README.md)  | Converts `.blkparse` block traces into the compact binary `.prismo` format used by trace-driven generators                       |
-| [**Deltoide**](tools/deltoide/README.md)  | Analyses a dataset or device and emits compression/deduplication distribution profiles, ready to paste into a workload config    |
+| [**Deltoide**](tools/deltoide/README.md)  | Analyses a dataset and emits compression/deduplication distribution profiles, ready to paste into a workload config              |
 | [**Cardoide**](tools/cardoide/README.md)  | Campaign runner, simplifies the execution of multiple workloads by allowing repeated runs and providing configurable filters     |
 
 ## Prerequisites
@@ -64,7 +64,7 @@ sudo make install
 > [!IMPORTANT]
 > To build this project, the Meson Build System must be able to locate a compatible C++ compiler on your system. When using GCC, the required version is 13.4 or newer.
 
-Before compiling, Meson needs to know where to find the [**SPDK**](https://github.com/spdk/spdk) libraries. Update the `spdk_root` variable in [meson.build](meson.build) so it points to the SPDK repository path you installed earlier.
+Before compiling, Meson needs to know where to find the SPDK libraries. Update the `spdk_root` variable in [**meson.build**](meson.build) so it points to the SPDK repository path you installed earlier.
 
 ```sh
 meson setup builddir --buildtype=release -Dpkg_config_path=/path/to/spdk/build/lib/pkgconfig/
@@ -123,7 +123,7 @@ Workloads are defined using a JSON file divided into six independent sections. E
 |---------------|-----------------------------------------------------------------------------|---------------|
 | `name`        | Workload name                                                               | *(required)*  |
 | `numjobs`     | Number of parallel producer-consumer pairs                                  | *(required)*  |
-| `filename`    | Base path of the target file                                                | *(required)*  |
+| `filename`    | Path of the target file                                                     | *(required)*  |
 | `block_size`  | I/O block size in bytes                                                     | *(required)*  |
 | `limit`       | Maximum file size in bytes                                                  | *(required)*  |
 | `metric`      | Granularity of metric collection                                            | *(required)*  |
@@ -148,7 +148,7 @@ The `termination` condition can be expressed in two ways: one limits the number 
 }
 ```
 
-The `ramp` parameter linearly increases or decreases throughput based on `start_ratio` and `end_ratio`. Throughput begins at `start_ratio` and reaches `end_ratio` after `duration` milliseconds. When `start_ratio < end_ratio`, a speed-up is simulated; otherwise, a slow-down occurs.
+The `ramp` parameter linearly increases or decreases throughput based on `start_ratio` and `end_ratio`. Throughput begins at `start_ratio` and reaches `end_ratio` after `duration` milliseconds. When `start_ratio < end_ratio`, a speed-up is simulated, otherwise a slow-down occurs.
 
 ```json
 "ramp": {
@@ -159,7 +159,7 @@ The `ramp` parameter linearly increases or decreases throughput based on `start_
 ```
 
 > [!NOTE]
-> This parameter is optional. When not specified, the benchmark runs at maximum throughput for the entire execution duration.
+> This parameter is optional. When not specified, the benchmark runs at maximum throughput for the entire execution.
 
 ---
 
@@ -205,7 +205,7 @@ In some workloads, it is useful to force buffered data to be flushed. Barriers p
 
 ### Access
 
-Controls which file offset each operation targets. Offsets are bounded by the `limit` parameter defined in [**Job**](#job). The available access generators are intentionally simple, but they still model useful behaviors such as hot spots, cache-friendly locality, and production-style trace replay.
+Controls which file offset each operation targets. Offsets are bounded by the `limit` parameter defined in [**job**](#job). The available access generators are intentionally simple, but they still model useful behaviors such as hot spots, cache-friendly locality, and production-style trace replay.
 
 ```json
 "access": {
@@ -238,10 +238,10 @@ Defines the contents of the buffers used by `write` operations. If a workload do
 |-------------|---------------------------------------------------|-------------------------------------------------------------------------------------------------|
 | `constant`  | Zero-filled buffer                                | [**01_nop_seq_const_posix.json**](/workloads/campaign/01_nop_seq_const_posix.json)              |
 | `random`    | Random bytes                                      | [**04_rw_zipf_random_posix.json**](/workloads/campaign/04_rw_zipf_random_posix.json)            |
-| `dedup`     | Deduplication + compression profile               | [**16_dedup_heavy_barrier_posix.json**](/workloads/campaign/16_dedup_heavy_barrier_posix.json)  |
+| `dedup`     | Deduplication and compression profile             | [**16_dedup_heavy_barrier_posix.json**](/workloads/campaign/16_dedup_heavy_barrier_posix.json)  |
 | `trace`     | Replay block content from a `.prismo` trace       | [**07_trace_all_posix.json**](/workloads/campaign/07_trace_all_posix.json)                      |
 
-With the exception of `constant`, all content generators use the `refill` field. It controls whether buffers are regenerated from scratch or reuse the same base buffer. For `random`, when `refill == true`, the entire buffer is rewritten with random bytes; otherwise, only the buffer header changes, which allows higher throughput.
+With the exception of `constant`, all content generators use the `refill` field. It controls whether buffers are regenerated from scratch or reuse the same base buffer. For `random`, when `refill == true`, the entire buffer is rewritten with random bytes, otherwise only the buffer header changes, which allows higher throughput.
 
 The properties of generated content are important when evaluating systems, especially those that implement compression and deduplication optimizations. For this reason, generators can optionally include a compression profile that applies different reduction ratios according to a distribution. In the example below, half of the content remains uncompressed, while the other half is compressed by 50%.
 
@@ -255,7 +255,7 @@ The properties of generated content are important when evaluating systems, espec
 For the `dedup` generator, you must define a discrete distribution of duplicate groups that determines how many times blocks repeat. In the example below, half of the written blocks are unique (`repeats = 0`), while the remaining half have three duplicates each. In addition, each `repeats` group can define its own compression profile.
 
 > [!TIP]
-> Use [Deltoide](tools/deltoide/README.md) to derive these distributions from a real dataset.
+> Use [**Deltoide**](tools/deltoide/README.md) to derive these distributions from a real dataset.
 
 ```json
 "content": {
@@ -282,7 +282,7 @@ For the `dedup` generator, you must define a discrete distribution of duplicate 
 ```
 
 > [!CAUTION]
-> Do not combine the top-level compressor with the `dedup` generator; otherwise, the compression settings defined for each `repeats` group will be overwritten.
+> Do not combine the top-level compressor with the `dedup` generator, otherwise the compression settings defined for each `repeats` group will be overwritten.
 
 ----
 
@@ -301,16 +301,16 @@ While reading the `.prismo` binary file, records are buffered to improve deseria
 |---------------|-----------------------------------------------------------|
 | `repeat`      | Restart from the beginning                                |
 | `sample`      | Samples records according to their observed distribution  |
-| `regression`  | Extrapolate via linear regression                         |
+| `regression`  | Extrapolate via multivariate regression                   |
 
 > [!NOTE]
-> Trace-based generation is available in the [operation](#operation), [access](#access), and [content](#content) generators. This makes hybrid workloads possible, where one generator can replay traces while the others produce synthetic data.
+> Trace-based generation is available in [**operation**](#operation), [**access**](#access), and [**content**](#content) generators. This makes hybrid workloads possible, where one generator can replay traces while the others produce synthetic data.
 
 ---
 
 ### Engine
 
-Defines the backend engine responsible for executing I/O requests. Both synchronous and asynchronous implementations are available. In general, asynchronous engines with polling are recommended for higher throughput because they reduce interruption overhead from blocking system calls.
+Defines the backend engine responsible for executing I/O requests. Both synchronous and asynchronous implementations are available. In general, asynchronous engines with polling are recommended for higher throughput because they avoid interruption overhead from blocking system calls.
 
 ```json
 "engine": {
@@ -339,6 +339,9 @@ O_APPEND | O_TRUNC | O_CREAT
 O_SYNC | O_DSYNC | O_RSYNC | O_DIRECT
 ```
 
+> [!WARNING]
+> The `aio` interface requires `O_DIRECT` in `open_flags`, because asynchronous behavior is fully effective only with direct I/O.
+
 The `uring` interface supports several configuration flags defined by [`io_uring_setup(2)`](https://man7.org/linux/man-pages/man2/io_uring_setup.2.html). The following subset is currently available:
 
 ```sh
@@ -356,12 +359,9 @@ IORING_FEAT_NODROP
 ```
 
 > [!WARNING]
-> The `IORING_SETUP_SINGLE_ISSUER` flag is available only from Linux kernel `6.0` onward. If this flag is enabled, builds targeting older kernels may fail. Upgrading the kernel is recommended.
+> The `IORING_SETUP_SINGLE_ISSUER` flag is available only from Linux kernel `6.0` onward. If this flag is enabled (not commented out in the code), builds targeting older kernels may fail. Upgrading the kernel is recommended.
 
-> [!WARNING]
-> The `aio` interface requires `O_DIRECT` in `open_flags`, because asynchronous behavior is fully effective only with direct I/O.
-
-The `spdk` engine uses the [**bdev**](https://spdk.io/doc/bdev.html) interface, so the target must be a *block device*. Its configuration is provided through the `json_config_file` parameter, which points to a JSON file containing the **bdev** configuration. Examples are available in [spdk](/workloads/spdk/).
+The `spdk` engine uses the [**bdev**](https://spdk.io/doc/bdev.html) interface, so the target must be a block device. Its configuration is provided through the `json_config_file` parameter, which points to a JSON file containing the bdev configuration. Examples are available in [**spdk**](/workloads/spdk/).
 
 > [!WARNING]
 > `reactor_mask` should select at least two CPU cores. Otherwise, request execution may stall, as a single worker thread could remain busy polling and monopolize the only available core.
@@ -370,9 +370,9 @@ The `spdk` engine uses the [**bdev**](https://spdk.io/doc/bdev.html) interface, 
 
 ### Logger
 
-The logger captures benchmark activity and writes detailed execution records. These logs are stored in a structured format, which can then be analyzed with the scripts inside [tools directory](/tools/scripts/) to generate plots and run statistical analysis.
+The logger captures benchmark activity and writes detailed execution records. These logs are stored in a structured format, which can then be analyzed with the scripts inside [**tools directory**](/tools/scripts/) to generate plots and run statistical analysis.
 
-Logging detail follows the `metric` level selected in [**Job**](#job). As you move from `none` to `full`, records include progressively richer information.
+Logging detail follows the `metric` level selected in [**job**](#job). As you move from `none` to `full`, records include progressively richer information.
 
 ```json
 "logger": {
@@ -389,6 +389,7 @@ Logging detail follows the `metric` level selected in [**Job**](#job). As you mo
   ]
 }
 ```
+
 > [!NOTE]
 > This component is optional. If your primary goal is maximum throughput, disable logging because it adds measurable overhead.
 
@@ -401,25 +402,33 @@ The JSON report provides a detailed benchmark summary, with one entry per job an
   "jobs": [
     {
       "job_id": 0,
-      "total_operations": 200000,
-      "total_bytes": 819200000,
-      "runtime_sec": 1.23456,
-      "overall_iops": 162000,
-      "overall_bandwidth_bytes_per_sec": 6.64e8,
       "operations": [
         {
-          "operation": "write",
-          "total_ops": 100000,
-          "total_bytes": 409600000,
-          "iops": 81000,
-          "bandwidth_bytes_per_sec": 3.32e8,
+          "bandwidth_bytes_per_sec": 1826388175.56,
+          "count": 1000000,
+          "iops": 445895.55,
           "latency_ns": {
-            "min": 1200, "avg": 6100, "max": 980000,
-            "p50": 5800, "p90": 12000, "p95": 45000,
-            "p99": 210000, "p99_9": 250000, "p99_99": 330000
-          }
+            "avg": 2165,
+            "max": 95973,
+            "min": 1899
+          },
+          "operation": "write",
+          "percentiles_ns": {
+            "p50": 2048,
+            "p90": 2048,
+            "p95": 2048,
+            "p99": 2048,
+            "p99_9": 4096,
+            "p99_99": 8192
+          },
+          "total_bytes": 4096000000
         }
-      ]
+      ],
+      "overall_bandwidth_bytes_per_sec": 1826388175.56,
+      "overall_iops": 445895.55,
+      "runtime_sec": 2.24268,
+      "total_bytes": 4096000000,
+      "total_operations": 1000000
     }
   ]
 }

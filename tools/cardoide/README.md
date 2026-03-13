@@ -1,6 +1,6 @@
 # Cardoide
 
-Campaign orchestrator for [**prismo**](../../README.md) workloads, discovers workload JSON files, filters them by engine and numeric range, executes each workload for a configurable number of repetitions, stores reports in a timestamped results folder, and prints a concise execution view in the terminal.
+Campaign orchestrator for [**Prismo**](../../README.md) workloads, discovers workload JSON files, filters them by engine and numeric range, executes each workload for a configurable number of repetitions, stores reports in a timestamped results folder, and prints a concise execution view in the terminal.
 
 > [!TIP]
 > Use it when you want to run many workloads consistently without manually invoking `prismo` one file at a time.
