@@ -1,0 +1,51 @@
+{
+  "job": {
+    "name": "25_barrier_fsync_uring",
+    "numjobs": 1,
+    "filename": "testfile_campaign",
+    "block_size": 4096,
+    "limit": 32589234176,
+    "metric": "base",
+    "termination": {
+      "type": "iterations",
+      "value": 7956356
+    }
+  },
+  "operation": {
+    "type": "sequence",
+    "operations": [
+      "write",
+      "read",
+      "write",
+      "write"
+    ],
+    "barrier": [
+      {
+        "operation": "fsync",
+        "trigger": "write",
+        "threshold": 1024
+      }
+    ]
+  },
+  "access": {
+    "type": "random"
+  },
+  "content": {
+    "type": "random",
+    "refill": false
+  },
+  "engine": {
+    "type": "uring",
+    "open_flags": [
+      "O_CREAT",
+      "O_RDWR"
+    ],
+    "entries": 128,
+    "params": {
+      "cq_entries": 256,
+      "sq_thread_cpu": 0,
+      "sq_thread_idle": 0,
+      "flags": []
+    }
+  }
+}

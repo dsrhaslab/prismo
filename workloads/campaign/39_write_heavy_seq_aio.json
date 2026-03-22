@@ -1,0 +1,37 @@
+{
+  "job": {
+    "name": "39_write_heavy_seq_aio",
+    "numjobs": 1,
+    "filename": "testfile_campaign",
+    "block_size": 4096,
+    "limit": 32589234176,
+    "metric": "base",
+    "termination": {
+      "type": "runtime",
+      "value": 900000
+    }
+  },
+  "operation": {
+    "type": "percentage",
+    "percentages": {
+      "read": 10,
+      "write": 90
+    }
+  },
+  "access": {
+    "type": "sequential"
+  },
+  "content": {
+    "type": "random",
+    "refill": true
+  },
+  "engine": {
+    "type": "aio",
+    "open_flags": [
+      "O_CREAT",
+      "O_RDWR",
+      "O_DIRECT"
+    ],
+    "entries": 128
+  }
+}

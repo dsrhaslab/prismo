@@ -1,0 +1,36 @@
+{
+  "job": {
+    "name": "06_rw_zipf_posix",
+    "numjobs": 1,
+    "filename": "testfile_campaign",
+    "block_size": 4096,
+    "limit": 32589234176,
+    "metric": "base",
+    "termination": {
+      "type": "iterations",
+      "value": 7956356
+    }
+  },
+  "operation": {
+    "type": "percentage",
+    "percentages": {
+      "read": 50,
+      "write": 50
+    }
+  },
+  "access": {
+    "type": "zipfian",
+    "skew": 0.9
+  },
+  "content": {
+    "type": "random",
+    "refill": true
+  },
+  "engine": {
+    "type": "posix",
+    "open_flags": [
+      "O_CREAT",
+      "O_RDWR"
+    ]
+  }
+}

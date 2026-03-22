@@ -1,0 +1,40 @@
+{
+  "job": {
+    "name": "45_hybrid_trace_access_aio",
+    "numjobs": 1,
+    "filename": "testfile_campaign",
+    "block_size": 4096,
+    "limit": 32589234176,
+    "metric": "base",
+    "termination": {
+      "type": "iterations",
+      "value": 7956356
+    }
+  },
+  "operation": {
+    "type": "percentage",
+    "percentages": {
+      "read": 70,
+      "write": 30
+    }
+  },
+  "access": {
+    "type": "trace",
+    "trace": "/home/digo/Desktop/prismo/traces/homes-110108-112108.1.blkparse.prismo",
+    "extension": "sample",
+    "memory": 16384
+  },
+  "content": {
+    "type": "random",
+    "refill": true
+  },
+  "engine": {
+    "type": "aio",
+    "open_flags": [
+      "O_CREAT",
+      "O_RDWR",
+      "O_DIRECT"
+    ],
+    "entries": 128
+  }
+}

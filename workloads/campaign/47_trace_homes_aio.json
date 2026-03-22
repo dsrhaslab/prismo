@@ -1,0 +1,41 @@
+{
+  "job": {
+    "name": "47_trace_homes_aio",
+    "numjobs": 1,
+    "filename": "testfile_campaign",
+    "block_size": 4096,
+    "limit": 32589234176,
+    "metric": "base",
+    "termination": {
+      "type": "iterations",
+      "value": 7956356
+    }
+  },
+  "operation": {
+    "type": "trace",
+    "trace": "/home/digo/Desktop/prismo/traces/homes-110108-112108.1.blkparse.prismo",
+    "extension": "repeat",
+    "memory": 16384
+  },
+  "access": {
+    "type": "trace",
+    "trace": "/home/digo/Desktop/prismo/traces/homes-110108-112108.1.blkparse.prismo",
+    "extension": "repeat",
+    "memory": 16384
+  },
+  "content": {
+    "type": "trace",
+    "trace": "/home/digo/Desktop/prismo/traces/homes-110108-112108.1.blkparse.prismo",
+    "extension": "repeat",
+    "memory": 16384
+  },
+  "engine": {
+    "type": "aio",
+    "open_flags": [
+      "O_CREAT",
+      "O_RDWR",
+      "O_DIRECT"
+    ],
+    "entries": 128
+  }
+}

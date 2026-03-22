@@ -1,0 +1,37 @@
+{
+  "job": {
+    "name": "37_rw_rand_mixed_aio",
+    "numjobs": 1,
+    "filename": "testfile_campaign",
+    "block_size": 4096,
+    "limit": 32589234176,
+    "metric": "base",
+    "termination": {
+      "type": "runtime",
+      "value": 900000
+    }
+  },
+  "operation": {
+    "type": "percentage",
+    "percentages": {
+      "read": 50,
+      "write": 50
+    }
+  },
+  "access": {
+    "type": "random"
+  },
+  "content": {
+    "type": "random",
+    "refill": true
+  },
+  "engine": {
+    "type": "aio",
+    "open_flags": [
+      "O_CREAT",
+      "O_RDWR",
+      "O_DIRECT"
+    ],
+    "entries": 128
+  }
+}

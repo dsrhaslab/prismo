@@ -1,0 +1,82 @@
+{
+  "job": {
+    "name": "60_dedup_zipf_spdk",
+    "numjobs": 1,
+    "filename": "testfile_campaign",
+    "block_size": 4096,
+    "limit": 32589234176,
+    "metric": "base",
+    "termination": {
+      "type": "iterations",
+      "value": 7956356
+    }
+  },
+  "operation": {
+    "type": "sequence",
+    "operations": [
+      "read",
+      "write",
+      "nop",
+      "write"
+    ]
+  },
+  "access": {
+    "type": "zipfian",
+    "skew": 0.9
+  },
+  "content": {
+    "type": "dedup",
+    "refill": false,
+    "distribution": [
+      {
+        "percentage": 50,
+        "repeats": 0,
+        "compression": [
+          {
+            "percentage": 50,
+            "reduction": 0
+          },
+          {
+            "percentage": 50,
+            "reduction": 50
+          }
+        ]
+      },
+      {
+        "percentage": 35,
+        "repeats": 1,
+        "compression": [
+          {
+            "percentage": 70,
+            "reduction": 30
+          },
+          {
+            "percentage": 30,
+            "reduction": 20
+          }
+        ]
+      },
+      {
+        "percentage": 15,
+        "repeats": 3,
+        "compression": [
+          {
+            "percentage": 100,
+            "reduction": 0
+          }
+        ]
+      }
+    ]
+  },
+  "engine": {
+    "type": "spdk",
+    "open_flags": [
+      "O_CREAT",
+      "O_RDWR"
+    ],
+    "bdev_name": "Malloc0",
+    "reactor_mask": "0xF",
+    "spdk_threads": 1,
+    "json_config_file": "/home/digo/Desktop/prismo/workloads/spdk/spdk_bdev.json"
+  }
+}

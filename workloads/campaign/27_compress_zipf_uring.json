@@ -1,0 +1,59 @@
+{
+  "job": {
+    "name": "27_compress_zipf_uring",
+    "numjobs": 1,
+    "filename": "testfile_campaign",
+    "block_size": 4096,
+    "limit": 32589234176,
+    "metric": "base",
+    "termination": {
+      "type": "iterations",
+      "value": 7956356
+    }
+  },
+  "operation": {
+    "type": "sequence",
+    "operations": [
+      "read",
+      "write",
+      "nop",
+      "write"
+    ]
+  },
+  "access": {
+    "type": "zipfian",
+    "skew": 0.9
+  },
+  "content": {
+    "type": "random",
+    "refill": false,
+    "compression": [
+      {
+        "percentage": 50,
+        "reduction": 0
+      },
+      {
+        "percentage": 30,
+        "reduction": 50
+      },
+      {
+        "percentage": 20,
+        "reduction": 75
+      }
+    ]
+  },
+  "engine": {
+    "type": "uring",
+    "open_flags": [
+      "O_CREAT",
+      "O_RDWR"
+    ],
+    "entries": 128,
+    "params": {
+      "cq_entries": 256,
+      "sq_thread_cpu": 0,
+      "sq_thread_idle": 0,
+      "flags": []
+    }
+  }
+}

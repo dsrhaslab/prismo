@@ -1,0 +1,36 @@
+{
+  "job": {
+    "name": "56_seq_write_large_block_spdk",
+    "numjobs": 1,
+    "filename": "testfile_campaign",
+    "block_size": 65536,
+    "limit": 32589234176,
+    "metric": "base",
+    "termination": {
+      "type": "iterations",
+      "value": 497272
+    }
+  },
+  "operation": {
+    "type": "constant",
+    "operation": "write"
+  },
+  "access": {
+    "type": "sequential"
+  },
+  "content": {
+    "type": "random",
+    "refill": true
+  },
+  "engine": {
+    "type": "spdk",
+    "open_flags": [
+      "O_CREAT",
+      "O_RDWR"
+    ],
+    "bdev_name": "Malloc0",
+    "reactor_mask": "0xF",
+    "spdk_threads": 1,
+    "json_config_file": "/home/digo/Desktop/prismo/workloads/spdk/spdk_bdev.json"
+  }
+}

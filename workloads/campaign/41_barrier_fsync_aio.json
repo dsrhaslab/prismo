@@ -1,0 +1,46 @@
+{
+  "job": {
+    "name": "41_barrier_fsync_aio",
+    "numjobs": 1,
+    "filename": "testfile_campaign",
+    "block_size": 4096,
+    "limit": 32589234176,
+    "metric": "base",
+    "termination": {
+      "type": "iterations",
+      "value": 7956356
+    }
+  },
+  "operation": {
+    "type": "sequence",
+    "operations": [
+      "write",
+      "read",
+      "write",
+      "write"
+    ],
+    "barrier": [
+      {
+        "operation": "fsync",
+        "trigger": "write",
+        "threshold": 1024
+      }
+    ]
+  },
+  "access": {
+    "type": "random"
+  },
+  "content": {
+    "type": "random",
+    "refill": false
+  },
+  "engine": {
+    "type": "aio",
+    "open_flags": [
+      "O_CREAT",
+      "O_RDWR",
+      "O_DIRECT"
+    ],
+    "entries": 128
+  }
+}
