@@ -116,11 +116,11 @@ namespace Generator::Extension {
     }
 
     void RegressionExtension::save_record(const Trace::Record& record) {
-        if (offsets.size() >= max_samples) return;
-
-        offsets.push_back(static_cast<double>(record.offset));
-        operations.push_back(static_cast<double>(record.operation));
-        block_ids.push_back(static_cast<double>(record.block_id));
+        if (offsets.size() < max_samples) {
+            offsets.push_back(static_cast<double>(record.offset));
+            operations.push_back(static_cast<double>(record.operation));
+            block_ids.push_back(static_cast<double>(record.block_id));
+        }
     }
 
     void RegressionExtension::build_model(void) {

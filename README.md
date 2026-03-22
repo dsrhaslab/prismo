@@ -370,7 +370,7 @@ The `spdk` engine uses the [**bdev**](https://spdk.io/doc/bdev.html) interface, 
 
 ### Logger
 
-The logger captures benchmark activity and writes detailed execution records. These logs are stored in a structured format, which can then be analyzed with the scripts inside [**tools directory**](/tools/scripts/) to generate plots and run statistical analysis.
+The logger captures benchmark activity and writes detailed execution records. These logs are stored in a structured format, which can then be analyzed with the scripts inside [**tools**](/tools/scripts/) to generate plots and run statistical analysis.
 
 Logging detail follows the `metric` level selected in [**job**](#job). As you move from `none` to `full`, records include progressively richer information.
 
@@ -445,6 +445,6 @@ Currently there are only a few implementations of the top-level configuration co
 3. Register the constructor in the component's parsing function, found in [**factory.cpp**](/src/factory/factory.cpp).
 
 > [!IMPORTANT]
-> [Logger](#logger) implementations must be thread-safe, because engines may share the same logger instance.
+> [**Logger**](#logger) implementations must be thread-safe, because engines may share the same logger instance.
 
 Any other contributions are also welcome :smiling_face_with_three_hearts:.

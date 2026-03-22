@@ -4,26 +4,40 @@
 
 ## Base Workloads
 
-| #  | Name                        | Description                                                  |
-|----|-----------------------------|--------------------------------------------------------------|
-| 01 | `nop_seq_const`             | NOP overhead baseline (sequential, constant content)         |
-| 02 | `write_seq_const`           | Sequential write throughput ceiling                          |
-| 03 | `rw_random_random`          | 70/30 R/W, random access, random content                    |
-| 04 | `rw_zipf_random`            | 50/50 R/W, Zipf(0.8), random content                        |
-| 05 | `seq_barrier_fsync`         | Sequence + fsync barrier(1024), random access                |
-| 06 | `zipf_dedup`                | Zipf(0.9) + dedup 3 tiers, compression mix                  |
-| 07 | `trace_all`                 | Trace-driven operation, access and content                   |
-| 08 | `read_seq_const`            | Sequential read throughput ceiling                           |
-| 09 | `read_random_random`        | Random read with random content                              |
-| 10 | `write_heavy_seq`           | 90/10 W/R, sequential access, random content                 |
-| 11 | `read_heavy_zipf`           | 90/10 R/W, Zipf(0.6), constant content                      |
-| 12 | `write_seq_large_block`     | Sequential write, 64 KiB blocks (throughput)                 |
-| 13 | `rw_random_multijob`        | 4 parallel jobs, balanced R/W, random access                 |
-| 14 | `fdatasync_barrier_zipf`    | Sequence + fdatasync barrier(512), Zipf(0.7)                 |
-| 15 | `all_ops_random`            | All 5 op types in sequence, random access                    |
-| 16 | `dedup_heavy_barrier`       | High dedup(5 repeats) + dual barriers + Zipf(0.95)           |
-| 17 | `runtime_mixed_random`      | Runtime-based (30s), percentage mix with fsync, 16 KiB blocks|
-| 18 | `multijob_dedup_barrier`    | 4 jobs + full sequence + dedup + barriers + Zipf(0.9)        |
+| #     | Name                          | Description                                                       |
+|-------|-------------------------------|-------------------------------------------------------------------|
+<!-- workloads muito simplistas -->
+
+| 01    | `nop_seq_const`               | Constant nop, sequential access, constant content                 |
+| 02    | `read_seq_const`              | Constant read, sequential access, constant content                |
+| 03    | `write_seq_const`             | Constant write, sequential access, constant content               |
+| 04    | `read_random_random`          | Constant read, random access, random content                      |
+
+<!-- oowrkloads que já exploram propriedade de localidade -->
+| 05    | `rw_rand_rand`                | 50/50 R/W, random access, random content                          |
+| 06    | `rw_rand_rand_multijob`       | 50/50 R/W, random access, random content, 4 parallel jobs         |
+| 07    | `write_heavy_seq_rand`        | 90/10 W/R, sequential access, random content                      |
+| 08    | `read_heavy_zipf_const`       | 90/10 R/W, Zipf(0.8), constant content                            |
+| 09    | `rw_zipf_rand`                | 50/50 R/W, Zipf(0.8), random content                              |
+
+<!-- tamanho de bloco diferente -->
+| 10    | `write_seq_rand_large_block`  | Constant write, sequentail access, random content, 64 KiB blocks  |
+
+<!-- com sincronização -->
+| 11    | `seq_barrier_fsync`           | Sequence + fsync barrier(1024), random access, random content     |
+| 12    | `seq_all_ops_random`          | All 5 op types in sequence, random access                    |
+| 13    | `fdatasync_barrier_zipf`      | Sequence + fdatasync barrier(512), Zipf(0.7)                 |
+
+<!-- # workloads de dedup e compressão-->
+| 14    | `zipf_dedup`                  | Zipf(0.9) + dedup 3 tiers, compression mix                  |
+| 15    | `dedup_heavy_barrier`         | High dedup(5 repeats) + dual barriers + Zipf(0.95)           |
+| 16    | `multijob_dedup_barrier`      | 4 jobs + full sequence + dedup + barriers + Zipf(0.9)        |
+
+<!-- workloads para traces -->
+
+
+<!-- pedir ao fdp do codex para ajeitar os json -->
+
 
 ## Engine Mirrors
 

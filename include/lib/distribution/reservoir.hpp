@@ -23,9 +23,9 @@ namespace Distribution {
         public:
             ReservoirSampler() = delete;
 
-            explicit ReservoirSampler(size_t capacity = DEFAULT_RESERVOIR_SIZE)
-                : capacity(capacity) {
-                reservoir.reserve(capacity);
+            explicit ReservoirSampler(size_t _capacity = DEFAULT_RESERVOIR_SIZE)
+                : capacity(_capacity) {
+                reservoir.reserve(_capacity);
             }
 
             void insert(T value) {

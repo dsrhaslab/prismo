@@ -3,7 +3,7 @@
 
 #include <nlohmann/json.hpp>
 #include <prismo/metric/metric.hpp>
-#include <common/percentile.hpp>
+#include <lib/distribution/percentile.hpp>
 
 namespace Metric {
 
@@ -18,7 +18,7 @@ namespace Metric {
         uint64_t total_latency_ns = 0;
         uint64_t min_latency_ns = UINT64_MAX;
         uint64_t max_latency_ns = 0;
-        Percentile::Calculator percentile_calc;
+        Percentile::HDR percentile_hdr;
 
         void record(uint64_t latency_ns, uint64_t bytes) {
             total_ops++;
@@ -26,7 +26,7 @@ namespace Metric {
             total_latency_ns += latency_ns;
             min_latency_ns = std::min(min_latency_ns, latency_ns);
             max_latency_ns = std::max(max_latency_ns, latency_ns);
-            percentile_calc.record(latency_ns);
+            percentile_hdr.record(latency_ns);
         }
 
         void merge(const OperationStats& other) {
@@ -35,7 +35,27 @@ namespace Metric {
             total_latency_ns += other.total_latency_ns;
             min_latency_ns = std::min(min_latency_ns, other.min_latency_ns);
             max_latency_ns = std::max(max_latency_ns, other.max_latency_ns);
-            percentile_calc.merge(other.percentile_calc);
+            percentile_hdr.merge(other.percentile_hdr);
+        }
+
+        nlohmann::json latency_json() const {
+            return {
+                {"min", min_latency_ns},
+                {"max", max_latency_ns},
+                {"avg", total_ops > 0
+                    ? total_latency_ns / total_ops : 0},
+            };
+        }
+
+        nlohmann::json percentiles_json() const {
+            return {
+                {"p50", percentile_hdr.get_percentile(50.0)},
+                {"p90", percentile_hdr.get_percentile(90.0)},
+                {"p95", percentile_hdr.get_percentile(95.0)},
+                {"p99", percentile_hdr.get_percentile(99.0)},
+                {"p99_9", percentile_hdr.get_percentile(99.9)},
+                {"p99_99", percentile_hdr.get_percentile(99.99)}
+            };
         }
     };
 

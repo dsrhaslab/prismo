@@ -54,47 +54,34 @@ namespace Metric {
         op_json["bandwidth_bytes_per_sec"] = runtime_sec > 0.0
             ? round_to(stats.total_bytes / runtime_sec) : 0;
 
-        op_json["latency_ns"] = {
-            {"min", stats.min_latency_ns},
-            {"max", stats.max_latency_ns},
-            {"avg", stats.total_ops > 0
-                ? stats.total_latency_ns / stats.total_ops : 0
-            },
-        };
-
-        op_json["percentiles_ns"] = {
-            {"p50", stats.percentile_calc.get_percentile(50.0)},
-            {"p90", stats.percentile_calc.get_percentile(90.0)},
-            {"p95", stats.percentile_calc.get_percentile(95.0)},
-            {"p99", stats.percentile_calc.get_percentile(99.0)},
-            {"p99_9", stats.percentile_calc.get_percentile(99.9)},
-            {"p99_99", stats.percentile_calc.get_percentile(99.99)}
-        };
+        op_json["latency_ns"] = stats.latency_json();
+        op_json["percentiles_ns"] = stats.percentiles_json();
 
         return op_json;
     }
 
     nlohmann::json Statistics::to_json(void) const {
         nlohmann::json report;
-        uint64_t total_operations = 0;
-        uint64_t total_bytes = 0;
+        OperationStats combined;
 
         for (const auto& [_, stats] : stats_per_operation) {
-            total_operations += stats.total_ops;
-            total_bytes += stats.total_bytes;
+            combined.merge(stats);
         }
 
         const double runtime_sec =
            static_cast<double>(end_time_ns - start_time_ns) / 1e9;
 
-        report["total_operations"] = total_operations;
-        report["total_bytes"] = total_bytes;
+        report["total_operations"] = combined.total_ops;
+        report["total_bytes"] = combined.total_bytes;
         report["runtime_sec"] = round_to(runtime_sec, 5);
         report["overall_iops"] = runtime_sec > 0.0
-            ? round_to(total_operations / runtime_sec) : 0;
+            ? round_to(combined.total_ops / runtime_sec) : 0;
 
         report["overall_bandwidth_bytes_per_sec"] = runtime_sec > 0.0
-            ? round_to(total_bytes / runtime_sec) : 0;
+            ? round_to(combined.total_bytes / runtime_sec) : 0;
+
+        report["overall_latency_ns"] = combined.latency_json();
+        report["overall_percentiles_ns"] = combined.percentiles_json();
 
         if (!stats_per_operation.empty()) {
             report["operations"] = nlohmann::json::array();

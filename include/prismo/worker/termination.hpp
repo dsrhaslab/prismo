@@ -4,10 +4,13 @@
 #include <chrono>
 #include <cstdint>
 #include <string>
+#include <iostream>
 #include <stdexcept>
 #include <nlohmann/json.hpp>
 
 namespace Worker::Internal {
+
+    inline constexpr uint64_t CHECK_INTERVAL = 4096;
 
     enum class TerminationType {
         ITERATIONS,
@@ -16,13 +19,10 @@ namespace Worker::Internal {
 
     class Termination {
         private:
-            static constexpr uint64_t CHECK_INTERVAL = 4096;
             TerminationType type;
             uint64_t value;
 
         public:
-            Termination() = default;
-
             ~Termination() {
                 std::cout << "~Destroying Termination" << std::endl;
             }
