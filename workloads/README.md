@@ -27,7 +27,7 @@ Each workload isolates **exactly one dimension** relative to the previous, makin
 | 13 | `hybrid_trace_access`    | Real access locality + synthetic ops      | 70/30 R/W synthetic, trace access (homes), random content              |
 | 14 | `hybrid_trace_ops`       | Real operation mix + synthetic access     | Trace ops (cheetah), Zipf(0.9) access, random content                  |
 | 15 | `trace_homes`            | Full trace - fileserver workload          | Trace ops/access/content (homes), repeat extension                     |
-| 16 | `trace_webmail`          | Full trace — webmail workload             | Trace ops/access/content (webmail), sample+regression extension        |
+| 16 | `trace_webmail`          | Full trace - webmail workload             | Trace ops/access/content (webmail), sample+regression extension        |
 
 ## Engine Mirrors
 
