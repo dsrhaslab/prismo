@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# campaign.sh — Run prismo workloads with per-workload pcp-dstat metric collection.
+# prismo.sh — Run prismo workloads with per-workload pcp-dstat metric collection.
 #
 # Usage:
-#   ./campaign.sh [options] workload1.json workload2.json ...
+#   ./prismo.sh [options] workload1.json workload2.json ...
 #
 # Options:
 #   -p PATH     Path to the prismo binary               (default: ../../builddir/prismo)
@@ -129,8 +129,14 @@ for (( i=0; i<TOTAL; i++ )); do
 
     # pcp-dstat CSV has 5 non-data header lines and an incomplete first
     # sample row — strip them to produce a valid, tool-friendly CSV.
+    # Also reformat the time column from "DD-MM HH:MM:SS" to "YYYY/MM/DD HH:MM:SS".
     if [[ -f "$csv" ]]; then
-        tail -n +6 "$csv" | sed '1s/"//g; 2d' > "${csv}.tmp" \
+        year=$(date +%Y)
+        tail -n +6 "$csv" | sed '1s/"//g; 2d' \
+            | awk -v y="$year" 'BEGIN{FS=OFS=","} NR>1{
+                split($1,a," "); split(a[1],d,"-");
+                $1=y"/"d[2]"/"d[1]" "a[2]
+              } {print}' > "${csv}.tmp" \
             && mv "${csv}.tmp" "$csv"
     fi
 

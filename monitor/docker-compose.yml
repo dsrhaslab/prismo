@@ -38,8 +38,19 @@ services:
     volumes:
       - grafana-data:/var/lib/grafana
       - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
     depends_on:
       - prometheus
+      - csv-server
+    restart: unless-stopped
+
+  csv-server:
+    image: nginx:alpine
+    container_name: csv-server
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ../workloads/results:/data:ro
     restart: unless-stopped
 
 volumes:
