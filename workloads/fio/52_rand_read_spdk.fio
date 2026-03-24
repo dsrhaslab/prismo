@@ -1,0 +1,13 @@
+; 52_rand_read_spdk
+[global]
+filename=Malloc0
+size=32589234176
+ioengine=spdk_bdev
+iodepth=128
+spdk_json_conf=/home/digo/Desktop/prismo/workloads/spdk/spdk_bdev.json
+
+[52_rand_read_spdk]
+bs=4k
+rw=randread
+numjobs=1
+number_ios=7956356

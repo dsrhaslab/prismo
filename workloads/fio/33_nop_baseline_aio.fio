@@ -1,0 +1,11 @@
+; 33_nop_baseline_aio
+[global]
+filename=testfile_campaign
+size=32589234176
+ioengine=null
+
+[33_nop_baseline_aio]
+bs=4k
+rw=read
+numjobs=1
+number_ios=7956356

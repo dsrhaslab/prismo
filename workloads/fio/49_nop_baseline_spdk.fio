@@ -1,0 +1,11 @@
+; 49_nop_baseline_spdk
+[global]
+filename=Malloc0
+size=32589234176
+ioengine=null
+
+[49_nop_baseline_spdk]
+bs=4k
+rw=read
+numjobs=1
+number_ios=7956356

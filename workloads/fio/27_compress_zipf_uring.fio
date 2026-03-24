@@ -1,0 +1,16 @@
+; 27_compress_zipf_uring
+[global]
+filename=testfile_campaign
+size=32589234176
+ioengine=io_uring
+iodepth=128
+
+[27_compress_zipf_uring]
+bs=4k
+rw=randrw
+rwmixread=33
+random_distribution=zipf:0.9
+numjobs=1
+number_ios=7956356
+buffer_compress_percentage=30
+refill_buffers

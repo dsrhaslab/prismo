@@ -1,0 +1,16 @@
+; 63_trace_homes_spdk
+[global]
+filename=Malloc0
+size=32589234176
+ioengine=spdk_bdev
+iodepth=128
+spdk_json_conf=/home/digo/Desktop/prismo/workloads/spdk/spdk_bdev.json
+
+[63_trace_homes_spdk]
+bs=4k
+rw=randrw
+rwmixread=50
+numjobs=1
+number_ios=7956356
+; NOTE: prismo replays homes-110108-112108.1.blkparse.prismo
+; For exact trace replay: use replay_redirect with blktrace files

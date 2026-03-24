@@ -1,0 +1,16 @@
+; 39_write_heavy_seq_aio
+[global]
+filename=testfile_campaign
+size=32589234176
+ioengine=libaio
+iodepth=128
+direct=1
+
+[39_write_heavy_seq_aio]
+bs=4k
+rw=rw
+rwmixread=10
+numjobs=1
+runtime=900
+time_based
+refill_buffers

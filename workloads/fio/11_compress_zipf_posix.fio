@@ -1,0 +1,15 @@
+; 11_compress_zipf_posix
+[global]
+filename=testfile_campaign
+size=32589234176
+ioengine=psync
+
+[11_compress_zipf_posix]
+bs=4k
+rw=randrw
+rwmixread=33
+random_distribution=zipf:0.9
+numjobs=1
+number_ios=7956356
+buffer_compress_percentage=30
+refill_buffers

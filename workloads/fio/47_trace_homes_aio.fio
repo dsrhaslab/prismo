@@ -1,0 +1,16 @@
+; 47_trace_homes_aio
+[global]
+filename=testfile_campaign
+size=32589234176
+ioengine=libaio
+iodepth=128
+direct=1
+
+[47_trace_homes_aio]
+bs=4k
+rw=randrw
+rwmixread=50
+numjobs=1
+number_ios=7956356
+; NOTE: prismo replays homes-110108-112108.1.blkparse.prismo
+; For exact trace replay: use replay_redirect with blktrace files

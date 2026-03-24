@@ -1,0 +1,11 @@
+; 03_seq_write_posix
+[global]
+filename=testfile_campaign
+size=32589234176
+ioengine=psync
+
+[03_seq_write_posix]
+bs=4k
+rw=write
+numjobs=1
+number_ios=7956356

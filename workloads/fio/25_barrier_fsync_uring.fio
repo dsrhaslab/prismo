@@ -1,0 +1,14 @@
+; 25_barrier_fsync_uring
+[global]
+filename=testfile_campaign
+size=32589234176
+ioengine=io_uring
+iodepth=128
+
+[25_barrier_fsync_uring]
+bs=4k
+rw=randrw
+rwmixread=25
+numjobs=1
+number_ios=7956356
+fsync=1024

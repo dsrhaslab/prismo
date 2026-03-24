@@ -1,0 +1,16 @@
+; 37_rw_rand_mixed_aio
+[global]
+filename=testfile_campaign
+size=32589234176
+ioengine=libaio
+iodepth=128
+direct=1
+
+[37_rw_rand_mixed_aio]
+bs=4k
+rw=randrw
+rwmixread=50
+numjobs=1
+runtime=900
+time_based
+refill_buffers

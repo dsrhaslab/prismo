@@ -1,0 +1,14 @@
+; 05_rw_rand_mixed_posix
+[global]
+filename=testfile_campaign
+size=32589234176
+ioengine=psync
+
+[05_rw_rand_mixed_posix]
+bs=4k
+rw=randrw
+rwmixread=50
+numjobs=1
+runtime=900
+time_based
+refill_buffers

@@ -1,0 +1,16 @@
+; 48_trace_webmail_aio
+[global]
+filename=testfile_campaign
+size=32589234176
+ioengine=libaio
+iodepth=128
+direct=1
+
+[48_trace_webmail_aio]
+bs=4k
+rw=randrw
+rwmixread=50
+numjobs=1
+number_ios=7956356
+; NOTE: prismo replays webmail+online.cs.fiu.edu-110108-113008.1.blkparse.prismo
+; For exact trace replay: use replay_redirect with blktrace files

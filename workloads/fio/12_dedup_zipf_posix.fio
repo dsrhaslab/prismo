@@ -1,0 +1,16 @@
+; 12_dedup_zipf_posix
+[global]
+filename=testfile_campaign
+size=32589234176
+ioengine=psync
+
+[12_dedup_zipf_posix]
+bs=4k
+rw=randrw
+rwmixread=33
+random_distribution=zipf:0.9
+numjobs=1
+number_ios=7956356
+dedupe_percentage=50
+buffer_compress_percentage=20
+refill_buffers

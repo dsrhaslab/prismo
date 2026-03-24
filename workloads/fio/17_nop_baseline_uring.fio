@@ -1,0 +1,11 @@
+; 17_nop_baseline_uring
+[global]
+filename=testfile_campaign
+size=32589234176
+ioengine=null
+
+[17_nop_baseline_uring]
+bs=4k
+rw=read
+numjobs=1
+number_ios=7956356

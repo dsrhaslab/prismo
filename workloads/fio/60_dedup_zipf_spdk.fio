@@ -1,0 +1,18 @@
+; 60_dedup_zipf_spdk
+[global]
+filename=Malloc0
+size=32589234176
+ioengine=spdk_bdev
+iodepth=128
+spdk_json_conf=/home/digo/Desktop/prismo/workloads/spdk/spdk_bdev.json
+
+[60_dedup_zipf_spdk]
+bs=4k
+rw=randrw
+rwmixread=33
+random_distribution=zipf:0.9
+numjobs=1
+number_ios=7956356
+dedupe_percentage=50
+buffer_compress_percentage=20
+refill_buffers

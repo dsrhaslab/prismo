@@ -1,0 +1,13 @@
+; 35_seq_write_aio
+[global]
+filename=testfile_campaign
+size=32589234176
+ioengine=libaio
+iodepth=128
+direct=1
+
+[35_seq_write_aio]
+bs=4k
+rw=write
+numjobs=1
+number_ios=7956356

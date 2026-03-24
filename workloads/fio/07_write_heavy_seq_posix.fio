@@ -1,0 +1,14 @@
+; 07_write_heavy_seq_posix
+[global]
+filename=testfile_campaign
+size=32589234176
+ioengine=psync
+
+[07_write_heavy_seq_posix]
+bs=4k
+rw=rw
+rwmixread=10
+numjobs=1
+runtime=900
+time_based
+refill_buffers

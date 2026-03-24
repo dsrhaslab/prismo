@@ -1,0 +1,13 @@
+; 09_barrier_fsync_posix
+[global]
+filename=testfile_campaign
+size=32589234176
+ioengine=psync
+
+[09_barrier_fsync_posix]
+bs=4k
+rw=randrw
+rwmixread=25
+numjobs=1
+number_ios=7956356
+fsync=1024

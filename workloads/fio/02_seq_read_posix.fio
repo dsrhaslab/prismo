@@ -1,0 +1,11 @@
+; 02_seq_read_posix
+[global]
+filename=testfile_campaign
+size=32589234176
+ioengine=psync
+
+[02_seq_read_posix]
+bs=4k
+rw=read
+numjobs=1
+number_ios=7956356
