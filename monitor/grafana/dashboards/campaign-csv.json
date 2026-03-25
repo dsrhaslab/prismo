@@ -21,6 +21,7 @@
           "custom": {
             "fillOpacity": 40,
             "lineWidth": 1,
+            "lineInterpolation": "smooth",
             "stacking": { "group": "A", "mode": "normal" },
             "showPoints": "never",
             "axisLabel": "%"
@@ -78,6 +79,7 @@
           "custom": {
             "fillOpacity": 40,
             "lineWidth": 1,
+            "lineInterpolation": "smooth",
             "stacking": { "group": "A", "mode": "normal" },
             "showPoints": "never"
           },
@@ -120,7 +122,12 @@
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
-          "custom": { "fillOpacity": 10, "lineWidth": 2, "showPoints": "never" },
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 2,
+            "lineInterpolation": "smooth",
+            "showPoints": "never"
+          },
           "unit": "deckbytes"
         },
         "overrides": [
@@ -167,7 +174,12 @@
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
-          "custom": { "fillOpacity": 10, "lineWidth": 2, "showPoints": "never" },
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 2,
+            "lineInterpolation": "smooth",
+            "showPoints": "never"
+          },
           "unit": "KBs"
         },
         "overrides": [
@@ -203,7 +215,12 @@
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
-          "custom": { "fillOpacity": 10, "lineWidth": 2, "showPoints": "never" },
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 2,
+            "lineInterpolation": "smooth",
+            "showPoints": "never"
+          },
           "unit": "iops"
         },
         "overrides": [
@@ -246,7 +263,12 @@
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
-          "custom": { "fillOpacity": 10, "lineWidth": 2, "showPoints": "never" },
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 2,
+            "lineInterpolation": "smooth",
+            "showPoints": "never"
+          },
           "unit": "KBs"
         },
         "overrides": [
