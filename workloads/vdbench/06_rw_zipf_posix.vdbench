@@ -1,0 +1,9 @@
+* VDBench parameter file
+* Converted from Prismo workload: 06_rw_zipf_posix
+*
+* NOTE: Original Prismo iteration count = 7956356.
+*       VDBench uses elapsed time; adjust 'elapsed' as needed.
+*
+sd=sd1,lun=testfile_campaign,size=32589234176
+wd=wd1,sd=sd1,rdpct=50,seekpct=100,xfersize=4k,hotband=(0,20,80)
+rd=rd1,wd=wd1,iorate=max,elapsed=60,interval=1,threads=1
