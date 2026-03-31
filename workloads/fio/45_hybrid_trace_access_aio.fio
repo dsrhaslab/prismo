@@ -11,7 +11,7 @@ bs=4k
 rw=randrw
 rwmixread=70
 numjobs=1
-number_ios=7956356
+number_ios=16165652
 refill_buffers
 ; NOTE: prismo uses trace-based access (homes-110108-112108.1.blkparse.prismo)
 ; fio approximation: uniform random (trace replay requires blktrace format)

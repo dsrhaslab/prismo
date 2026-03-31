@@ -9,6 +9,6 @@ bs=4k
 rw=randrw
 rwmixread=50
 numjobs=1
-number_ios=7956356
+number_ios=16165652
 ; NOTE: prismo replays homes-110108-112108.1.blkparse.prismo
 ; For exact trace replay: use replay_redirect with blktrace files

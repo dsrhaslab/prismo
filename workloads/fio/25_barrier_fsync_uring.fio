@@ -10,5 +10,5 @@ bs=4k
 rw=randrw
 rwmixread=25
 numjobs=1
-number_ios=7956356
+number_ios=16165652
 fsync=1024

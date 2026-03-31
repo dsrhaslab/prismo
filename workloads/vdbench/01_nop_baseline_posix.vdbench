@@ -3,7 +3,7 @@
 *
 * NOTE: Prismo 'nop' measures framework overhead only.
 *       No direct VDBench equivalent. Converted as minimal sequential read.
-* NOTE: Original Prismo iteration count = 7956356.
+* NOTE: Original Prismo iteration count = 16165652.
 *       VDBench uses elapsed time; adjust 'elapsed' as needed.
 *
 sd=sd1,lun=testfile_campaign,size=32589234176

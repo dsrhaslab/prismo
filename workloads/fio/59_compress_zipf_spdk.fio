@@ -12,6 +12,6 @@ rw=randrw
 rwmixread=33
 random_distribution=zipf:0.9
 numjobs=1
-number_ios=7956356
+number_ios=16165652
 buffer_compress_percentage=30
 refill_buffers

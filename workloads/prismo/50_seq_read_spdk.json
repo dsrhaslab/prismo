@@ -1,14 +1,14 @@
 {
   "job": {
     "name": "50_seq_read_spdk",
-    "numjobs": 1,
-    "filename": "testfile_campaign",
+    "numjobs": 3,
+    "filename": "/mnt/nvme/data/testfile_campaign",
     "block_size": 4096,
-    "limit": 32589234176,
+    "limit":  66262417408,
     "metric": "base",
     "termination": {
       "type": "iterations",
-      "value": 7956356
+      "value": 16165652
     }
   },
   "operation": {

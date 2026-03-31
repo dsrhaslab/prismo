@@ -11,6 +11,6 @@ bs=4k
 rw=randrw
 rwmixread=50
 numjobs=1
-number_ios=7956356
+number_ios=16165652
 ; NOTE: prismo replays webmail+online.cs.fiu.edu-110108-113008.1.blkparse.prismo
 ; For exact trace replay: use replay_redirect with blktrace files

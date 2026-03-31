@@ -2,9 +2,9 @@
   "job": {
     "name": "58_rw_rand_multijob_spdk",
     "numjobs": 4,
-    "filename": "testfile_campaign",
+    "filename": "/mnt/nvme/data/testfile_campaign",
     "block_size": 4096,
-    "limit": 32589234176,
+    "limit":  66262417408,
     "metric": "base",
     "termination": {
       "type": "runtime",

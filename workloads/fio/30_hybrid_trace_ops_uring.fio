@@ -11,7 +11,7 @@ rw=randrw
 rwmixread=50
 random_distribution=zipf:0.9
 numjobs=1
-number_ios=7956356
+number_ios=16165652
 refill_buffers
 ; NOTE: prismo uses trace-based ops (cheetah.cs.fiu.edu-110108-113008.1.blkparse.prismo)
 ; fio approximation: 50/50 randrw with zipfian access

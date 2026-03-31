@@ -3,7 +3,7 @@
 *
 * NOTE: Prismo fsync barrier (every 1024 writes) has no
 *       direct VDBench equivalent in raw I/O mode.
-* NOTE: Original Prismo iteration count = 7956356.
+* NOTE: Original Prismo iteration count = 16165652.
 *       VDBench uses elapsed time; adjust 'elapsed' as needed.
 *
 sd=sd1,lun=testfile_campaign,size=32589234176
