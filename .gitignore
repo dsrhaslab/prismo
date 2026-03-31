@@ -5,3 +5,5 @@ traces/
 testfile*
 tests/
 workloads/results/
+subprojects/*/
+.wraplock
