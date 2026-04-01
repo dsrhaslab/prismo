@@ -19,7 +19,7 @@ namespace Engine {
 
         for (uint32_t i = 0; i < _config.entries; i++) {
             available_indexes[i] = _config.entries - i - 1;
-            tasks[i].buffer = std::malloc(_config.block_size);
+            tasks[i].buffer = std::aligned_alloc(_config.block_size, _config.block_size);
             if (!tasks[i].buffer)
                 throw std::bad_alloc();
         }

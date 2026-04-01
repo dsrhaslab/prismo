@@ -20,7 +20,7 @@ namespace Engine {
         for (uint32_t index = 0; index < config.params.sq_entries; index++) {
             available_indexes[index] = config.params.sq_entries - index - 1;
             iovecs[index].iov_len = config.block_size;
-            iovecs[index].iov_base = std::malloc(config.block_size);
+            iovecs[index].iov_base = std::aligned_alloc(config.block_size, config.block_size);
             if (!iovecs[index].iov_base)
                 throw std::bad_alloc();
         }

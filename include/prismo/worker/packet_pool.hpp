@@ -22,7 +22,7 @@ namespace Worker::Internal {
             packet->request.metadata = {};
             packet->request.size = block_size;
             packet->request.operation = Operation::OperationType::NOP;
-            packet->request.buffer = static_cast<uint8_t*>(std::malloc(block_size));
+            packet->request.buffer = static_cast<uint8_t*>(std::aligned_alloc(block_size, block_size));
 
             if (!packet->request.buffer) {
                 throw std::bad_alloc();
