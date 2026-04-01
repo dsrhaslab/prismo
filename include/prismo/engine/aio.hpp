@@ -12,6 +12,8 @@ namespace Engine {
     class AioEngine : public Base {
         private:
             io_context_t io_context;
+            uint32_t entries;
+
             std::vector<iocb> iocbs;
             std::vector<iocb*> iocb_ptrs;
             std::vector<io_event> io_events;

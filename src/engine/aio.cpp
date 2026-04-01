@@ -6,19 +6,19 @@ namespace Engine {
         Metric::MetricVariant _metric,
         std::shared_ptr<Logger::Base> _logger,
         const AioConfig& _config
-    ) : Base(_metric, _logger) {
-        int ret = io_queue_init(_config.entries, &io_context);
+    ) : Base(_metric, _logger), entries(_config.entries) {
+        int ret = io_queue_init(entries, &io_context);
         if (ret < 0)
             throw std::runtime_error("aio_queue_init: failed: " + std::string(strerror(-ret)));
 
-        iocbs.resize(_config.entries);
-        tasks.resize(_config.entries);
-        io_events.resize(_config.entries);
-        iocb_ptrs.reserve(_config.entries);
-        available_indexes.resize(_config.entries);
+        iocbs.resize(entries);
+        tasks.resize(entries);
+        io_events.resize(entries);
+        iocb_ptrs.reserve(entries);
+        available_indexes.resize(entries);
 
-        for (uint32_t i = 0; i < _config.entries; i++) {
-            available_indexes[i] = _config.entries - i - 1;
+        for (uint32_t i = 0; i < entries; i++) {
+            available_indexes[i] = entries - i - 1;
             tasks[i].buffer = std::aligned_alloc(_config.block_size, _config.block_size);
             if (!tasks[i].buffer)
                 throw std::bad_alloc();
@@ -70,8 +70,8 @@ namespace Engine {
     }
 
     void AioEngine::submit(Protocol::IORequest& request) {
-        if (iocb_ptrs.size() == iocb_ptrs.capacity()) {
-            int submit_result = io_submit(io_context, iocb_ptrs.size(), &iocb_ptrs[0]);
+        if (iocb_ptrs.size() == entries) {
+            int submit_result = io_submit(io_context, iocb_ptrs.size(), iocb_ptrs.data());
             if (submit_result != static_cast<int>(iocb_ptrs.size()))
                 throw std::runtime_error("aio_submit: submission failed");
             iocb_ptrs.clear();
@@ -114,7 +114,7 @@ namespace Engine {
     }
 
     void AioEngine::reap_completions(void) {
-        int events_returned = io_getevents(io_context, 1, io_events.capacity(), io_events.data(), nullptr);
+        int events_returned = io_getevents(io_context, 1, entries, io_events.data(), nullptr);
         if (events_returned < 0)
             throw std::runtime_error("aio_reap_completions getevents failed: " + std::string(strerror(-events_returned)));
 
@@ -143,11 +143,13 @@ namespace Engine {
     }
 
     void AioEngine::reap_left_completions(void) {
-        int submit_result = io_submit(io_context, iocb_ptrs.size(), &iocb_ptrs[0]);
-        if (submit_result != static_cast<int>(iocb_ptrs.size()))
-            throw std::runtime_error("aio_reap_left_completions: submission failed");
-        iocb_ptrs.clear();
-        while (available_indexes.size() < available_indexes.capacity())
+        if (!iocb_ptrs.empty()) {
+            int submit_result = io_submit(io_context, iocb_ptrs.size(), iocb_ptrs.data());
+            if (submit_result != static_cast<int>(iocb_ptrs.size()))
+                throw std::runtime_error("aio_reap_left_completions: submission failed");
+            iocb_ptrs.clear();
+        }
+        while (available_indexes.size() < entries)
             this->reap_completions();
     }
 }
