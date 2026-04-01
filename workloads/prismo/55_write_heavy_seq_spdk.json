@@ -7,8 +7,8 @@
     "limit":  66262417408,
     "metric": "base",
     "termination": {
-      "type": "runtime",
-      "value": 900000
+      "type": "iterations",
+      "value": 16165652
     }
   },
   "operation": {

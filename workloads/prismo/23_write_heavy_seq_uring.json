@@ -7,8 +7,8 @@
     "limit":  66262417408,
     "metric": "base",
     "termination": {
-      "type": "runtime",
-      "value": 900000
+      "type": "iterations",
+      "value": 16165652
     }
   },
   "operation": {
@@ -36,7 +36,11 @@
       "cq_entries": 256,
       "sq_thread_cpu": 0,
       "sq_thread_idle": 0,
-      "flags": []
+      "flags": [
+        "IORING_SETUP_SQPOLL",
+        "IORING_SETUP_IOPOLL",
+        "IORING_SETUP_SQ_AFF"
+      ]
     }
   }
 }

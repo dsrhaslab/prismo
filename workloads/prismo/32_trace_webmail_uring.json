@@ -40,7 +40,11 @@
       "cq_entries": 256,
       "sq_thread_cpu": 0,
       "sq_thread_idle": 0,
-      "flags": []
+      "flags": [
+        "IORING_SETUP_SQPOLL",
+        "IORING_SETUP_IOPOLL",
+        "IORING_SETUP_SQ_AFF"
+      ]
     }
   }
 }
