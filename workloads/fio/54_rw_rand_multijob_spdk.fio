@@ -10,7 +10,7 @@ spdk_json_conf=/home/digo/Desktop/prismo/workloads/spdk/spdk_bdev.json
 bs=4k
 rw=randrw
 rwmixread=50
-numjobs=4
+numjobs=3
 runtime=900
 time_based
 group_reporting

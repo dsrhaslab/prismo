@@ -9,7 +9,7 @@ direct=1
 bs=4k
 rw=rw
 rwmixread=10
-numjobs=3
+numjobs=1
 runtime=900
 time_based
 refill_buffers

@@ -18,7 +18,7 @@ Each workload isolates **exactly one dimension** relative to the previous, makin
 | 06 | `rw_zipf`                | Access locality (Zipfian)                 | 50/50 R/W, Zipf(0.9), random content                              |
 | 07 | `write_heavy_seq`        | Asymmetric ratio                          | 90/10 W/R, sequential, random content                             |
 | 08 | `barrier_fsync`          | Durability overhead                       | Sequence W/R/W/W + fsync every 1024 writes                        |
-| 09 | `rw_rand_multijob`       | Parallelism (4 jobs)                      | 50/50 R/W, random, 4 jobs                                         |
+| 09 | `rw_rand_multijob`       | Parallelism (4 jobs)                      | 50/50 R/W, random, 3 jobs                                         |
 | 10 | `compress_zipf`          | Compression only (no dedup)               | Sequence R/W/nop/W, Zipf(0.9), 3-tier compress (0/50/75%)         |
 | 11 | `dedup_zipf`             | Dedup + compression (full reduction)      | Sequence R/W/nop/W, Zipf(0.9), 3-tier dedup+compress              |
 | 12 | `hybrid_trace_access`    | Real access locality + synthetic ops      | 70/30 R/W synthetic, trace access (homes), random content         |

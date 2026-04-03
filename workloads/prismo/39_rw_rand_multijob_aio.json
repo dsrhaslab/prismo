@@ -1,7 +1,7 @@
 {
   "job": {
     "name": "39_rw_rand_multijob_aio",
-    "numjobs": 4,
+    "numjobs": 3,
     "filename": "/mnt/nvme/data/testfile_campaign",
     "block_size": 4096,
     "limit":  66262417408,

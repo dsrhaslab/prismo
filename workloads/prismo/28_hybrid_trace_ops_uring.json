@@ -1,7 +1,7 @@
 {
   "job": {
     "name": "28_hybrid_trace_ops_uring",
-    "numjobs": 3,
+    "numjobs": 1,
     "filename": "/mnt/nvme/data/testfile_campaign",
     "block_size": 4096,
     "limit":  66262417408,

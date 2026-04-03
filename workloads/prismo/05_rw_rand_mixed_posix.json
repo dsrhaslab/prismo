@@ -1,7 +1,7 @@
 {
   "job": {
     "name": "05_rw_rand_mixed_posix",
-    "numjobs": 3,
+    "numjobs": 1,
     "filename": "/mnt/nvme/data/testfile_campaign",
     "block_size": 4096,
     "limit":  66262417408,
