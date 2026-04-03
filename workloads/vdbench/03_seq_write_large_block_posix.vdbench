@@ -1,0 +1,9 @@
+* VDBench parameter file
+* Converted from Prismo workload: 03_seq_write_large_block_posix
+*
+* NOTE: Original Prismo iteration count = 497272.
+*       VDBench uses elapsed time; adjust 'elapsed' as needed.
+*
+sd=sd1,lun=testfile_campaign,size=32589234176,openflags=o_direct
+wd=wd1,sd=sd1,rdpct=0,seekpct=0,xfersize=64k
+rd=rd1,wd=wd1,iorate=max,elapsed=60,interval=1,threads=3

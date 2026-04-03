@@ -12,11 +12,11 @@ Each workload isolates **exactly one dimension** relative to the previous, makin
 |----|--------------------------|-------------------------------------------|-------------------------------------------------------------------|
 | 01 | `seq_write`              | Baseline sequential throughput            | Write, sequential, constant                                       |
 | 02 | `seq_read`               | Read path vs write (W01)                  | Read, sequential, constant                                        |
-| 03 | `rand_read`              | Random access (IOPS)                      | Read, random, random content                                      |
-| 04 | `rw_rand_mixed`          | Mixed R/W contention                      | 50/50 R/W, random, random content                                 |
-| 05 | `rw_zipf`                | Access locality (Zipfian)                 | 50/50 R/W, Zipf(0.9), random content                              |
-| 06 | `write_heavy_seq`        | Asymmetric ratio                          | 90/10 W/R, sequential, random content                             |
-| 07 | `seq_write_large_block`  | Block size + bandwidth ceiling            | Write, sequential, 64 KiB                                         |
+| 03 | `seq_write_large_block`  | Block size + bandwidth ceiling            | Write, sequential, 64 KiB                                         |
+| 04 | `rand_read`              | Random access (IOPS)                      | Read, random, random content                                      |
+| 05 | `rw_rand_mixed`          | Mixed R/W contention                      | 50/50 R/W, random, random content                                 |
+| 06 | `rw_zipf`                | Access locality (Zipfian)                 | 50/50 R/W, Zipf(0.9), random content                              |
+| 07 | `write_heavy_seq`        | Asymmetric ratio                          | 90/10 W/R, sequential, random content                             |
 | 08 | `barrier_fsync`          | Durability overhead                       | Sequence W/R/W/W + fsync every 1024 writes                        |
 | 09 | `rw_rand_multijob`       | Parallelism (4 jobs)                      | 50/50 R/W, random, 4 jobs                                         |
 | 10 | `compress_zipf`          | Compression only (no dedup)               | Sequence R/W/nop/W, Zipf(0.9), 3-tier compress (0/50/75%)         |

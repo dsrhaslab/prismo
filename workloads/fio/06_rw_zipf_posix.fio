@@ -1,0 +1,15 @@
+; 06_rw_zipf_posix
+[global]
+filename=testfile_campaign
+size=32589234176
+ioengine=psync
+direct=1
+
+[06_rw_zipf_posix]
+bs=4k
+rw=randrw
+rwmixread=50
+random_distribution=zipf:0.9
+numjobs=3
+number_ios=16165652
+refill_buffers
