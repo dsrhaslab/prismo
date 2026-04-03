@@ -1,0 +1,11 @@
+* VDBench parameter file
+* Converted from Prismo workload: 55_compress_zipf_spdk
+*
+* NOTE: VDBench does not support SPDK.
+*       Using default VDBench I/O as approximation.
+* NOTE: Original Prismo iteration count = 16165652.
+*       VDBench uses elapsed time; adjust 'elapsed' as needed.
+*
+sd=sd1,lun=testfile_campaign,size=32589234176
+wd=wd1,sd=sd1,rdpct=33,seekpct=100,xfersize=4k,hotband=(0,20,80),compratio=1.9
+rd=rd1,wd=wd1,iorate=max,elapsed=60,interval=1,threads=1

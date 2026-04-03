@@ -1,0 +1,33 @@
+{
+  "job": {
+    "name": "32_seq_write_aio",
+    "numjobs": 3,
+    "filename": "/mnt/nvme/data/testfile_campaign",
+    "block_size": 4096,
+    "limit":  66262417408,
+    "metric": "base",
+    "termination": {
+      "type": "iterations",
+      "value": 16165652
+    }
+  },
+  "operation": {
+    "type": "constant",
+    "operation": "write"
+  },
+  "access": {
+    "type": "sequential"
+  },
+  "content": {
+    "type": "constant"
+  },
+  "engine": {
+    "type": "aio",
+    "open_flags": [
+      "O_CREAT",
+      "O_RDWR",
+      "O_DIRECT"
+    ],
+    "entries": 128
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "job": {
+    "name": "54_rw_rand_multijob_spdk",
+    "numjobs": 4,
+    "filename": "/mnt/nvme/data/testfile_campaign",
+    "block_size": 4096,
+    "limit":  66262417408,
+    "metric": "base",
+    "termination": {
+      "type": "runtime",
+      "value": 900000
+    }
+  },
+  "operation": {
+    "type": "percentage",
+    "percentages": {
+      "read": 50,
+      "write": 50
+    }
+  },
+  "access": {
+    "type": "random"
+  },
+  "content": {
+    "type": "random",
+    "refill": true
+  },
+  "engine": {
+    "type": "spdk",
+    "open_flags": [
+      "O_CREAT",
+      "O_RDWR"
+    ],
+    "bdev_name": "Malloc0",
+    "reactor_mask": "0xF",
+    "spdk_threads": 1,
+    "json_config_file": "/home/digo/Desktop/prismo/workloads/spdk/spdk_bdev.json"
+  }
+}

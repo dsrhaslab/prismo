@@ -1,0 +1,13 @@
+; 07_seq_write_large_block_posix
+[global]
+filename=testfile_campaign
+size=32589234176
+ioengine=psync
+direct=1
+
+[07_seq_write_large_block_posix]
+bs=64k
+rw=write
+numjobs=3
+number_ios=497272
+refill_buffers

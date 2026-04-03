@@ -1,0 +1,51 @@
+{
+  "job": {
+    "name": "30_trace_webmail_uring",
+    "numjobs": 3,
+    "filename": "/mnt/nvme/data/testfile_campaign",
+    "block_size": 4096,
+    "limit":  66262417408,
+    "metric": "base",
+    "termination": {
+      "type": "iterations",
+      "value": 16165652
+    }
+  },
+  "operation": {
+    "type": "trace",
+    "trace": "/home/digo/Desktop/prismo/traces/webmail+online.cs.fiu.edu-110108-113008.1.blkparse.prismo",
+    "extension": "sample",
+    "memory": 16384
+  },
+  "access": {
+    "type": "trace",
+    "trace": "/home/digo/Desktop/prismo/traces/webmail+online.cs.fiu.edu-110108-113008.1.blkparse.prismo",
+    "extension": "regression",
+    "memory": 16384
+  },
+  "content": {
+    "type": "trace",
+    "trace": "/home/digo/Desktop/prismo/traces/webmail+online.cs.fiu.edu-110108-113008.1.blkparse.prismo",
+    "extension": "sample",
+    "memory": 16384
+  },
+  "engine": {
+    "type": "uring",
+    "open_flags": [
+      "O_CREAT",
+      "O_RDWR",
+      "O_DIRECT"
+    ],
+    "entries": 128,
+    "params": {
+      "cq_entries": 256,
+      "sq_thread_cpu": 0,
+      "sq_thread_idle": 0,
+      "flags": [
+        "IORING_SETUP_SQPOLL",
+        "IORING_SETUP_IOPOLL",
+        "IORING_SETUP_SQ_AFF"
+      ]
+    }
+  }
+}

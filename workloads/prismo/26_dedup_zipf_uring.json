@@ -1,0 +1,90 @@
+{
+  "job": {
+    "name": "26_dedup_zipf_uring",
+    "numjobs": 3,
+    "filename": "/mnt/nvme/data/testfile_campaign",
+    "block_size": 4096,
+    "limit":  66262417408,
+    "metric": "base",
+    "termination": {
+      "type": "iterations",
+      "value": 16165652
+    }
+  },
+  "operation": {
+    "type": "sequence",
+    "operations": [
+      "read",
+      "write",
+      "nop",
+      "write"
+    ]
+  },
+  "access": {
+    "type": "zipfian",
+    "skew": 0.9
+  },
+  "content": {
+    "type": "dedup",
+    "refill": false,
+    "distribution": [
+      {
+        "percentage": 50,
+        "repeats": 0,
+        "compression": [
+          {
+            "percentage": 50,
+            "reduction": 0
+          },
+          {
+            "percentage": 50,
+            "reduction": 50
+          }
+        ]
+      },
+      {
+        "percentage": 35,
+        "repeats": 1,
+        "compression": [
+          {
+            "percentage": 70,
+            "reduction": 30
+          },
+          {
+            "percentage": 30,
+            "reduction": 20
+          }
+        ]
+      },
+      {
+        "percentage": 15,
+        "repeats": 3,
+        "compression": [
+          {
+            "percentage": 100,
+            "reduction": 0
+          }
+        ]
+      }
+    ]
+  },
+  "engine": {
+    "type": "uring",
+    "open_flags": [
+      "O_CREAT",
+      "O_RDWR",
+      "O_DIRECT"
+    ],
+    "entries": 128,
+    "params": {
+      "cq_entries": 256,
+      "sq_thread_cpu": 0,
+      "sq_thread_idle": 0,
+      "flags": [
+        "IORING_SETUP_SQPOLL",
+        "IORING_SETUP_IOPOLL",
+        "IORING_SETUP_SQ_AFF"
+      ]
+    }
+  }
+}

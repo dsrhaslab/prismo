@@ -1,0 +1,14 @@
+; 37_seq_write_large_block_aio
+[global]
+filename=testfile_campaign
+size=32589234176
+ioengine=libaio
+iodepth=128
+direct=1
+
+[37_seq_write_large_block_aio]
+bs=64k
+rw=write
+numjobs=3
+number_ios=497272
+refill_buffers

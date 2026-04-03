@@ -1,0 +1,17 @@
+; 39_rw_rand_multijob_aio
+[global]
+filename=testfile_campaign
+size=32589234176
+ioengine=libaio
+iodepth=128
+direct=1
+
+[39_rw_rand_multijob_aio]
+bs=4k
+rw=randrw
+rwmixread=50
+numjobs=4
+runtime=900
+time_based
+group_reporting
+refill_buffers

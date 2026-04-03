@@ -1,0 +1,46 @@
+{
+  "job": {
+    "name": "38_barrier_fsync_aio",
+    "numjobs": 3,
+    "filename": "/mnt/nvme/data/testfile_campaign",
+    "block_size": 4096,
+    "limit":  66262417408,
+    "metric": "base",
+    "termination": {
+      "type": "runtime",
+      "value": 900000
+    }
+  },
+  "operation": {
+    "type": "sequence",
+    "operations": [
+      "write",
+      "read",
+      "write",
+      "write"
+    ],
+    "barrier": [
+      {
+        "operation": "fsync",
+        "trigger": "write",
+        "threshold": 1024
+      }
+    ]
+  },
+  "access": {
+    "type": "random"
+  },
+  "content": {
+    "type": "random",
+    "refill": false
+  },
+  "engine": {
+    "type": "aio",
+    "open_flags": [
+      "O_CREAT",
+      "O_RDWR",
+      "O_DIRECT"
+    ],
+    "entries": 128
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "job": {
+    "name": "52_seq_write_large_block_spdk",
+    "numjobs": 3,
+    "filename": "/mnt/nvme/data/testfile_campaign",
+    "block_size": 65536,
+    "limit":  66262417408,
+    "metric": "base",
+    "termination": {
+      "type": "iterations",
+      "value": 1011084
+    }
+  },
+  "operation": {
+    "type": "constant",
+    "operation": "write"
+  },
+  "access": {
+    "type": "sequential"
+  },
+  "content": {
+    "type": "random",
+    "refill": true
+  },
+  "engine": {
+    "type": "spdk",
+    "open_flags": [
+      "O_CREAT",
+      "O_RDWR"
+    ],
+    "bdev_name": "Malloc0",
+    "reactor_mask": "0xF",
+    "spdk_threads": 1,
+    "json_config_file": "/home/digo/Desktop/prismo/workloads/spdk/spdk_bdev.json"
+  }
+}
