@@ -9,5 +9,5 @@ direct=1
 [34_seq_read_aio]
 bs=4k
 rw=read
-numjobs=1
+numjobs=3
 number_ios=16165652

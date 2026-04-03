@@ -29,7 +29,8 @@
     "type": "posix",
     "open_flags": [
       "O_CREAT",
-      "O_RDWR"
+      "O_RDWR",
+      "O_DIRECT"
     ]
   }
 }

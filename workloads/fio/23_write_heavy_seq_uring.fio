@@ -4,12 +4,13 @@ filename=testfile_campaign
 size=32589234176
 ioengine=io_uring
 iodepth=128
+direct=1
 
 [23_write_heavy_seq_uring]
 bs=4k
 rw=rw
 rwmixread=10
-numjobs=1
+numjobs=3
 runtime=900
 time_based
 refill_buffers

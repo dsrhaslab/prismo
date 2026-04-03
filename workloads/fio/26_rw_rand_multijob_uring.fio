@@ -4,6 +4,7 @@ filename=testfile_campaign
 size=32589234176
 ioengine=io_uring
 iodepth=128
+direct=1
 
 [26_rw_rand_multijob_uring]
 bs=4k

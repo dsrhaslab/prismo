@@ -3,12 +3,13 @@
 filename=testfile_campaign
 size=32589234176
 ioengine=psync
+direct=1
 
 [16_trace_webmail_posix]
 bs=4k
 rw=randrw
 rwmixread=50
-numjobs=1
+numjobs=3
 number_ios=16165652
 ; NOTE: prismo replays webmail+online.cs.fiu.edu-110108-113008.1.blkparse.prismo
 ; For exact trace replay: use replay_redirect with blktrace files

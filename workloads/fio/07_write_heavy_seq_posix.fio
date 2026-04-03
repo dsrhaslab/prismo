@@ -3,12 +3,13 @@
 filename=testfile_campaign
 size=32589234176
 ioengine=psync
+direct=1
 
 [07_write_heavy_seq_posix]
 bs=4k
 rw=rw
 rwmixread=10
-numjobs=1
+numjobs=3
 runtime=900
 time_based
 refill_buffers

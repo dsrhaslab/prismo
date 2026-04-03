@@ -4,13 +4,14 @@ filename=testfile_campaign
 size=32589234176
 ioengine=io_uring
 iodepth=128
+direct=1
 
 [28_dedup_zipf_uring]
 bs=4k
 rw=randrw
 rwmixread=33
 random_distribution=zipf:0.9
-numjobs=1
+numjobs=3
 number_ios=16165652
 dedupe_percentage=50
 buffer_compress_percentage=20

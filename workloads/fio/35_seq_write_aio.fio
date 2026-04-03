@@ -9,5 +9,5 @@ direct=1
 [35_seq_write_aio]
 bs=4k
 rw=write
-numjobs=1
+numjobs=3
 number_ios=16165652

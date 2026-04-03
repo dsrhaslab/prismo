@@ -3,6 +3,7 @@
 filename=testfile_campaign
 size=32589234176
 ioengine=psync
+direct=1
 
 [10_rw_rand_multijob_posix]
 bs=4k

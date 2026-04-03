@@ -4,10 +4,11 @@ filename=testfile_campaign
 size=32589234176
 ioengine=io_uring
 iodepth=128
+direct=1
 
 [24_seq_write_large_block_uring]
 bs=64k
 rw=write
-numjobs=1
+numjobs=3
 number_ios=497272
 refill_buffers

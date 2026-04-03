@@ -4,12 +4,13 @@ filename=testfile_campaign
 size=32589234176
 ioengine=io_uring
 iodepth=128
+direct=1
 
 [29_hybrid_trace_access_uring]
 bs=4k
 rw=randrw
 rwmixread=70
-numjobs=1
+numjobs=3
 number_ios=16165652
 refill_buffers
 ; NOTE: prismo uses trace-based access (homes-110108-112108.1.blkparse.prismo)
