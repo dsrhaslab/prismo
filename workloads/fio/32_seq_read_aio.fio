@@ -1,11 +1,12 @@
-; 01_seq_read_posix
+; 32_seq_read_aio
 [global]
 filename=testfile_campaign
 size=32589234176
-ioengine=psync
+ioengine=libaio
+iodepth=128
 direct=1
 
-[01_seq_read_posix]
+[32_seq_read_aio]
 bs=4k
 rw=read
 numjobs=3

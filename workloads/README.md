@@ -8,12 +8,10 @@ Each workload isolates **exactly one dimension** relative to the previous, makin
 
 ## Base Workloads
 
-### Synthetic (W01–W11)
-
 | #  | Name                     | Dimension Isolated                        | Key Parameters                                                    |
 |----|--------------------------|-------------------------------------------|-------------------------------------------------------------------|
-| 01 | `seq_read`               | Baseline sequential throughput            | Read, sequential, constant                                        |
-| 02 | `seq_write`              | Write path vs read (W01)                  | Write, sequential, constant                                       |
+| 01 | `seq_write`              | Baseline sequential throughput            | Write, sequential, constant                                       |
+| 02 | `seq_read`               | Read path vs write (W01)                  | Read, sequential, constant                                        |
 | 03 | `rand_read`              | Random access (IOPS)                      | Read, random, random content                                      |
 | 04 | `rw_rand_mixed`          | Mixed R/W contention                      | 50/50 R/W, random, random content                                 |
 | 05 | `rw_zipf`                | Access locality (Zipfian)                 | 50/50 R/W, Zipf(0.9), random content                              |

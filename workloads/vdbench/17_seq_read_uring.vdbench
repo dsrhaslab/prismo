@@ -1,6 +1,8 @@
 * VDBench parameter file
-* Converted from Prismo workload: 01_seq_read_posix
+* Converted from Prismo workload: 17_seq_read_uring
 *
+* NOTE: VDBench does not support io_uring.
+*       Using default VDBench I/O as approximation.
 * NOTE: Original Prismo iteration count = 16165652.
 *       VDBench uses elapsed time; adjust 'elapsed' as needed.
 *

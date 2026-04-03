@@ -1,6 +1,6 @@
 {
   "job": {
-    "name": "17_seq_write_uring",
+    "name": "47_seq_read_spdk",
     "numjobs": 3,
     "filename": "/mnt/nvme/data/testfile_campaign",
     "block_size": 4096,
@@ -13,7 +13,7 @@
   },
   "operation": {
     "type": "constant",
-    "operation": "write"
+    "operation": "read"
   },
   "access": {
     "type": "sequential"
@@ -22,22 +22,14 @@
     "type": "constant"
   },
   "engine": {
-    "type": "uring",
+    "type": "spdk",
     "open_flags": [
       "O_CREAT",
-      "O_RDWR",
-      "O_DIRECT"
+      "O_RDWR"
     ],
-    "entries": 128,
-    "params": {
-      "cq_entries": 256,
-      "sq_thread_cpu": 0,
-      "sq_thread_idle": 0,
-      "flags": [
-        "IORING_SETUP_SQPOLL",
-        "IORING_SETUP_IOPOLL",
-        "IORING_SETUP_SQ_AFF"
-      ]
-    }
+    "bdev_name": "Malloc0",
+    "reactor_mask": "0xF",
+    "spdk_threads": 1,
+    "json_config_file": "/home/digo/Desktop/prismo/workloads/spdk/spdk_bdev.json"
   }
 }

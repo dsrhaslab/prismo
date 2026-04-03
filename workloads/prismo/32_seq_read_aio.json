@@ -1,6 +1,6 @@
 {
   "job": {
-    "name": "02_seq_write_posix",
+    "name": "32_seq_read_aio",
     "numjobs": 3,
     "filename": "/mnt/nvme/data/testfile_campaign",
     "block_size": 4096,
@@ -13,7 +13,7 @@
   },
   "operation": {
     "type": "constant",
-    "operation": "write"
+    "operation": "read"
   },
   "access": {
     "type": "sequential"
@@ -22,11 +22,12 @@
     "type": "constant"
   },
   "engine": {
-    "type": "posix",
+    "type": "aio",
     "open_flags": [
       "O_CREAT",
       "O_RDWR",
       "O_DIRECT"
-    ]
+    ],
+    "entries": 128
   }
 }

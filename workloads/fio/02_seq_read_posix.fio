@@ -1,12 +1,12 @@
-; 02_seq_write_posix
+; 02_seq_read_posix
 [global]
 filename=testfile_campaign
 size=32589234176
 ioengine=psync
 direct=1
 
-[02_seq_write_posix]
+[02_seq_read_posix]
 bs=4k
-rw=write
+rw=read
 numjobs=3
 number_ios=16165652

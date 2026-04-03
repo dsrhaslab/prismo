@@ -1,8 +1,6 @@
 * VDBench parameter file
-* Converted from Prismo workload: 31_seq_read_aio
+* Converted from Prismo workload: 02_seq_read_posix
 *
-* NOTE: VDBench does not support libaio. Using openflags=o_direct
-*       to approximate direct I/O behavior.
 * NOTE: Original Prismo iteration count = 16165652.
 *       VDBench uses elapsed time; adjust 'elapsed' as needed.
 *

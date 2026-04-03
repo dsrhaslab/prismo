@@ -1,4 +1,4 @@
-; 46_seq_read_spdk
+; 46_seq_write_spdk
 [global]
 filename=Malloc0
 size=32589234176
@@ -6,8 +6,8 @@ ioengine=spdk_bdev
 iodepth=128
 spdk_json_conf=/home/digo/Desktop/prismo/workloads/spdk/spdk_bdev.json
 
-[46_seq_read_spdk]
+[46_seq_write_spdk]
 bs=4k
-rw=read
+rw=write
 numjobs=1
 number_ios=16165652

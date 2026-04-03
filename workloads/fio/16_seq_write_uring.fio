@@ -1,4 +1,4 @@
-; 17_seq_write_uring
+; 16_seq_write_uring
 [global]
 filename=testfile_campaign
 size=32589234176
@@ -6,7 +6,7 @@ ioengine=io_uring
 iodepth=128
 direct=1
 
-[17_seq_write_uring]
+[16_seq_write_uring]
 bs=4k
 rw=write
 numjobs=3

@@ -1,12 +1,12 @@
-; 31_seq_read_aio
+; 17_seq_read_uring
 [global]
 filename=testfile_campaign
 size=32589234176
-ioengine=libaio
+ioengine=io_uring
 iodepth=128
 direct=1
 
-[31_seq_read_aio]
+[17_seq_read_uring]
 bs=4k
 rw=read
 numjobs=3

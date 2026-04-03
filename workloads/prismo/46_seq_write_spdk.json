@@ -1,6 +1,6 @@
 {
   "job": {
-    "name": "32_seq_write_aio",
+    "name": "46_seq_write_spdk",
     "numjobs": 3,
     "filename": "/mnt/nvme/data/testfile_campaign",
     "block_size": 4096,
@@ -22,12 +22,14 @@
     "type": "constant"
   },
   "engine": {
-    "type": "aio",
+    "type": "spdk",
     "open_flags": [
       "O_CREAT",
-      "O_RDWR",
-      "O_DIRECT"
+      "O_RDWR"
     ],
-    "entries": 128
+    "bdev_name": "Malloc0",
+    "reactor_mask": "0xF",
+    "spdk_threads": 1,
+    "json_config_file": "/home/digo/Desktop/prismo/workloads/spdk/spdk_bdev.json"
   }
 }
