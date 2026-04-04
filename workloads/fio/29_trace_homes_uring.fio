@@ -1,7 +1,7 @@
 ; 29_trace_homes_uring
 [global]
-filename=testfile_campaign
-size=32589234176
+filename=/mnt/nvme/data/testfile_campaign
+size=66262417408
 ioengine=io_uring
 iodepth=128
 direct=1

@@ -1,7 +1,5 @@
 * VDBench parameter file
 * Converted from Prismo workload: 07_write_heavy_seq_posix
-*
-*
-sd=sd1,lun=testfile_campaign,size=32589234176,openflags=o_direct
+sd=sd1,lun=/mnt/nvme/data/testfile_campaign,size=66262417408,compratio=0,openflags=o_direct
 wd=wd1,sd=sd1,rdpct=10,seekpct=0,xfersize=4k
-rd=rd1,wd=wd1,iorate=max,elapsed=900,interval=1,threads=1
+rd=rd1,wd=wd1,iorate=max,maxdata=66262417408,interval=1,threads=1

@@ -1,7 +1,7 @@
 ; 06_rw_zipf_posix
 [global]
-filename=testfile_campaign
-size=32589234176
+filename=/mnt/nvme/data/testfile_campaign
+size=66262417408
 ioengine=psync
 direct=1
 
@@ -10,6 +10,6 @@ bs=4k
 rw=randrw
 rwmixread=50
 random_distribution=zipf:0.9
-numjobs=1
-number_ios=16165652
-refill_buffers
+runtime=900
+time_based
+buffer_compress_percentage=0

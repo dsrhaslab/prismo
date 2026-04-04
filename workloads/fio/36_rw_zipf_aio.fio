@@ -1,7 +1,7 @@
 ; 36_rw_zipf_aio
 [global]
-filename=testfile_campaign
-size=32589234176
+filename=/mnt/nvme/data/testfile_campaign
+size=66262417408
 ioengine=libaio
 iodepth=128
 direct=1
@@ -12,5 +12,6 @@ rw=randrw
 rwmixread=50
 random_distribution=zipf:0.9
 numjobs=1
-number_ios=16165652
+runtime=900
+time_based
 refill_buffers

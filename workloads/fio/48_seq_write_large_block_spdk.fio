@@ -1,7 +1,7 @@
 ; 48_seq_write_large_block_spdk
 [global]
 filename=Malloc0
-size=32589234176
+size=66262417408
 ioengine=spdk_bdev
 iodepth=128
 spdk_json_conf=/home/digo/Desktop/prismo/workloads/spdk/spdk_bdev.json
@@ -10,5 +10,5 @@ spdk_json_conf=/home/digo/Desktop/prismo/workloads/spdk/spdk_bdev.json
 bs=64k
 rw=write
 numjobs=1
-number_ios=497272
+number_ios=1011084
 refill_buffers

@@ -1,7 +1,7 @@
 ; 50_rw_rand_mixed_spdk
 [global]
 filename=Malloc0
-size=32589234176
+size=66262417408
 ioengine=spdk_bdev
 iodepth=128
 spdk_json_conf=/home/digo/Desktop/prismo/workloads/spdk/spdk_bdev.json

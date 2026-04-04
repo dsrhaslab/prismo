@@ -1,7 +1,7 @@
 ; 08_barrier_fsync_posix
 [global]
-filename=testfile_campaign
-size=32589234176
+filename=/mnt/nvme/data/testfile_campaign
+size=66262417408
 ioengine=psync
 direct=1
 
@@ -10,5 +10,7 @@ bs=4k
 rw=randrw
 rwmixread=25
 numjobs=1
-number_ios=16165652
 fsync=1024
+time_based
+runtime=900
+buffer_compress_percentage=0

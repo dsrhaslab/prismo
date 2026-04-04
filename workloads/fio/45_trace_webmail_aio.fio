@@ -1,7 +1,7 @@
 ; 45_trace_webmail_aio
 [global]
-filename=testfile_campaign
-size=32589234176
+filename=/mnt/nvme/data/testfile_campaign
+size=66262417408
 ioengine=libaio
 iodepth=128
 direct=1

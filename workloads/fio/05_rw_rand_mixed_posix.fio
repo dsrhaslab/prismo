@@ -1,7 +1,7 @@
 ; 05_rw_rand_mixed_posix
 [global]
-filename=testfile_campaign
-size=32589234176
+filename=/mnt/nvme/data/testfile_campaign
+size=66262417408
 ioengine=psync
 direct=1
 
@@ -12,4 +12,4 @@ rwmixread=50
 numjobs=1
 runtime=900
 time_based
-refill_buffers
+buffer_compress_percentage=0

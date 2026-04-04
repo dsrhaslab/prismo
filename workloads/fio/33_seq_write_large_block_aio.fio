@@ -1,7 +1,7 @@
 ; 33_seq_write_large_block_aio
 [global]
-filename=testfile_campaign
-size=32589234176
+filename=/mnt/nvme/data/testfile_campaign
+size=66262417408
 ioengine=libaio
 iodepth=128
 direct=1
@@ -10,5 +10,5 @@ direct=1
 bs=64k
 rw=write
 numjobs=1
-number_ios=497272
+number_ios=1011084
 refill_buffers
