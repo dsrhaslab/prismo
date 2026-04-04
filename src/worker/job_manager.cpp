@@ -38,6 +38,10 @@ namespace Worker {
         for (size_t i = 0; i < numjobs; i++) {
             spdlog::debug("Setting up job {}", i);
             spdlog::debug("Parsing access generator config");
+
+            access_json["worker_id"] = i;
+            access_json["num_workers"] = numjobs;
+
             auto access =
                 Factory::get_access_generator(access_json);
 
@@ -121,7 +125,7 @@ namespace Worker {
 
             spdlog::debug("Creation open request");
             Protocol::OpenRequest open_request {
-                .filename = std::format("{}_worker_{}", filename, i),
+                .filename = filename,
                 .flags = open_flags.value,
                 .mode = 0666,
             };

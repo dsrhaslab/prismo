@@ -11,7 +11,8 @@ namespace Generator {
     class AccessGenerator {
         protected:
             size_t block_size;
-            size_t limit;
+            size_t partition_size;
+            uint64_t partition_start;
 
             AccessGenerator() = delete;
 
@@ -39,7 +40,7 @@ namespace Generator {
 
     class RandomAccessGenerator : public AccessGenerator {
         private:
-            size_t normalized_limit = 0;
+            size_t normalized_partition_size = 0;
             Distribution::UniformDistribution<uint64_t> rng;
 
         public:
@@ -55,7 +56,7 @@ namespace Generator {
     class ZipfianAccessGenerator : public AccessGenerator {
         private:
             float skew = 0.0f;
-            size_t normalized_limit = 0;
+            size_t normalized_partition_size = 0;
             Distribution::ZipfianDistribution<uint64_t> distribution;
 
         public:

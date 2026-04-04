@@ -110,7 +110,7 @@ Workloads are defined using a JSON file divided into six independent sections. E
   "numjobs": 1,
   "filename": "testfile",
   "block_size": 4096,
-  "limit": 268435456,
+  "size": 268435456,
   "metric": "full",
   "termination": {
     "type": "iterations",
@@ -125,7 +125,7 @@ Workloads are defined using a JSON file divided into six independent sections. E
 | `numjobs`     | Number of parallel producer-consumer pairs                                  | *(required)*  |
 | `filename`    | Path of the target file                                                     | *(required)*  |
 | `block_size`  | I/O block size in bytes                                                     | *(required)*  |
-| `limit`       | Maximum file size in bytes                                                  | *(required)*  |
+| `size`       | Maximum file size in bytes                                                  | *(required)*  |
 | `metric`      | Granularity of metric collection                                            | *(required)*  |
 | `termination` | Termination condition: stop after N operations or after M milliseconds      | *(required)*  |
 | `ramp`        | Linear increase or decrease of throughput                                   | *(optional)*  |

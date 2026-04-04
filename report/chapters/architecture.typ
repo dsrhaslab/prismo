@@ -56,21 +56,21 @@ Dado que os acessos são realizados ao nível do bloco, todas as implementaçõe
       ```yaml
       type: sequential
       blocksize: 4096
-      limit: 65536
+      size: 65536
       ```
     ],
     raw_code_block[
       ```yaml
       type: random
       blocksize: 4096
-      limit: 65536
+      size: 65536
       ```
     ],
     raw_code_block[
       ```yaml
       type: zipfian
       blocksize: 4096
-      limit: 65536
+      size: 65536
       skew: 0.99
       ```
     ],

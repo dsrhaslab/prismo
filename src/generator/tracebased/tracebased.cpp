@@ -19,7 +19,7 @@ namespace Generator {
     ) : AccessGenerator(j), TraceBased(std::move(ext)) {}
 
     uint64_t TraceBasedAccessGenerator::next_offset(void) {
-        return extension->next_record().offset % limit;
+        return extension->next_record().offset % partition_size + partition_start;
     }
 
     TraceBasedOperationGenerator::~TraceBasedOperationGenerator() {
