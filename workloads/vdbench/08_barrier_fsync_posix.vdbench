@@ -2,6 +2,6 @@
 * Converted from Prismo workload: 08_barrier_fsync_posix
 * NOTE: does not have an fsync barrier
 * NOTE: does not follow the sequence of operations
-sd=sd1,lun=/mnt/nvme/data/testfile_campaign,size=66262417408,compratio=0,openflags=o_direct
+sd=sd1,lun=/mnt/nvme/data/testfile_campaign,size=66262417408,openflags=o_direct
 wd=wd1,sd=sd1,rdpct=25,seekpct=100,xfersize=4k
 rd=rd1,wd=wd1,iorate=max,elapsed=900,interval=1,threads=1
