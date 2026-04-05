@@ -184,7 +184,7 @@
         },
         "overrides": [
           { "matcher": { "id": "byName", "options": "read" },  "properties": [{ "id": "color", "value": { "fixedColor": "green",  "mode": "fixed" } }] },
-          { "matcher": { "id": "byName", "options": "write" }, "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }, { "id": "custom.transform", "value": "negative-Y" }] }
+          { "matcher": { "id": "byName", "options": "write" }, "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }] }
         ]
       },
       "gridPos": { "h": 8, "w": 12, "x": 0, "y": 19 },
@@ -225,7 +225,7 @@
         },
         "overrides": [
           { "matcher": { "id": "byName", "options": "read" },  "properties": [{ "id": "color", "value": { "fixedColor": "green",  "mode": "fixed" } }] },
-          { "matcher": { "id": "byName", "options": "write" }, "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }, { "id": "custom.transform", "value": "negative-Y" }] }
+          { "matcher": { "id": "byName", "options": "write" }, "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }] }
         ]
       },
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 19 },
@@ -273,7 +273,7 @@
         },
         "overrides": [
           { "matcher": { "id": "byName", "options": "recv" }, "properties": [{ "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }] },
-          { "matcher": { "id": "byName", "options": "send" }, "properties": [{ "id": "color", "value": { "fixedColor": "blue",  "mode": "fixed" } }, { "id": "custom.transform", "value": "negative-Y" }] }
+          { "matcher": { "id": "byName", "options": "send" }, "properties": [{ "id": "color", "value": { "fixedColor": "blue",  "mode": "fixed" } }] }
         ]
       },
       "gridPos": { "h": 8, "w": 24, "x": 0, "y": 28 },
