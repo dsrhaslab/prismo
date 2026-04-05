@@ -13,4 +13,4 @@ rwmixread=50
 random_distribution=zipf:0.9
 runtime=900
 time_based
-refill_buffers
+buffer_compress_percentage=0

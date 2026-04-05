@@ -11,3 +11,4 @@ bs=4k
 rw=randread
 runtime=900
 time_based
+buffer_compress_percentage=0

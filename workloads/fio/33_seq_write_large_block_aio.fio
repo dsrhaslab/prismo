@@ -10,4 +10,4 @@ direct=1
 bs=64k
 rw=write
 number_ios=1011084
-refill_buffers
+buffer_compress_percentage=0

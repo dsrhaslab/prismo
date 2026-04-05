@@ -12,4 +12,4 @@ rw=randrw
 rwmixread=50
 runtime=900
 time_based
-refill_buffers
+buffer_compress_percentage=0

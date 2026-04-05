@@ -11,6 +11,4 @@ bs=4k
 rw=rw
 rwmixread=10
 number_ios=16165652
-runtime=900
-time_based
-refill_buffers
+buffer_compress_percentage=0
