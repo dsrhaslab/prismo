@@ -14,4 +14,4 @@ numjobs=3
 runtime=900
 time_based
 group_reporting
-refill_buffers
+buffer_compress_percentage=0

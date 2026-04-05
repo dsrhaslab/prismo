@@ -1,5 +1,9 @@
 * VDBench parameter file
 * Converted from Prismo workload: 02_seq_read_posix
+*
+* NOTE: Previous workload wrote random data
+*       VDBench will read random data
+*
 sd=sd1,lun=/mnt/nvme/data/testfile_campaign,size=66262417408,openflags=o_direct
 wd=wd1,sd=sd1,rdpct=100,seekpct=0,xfersize=4k
 rd=rd1,wd=wd1,iorate=max,maxdata=66262417408,interval=1,threads=1

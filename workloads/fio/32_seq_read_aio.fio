@@ -9,6 +9,5 @@ direct=1
 [32_seq_read_aio]
 bs=4k
 rw=read
-numjobs=1
 number_ios=16165652
 zero_buffers

@@ -43,7 +43,6 @@
       "sq_thread_idle": 0,
       "flags": [
         "IORING_SETUP_SQPOLL",
-        "IORING_SETUP_IOPOLL",
         "IORING_SETUP_SQ_AFF"
       ]
     }

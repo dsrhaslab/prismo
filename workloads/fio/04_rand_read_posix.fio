@@ -8,7 +8,6 @@ direct=1
 [04_rand_read_posix]
 bs=4k
 rw=randread
-numjobs=1
 runtime=900
 time_based
 buffer_compress_percentage=0

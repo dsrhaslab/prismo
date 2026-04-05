@@ -9,6 +9,5 @@ direct=1
 [16_seq_write_uring]
 bs=4k
 rw=write
-numjobs=1
 number_ios=16165652
 zero_buffers

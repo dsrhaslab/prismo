@@ -8,6 +8,5 @@ direct=1
 [02_seq_read_posix]
 bs=4k
 rw=read
-numjobs=1
 number_ios=16165652
 zero_buffers

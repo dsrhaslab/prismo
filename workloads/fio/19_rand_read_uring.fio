@@ -9,6 +9,6 @@ direct=1
 [19_rand_read_uring]
 bs=4k
 rw=randread
-numjobs=1
 runtime=900
 time_based
+buffer_compress_percentage=0

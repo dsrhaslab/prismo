@@ -9,6 +9,5 @@ direct=1
 [34_rand_read_aio]
 bs=4k
 rw=randread
-numjobs=1
 runtime=900
 time_based

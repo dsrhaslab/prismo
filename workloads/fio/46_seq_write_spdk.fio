@@ -9,6 +9,5 @@ spdk_json_conf=/home/digo/Desktop/prismo/workloads/spdk/spdk_bdev.json
 [46_seq_write_spdk]
 bs=4k
 rw=write
-numjobs=1
 number_ios=16165652
 zero_buffers

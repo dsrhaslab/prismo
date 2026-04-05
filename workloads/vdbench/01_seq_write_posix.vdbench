@@ -1,5 +1,10 @@
 * VDBench parameter file
 * Converted from Prismo workload: 01_seq_write_posix
+
+* NOTE: VDBench does not support writes with constant data.
+*       VDBench dot not recognize the "compratio" and "pattern" parameters.
+*       Using default content for writes as approximation.
+*
 sd=sd1,lun=/mnt/nvme/data/testfile_campaign,size=66262417408,openflags=o_direct
 wd=wd1,sd=sd1,rdpct=0,seekpct=0,xfersize=4k
 rd=rd1,wd=wd1,iorate=max,maxdata=66262417408,interval=1,threads=1

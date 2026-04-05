@@ -9,7 +9,6 @@ direct=1
 bs=4k
 rw=randrw
 rwmixread=50
-numjobs=1
 runtime=900
 time_based
 buffer_compress_percentage=0

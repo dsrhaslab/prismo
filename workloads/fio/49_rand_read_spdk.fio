@@ -9,6 +9,5 @@ spdk_json_conf=/home/digo/Desktop/prismo/workloads/spdk/spdk_bdev.json
 [49_rand_read_spdk]
 bs=4k
 rw=randread
-numjobs=1
 runtime=900
 time_based
