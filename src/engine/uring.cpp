@@ -86,15 +86,17 @@ namespace Engine {
         request.fd = 0;
 
         if (!sqe) {
-            int submitted = io_uring_submit(&ring);
-            // std::cout << "Submitted " << submitted << " entries to uring." << std::endl;
+            io_uring_submit(&ring);
         }
 
-        if (available_indexes.empty())
+        while (!sqe) {
             this->reap_completions();
-
-        while (!sqe)
             sqe = io_uring_get_sqe(&ring);
+        }
+
+        if (available_indexes.empty()) {
+            this->reap_completions();
+        }
 
         free_index = available_indexes.back();
         available_indexes.pop_back();
