@@ -12,15 +12,25 @@ Prismo is a configurable block-based I/O benchmark tool designed to stress-test 
 
 ## Prerequisites
 
-1. Install dependencies
+1. Install build tools and system dependencies
 
 ```sh
 sudo apt update
-sudo apt install -y meson ninja-build
-sudo apt install -y liburing-dev libspdlog-dev libeigen3-dev nlohmann-json3-dev libboost-all-dev libzstd-dev
+sudo apt install -y meson ninja-build libaio-dev
 ```
 
-2. Download and install [**SPDK**](https://github.com/spdk/spdk)
+2. Install [**vcpkg**](https://github.com/microsoft/vcpkg) and the required libraries
+
+```sh
+# Clone and bootstrap vcpkg
+git clone https://github.com/microsoft/vcpkg
+./vcpkg/bootstrap-vcpkg.sh
+
+# Install dependencies
+./vcpkg/vcpkg install liburing spdlog eigen3 argparse nlohmann-json boost-pool zstd
+```
+
+3. Download and install [**SPDK**](https://github.com/spdk/spdk)
 
 ```sh
 # Clone the repository
@@ -39,35 +49,15 @@ make
 ./test/unit/unittest.sh
 ```
 
-3. Download and install [**argparse**](https://github.com/p-ranav/argparse)
-
-```sh
-# Clone the repository
-git clone https://github.com/p-ranav/argparse
-cd argparse
-
-# Build the tests
-mkdir build
-cd build
-cmake -DARGPARSE_BUILD_SAMPLES=on -DARGPARSE_BUILD_TESTS=on ..
-make
-
-# Run tests
-./test/tests
-
-# Install the library
-sudo make install
-```
-
 ## Building
 
 > [!IMPORTANT]
 > To build this project, the Meson Build System must be able to locate a compatible C++ compiler on your system. When using GCC, the required version is 13.4 or newer.
 
-Before compiling, Meson needs to know where to find the SPDK libraries. Update the `spdk_root` variable in [**meson.build**](meson.build) so it points to the SPDK repository path you installed earlier.
+Before compiling, update the paths in [**build.ini**](build.ini) so `spdk_root` and `vcpkg_root` point to the correct locations on your system.
 
 ```sh
-meson setup builddir --buildtype=release -Dpkg_config_path=/path/to/spdk/build/lib/pkgconfig/
+meson setup builddir --native-file build.ini
 meson compile -C builddir
 ```
 
