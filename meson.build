@@ -10,7 +10,7 @@ project(
     ],
 )
 
-spdk_root = '/home/digo/Desktop/spdk'
+spdk_root = meson.get_external_property('spdk_root')
 
 project_inc = include_directories('include')
 spdk_inc = include_directories(
@@ -47,9 +47,10 @@ src = files(
 cc = meson.get_compiler('cpp')
 
 libaio_dep = cc.find_library('aio', required: true)
-liburing_dep = dependency('liburing', required: true)
 spdlog_dep = dependency('spdlog', required: true)
 eigen_dep = dependency('eigen3', required: true)
+argparse_dep = dependency('argparse', required: true)
+liburing_dep = dependency('liburing', required: true).as_system()
 json_dep = dependency('nlohmann_json', required: true)
 boost_dep = dependency('boost', modules: ['pool'], required: true)
 
@@ -115,6 +116,7 @@ prismo = executable(
         json_dep,
         eigen_dep,
         spdlog_dep,
+        argparse_dep,
         liburing_dep,
         libaio_dep,
         boost_dep,

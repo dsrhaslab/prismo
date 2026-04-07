@@ -5,7 +5,7 @@ executable(
   'deltoide',
   sources: ['src/main.cpp'],
   include_directories: [project_inc, deltoide_inc],
-  dependencies: zstd_dep,
+  dependencies: [zstd_dep, argparse_dep],
   cpp_args: common_flags,
   install: false,
 )
