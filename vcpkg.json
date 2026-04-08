@@ -1,0 +1,15 @@
+{
+  "name": "prismo",
+  "version": "1.0.0",
+  "description": "I/O benchmarking tool",
+  "license": "MIT",
+  "dependencies": [
+    "liburing",
+    "spdlog",
+    "eigen3",
+    "argparse",
+    "nlohmann-json",
+    "boost-pool",
+    "zstd"
+  ]
+}

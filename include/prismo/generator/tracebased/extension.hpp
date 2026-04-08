@@ -5,7 +5,7 @@
 #include <optional>
 #include <vector>
 #include <cstdint>
-#include <Eigen/Dense>
+#include <eigen3/Eigen/Dense>
 #include <prismo/generator/tracebased/tracereader.hpp>
 #include <lib/distribution/alias.hpp>
 #include <lib/distribution/reservoir.hpp>

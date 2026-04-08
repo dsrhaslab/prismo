@@ -7,3 +7,4 @@ tests/
 workloads/results/
 subprojects/*/
 .wraplock
+vcpkg_installed/

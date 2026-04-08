@@ -1,5 +1,9 @@
 deltoide_inc = include_directories('include')
-zstd_dep = dependency('libzstd', required: true)
+
+zstd_dep = dependency('libzstd',
+  method: 'pkg-config',
+  required: true,
+)
 
 executable(
   'deltoide',
