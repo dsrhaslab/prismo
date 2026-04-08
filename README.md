@@ -54,7 +54,7 @@ make
 > [!IMPORTANT]
 > To build this project, the Meson Build System must be able to locate a compatible C++ compiler on your system. When using GCC, the required version is 13.4 or newer.
 
-Before compiling, update the paths in [**build.ini**](build.ini) so `spdk_root` points to the correct location on your system.
+Before compiling, update the paths in [**build.ini**](build.ini) so `spdk_root` and `project_root` point to the correct locations on your system.
 
 ```sh
 meson setup builddir --native-file build.ini

@@ -219,5 +219,5 @@ executable(
 		'-fno-omit-frame-pointer',
 		'-latomic',
 	],
-	install: false,
+	install: true,
 )
