@@ -165,8 +165,7 @@ namespace Engine {
     }
 
     void UringEngine::reap_left_completions(void) {
-        int submitted = io_uring_submit(&ring);
-        // std::cout << "Final Submitted " << submitted << " entries to uring." << std::endl;
+        io_uring_submit(&ring);
         while (available_indexes.size() < available_indexes.capacity()) {
             this->reap_completions();
         }

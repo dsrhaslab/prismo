@@ -40,7 +40,7 @@ namespace Metric {
 
         nlohmann::json latency_json() const {
             return {
-                {"min", min_latency_ns},
+                {"min", total_ops > 0 ? min_latency_ns : 0},
                 {"max", max_latency_ns},
                 {"avg", total_ops > 0
                     ? total_latency_ns / total_ops : 0},
