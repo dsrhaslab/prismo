@@ -8,10 +8,10 @@ namespace Worker {
         std::unique_ptr<Generator::ContentGenerator> _content,
         std::optional<Generator::MultipleBarrier> _barrier,
         std::optional<Generator::CompressionGenerator> _compression,
-        std::optional<Internal::Ramp> _ramp,
-        std::unique_ptr<Internal::Termination> _termination,
-        std::shared_ptr<moodycamel::ConcurrentQueue<std::unique_ptr<Protocol::Packet>>> _to_producer,
-        std::shared_ptr<moodycamel::ConcurrentQueue<std::unique_ptr<Protocol::Packet>>> _to_consumer
+        std::optional<Control::Ramp> _ramp,
+        std::unique_ptr<Control::Termination> _termination,
+        std::shared_ptr<Communication::Channel> _to_producer,
+        std::shared_ptr<Communication::Channel> _to_consumer
     )
         : access(std::move(_access))
         , operation(std::move(_operation))
@@ -26,7 +26,7 @@ namespace Worker {
 
     void Producer::run(int fd) {
         std::unique_ptr<Protocol::Packet> shutdown_packet;
-        std::unique_ptr<Protocol::Packet> packets[Internal::BULK_SIZE];
+        std::unique_ptr<Protocol::Packet> packets[Communication::BULK_SIZE];
 
         uint64_t iterations_count = 0;
         auto start_time = std::chrono::steady_clock::now();
@@ -34,7 +34,7 @@ namespace Worker {
         while (termination->should_continue(start_time, iterations_count)) {
             auto batch_start = std::chrono::steady_clock::now();
             size_t ready = 0;
-            size_t count = to_producer->try_dequeue_bulk(packets, Internal::BULK_SIZE);
+            size_t count = to_producer->dequeue_bulk(packets, Communication::BULK_SIZE);
 
             while (ready < count &&
                    termination->should_continue(start_time, iterations_count)) {
@@ -73,15 +73,15 @@ namespace Worker {
                 iterations_count++;
             }
 
-            to_consumer->enqueue_bulk(std::make_move_iterator(packets), ready);
-            to_producer->enqueue_bulk(std::make_move_iterator(packets + ready), count - ready);
+            to_consumer->enqueue_bulk(packets, ready);
+            to_producer->enqueue_bulk(packets + ready, count - ready);
 
             if (ramp.has_value()) {
                 ramp->throttle(start_time, batch_start);
             }
         }
 
-        while (!to_producer->try_dequeue(shutdown_packet));
+        to_producer->dequeue(shutdown_packet);
 
         shutdown_packet->isShutDown = true;
         to_consumer->enqueue(std::move(shutdown_packet));

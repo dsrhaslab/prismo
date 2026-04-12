@@ -125,15 +125,15 @@ namespace Factory {
             : std::nullopt;
     }
 
-    std::optional<Worker::Internal::Ramp> get_ramp(
+    std::optional<Control::Ramp> get_ramp(
         const nlohmann::json& config
     ) {
         return config.contains("ramp")
-            ? std::make_optional<Worker::Internal::Ramp>(config.at("ramp"))
+            ? std::make_optional<Control::Ramp>(config.at("ramp"))
             : std::nullopt;
     }
 
-    std::unique_ptr<Worker::Internal::Termination> get_termination(
+    std::unique_ptr<Control::Termination> get_termination(
         const nlohmann::json& config
     ) {
         if (!config.contains("termination")) {
@@ -141,7 +141,7 @@ namespace Factory {
                 "get_termination: 'termination' config is required");
         }
 
-        return std::make_unique<Worker::Internal::Termination>(config.at("termination"));
+        return std::make_unique<Control::Termination>(config.at("termination"));
     }
 
     std::shared_ptr<Logger::Base> get_logger(const nlohmann::json& config) {
@@ -155,6 +155,23 @@ namespace Factory {
         }
 
         return nullptr;
+    }
+
+    std::shared_ptr<Communication::Channel> get_channel(
+        const nlohmann::json& config
+    ) {
+        std::string type = config.value("channel", "non-blocking");
+
+        if (type == "non-blocking") {
+            return std::make_shared<Communication::NonBlockingChannel>(
+                Communication::QUEUE_INITIAL_CAPACITY);
+        } else if (type == "blocking") {
+            return std::make_shared<Communication::BlockingChannel>(
+                Communication::QUEUE_INITIAL_CAPACITY);
+        } else {
+            throw std::invalid_argument(
+                "get_channel: type '" + type + "' not recognized");
+        }
     }
 
     Metric::MetricVariant get_metric(

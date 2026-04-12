@@ -1,5 +1,6 @@
 {
   "job": {
+    "channel": "blocking",
     "name": "17_seq_read_uring",
     "numjobs": 1,
     "filename": "/mnt/nvme/data/testfile_campaign",

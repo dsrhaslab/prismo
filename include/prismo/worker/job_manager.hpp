@@ -15,8 +15,8 @@ namespace Worker {
         int fd;
         std::unique_ptr<Producer> producer;
         std::unique_ptr<Consumer> consumer;
-        std::shared_ptr<moodycamel::ConcurrentQueue<std::unique_ptr<Protocol::Packet>>> to_producer;
-        std::shared_ptr<moodycamel::ConcurrentQueue<std::unique_ptr<Protocol::Packet>>> to_consumer;
+        std::shared_ptr<Communication::Channel> to_producer;
+        std::shared_ptr<Communication::Channel> to_consumer;
     };
 
     class JobManager {

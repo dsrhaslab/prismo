@@ -22,6 +22,7 @@ spdk_inc = include_directories(
 )
 
 src = files(
+	'src/communication/channel.cpp',
 	'src/engine/aio.cpp',
 	'src/engine/config.cpp',
 	'src/engine/engine.cpp',

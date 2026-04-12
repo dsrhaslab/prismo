@@ -1,5 +1,5 @@
-#ifndef PRISMO_WORKER_TERMINATION_H
-#define PRISMO_WORKER_TERMINATION_H
+#ifndef PRISMO_CONTROL_TERMINATION_H
+#define PRISMO_CONTROL_TERMINATION_H
 
 #include <chrono>
 #include <cstdint>
@@ -8,7 +8,7 @@
 #include <stdexcept>
 #include <nlohmann/json.hpp>
 
-namespace Worker::Internal {
+namespace Control {
 
     inline constexpr uint64_t CHECK_INTERVAL = 4096;
 

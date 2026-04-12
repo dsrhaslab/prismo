@@ -1,5 +1,6 @@
 {
   "job": {
+    "channel": "blocking",
     "name": "20_rw_rand_mixed_uring",
     "numjobs": 1,
     "filename": "/mnt/nvme/data/testfile_campaign",

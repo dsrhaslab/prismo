@@ -1,9 +1,9 @@
 #ifndef PRISMO_WORKER_PRODUCER_H
 #define PRISMO_WORKER_PRODUCER_H
 
-#include <prismo/worker/ramp.hpp>
-#include <prismo/worker/termination.hpp>
-#include <prismo/worker/packet_pool.hpp>
+#include <prismo/control/ramp.hpp>
+#include <prismo/control/termination.hpp>
+#include <prismo/communication/channel.hpp>
 #include <prismo/generator/access/generator.hpp>
 #include <prismo/generator/content/generator.hpp>
 #include <prismo/generator/content/compression.hpp>
@@ -21,11 +21,11 @@ namespace Worker {
             std::optional<Generator::MultipleBarrier> barrier;
             std::optional<Generator::CompressionGenerator> compression;
 
-            std::optional<Internal::Ramp> ramp;
-            std::unique_ptr<Internal::Termination> termination;
+            std::optional<Control::Ramp> ramp;
+            std::unique_ptr<Control::Termination> termination;
 
-            std::shared_ptr<moodycamel::ConcurrentQueue<std::unique_ptr<Protocol::Packet>>> to_producer;
-            std::shared_ptr<moodycamel::ConcurrentQueue<std::unique_ptr<Protocol::Packet>>> to_consumer;
+            std::shared_ptr<Communication::Channel> to_producer;
+            std::shared_ptr<Communication::Channel> to_consumer;
 
         public:
             Producer(
@@ -34,10 +34,10 @@ namespace Worker {
                 std::unique_ptr<Generator::ContentGenerator> _content,
                 std::optional<Generator::MultipleBarrier> _barrier,
                 std::optional<Generator::CompressionGenerator> _compression,
-                std::optional<Internal::Ramp> _ramp,
-                std::unique_ptr<Internal::Termination> _termination,
-                std::shared_ptr<moodycamel::ConcurrentQueue<std::unique_ptr<Protocol::Packet>>> _to_producer,
-                std::shared_ptr<moodycamel::ConcurrentQueue<std::unique_ptr<Protocol::Packet>>> _to_consumer
+                std::optional<Control::Ramp> _ramp,
+                std::unique_ptr<Control::Termination> _termination,
+                std::shared_ptr<Communication::Channel> _to_producer,
+                std::shared_ptr<Communication::Channel> _to_consumer
             );
 
             void run(int fd);

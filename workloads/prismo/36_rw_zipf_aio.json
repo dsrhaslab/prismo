@@ -1,5 +1,6 @@
 {
   "job": {
+    "channel": "blocking",
     "name": "36_rw_zipf_aio",
     "numjobs": 1,
     "filename": "/mnt/nvme/data/testfile_campaign",

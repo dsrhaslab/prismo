@@ -82,26 +82,22 @@ namespace Worker {
                 Factory::get_engine(engine_json, metric, shared_logger);
 
             spdlog::debug(
-                "Creating to_producer queue with initial capacity {}",
-                Internal::QUEUE_INITIAL_CAPACITY);
+                "Creating to_producer channel with initial capacity {}",
+                Communication::QUEUE_INITIAL_CAPACITY);
 
-            auto to_producer = std::make_shared<
-                moodycamel::ConcurrentQueue<std::unique_ptr<Protocol::Packet>>>(
-                Internal::QUEUE_INITIAL_CAPACITY);
+            auto to_producer = Factory::get_channel(job_json);
 
             spdlog::debug(
-                "Creating to_consumer queue with initial capacity {}",
-                Internal::QUEUE_INITIAL_CAPACITY);
+                "Creating to_consumer channel with initial capacity {}",
+                Communication::QUEUE_INITIAL_CAPACITY);
 
-            auto to_consumer = std::make_shared<
-                moodycamel::ConcurrentQueue<std::unique_ptr<Protocol::Packet>>>(
-                Internal::QUEUE_INITIAL_CAPACITY);
+            auto to_consumer = Factory::get_channel(job_json);
 
             spdlog::debug(
-                "Initializing packet pool for to_producer queue with block size {}",
+                "Initializing packet pool for to_producer channel with block size {}",
                 block_size);
 
-            Internal::init_queue_packet(*to_producer, block_size);
+            to_producer->init(block_size);
 
             spdlog::debug("Creating producer");
             auto producer = std::make_unique<Producer>(
@@ -181,7 +177,7 @@ namespace Worker {
             jobs[i].consumer->close(close_request);
 
             spdlog::debug("Destroying packet pool for job {}", i);
-            Internal::destroy_queue_packet(*jobs[i].to_producer);
+            jobs[i].to_producer->destroy();
 
             spdlog::debug("Job {} teardown complete", i);
         }

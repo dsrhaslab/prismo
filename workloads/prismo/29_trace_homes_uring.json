@@ -1,5 +1,6 @@
 {
   "job": {
+    "channel": "blocking",
     "name": "29_trace_homes_uring",
     "numjobs": 1,
     "filename": "/mnt/nvme/data/testfile_campaign",

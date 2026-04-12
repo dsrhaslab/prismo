@@ -1,5 +1,5 @@
-#ifndef PRISMO_WORKER_RAMP_H
-#define PRISMO_WORKER_RAMP_H
+#ifndef PRISMO_CONTROL_RAMP_H
+#define PRISMO_CONTROL_RAMP_H
 
 #include <algorithm>
 #include <chrono>
@@ -8,7 +8,7 @@
 #include <iostream>
 #include <nlohmann/json.hpp>
 
-namespace Worker::Internal {
+namespace Control {
 
     class Ramp {
         private:
