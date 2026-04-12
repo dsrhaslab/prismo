@@ -1,7 +1,7 @@
 ; 39_rw_rand_multijob_aio
 [global]
 filename=/mnt/nvme/data/testfile_campaign
-size=66262417408
+size=22087472402
 ioengine=libaio
 iodepth=128
 direct=1
@@ -11,6 +11,7 @@ bs=4k
 rw=randrw
 rwmixread=50
 numjobs=3
+offset_increment=22087472402
 runtime=900
 time_based
 group_reporting
