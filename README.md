@@ -1,4 +1,4 @@
-<img width="6908" height="2260" alt="prismo2" src="https://github.com/user-attachments/assets/baa77419-e6d5-4e91-b521-f48a4787cec4" />
+<img width="1727" height="565" alt="prismo" src="https://github.com/user-attachments/assets/a79d7422-3b90-4fb4-8c3f-ef453b93403f" />
 
 Prismo is a configurable block-based I/O benchmark tool designed to stress-test storage systems. Each workload is specified in a JSON file and drives a producer–consumer pipeline of I/O packets against a target file. Operations, access patterns, block content, and backend engine are all independently configurable, enabling reproducible experiments across synthetic and trace-driven workloads.
 
