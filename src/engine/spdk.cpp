@@ -79,12 +79,13 @@ namespace Engine {
         std::atomic<bool> submitted{false};
 
         int total_workers = app_context->config.spdk_threads;
-        size_t total_blocks = spdk_bdev_get_num_blocks(app_context->bdev);
+        // size_t total_indexes = spdk_bdev_get_num_blocks(app_context->bdev);
+        size_t total_indexes = AVAILABLE_INDEXES;
 
         std::vector<spdk_thread*> workers(total_workers);
         std::vector<SpdkThreadContext*> thread_contexts(total_workers);
-        std::vector<SpdkThreadCallBackContext*> thread_cb_contexts(total_blocks);
-        moodycamel::ConcurrentQueue<int> available_indexes(total_blocks);
+        std::vector<SpdkThreadCallBackContext*> thread_cb_contexts(total_indexes);
+        moodycamel::ConcurrentQueue<int> available_indexes(total_indexes);
 
         SPDK_NOTICELOG("[INIT] Initializing SPDK worker threads\n");
         init_threads(app_context->config.pinned_cores, workers);
@@ -93,7 +94,7 @@ namespace Engine {
         init_thread_contexts(app_context, &submitted, workers, thread_contexts);
 
         SPDK_NOTICELOG("[INIT] Initializing available indexes queue\n");
-        init_available_indexes(total_blocks, available_indexes);
+        init_available_indexes(total_indexes, available_indexes);
 
         SPDK_NOTICELOG("[INIT] Initializing SPDK thread callback contexts\n");
         init_thread_cb_contexts(app_context, thread_cb_contexts, available_indexes, &out_standing);
@@ -103,7 +104,7 @@ namespace Engine {
             spdk_bdev_get_block_size(app_context->bdev) *
             spdk_bdev_get_write_unit_size(app_context->bdev);
 
-        uint8_t* dma_buf = (uint8_t*) allocate_dma_buffer(app_context, total_blocks, block_size);
+        uint8_t* dma_buf = (uint8_t*) allocate_dma_buffer(app_context, total_indexes, block_size);
 
         SPDK_NOTICELOG("[DISPATCH] Starting main dispatch loop on SPDK threads\n");
         thread_main_dispatch(

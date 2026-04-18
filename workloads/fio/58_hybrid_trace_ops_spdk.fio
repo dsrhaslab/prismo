@@ -4,7 +4,7 @@ filename=Malloc0
 size=66262417408
 ioengine=spdk_bdev
 iodepth=128
-spdk_json_conf=/home/digo/Desktop/prismo/workloads/spdk/spdk_bdev.json
+spdk_json_conf=/home/gsd/prismo/workloads/spdk/spdk_bdev.json
 
 [58_hybrid_trace_ops_spdk]
 bs=4k

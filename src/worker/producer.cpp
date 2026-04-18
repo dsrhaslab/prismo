@@ -36,7 +36,9 @@ namespace Worker {
             size_t ready = 0;
             size_t count = to_producer->dequeue_bulk(packets, Communication::BULK_SIZE);
 
-            while (ready < count) {
+            while (ready < count &&
+                termination->should_continue(start_time, iterations_count)
+            ) {
                 auto& packet = packets[ready];
                 packet->request.fd = fd;
                 packet->request.offset = access->next_offset();

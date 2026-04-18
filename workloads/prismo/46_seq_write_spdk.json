@@ -5,11 +5,11 @@
     "numjobs": 1,
     "filename": "/mnt/nvme/data/testfile_campaign",
     "block_size": 4096,
-    "size":  66262417408,
+    "size":  40960,
     "metric": "base",
     "termination": {
       "type": "iterations",
-      "value": 16165652
+      "value": 25
     }
   },
   "operation": {
@@ -28,9 +28,9 @@
       "O_CREAT",
       "O_RDWR"
     ],
-    "bdev_name": "Malloc0",
+    "bdev_name": "Nvme0",
     "reactor_mask": "0xF",
     "spdk_threads": 1,
-    "json_config_file": "/home/digo/Desktop/prismo/workloads/spdk/spdk_bdev.json"
+    "json_config_file": "/home/gsd/prismo/workloads/spdk/spdk_bdev.json"
   }
 }

@@ -78,6 +78,6 @@
     "bdev_name": "Malloc0",
     "reactor_mask": "0xF",
     "spdk_threads": 1,
-    "json_config_file": "/home/digo/Desktop/prismo/workloads/spdk/spdk_bdev.json"
+    "json_config_file": "/home/gsd/prismo/workloads/spdk/spdk_bdev.json"
   }
 }

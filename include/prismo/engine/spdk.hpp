@@ -52,6 +52,7 @@ namespace Engine {
 
     class SpdkEngine : public Base {
         private:
+            size_t constexpr static AVAILABLE_INDEXES = 1024;
             std::thread spdk_main_thread;
             std::atomic<TriggerData> trigger_atomic;
 

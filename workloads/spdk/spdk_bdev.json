@@ -6,8 +6,8 @@
         {
           "method": "bdev_malloc_create",
           "params": {
-            "name": "Malloc0",
-            "num_blocks": 10,
+            "name": "Nvme0",
+            "num_blocks": 10240,
             "block_size": 4096
           }
         }
