@@ -2,112 +2,96 @@ name: Meson CI
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
   pull_request:
-    branches: [ main, master ]
+    branches: [main, master]
 
 jobs:
   build-and-test:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        buildtype: [release]
+    runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.x'
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
 
-    - name: Cache vcpkg
-      uses: actions/cache@v4
-      id: vcpkg-cache
-      with:
-        path: |
-          vcpkg
-          vcpkg_installed
-        key: ${{ matrix.os }}-vcpkg-${{ hashFiles('vcpkg.json') }}
-        restore-keys: |
-          ${{ matrix.os }}-vcpkg-
+      - name: Install system packages
+        run: |
+          sudo apt update
+          sudo apt install -y meson ninja-build libaio-dev build-essential libbz2-dev libz-dev libicu-dev python3-jinja2
 
-    - name: Cache SPDK
-      uses: actions/cache@v4
-      id: spdk-cache
-      with:
-        path: spdk
-        key: ${{ matrix.os }}-spdk-${{ hashFiles('spdk/**') }}
-        restore-keys: |
-          ${{ matrix.os }}-spdk-
+      - name: Install Python packages
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install jinja2 tabulate
 
-    - name: Install system dependencies
-      run: |
-        sudo apt update
-        sudo apt install -y meson ninja-build libaio-dev liburing-dev build-essential libbz2-dev libz-dev libicu-dev python3-jinja2
+      - name: Restore vcpkg cache
+        id: cache-vcpkg
+        uses: actions/cache@v4
+        with:
+          path: |
+            /opt/vcpkg
+            /opt/vcpkg_installed
+          key: ubuntu-vcpkg-v1-${{ hashFiles('vcpkg.json') }}
 
-    - name: Install Python build deps
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install jinja2 tabulate
+      - name: Setup vcpkg
+        if: steps.cache-vcpkg.outputs.cache-hit != 'true'
+        run: |
+          sudo git clone https://github.com/microsoft/vcpkg /opt/vcpkg
+          sudo /opt/vcpkg/bootstrap-vcpkg.sh
+          sudo /opt/vcpkg/vcpkg install --triplet=x64-linux
 
-    - name: Setup vcpkg
-      if: steps.vcpkg-cache.outputs.cache-hit != 'true'
-      run: |
-        git clone https://github.com/microsoft/vcpkg
-        ./vcpkg/bootstrap-vcpkg.sh
-        ./vcpkg/vcpkg install --triplet=x64-linux
+      - name: Restore SPDK cache
+        id: cache-spdk
+        uses: actions/cache@v4
+        with:
+          path: /opt/spdk
+          key: ubuntu-spdk-v1
 
-    - name: Setup SPDK
-      if: steps.spdk-cache.outputs.cache-hit != 'true'
-      run: |
-        git clone https://github.com/spdk/spdk
-        cd spdk
-        git submodule update --init
-        sudo ./scripts/pkgdep.sh
-        ./configure --enable-asan
-        make -j$(nproc)
+      - name: Setup SPDK
+        if: steps.cache-spdk.outputs.cache-hit != 'true'
+        run: |
+          sudo git clone https://github.com/spdk/spdk /opt/spdk
+          cd /opt/spdk
+          sudo git submodule update --init
+          sudo ./scripts/pkgdep.sh
+          ./configure --enable-asan
+          make -j$(nproc)
 
-    - name: Create build.ini
-      run: |
-        cat > build.ini <<EOF
-        [constants]
-        project_root = '$GITHUB_WORKSPACE'
-        spdk_root = '$GITHUB_WORKSPACE/spdk'
-        vcpkg_root_abs = project_root + '/vcpkg_installed/x64-linux'
-        vcpkg_root = 'vcpkg_installed/x64-linux'
+      - name: Create build.ini
+        run: |
+          cat > build.ini <<EOF
+          [constants]
+          project_root = '.'
+          spdk_root = '/opt/spdk'
+          vcpkg_root_abs = '/opt/vcpkg_installed/x64-linux'
 
-        [built-in options]
-        buildtype = 'release'
-        pkg_config_path = [
-          vcpkg_root_abs + '/lib/pkgconfig',
-          vcpkg_root_abs + '/share/pkgconfig',
-          spdk_root + '/build/lib/pkgconfig']
+          [built-in options]
+          buildtype = 'release'
+          pkg_config_path = [
+            vcpkg_root_abs + '/lib/pkgconfig',
+            vcpkg_root_abs + '/share/pkgconfig',
+            spdk_root + '/build/lib/pkgconfig']
 
-        cmake_prefix_path = [vcpkg_root_abs + '/share']
+          cmake_prefix_path = [vcpkg_root_abs + '/share']
 
-        [properties]
-        spdk_include = spdk_root + '/include/'
-        spdk_build_include = spdk_root + '/build/include/'
-        spdk_build_lib = spdk_root + '/build/lib/'
-        dpdk_build_lib = spdk_root + '/dpdk/build/lib/'
-        vcpkg_include = vcpkg_root + '/include/'
-        EOF
+          [properties]
+          spdk_include = spdk_root + '/include'
+          spdk_build_include = spdk_root + '/build/include'
+          spdk_build_lib = spdk_root + '/build/lib'
+          dpdk_build_lib = spdk_root + '/dpdk/build/lib'
+          vcpkg_include = vcpkg_root_abs + '/include'
+          EOF
 
-    - name: Configure Meson
-      run: |
-        meson setup builddir --buildtype=${{ matrix.buildtype }} --native-file build.ini --reconfigure
+      - name: Configure Meson
+        run: meson setup builddir --native-file build.ini --wipe
 
-    - name: Build
-      run: meson compile -C builddir
+      - name: Build
+        run: meson compile -C builddir
 
-    - name: Test
-      run: meson test -C builddir --print-errorlogs
-
-    - name: Cache build
-      uses: actions/cache@v4
-      with:
-        path: builddir
-        key: ${{ matrix.os }}-${{ matrix.buildtype }}-meson-${{ hashFiles('meson.build', 'src/**', 'include/**') }}
+      - name: Test
+        run: meson test -C builddir --print-errorlogs
