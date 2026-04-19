@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [main, master]
 
+env:
+  SPDK_ROOT: /opt/spdk
+  VCPKG_ROOT: /opt/vcpkg
+  VCPKG_INSTALLED: /opt/vcpkg_installed/x64-linux
+
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
@@ -14,69 +19,57 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.x"
-
-      - name: Install system packages
+      - name: Install dependencies
         run: |
-          sudo apt update
-          sudo apt install -y meson ninja-build libaio-dev build-essential libbz2-dev libz-dev libicu-dev python3-jinja2
+          sudo apt-get update
+          sudo apt-get install -y meson ninja-build build-essential libaio-dev python3-pyelftools libfuse3-dev libkeyutils-dev libnuma-dev
 
-      - name: Install Python packages
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install jinja2 tabulate
-
-      - name: Restore vcpkg cache
+      - name: Cache vcpkg
         id: cache-vcpkg
         uses: actions/cache@v4
         with:
           path: |
-            /opt/vcpkg
+            ${{ env.VCPKG_ROOT }}
             /opt/vcpkg_installed
-          key: ubuntu-vcpkg-v1-${{ hashFiles('vcpkg.json') }}
+          key: vcpkg-${{ hashFiles('vcpkg.json') }}
 
       - name: Setup vcpkg
         if: steps.cache-vcpkg.outputs.cache-hit != 'true'
         run: |
-          sudo git clone https://github.com/microsoft/vcpkg /opt/vcpkg
-          sudo /opt/vcpkg/bootstrap-vcpkg.sh
-          sudo /opt/vcpkg/vcpkg install --triplet=x64-linux
+          sudo git clone https://github.com/microsoft/vcpkg $VCPKG_ROOT
+          sudo $VCPKG_ROOT/bootstrap-vcpkg.sh
+          $VCPKG_ROOT/vcpkg install --triplet=x64-linux --x-manifest-root=. --x-install-root=/opt/vcpkg_installed
 
-      - name: Restore SPDK cache
+      - name: Cache SPDK
         id: cache-spdk
         uses: actions/cache@v4
         with:
-          path: /opt/spdk
-          key: ubuntu-spdk-v1
+          path: ${{ env.SPDK_ROOT }}
+          key: spdk-v24.09
 
       - name: Setup SPDK
         if: steps.cache-spdk.outputs.cache-hit != 'true'
         run: |
-          sudo git clone https://github.com/spdk/spdk /opt/spdk
-          cd /opt/spdk
-          sudo git submodule update --init
+          sudo git clone --depth 1 --branch v24.09 https://github.com/spdk/spdk $SPDK_ROOT
+          cd $SPDK_ROOT
+          sudo git submodule update --init --depth 1
           sudo ./scripts/pkgdep.sh
           ./configure --enable-asan
           make -j$(nproc)
 
-      - name: Create build.ini
+      - name: Configure build.ini
         run: |
-          cat > build.ini <<EOF
+          cat > build.ini <<'EOF'
           [constants]
-          project_root = '.'
           spdk_root = '/opt/spdk'
           vcpkg_root_abs = '/opt/vcpkg_installed/x64-linux'
 
           [built-in options]
           buildtype = 'release'
           pkg_config_path = [
-            vcpkg_root_abs + '/lib/pkgconfig',
-            vcpkg_root_abs + '/share/pkgconfig',
-            spdk_root + '/build/lib/pkgconfig']
-
+              vcpkg_root_abs + '/lib/pkgconfig',
+              vcpkg_root_abs + '/share/pkgconfig',
+              spdk_root + '/build/lib/pkgconfig']
           cmake_prefix_path = [vcpkg_root_abs + '/share']
 
           [properties]
@@ -87,7 +80,7 @@ jobs:
           vcpkg_include = vcpkg_root_abs + '/include'
           EOF
 
-      - name: Configure Meson
+      - name: Setup Meson build
         run: meson setup builddir --native-file build.ini --wipe
 
       - name: Build
