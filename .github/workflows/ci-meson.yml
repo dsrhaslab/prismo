@@ -70,6 +70,33 @@ jobs:
         ./configure --enable-asan
         make -j$(nproc)
 
+    - name: Create build.ini
+      run: |
+        cat > build.ini <<EOF
+        [constants]
+        project_root = '$GITHUB_WORKSPACE'
+        spdk_root = '$GITHUB_WORKSPACE/spdk'
+        vcpkg_root_abs = project_root + '/vcpkg_installed/x64-linux'
+        vcpkg_root = 'vcpkg_installed/x64-linux'
+
+        [built-in options]
+        buildtype = 'release'
+        pkg_config_path = [
+          vcpkg_root_abs + '/lib/pkgconfig',
+          vcpkg_root_abs + '/share/pkgconfig',
+          spdk_root + '/build/lib/pkgconfig'
+        ]
+
+        cmake_prefix_path = [vcpkg_root_abs + '/share']
+
+        [properties]
+        spdk_include = spdk_root + '/include/'
+        spdk_build_include = spdk_root + '/build/include/'
+        spdk_build_lib = spdk_root + '/build/lib/'
+        dpdk_build_lib = spdk_root + '/dpdk/build/lib/'
+        vcpkg_include = vcpkg_root + '/include/'
+        EOF
+
     - name: Configure Meson
       run: |
         meson setup builddir --buildtype=${{ matrix.buildtype }} --native-file build.ini --reconfigure
