@@ -72,7 +72,7 @@ jobs:
 
     - name: Configure Meson
       run: |
-        meson setup builddir --buildtype=${{ matrix.buildtype }} --reconfigure
+        meson setup builddir --buildtype=${{ matrix.buildtype }} --native-file build.ini --reconfigure
 
     - name: Build
       run: meson compile -C builddir
