@@ -13,7 +13,6 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         buildtype: [release]
-        dpkg_config_path: [/home/digo/Desktop/spdk/build/lib/pkgconfig/]
 
     steps:
     - name: Checkout code
@@ -24,19 +23,56 @@ jobs:
       with:
         python-version: '3.x'
 
-    - name: Install dependencies
-      run: |
-        pip install meson ninja
+    - name: Cache vcpkg
+      uses: actions/cache@v4
+      id: vcpkg-cache
+      with:
+        path: |
+          vcpkg
+          vcpkg_installed
+        key: ${{ matrix.os }}-vcpkg-${{ hashFiles('vcpkg.json') }}
+        restore-keys: |
+          ${{ matrix.os }}-vcpkg-
 
-    - name: Install dependencies (Ubuntu)
-      if: matrix.os == 'ubuntu-latest'
+    - name: Cache SPDK
+      uses: actions/cache@v4
+      id: spdk-cache
+      with:
+        path: spdk
+        key: ${{ matrix.os }}-spdk-${{ hashFiles('spdk/**') }}
+        restore-keys: |
+          ${{ matrix.os }}-spdk-
+
+    - name: Install system dependencies
       run: |
         sudo apt update
-        sudo apt install -y build-essential libbz2-dev libz-dev libicu-dev
-        sudo apt install -y libspdlog-dev liburing-dev libaio-dev
+        sudo apt install -y meson ninja-build libaio-dev liburing-dev build-essential libbz2-dev libz-dev libicu-dev python3-jinja2
+
+    - name: Install Python build deps
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install jinja2 tabulate
+
+    - name: Setup vcpkg
+      if: steps.vcpkg-cache.outputs.cache-hit != 'true'
+      run: |
+        git clone https://github.com/microsoft/vcpkg
+        ./vcpkg/bootstrap-vcpkg.sh
+        ./vcpkg/vcpkg install --triplet=x64-linux
+
+    - name: Setup SPDK
+      if: steps.spdk-cache.outputs.cache-hit != 'true'
+      run: |
+        git clone https://github.com/spdk/spdk
+        cd spdk
+        git submodule update --init
+        ./scripts/pkgdep.sh
+        ./configure --enable-asan
+        make -j$(nproc)
 
     - name: Configure Meson
-      run: meson setup builddir --buildtype=${{ matrix.buildtype }} -Dpkg_config_path=${{ matrix.dpkg_config_path }} --reconfigure
+      run: |
+        meson setup builddir --buildtype=${{ matrix.buildtype }} --reconfigure
 
     - name: Build
       run: meson compile -C builddir
@@ -48,4 +84,4 @@ jobs:
       uses: actions/cache@v4
       with:
         path: builddir
-        key: ${{ matrix.os }}-${{ matrix.buildtype }}-meson-${{ hashFiles('meson.build') }}
+        key: ${{ matrix.os }}-${{ matrix.buildtype }}-meson-${{ hashFiles('meson.build', 'src/**', 'include/**') }}
