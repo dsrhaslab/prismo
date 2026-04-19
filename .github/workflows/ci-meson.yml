@@ -22,7 +22,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y meson ninja-build build-essential libaio-dev python3-pyelftools libfuse3-dev libkeyutils-dev libnuma-dev
+          sudo apt-get install -y meson ninja-build build-essential libaio-dev python3-pyelftools libfuse3-dev libkeyutils-dev libnuma-dev uuid-dev
 
       - name: Cache vcpkg
         id: cache-vcpkg
