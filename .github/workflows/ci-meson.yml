@@ -84,8 +84,7 @@ jobs:
         pkg_config_path = [
           vcpkg_root_abs + '/lib/pkgconfig',
           vcpkg_root_abs + '/share/pkgconfig',
-          spdk_root + '/build/lib/pkgconfig'
-        ]
+          spdk_root + '/build/lib/pkgconfig']
 
         cmake_prefix_path = [vcpkg_root_abs + '/share']
 
