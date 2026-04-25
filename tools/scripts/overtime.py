@@ -17,7 +17,7 @@ def plot_operations_overtime(
     df: pd.DataFrame,
     operations: list['OperationType'],
     time_window: str = '1s',
-    output_file: str = 'png/operations_overtime.png'
+    output_file: str = 'assets/operations_overtime.png'
 ) -> None:
     df = df.copy()
     df['timestamp'] = pd.to_datetime(df['timestamp'])
@@ -52,7 +52,7 @@ def plot_interarrival_overtime(
     df: pd.DataFrame,
     operations: list['OperationType'],
     time_window: str = '1s',
-    output_file: str = 'png/interarrival_overtime.png',
+    output_file: str = 'assets/interarrival_overtime.png',
 ) -> None:
     df = df.copy()
     df['timestamp'] = pd.to_datetime(df['timestamp'])
@@ -92,7 +92,7 @@ def plot_latency_overtime(
     df: pd.DataFrame,
     operations: list[OperationType],
     time_window: str = '1s',
-    output_file: str = 'png/latency_over_time.png'
+    output_file: str = 'assets/latency_over_time.png'
 ) -> None:
     df = df.copy()
     df['timestamp'] = pd.to_datetime(df['timestamp'])
@@ -174,14 +174,14 @@ if __name__ == '__main__':
         OperationType(code=4, name='nop', linestyle='dotted', marker='>'),
     ]
 
-    output_file = 'png/latency_overtime.png'
+    output_file = 'assets/latency_overtime.png'
     plot_latency_overtime(df, operations, output_file=output_file)
     print(f'Saved latency overtime to {output_file}')
 
-    output_file = 'png/interarrival_overtime.png'
+    output_file = 'assets/interarrival_overtime.png'
     plot_interarrival_overtime(df, operations, output_file=output_file)
     print(f'Saved interarrival overtime to {output_file}')
 
-    output_file = 'png/operations_overtime.png'
+    output_file = 'assets/operations_overtime.png'
     plot_operations_overtime(df, operations, output_file=output_file)
     print(f'Saved operations overtime to {output_file}')

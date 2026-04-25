@@ -8,3 +8,5 @@ workloads/results/
 subprojects/*/
 .wraplock
 vcpkg_installed/
+log/
+assets/

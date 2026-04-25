@@ -56,7 +56,7 @@ def compute_statistics(
     repetitions = df_writes.groupby('block').size().rename('repeats')
     df_writes = df_writes.join(repetitions, on='block')
 
-    total_operations = len(df_writes)
+    total_operations = len(df)
     unique_blocks = df_writes['block'].nunique()
 
     stats_entries: list[DedupStatsEntry] = []
@@ -120,7 +120,7 @@ def show_statistics_table(
 
 def plot_operations_vs_repeats(
     stats: Statistics,
-    output_file: str = 'png/operations_vs_repeats.png'
+    output_file: str = 'assets/operations_vs_repeats.png'
 ) -> None:
     repeats = [entry.repeats for entry in stats.entries]
     operations = [entry.operations for entry in stats.entries]
@@ -169,6 +169,6 @@ if __name__ == '__main__':
 
     show_statistics_table(stats, args.input)
 
-    output_file = 'png/operations_vs_repeats.png'
+    output_file = 'assets/operations_vs_repeats.png'
     plot_operations_vs_repeats(stats)
     print(f'Saved operations vs repeats to {output_file}')

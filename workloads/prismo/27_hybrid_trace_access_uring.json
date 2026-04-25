@@ -3,7 +3,7 @@
     "channel": "blocking",
     "name": "27_hybrid_trace_access_uring",
     "numjobs": 1,
-    "filename": "/mnt/nvme/data/testfile_campaign",
+    "filename": "/tank/testfile_campaign",
     "block_size": 4096,
     "size":  66262417408,
     "metric": "base",

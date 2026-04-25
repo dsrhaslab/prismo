@@ -8,7 +8,7 @@ from parser import get_prismo_entries
 def plot_offset_distribution(
     df: pd.DataFrame,
     bins: int,
-    output_file: str = 'png/offset_dist.png'
+    output_file: str = 'assets/offset_dist.png'
 ) -> None:
     sns.histplot(
         df['offset'],
@@ -30,7 +30,7 @@ def plot_offset_distribution(
 def plot_column_distribution(
     df: pd.DataFrame,
     column: str,
-    output_file: str = 'png/column_dist.png'
+    output_file: str = 'assets/column_dist.png'
 ) -> None:
     counts = df[column].value_counts().sort_index()
 
@@ -83,11 +83,11 @@ if __name__ == '__main__':
         'type'
     ]
 
-    output_file = 'png/offset_dist.png'
+    output_file = 'assets/offset_dist.png'
     plot_offset_distribution(df, args.bins)
     print(f'Saved offset distribution plot to {output_file}')
 
     for column in columns:
-        output_file = f'png/{column}_dist.png'
+        output_file = f'assets/{column}_dist.png'
         plot_column_distribution(df, column, output_file=output_file)
         print(f'Saved {column} frequency plot to {output_file}')

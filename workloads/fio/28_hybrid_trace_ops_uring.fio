@@ -1,6 +1,6 @@
 ; 28_hybrid_trace_ops_uring
 [global]
-filename=/mnt/nvme/data/testfile_campaign
+filename=/tank/testfile_campaign
 size=66262417408
 ioengine=io_uring
 iodepth=128
