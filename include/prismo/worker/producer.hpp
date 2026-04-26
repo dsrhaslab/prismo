@@ -1,6 +1,7 @@
 #ifndef PRISMO_WORKER_PRODUCER_H
 #define PRISMO_WORKER_PRODUCER_H
 
+#include <spdlog/spdlog.h>
 #include <prismo/control/ramp.hpp>
 #include <prismo/control/termination.hpp>
 #include <prismo/communication/channel.hpp>
