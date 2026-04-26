@@ -52,16 +52,16 @@ namespace Control {
                 std::chrono::steady_clock::time_point batch_start
             ) const {
                 auto now = std::chrono::steady_clock::now();
-                double elapsed_ms =
-                    std::chrono::duration<double, std::milli>(now - start_time)
-                    .count();
+                double elapsed_ms = std::chrono::duration_cast
+                    <std::chrono::milliseconds>(now - start_time).count();
+
                 double ratio = ratio_at(elapsed_ms);
 
                 if (ratio < 1.0) {
                     auto batch_duration = now - batch_start;
                     auto sleep_time =
-                        std::chrono::duration_cast<std::chrono::microseconds>(
-                            batch_duration * (1.0 / ratio - 1.0));
+                        std::chrono::duration_cast<std::chrono::microseconds>
+                            (batch_duration * (1.0 / ratio - 1.0));
                     std::this_thread::sleep_for(sleep_time);
                 }
             }

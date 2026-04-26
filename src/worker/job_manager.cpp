@@ -147,7 +147,8 @@ namespace Worker {
             threads.emplace_back(
                 &Producer::run,
                 jobs[i].producer.get(),
-                jobs[i].fd
+                jobs[i].fd,
+                i
             );
 
             spdlog::debug("Starting consumer thread for job {}", i);

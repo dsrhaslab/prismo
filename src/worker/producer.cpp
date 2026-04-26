@@ -24,21 +24,18 @@ namespace Worker {
         , to_consumer(std::move(_to_consumer))
     {}
 
-    void Producer::run(int fd) {
+    void Producer::run(int fd, size_t job_id) {
         std::unique_ptr<Protocol::Packet> shutdown_packet;
         std::unique_ptr<Protocol::Packet> packets[Communication::BULK_SIZE];
 
-        uint64_t iterations_count = 0;
-        auto start_time = std::chrono::steady_clock::now();
+        termination->start();
 
-        while (termination->should_continue(start_time, iterations_count)) {
+        while (termination->should_continue()) {
             auto batch_start = std::chrono::steady_clock::now();
             size_t ready = 0;
             size_t count = to_producer->dequeue_bulk(packets, Communication::BULK_SIZE);
 
-            while (ready < count &&
-                termination->should_continue(start_time, iterations_count)
-            ) {
+            while (ready < count && termination->should_continue()) {
                 auto& packet = packets[ready];
                 packet->request.fd = fd;
                 packet->request.offset = access->next_offset();
@@ -71,16 +68,24 @@ namespace Worker {
                 }
 
                 ready++;
-                iterations_count++;
+                termination->next_iteration();
+
+                if (termination->is_time_check_due()) {
+                    spdlog::debug("Progress job {}: {}",
+                        job_id, termination->progress());
+                }
             }
 
             to_consumer->enqueue_bulk(packets, ready);
             to_producer->enqueue_bulk(packets + ready, count - ready);
 
             if (ramp.has_value()) {
-                ramp->throttle(start_time, batch_start);
+                ramp->throttle(termination->get_start_time(), batch_start);
             }
         }
+
+        spdlog::debug("Progress job {}: {}",
+            job_id, termination->progress());
 
         to_producer->dequeue(shutdown_packet);
 

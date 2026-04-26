@@ -40,7 +40,7 @@ namespace Worker {
                 std::shared_ptr<Communication::Channel> _to_consumer
             );
 
-            void run(int fd);
+            void run(int fd, size_t job_id);
     };
 };
 

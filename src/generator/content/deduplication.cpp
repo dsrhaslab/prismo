@@ -27,12 +27,27 @@ namespace Generator {
         uint8_t* buffer,
         size_t size
     ) {
-        DedupElement element;
         uint32_t repeats = dedup_distribution.nextValue();
 
         if (repeats == 0) {
-            element = create_dedup_element(repeats, buffer, size);
-        } else if (dedup_windows[repeats].size() == DEDUP_WINDOW_SIZE) {
+            uint64_t this_block_id = block_id++;
+            auto compression_generator = compression_generators.find(repeats);
+
+            refill(buffer, size);
+            uint32_t compression = 0;
+            if (compression_generator != compression_generators.end()) {
+                compression = compression_generator->second.apply(buffer, size);
+            }
+
+            std::memcpy(buffer, &this_block_id, sizeof(this_block_id));
+            return BlockMetadata{
+                .block_id = this_block_id,
+                .compression = compression
+            };
+        }
+
+        DedupElement element;
+        if (dedup_windows[repeats].size() == DEDUP_WINDOW_SIZE) {
             element = reuse_dedup_element(repeats, buffer, size);
         } else {
             element = create_dedup_element(repeats, buffer, size);
