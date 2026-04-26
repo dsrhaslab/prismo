@@ -27,76 +27,65 @@ namespace Generator {
         uint8_t* buffer,
         size_t size
     ) {
+        BlockMetadata meta;
         uint32_t repeats = dedup_distribution.nextValue();
 
         if (repeats == 0) {
-            uint64_t this_block_id = block_id++;
-            auto compression_generator = compression_generators.find(repeats);
-
-            refill(buffer, size);
-            uint32_t compression = 0;
-            if (compression_generator != compression_generators.end()) {
-                compression = compression_generator->second.apply(buffer, size);
-            }
-
-            std::memcpy(buffer, &this_block_id, sizeof(this_block_id));
-            return BlockMetadata{
-                .block_id = this_block_id,
-                .compression = compression
-            };
-        }
-
-        DedupElement element;
-        if (dedup_windows[repeats].size() == DEDUP_WINDOW_SIZE) {
-            element = reuse_dedup_element(repeats, buffer, size);
+            meta = generate_new_block(buffer, size, repeats);
+        } else if (dedup_windows[repeats].size() == DEDUP_WINDOW_SIZE) {
+            meta = reuse_dedup_element(buffer, size, repeats);
         } else {
-            element = create_dedup_element(repeats, buffer, size);
-            dedup_windows[repeats].push_back(element);
+            meta = create_dedup_element(buffer, size, repeats);
         }
 
-        return BlockMetadata{
-            .block_id = element.block_id,
-            .compression = element.compression
-        };
+        return meta;
     }
 
-    DedupElement DeduplicationContentGenerator::create_dedup_element(
-        uint32_t repeats,
+    BlockMetadata DeduplicationContentGenerator::generate_new_block(
         uint8_t* buffer,
-        size_t size
+        size_t size,
+        uint32_t repeats
     ) {
+        uint64_t this_block_id = block_id++;
         auto compression_generator = compression_generators.find(repeats);
 
-        DedupElement element = {
-            .block_id = block_id++,
-            .left_repeats = repeats,
-            .compression = 0,
-            .buffer = static_cast<uint8_t*>(pool.malloc()),
-        };
-
-        // improve memcpy to not overlap compression area
-        // maybe not because size could be strange for random generator
-        refill(element.buffer, size);
+        refill(buffer, size);
+        uint32_t compression = 0;
         if (compression_generator != compression_generators.end()) {
-            element.compression =
-                compression_generator->second.apply(element.buffer, size);
+            compression = compression_generator->second.apply(buffer, size);
         }
 
-        std::memcpy(
-            element.buffer,
-            &element.block_id,
-            sizeof(element.block_id)
-        );
-
-        std::memcpy(buffer, element.buffer, size);
-
-        return element;
+        std::memcpy(buffer, &this_block_id, sizeof(this_block_id));
+        return BlockMetadata{
+            .block_id = this_block_id,
+            .compression = compression
+        };
     }
 
-    DedupElement DeduplicationContentGenerator::reuse_dedup_element(
-        uint32_t repeats,
+    BlockMetadata DeduplicationContentGenerator::create_dedup_element(
         uint8_t* buffer,
-        size_t size
+        size_t size,
+        uint32_t repeats
+    ) {
+        uint8_t* element_buffer = static_cast<uint8_t*>(pool.malloc());
+        BlockMetadata meta = generate_new_block(element_buffer, size, repeats);
+        std::memcpy(buffer, element_buffer, size);
+
+        DedupElement element = {
+            .block_id = meta.block_id,
+            .left_repeats = repeats,
+            .compression = meta.compression,
+            .buffer = element_buffer
+        };
+
+        dedup_windows[repeats].push_back(element);
+        return meta;
+    }
+
+    BlockMetadata DeduplicationContentGenerator::reuse_dedup_element(
+        uint8_t* buffer,
+        size_t size,
+        uint32_t repeats
     ) {
         std::vector<DedupElement>& window = dedup_windows[repeats];
         uint32_t index = rng.nextValue() % window.size();
@@ -112,6 +101,9 @@ namespace Generator {
             window.pop_back();
         }
 
-        return element;
+        return BlockMetadata{
+            .block_id = element.block_id,
+            .compression = element.compression
+        };
     }
 }

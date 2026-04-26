@@ -27,8 +27,9 @@ namespace Generator {
             Distribution::UniformDistribution<uint32_t> rng;
             Distribution::DiscreteDistribution<uint32_t> dedup_distribution;
 
-            DedupElement create_dedup_element(uint32_t repeats, uint8_t* buffer, size_t size);
-            DedupElement reuse_dedup_element(uint32_t repeats, uint8_t* buffer, size_t size);
+            BlockMetadata generate_new_block(uint8_t* buffer, size_t size, uint32_t repeats);
+            BlockMetadata create_dedup_element(uint8_t* buffer, size_t size, uint32_t repeats);
+            BlockMetadata reuse_dedup_element(uint8_t* buffer, size_t size, uint32_t repeats);
 
         public:
             DeduplicationContentGenerator() = delete;
