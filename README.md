@@ -98,6 +98,7 @@ Workloads are defined using a JSON file divided into six independent sections. E
 "job": {
   "name": "my_workload",
   "numjobs": 1,
+  "channel": "blocking",
   "filename": "testfile",
   "block_size": 4096,
   "size": 268435456,
@@ -113,12 +114,15 @@ Workloads are defined using a JSON file divided into six independent sections. E
 |---------------|-----------------------------------------------------------------------------|---------------|
 | `name`        | Workload name                                                               | *(required)*  |
 | `numjobs`     | Number of parallel producer-consumer pairs                                  | *(required)*  |
+| `channel`     | Communication channel between consumer and producer                         | *(required)*  |
 | `filename`    | Path of the target file                                                     | *(required)*  |
 | `block_size`  | I/O block size in bytes                                                     | *(required)*  |
-| `size`       | Maximum file size in bytes                                                  | *(required)*  |
+| `size`        | Maximum file size in bytes                                                  | *(required)*  |
 | `metric`      | Granularity of metric collection                                            | *(required)*  |
 | `termination` | Termination condition: stop after N operations or after M milliseconds      | *(required)*  |
 | `ramp`        | Linear increase or decrease of throughput                                   | *(optional)*  |
+
+The communication channel can be `blocking` or `non-blocking`, the former uses notifications, while the latter actively polls the queue to check for availability, which results in very high CPU usage.
 
 The `metric` parameter accepts values `none | base | standard | full`, progressively collecting more metrics and consequently reducing performance. For maximum performance, disable metric collection by selecting `none`.
 
@@ -166,10 +170,10 @@ Controls which I/O operations are issued by the benchmark. There are currently f
 
 | Type          | Description                                     | Example                                                                                   |
 |---------------|-------------------------------------------------|-------------------------------------------------------------------------------------------|
-| `constant`    | Repeatedly issues the same `operation`          | [**01_nop_seq_const_posix.json**](/workloads/campaign/01_nop_seq_const_posix.json)        |
-| `percentage`  | Operations sampled from a discrete distribution | [**03_rw_random_random_posix.json**](/workloads/campaign/03_rw_random_random_posix.json)  |
-| `sequence`    | Repeats a fixed operation pattern               | [**06_zipf_dedup_posix.json**](/workloads/campaign/06_zipf_dedup_posix.json)              |
-| `trace`       | Replay operations from a `.prismo` trace        | [**07_trace_all_posix.json**](/workloads/campaign/07_trace_all_posix.json)                |
+| `constant`    | Repeatedly issues the same `operation`          | [**01_seq_write_posix.json**](/workloads/prismo/01_seq_write_posix.json)                  |
+| `percentage`  | Operations sampled from a discrete distribution | [**05_rw_rand_mixed_posix.json**](/workloads/prismo/05_rw_rand_mixed_posix.json)          |
+| `sequence`    | Repeats a fixed operation pattern               | [**08_barrier_fsync_posix.json**](/workloads/prismo/08_barrier_fsync_posix.json)          |
+| `trace`       | Replay operations from a `.prismo` trace        | [**14_trace_homes_posix.json**](/workloads/prismo/14_trace_homes_posix.json)              |
 
 > [!NOTE]
 > Each generator has its own specific configuration. Reviewing the examples is recommended to better understand how they work.
@@ -206,10 +210,10 @@ Controls which file offset each operation targets. Offsets are bounded by the `l
 
 | Type          | Description                                     | Example                                                                                   |
 |---------------|-------------------------------------------------|-------------------------------------------------------------------------------------------|
-| `sequential`  | Monotonically increasing offsets                | [**01_nop_seq_const_posix.json**](/workloads/campaign/01_nop_seq_const_posix.json)        |
-| `random`      | Uniformly random offsets                        | [**03_rw_random_random_posix.json**](/workloads/campaign/03_rw_random_random_posix.json)  |
-| `zipfian`     | Zipf-distributed offsets (hot-spot skew)        | [**04_rw_zipf_random_posix.json**](/workloads/campaign/04_rw_zipf_random_posix.json)      |
-| `trace`       | Replay offsets from a `.prismo` trace           | [**07_trace_all_posix.json**](workloads/campaign/07_trace_all_posix.json)                 |
+| `sequential`  | Monotonically increasing offsets                | [**01_seq_write_posix.json**](/workloads/prismo/01_seq_write_posix.json)                  |
+| `random`      | Uniformly random offsets                        | [**04_rand_read_posix.json**](/workloads/prismo/04_rand_read_posix.json)                  |
+| `zipfian`     | Zipf-distributed offsets (hot-spot skew)        | [**06_rw_zipf_posix.json**](/workloads/prismo/06_rw_zipf_posix.json)                      |
+| `trace`       | Replay offsets from a `.prismo` trace           | [**14_trace_homes_posix.json**](workloads/prismo/14_trace_homes_posix.json)               |
 
 ---
 
@@ -226,10 +230,10 @@ Defines the contents of the buffers used by `write` operations. If a workload do
 
 | Type        | Description                                       | Example                                                                                         |
 |-------------|---------------------------------------------------|-------------------------------------------------------------------------------------------------|
-| `constant`  | Zero-filled buffer                                | [**01_nop_seq_const_posix.json**](/workloads/campaign/01_nop_seq_const_posix.json)              |
-| `random`    | Random bytes                                      | [**04_rw_zipf_random_posix.json**](/workloads/campaign/04_rw_zipf_random_posix.json)            |
-| `dedup`     | Deduplication and compression profile             | [**16_dedup_heavy_barrier_posix.json**](/workloads/campaign/16_dedup_heavy_barrier_posix.json)  |
-| `trace`     | Replay block content from a `.prismo` trace       | [**07_trace_all_posix.json**](/workloads/campaign/07_trace_all_posix.json)                      |
+| `constant`  | Zero-filled buffer                                | [**01_seq_write_posix.json**](/workloads/prismo/01_seq_write_posix.json)                        |
+| `random`    | Random bytes                                      | [**04_rand_read_posix.json**](/workloads/prismo/04_rand_read_posix.json)                        |
+| `dedup`     | Deduplication and compression profile             | [**11_dedup_zipf_posix.json**](/workloads/prismo/11_dedup_zipf_posix.json)                      |
+| `trace`     | Replay block content from a `.prismo` trace       | [**14_trace_homes_posix.json**](/workloads/prismo/14_trace_homes_posix.json)                    |
 
 With the exception of `constant`, all content generators use the `refill` field. It controls whether buffers are regenerated from scratch or reuse the same base buffer. For `random`, when `refill == true`, the entire buffer is rewritten with random bytes, otherwise only the buffer header changes, which allows higher throughput.
 
@@ -311,10 +315,10 @@ Defines the backend engine responsible for executing I/O requests. Both synchron
 
 | Type    | Description                                                                                                 | Example                                                                             |
 |---------|-------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|
-| `posix` | Synchronous I/O using the standard POSIX API                                                                | [**01_nop_seq_const_posix.json**](/workloads/campaign/01_nop_seq_const_posix.json)  |
-| `uring` | Asynchronous I/O using the Linux [**io_uring**](https://man7.org/linux/man-pages/man7/io_uring.7.html) API  | [**19_nop_seq_const_uring.json**](/workloads/campaign/19_nop_seq_const_uring.json)  |
-| `aio`   | POSIX asynchronous I/O using the [**AIO**](https://man7.org/linux/man-pages/man7/aio.7.html) interface      | [**37_nop_seq_const_aio.json**](/workloads/campaign/37_nop_seq_const_aio.json)      |
-| `spdk`  | High-performance user-space storage I/O via [**SPDK**](https://github.com/spdk/spdk)                        | [**55_nop_seq_const_spdk.json**](/workloads/campaign/55_nop_seq_const_spdk.json)    |
+| `posix` | Synchronous I/O using the standard POSIX API                                                                | [**01_nop_seq_const_posix.json**](/workloads/prismo/01_seq_write_posix.json)        |
+| `uring` | Asynchronous I/O using the Linux [**io_uring**](https://man7.org/linux/man-pages/man7/io_uring.7.html) API  | [**19_nop_seq_const_uring.json**](/workloads/prismo/16_seq_write_uring.json)        |
+| `aio`   | POSIX asynchronous I/O using the [**AIO**](https://man7.org/linux/man-pages/man7/aio.7.html) interface      | [**37_nop_seq_const_aio.json**](/workloads/prismo/31_seq_write_aio.json)            |
+| `spdk`  | High-performance user-space storage I/O via [**SPDK**](https://github.com/spdk/spdk)                        | [**55_nop_seq_const_spdk.json**](/workloads/prismo/46_seq_write_spdk.json)          |
 
 The `posix`, `uring`, and `aio` engines open the files on which I/O operations are performed, while the `open_flags` field specifies the flags passed to [`open(2)`](https://man7.org/linux/man-pages/man2/open.2.html). The following flags are supported:
 
