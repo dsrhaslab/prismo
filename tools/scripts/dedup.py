@@ -46,6 +46,7 @@ class DedupStatsEntry:
 class Statistics:
     entries: list[DedupStatsEntry]
     total_operations: int
+    write_operations: int
     unique_blocks: int
 
 
@@ -57,6 +58,7 @@ def compute_statistics(
     df_writes = df_writes.join(repetitions, on='block')
 
     total_operations = len(df)
+    write_operations = len(df_writes)
     unique_blocks = df_writes['block'].nunique()
 
     stats_entries: list[DedupStatsEntry] = []
@@ -65,7 +67,7 @@ def compute_statistics(
         unique_blocks_count = group['block'].nunique()
         ops = repeats * unique_blocks_count
         percentage_unique = unique_blocks_count / unique_blocks * 100
-        percentage_global = ops / total_operations * 100
+        percentage_global = ops / write_operations * 100
 
         compression_counter = group['cpr'].value_counts()
         compression_entries = [
@@ -90,6 +92,7 @@ def compute_statistics(
     return Statistics(
         entries=stats_entries,
         total_operations=total_operations,
+        write_operations=write_operations,
         unique_blocks=unique_blocks
     )
 
@@ -108,12 +111,12 @@ def show_statistics_table(
     ]
 
     table_data = [entry.to_tuple() for entry in stats.entries]
-    avg_access = stats.total_operations / stats.unique_blocks
+    avg_access = stats.write_operations / stats.unique_blocks
 
     print(tabulate(table_data, headers=headers, tablefmt='rounded_outline'))
     print(f'\nSummary: {input_file}')
     print(f'  {'Total operations (log lines)':<30}: {stats.total_operations}')
-    print(f'  {'Total writes':<30}: {sum(e.operations for e in stats.entries)}')
+    print(f'  {'Total writes':<30}: {stats.write_operations}')
     print(f'  {'Unique blocks':<30}: {stats.unique_blocks}')
     print(f'  {'Average accesses per block':<30}: {avg_access:.3f}')
 
