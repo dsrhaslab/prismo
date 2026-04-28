@@ -41,7 +41,7 @@
       "O_CREAT",
       "O_RDWR"
     ],
-    "bdev_name": "Malloc0",
+    "bdev_name": "Nvme0n1",
     "reactor_mask": "0xF",
     "spdk_threads": 1,
     "json_config_file": "/home/gsd/prismo/workloads/bdev/nvme_bdev.json"

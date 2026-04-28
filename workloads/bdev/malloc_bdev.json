@@ -5,7 +5,7 @@
       "config": [
         {
           "params": {
-            "block_size": 512,
+            "block_size": 4096,
             "num_blocks": 262144,
             "name": "Malloc0"
           },
