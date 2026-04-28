@@ -1,10 +1,13 @@
 ; 55_compress_zipf_spdk
 [global]
-filename=Malloc0
+filename=Nvme0n1
 size=66262417408
-ioengine=spdk_bdev
+ioengine=/home/gsd/spdk/build/fio/spdk_bdev
+spdk_json_conf=/home/gsd/prismo/workloads/bdev/nvme_bdev.json
 iodepth=128
-spdk_json_conf=/home/gsd/prismo/workloads/spdk/spdk_bdev.json
+thread=1
+direct=1
+norandommap=1
 
 [55_compress_zipf_spdk]
 bs=4k

@@ -3,7 +3,7 @@
     "channel": "blocking",
     "name": "50_rw_rand_mixed_spdk",
     "numjobs": 1,
-    "filename": "/mnt/nvme/data/testfile_campaign",
+    "filename": "/dev/Nvme0n1",
     "block_size": 4096,
     "size":  66262417408,
     "metric": "base",
@@ -35,6 +35,6 @@
     "bdev_name": "Malloc0",
     "reactor_mask": "0xF",
     "spdk_threads": 1,
-    "json_config_file": "/home/gsd/prismo/workloads/spdk/spdk_bdev.json"
+    "json_config_file": "/home/gsd/prismo/workloads/bdev/nvme_bdev.json"
   }
 }
