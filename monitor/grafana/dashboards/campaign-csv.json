@@ -38,7 +38,7 @@
           { "matcher": { "id": "byName", "options": "total usage:idl" }, "properties": [{ "id": "color", "value": { "fixedColor": "green",  "mode": "fixed" } }, { "id": "displayName", "value": "idle" }] }
         ]
       },
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 1 },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 1 },
       "id": 1,
       "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "none" } },
       "title": "CPU Usage (stacked)",
@@ -60,6 +60,47 @@
             { "selector": "total usage:idl",  "text": "total usage:idl",  "type": "number" },
             { "selector": "total usage:wai",  "text": "total usage:wai",  "type": "number" },
             { "selector": "total usage:stl",  "text": "total usage:stl",  "type": "number" }
+          ]
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "yesoreyeram-infinity-datasource", "uid": "infinity" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 2,
+            "lineInterpolation": "smooth",
+            "showPoints": "never"
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "int" }, "properties": [{ "id": "color", "value": { "fixedColor": "purple", "mode": "fixed" } }, { "id": "displayName", "value": "interrupts" }] },
+          { "matcher": { "id": "byName", "options": "csw" }, "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }, { "id": "displayName", "value": "context switches" }] }
+        ]
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 1 },
+      "id": 7,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "none" } },
+      "title": "CPU Events (interrupts / context switches)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "refId": "A",
+          "type": "csv",
+          "source": "url",
+          "parser": "backend",
+          "format": "dataframe",
+          "url": "http://csv-server:8080/${campaign}/${workload}.dstat.csv",
+          "url_options": { "method": "GET" },
+          "root_selector": "",
+          "columns": [
+            { "selector": "time", "text": "time", "type": "timestamp", "timestampFormat": "2006/01/02 15:04:05" },
+            { "selector": "int",  "text": "int",  "type": "number" },
+            { "selector": "csw",  "text": "csw",  "type": "number" }
           ]
         }
       ]
@@ -221,6 +262,47 @@
             "lineInterpolation": "smooth",
             "showPoints": "never"
           },
+          "unit": "KBs"
+        },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "in" },   "properties": [{ "id": "color", "value": { "fixedColor": "blue",   "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "out" },  "properties": [{ "id": "color", "value": { "fixedColor": "purple", "mode": "fixed" } }] }
+        ]
+      },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 27 },
+      "id": 8,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "none" } },
+      "title": "Disk Traffic (in/out)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "refId": "A",
+          "type": "csv",
+          "source": "url",
+          "parser": "backend",
+          "format": "dataframe",
+          "url": "http://csv-server:8080/${campaign}/${workload}.dstat.csv",
+          "url_options": { "method": "GET" },
+          "root_selector": "",
+          "columns": [
+            { "selector": "time", "text": "time", "type": "timestamp", "timestampFormat": "2006/01/02 15:04:05" },
+            { "selector": "in",   "text": "in",   "type": "number" },
+            { "selector": "out",  "text": "out",  "type": "number" }
+          ]
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "yesoreyeram-infinity-datasource", "uid": "infinity" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 2,
+            "lineInterpolation": "smooth",
+            "showPoints": "never"
+          },
           "unit": "iops"
         },
         "overrides": [
@@ -253,7 +335,7 @@
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 27 },
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 35 },
       "id": 103,
       "title": "Network",
       "type": "row"
@@ -276,7 +358,7 @@
           { "matcher": { "id": "byName", "options": "send" }, "properties": [{ "id": "color", "value": { "fixedColor": "blue",  "mode": "fixed" } }] }
         ]
       },
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 28 },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 36 },
       "id": 6,
       "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "none" } },
       "title": "Network Traffic (recv/send)",

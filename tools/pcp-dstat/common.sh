@@ -54,7 +54,7 @@ validate_common() {
 
 start_dstat() {
     local csv="$1"
-    pcp dstat --time --cpu --mem --disk --io --net \
+    pcp dstat --time --cpu --mem --disk --io --net --page --sys \
             --output "$csv" > /dev/null 2>&1 &
     echo $!
 }
