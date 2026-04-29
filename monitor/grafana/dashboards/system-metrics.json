@@ -65,19 +65,21 @@
             "lineInterpolation": "smooth",
             "showPoints": "never"
           },
-          "max": 100, "min": 0, "unit": "percent"
-        }
+          "unit": "short"
+        },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "interrupts" }, "properties": [{ "id": "color", "value": { "fixedColor": "purple", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "context_switches" }, "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }] }
+        ]
       },
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 1 },
       "id": 2,
-      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "desc" } },
-      "title": "CPU Usage by Mode",
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "none" } },
+      "title": "CPU Events (interrupts / context switches)",
       "type": "timeseries",
       "targets": [
-        { "expr": "avg without(cpu) (rate(node_cpu_seconds_total{mode=\"user\"}[1m])) * 100",   "legendFormat": "user",   "refId": "A" },
-        { "expr": "avg without(cpu) (rate(node_cpu_seconds_total{mode=\"system\"}[1m])) * 100", "legendFormat": "system", "refId": "B" },
-        { "expr": "avg without(cpu) (rate(node_cpu_seconds_total{mode=\"iowait\"}[1m])) * 100", "legendFormat": "iowait", "refId": "C" },
-        { "expr": "avg without(cpu) (rate(node_cpu_seconds_total{mode=\"steal\"}[1m])) * 100",  "legendFormat": "steal",  "refId": "D" }
+        { "expr": "rate(node_intr_total[1m])", "legendFormat": "interrupts", "refId": "A" },
+        { "expr": "rate(node_context_switches_total[1m])", "legendFormat": "context_switches", "refId": "B" }
       ]
     },
     {
@@ -265,8 +267,36 @@
       ]
     },
     {
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 2,
+            "lineInterpolation": "smooth",
+            "showPoints": "never"
+          },
+          "unit": "page/s"
+        },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "in" }, "properties": [{ "id": "color", "value": { "fixedColor": "blue", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "out" }, "properties": [{ "id": "color", "value": { "fixedColor": "purple", "mode": "fixed" } }] }
+        ]
+      },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 35 },
+      "id": 11,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "none" } },
+      "title": "Disk Traffic (in/out)",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "rate(node_vmstat_pgpgin[1m])", "legendFormat": "in", "refId": "A" },
+        { "expr": "rate(node_vmstat_pgpgout[1m])", "legendFormat": "out", "refId": "B" }
+      ]
+    },
+    {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 37 },
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 45 },
       "id": 103,
       "title": "Network",
       "type": "row"
@@ -289,7 +319,7 @@
           { "matcher": { "id": "byName", "options": "send" }, "properties": [{ "id": "color", "value": { "fixedColor": "blue",   "mode": "fixed" } }] }
         ]
       },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 38 },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 46 },
       "id": 7,
       "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "none" } },
       "title": "Network Traffic (recv/send)",
@@ -317,7 +347,7 @@
           { "matcher": { "id": "byName", "options": "send" }, "properties": [{ "id": "color", "value": { "fixedColor": "blue",  "mode": "fixed" } }] }
         ]
       },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 38 },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 46 },
       "id": 8,
       "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "none" } },
       "title": "Network Packets (recv/send)",
