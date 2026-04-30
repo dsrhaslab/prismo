@@ -41,7 +41,7 @@
       "gridPos": { "h": 8, "w": 12, "x": 0, "y": 1 },
       "id": 1,
       "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "none" } },
-      "title": "CPU Usage (stacked)",
+      "title": "CPU Usage",
       "type": "timeseries",
       "targets": [
         {
@@ -85,7 +85,7 @@
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 1 },
       "id": 7,
       "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "none" } },
-      "title": "CPU Events (interrupts / context switches)",
+      "title": "CPU Events",
       "type": "timeseries",
       "targets": [
         {
@@ -124,7 +124,8 @@
             "stacking": { "group": "A", "mode": "normal" },
             "showPoints": "never"
           },
-          "unit": "deckbytes"
+          "unit": "deckbytes",
+          "min": 0
         },
         "overrides": [
           { "matcher": { "id": "byName", "options": "used" },    "properties": [{ "id": "color", "value": { "fixedColor": "red",    "mode": "fixed" } }] },
@@ -133,55 +134,10 @@
           { "matcher": { "id": "byName", "options": "free" },    "properties": [{ "id": "color", "value": { "fixedColor": "green",  "mode": "fixed" } }] }
         ]
       },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 10 },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 10 },
       "id": 2,
       "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "none" } },
-      "title": "Memory Usage (stacked)",
-      "type": "timeseries",
-      "targets": [
-        {
-          "refId": "A",
-          "type": "csv",
-          "source": "url",
-          "parser": "backend",
-          "format": "dataframe",
-          "url": "http://csv-server:8080/${campaign}/${workload}.dstat.csv",
-          "url_options": { "method": "GET" },
-          "root_selector": "",
-          "columns": [
-            { "selector": "time", "text": "time",    "type": "timestamp", "timestampFormat": "2006/01/02 15:04:05" },
-            { "selector": "used", "text": "used",    "type": "number" },
-            { "selector": "free", "text": "free",    "type": "number" },
-            { "selector": "buf",  "text": "buffers", "type": "number" },
-            { "selector": "cach", "text": "cached",  "type": "number" }
-          ]
-        }
-      ]
-    },
-    {
-      "datasource": { "type": "yesoreyeram-infinity-datasource", "uid": "infinity" },
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "palette-classic" },
-          "custom": {
-            "fillOpacity": 10,
-            "lineWidth": 2,
-            "lineInterpolation": "smooth",
-            "showPoints": "never"
-          },
-          "unit": "deckbytes"
-        },
-        "overrides": [
-          { "matcher": { "id": "byName", "options": "used" },    "properties": [{ "id": "color", "value": { "fixedColor": "red",   "mode": "fixed" } }] },
-          { "matcher": { "id": "byName", "options": "free" },    "properties": [{ "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }] },
-          { "matcher": { "id": "byName", "options": "buffers" }, "properties": [{ "id": "color", "value": { "fixedColor": "blue",  "mode": "fixed" } }] },
-          { "matcher": { "id": "byName", "options": "cached" },  "properties": [{ "id": "color", "value": { "fixedColor": "yellow","mode": "fixed" } }] }
-        ]
-      },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 10 },
-      "id": 3,
-      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "none" } },
-      "title": "Memory Overview",
+      "title": "Memory Usage",
       "type": "timeseries",
       "targets": [
         {
@@ -231,7 +187,7 @@
       "gridPos": { "h": 8, "w": 12, "x": 0, "y": 19 },
       "id": 4,
       "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "none" } },
-      "title": "Disk Throughput (read/write)",
+      "title": "Disk Throughput",
       "type": "timeseries",
       "targets": [
         {
@@ -272,7 +228,7 @@
       "gridPos": { "h": 8, "w": 24, "x": 0, "y": 27 },
       "id": 8,
       "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "none" } },
-      "title": "Disk Traffic (in/out)",
+      "title": "Disk Paging",
       "type": "timeseries",
       "targets": [
         {
@@ -313,7 +269,7 @@
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 19 },
       "id": 5,
       "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "none" } },
-      "title": "Disk I/O Operations (IOPS)",
+      "title": "Disk IOPS",
       "type": "timeseries",
       "targets": [
         {
@@ -361,7 +317,7 @@
       "gridPos": { "h": 8, "w": 24, "x": 0, "y": 36 },
       "id": 6,
       "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "none" } },
-      "title": "Network Traffic (recv/send)",
+      "title": "Network Throughput",
       "type": "timeseries",
       "targets": [
         {

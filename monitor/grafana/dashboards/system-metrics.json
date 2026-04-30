@@ -44,7 +44,7 @@
       "gridPos": { "h": 8, "w": 12, "x": 0, "y": 1 },
       "id": 1,
       "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "none" } },
-      "title": "CPU Usage (stacked)",
+      "title": "CPU Usage",
       "type": "timeseries",
       "targets": [
         { "expr": "avg without(cpu) (rate(node_cpu_seconds_total{mode=\"user\"}[1m])) * 100",   "legendFormat": "user",   "refId": "A" },
@@ -75,7 +75,7 @@
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 1 },
       "id": 2,
       "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "none" } },
-      "title": "CPU Events (interrupts / context switches)",
+      "title": "CPU Events",
       "type": "timeseries",
       "targets": [
         { "expr": "rate(node_intr_total[1m])", "legendFormat": "interrupts", "refId": "A" },
@@ -101,7 +101,8 @@
             "stacking": { "group": "A", "mode": "normal" },
             "showPoints": "never"
           },
-          "unit": "bytes"
+          "unit": "bytes",
+          "min": 0
         },
         "overrides": [
           { "matcher": { "id": "byName", "options": "used" },    "properties": [{ "id": "color", "value": { "fixedColor": "red",          "mode": "fixed" } }] },
@@ -110,46 +111,16 @@
           { "matcher": { "id": "byName", "options": "free" },    "properties": [{ "id": "color", "value": { "fixedColor": "green",        "mode": "fixed" } }] }
         ]
       },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 10 },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 10 },
       "id": 3,
       "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "none" } },
-      "title": "Memory Usage (stacked)",
+      "title": "Memory Usage",
       "type": "timeseries",
       "targets": [
         { "expr": "node_memory_MemTotal_bytes - node_memory_MemFree_bytes - node_memory_Buffers_bytes - node_memory_Cached_bytes", "legendFormat": "used",    "refId": "A" },
         { "expr": "node_memory_Buffers_bytes",  "legendFormat": "buffers", "refId": "B" },
         { "expr": "node_memory_Cached_bytes",   "legendFormat": "cached",  "refId": "C" },
         { "expr": "node_memory_MemFree_bytes",  "legendFormat": "free",    "refId": "D" }
-      ]
-    },
-    {
-      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "palette-classic" },
-          "custom": {
-            "fillOpacity": 10,
-            "lineWidth": 2,
-            "lineInterpolation": "smooth",
-            "showPoints": "never"
-          },
-          "unit": "bytes"
-        },
-        "overrides": [
-          { "matcher": { "id": "byName", "options": "Total" }, "properties": [{ "id": "color", "value": { "fixedColor": "white", "mode": "fixed" } }, { "id": "custom.lineStyle", "value": { "dash": [10, 10], "fill": "dash" } }, { "id": "custom.fillOpacity", "value": 0 }] },
-          { "matcher": { "id": "byName", "options": "Used" },  "properties": [{ "id": "color", "value": { "fixedColor": "red",   "mode": "fixed" } }] },
-          { "matcher": { "id": "byName", "options": "Free" },  "properties": [{ "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }] }
-        ]
-      },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 10 },
-      "id": 4,
-      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "none" } },
-      "title": "Memory Overview",
-      "type": "timeseries",
-      "targets": [
-        { "expr": "node_memory_MemTotal_bytes",                                                                                    "legendFormat": "Total", "refId": "A" },
-        { "expr": "node_memory_MemTotal_bytes - node_memory_MemFree_bytes - node_memory_Buffers_bytes - node_memory_Cached_bytes", "legendFormat": "Used",  "refId": "B" },
-        { "expr": "node_memory_MemFree_bytes",                                                                                     "legendFormat": "Free",  "refId": "C" }
       ]
     },
     {
@@ -180,7 +151,7 @@
       "gridPos": { "h": 8, "w": 12, "x": 0, "y": 19 },
       "id": 5,
       "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "none" } },
-      "title": "Disk Throughput (read/write)",
+      "title": "Disk Throughput",
       "type": "timeseries",
       "targets": [
         { "expr": "rate(node_disk_read_bytes_total{device!~\"loop.*|dm-.*\"}[1m])",    "legendFormat": "read {{device}}",  "refId": "A" },
@@ -208,7 +179,7 @@
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 19 },
       "id": 6,
       "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "none" } },
-      "title": "Disk I/O Operations (IOPS)",
+      "title": "Disk IOPS",
       "type": "timeseries",
       "targets": [
         { "expr": "rate(node_disk_reads_completed_total{device!~\"loop.*|dm-.*\"}[1m])",  "legendFormat": "read {{device}}",  "refId": "A" },
@@ -226,7 +197,7 @@
             "lineInterpolation": "smooth",
             "showPoints": "never"
           },
-          "unit": "ms"
+          "unit": "s"
         },
         "overrides": [
           { "matcher": { "id": "byName", "options": "read" },  "properties": [{ "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }] },
@@ -236,7 +207,7 @@
       "gridPos": { "h": 8, "w": 12, "x": 0, "y": 27 },
       "id": 9,
       "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "none" } },
-      "title": "Disk Latency (avg read/write)",
+      "title": "Disk Latency",
       "type": "timeseries",
       "targets": [
         { "expr": "rate(node_disk_read_time_seconds_total{device!~\"loop.*|dm-.*\"}[1m]) / rate(node_disk_reads_completed_total{device!~\"loop.*|dm-.*\"}[1m])", "legendFormat": "read {{device}}", "refId": "A" },
@@ -277,7 +248,7 @@
             "lineInterpolation": "smooth",
             "showPoints": "never"
           },
-          "unit": "page/s"
+          "unit": "KBs"
         },
         "overrides": [
           { "matcher": { "id": "byName", "options": "in" }, "properties": [{ "id": "color", "value": { "fixedColor": "blue", "mode": "fixed" } }] },
@@ -287,7 +258,7 @@
       "gridPos": { "h": 8, "w": 24, "x": 0, "y": 35 },
       "id": 11,
       "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "none" } },
-      "title": "Disk Traffic (in/out)",
+      "title": "Disk Paging",
       "type": "timeseries",
       "targets": [
         { "expr": "rate(node_vmstat_pgpgin[1m])", "legendFormat": "in", "refId": "A" },
@@ -322,7 +293,7 @@
       "gridPos": { "h": 8, "w": 12, "x": 0, "y": 46 },
       "id": 7,
       "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "none" } },
-      "title": "Network Traffic (recv/send)",
+      "title": "Network Throughput",
       "type": "timeseries",
       "targets": [
         { "expr": "rate(node_network_receive_bytes_total{device!~\"lo|veth.*|docker.*|br-.*\"}[1m])",  "legendFormat": "recv {{device}}",  "refId": "A" },
@@ -350,7 +321,7 @@
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 46 },
       "id": 8,
       "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "none" } },
-      "title": "Network Packets (recv/send)",
+      "title": "Network Packets",
       "type": "timeseries",
       "targets": [
         { "expr": "rate(node_network_receive_packets_total{device!~\"lo|veth.*|docker.*|br-.*\"}[1m])",  "legendFormat": "recv {{device}}",  "refId": "A" },
