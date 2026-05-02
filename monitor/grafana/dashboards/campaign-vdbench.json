@@ -209,7 +209,7 @@
           ]
         }
       ],
-      "description": "CPU usage breakdown from pcp-dstat"
+      "description": "CPU usage breakdown from pcp-dstat — user, system, iowait, steal, idle (%)"
     },
     {
       "datasource": {
@@ -624,13 +624,13 @@
             "lineInterpolation": "smooth",
             "showPoints": "never"
           },
-          "unit": "KBs"
+          "unit": "MBs"
         },
         "overrides": [
           {
             "matcher": {
               "id": "byName",
-              "options": "value"
+              "options": "mbps"
             },
             "properties": [
               {
@@ -642,7 +642,7 @@
               },
               {
                 "id": "displayName",
-                "value": "bandwidth"
+                "value": "throughput"
               }
             ]
           }
@@ -665,8 +665,8 @@
           "sort": "none"
         }
       },
-      "title": "Disk Throughput [fio]",
-      "description": "Bandwidth from fio",
+      "title": "Disk Throughput [vdbench]",
+      "description": "MB/sec from vdbench flatfile",
       "type": "timeseries",
       "targets": [
         {
@@ -675,7 +675,7 @@
           "source": "url",
           "parser": "backend",
           "format": "dataframe",
-          "url": "http://csv-server:8080/${campaign}/${workload}_bw.1.log",
+          "url": "http://csv-server:8080/${campaign}/${workload}.flatfile.csv",
           "url_options": {
             "method": "GET"
           },
@@ -688,8 +688,8 @@
               "timestampFormat": "2006/01/02 15:04:05"
             },
             {
-              "selector": "value",
-              "text": "value",
+              "selector": "mbps",
+              "text": "mbps",
               "type": "number"
             }
           ]
@@ -822,7 +822,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "value"
+              "options": "rate"
             },
             "properties": [
               {
@@ -857,8 +857,8 @@
           "sort": "none"
         }
       },
-      "title": "Disk IOPS [fio]",
-      "description": "IOPS from fio",
+      "title": "Disk IOPS [vdbench]",
+      "description": "Observed I/O rate from vdbench flatfile",
       "type": "timeseries",
       "targets": [
         {
@@ -867,7 +867,7 @@
           "source": "url",
           "parser": "backend",
           "format": "dataframe",
-          "url": "http://csv-server:8080/${campaign}/${workload}_iops.1.log",
+          "url": "http://csv-server:8080/${campaign}/${workload}.flatfile.csv",
           "url_options": {
             "method": "GET"
           },
@@ -880,8 +880,8 @@
               "timestampFormat": "2006/01/02 15:04:05"
             },
             {
-              "selector": "value",
-              "text": "value",
+              "selector": "rate",
+              "text": "rate",
               "type": "number"
             }
           ]
@@ -1008,25 +1008,63 @@
             "lineInterpolation": "smooth",
             "showPoints": "never"
           },
-          "unit": "ns"
+          "unit": "ms"
         },
         "overrides": [
           {
             "matcher": {
               "id": "byName",
-              "options": "value"
+              "options": "resp"
             },
             "properties": [
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "red",
+                  "fixedColor": "#4e79a7",
                   "mode": "fixed"
                 }
               },
               {
                 "id": "displayName",
-                "value": "slat"
+                "value": "avg"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "read_resp"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#59a14f",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "read"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "write_resp"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#f28e2b",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "write"
               }
             ]
           }
@@ -1034,96 +1072,8 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 12,
         "x": 0,
-        "y": 43
-      },
-      "id": 14,
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "title": "Submission Latency [fio]",
-      "description": "Average submission latency from fio",
-      "type": "timeseries",
-      "targets": [
-        {
-          "refId": "A",
-          "type": "csv",
-          "source": "url",
-          "parser": "backend",
-          "format": "dataframe",
-          "url": "http://csv-server:8080/${campaign}/${workload}_slat.1.log",
-          "url_options": {
-            "method": "GET"
-          },
-          "root_selector": "",
-          "columns": [
-            {
-              "selector": "time",
-              "text": "time",
-              "type": "timestamp",
-              "timestampFormat": "2006/01/02 15:04:05"
-            },
-            {
-              "selector": "value",
-              "text": "value",
-              "type": "number"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "datasource": {
-        "type": "yesoreyeram-infinity-datasource",
-        "uid": "infinity"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "fillOpacity": 10,
-            "lineWidth": 2,
-            "lineInterpolation": "smooth",
-            "showPoints": "never"
-          },
-          "unit": "ns"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "value"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "blue",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "clat"
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 8,
         "y": 43
       },
       "id": 12,
@@ -1137,8 +1087,8 @@
           "sort": "none"
         }
       },
-      "title": "Completion Latency [fio]",
-      "description": "Average completion latency from fio",
+      "title": "Response Time [vdbench]",
+      "description": "Average response time from vdbench flatfile",
       "type": "timeseries",
       "targets": [
         {
@@ -1147,7 +1097,7 @@
           "source": "url",
           "parser": "backend",
           "format": "dataframe",
-          "url": "http://csv-server:8080/${campaign}/${workload}_clat.1.log",
+          "url": "http://csv-server:8080/${campaign}/${workload}.flatfile.csv",
           "url_options": {
             "method": "GET"
           },
@@ -1160,8 +1110,18 @@
               "timestampFormat": "2006/01/02 15:04:05"
             },
             {
-              "selector": "value",
-              "text": "value",
+              "selector": "resp",
+              "text": "resp",
+              "type": "number"
+            },
+            {
+              "selector": "read_resp",
+              "text": "read_resp",
+              "type": "number"
+            },
+            {
+              "selector": "write_resp",
+              "text": "write_resp",
               "type": "number"
             }
           ]
@@ -1184,25 +1144,63 @@
             "lineInterpolation": "smooth",
             "showPoints": "never"
           },
-          "unit": "ns"
+          "unit": "ms"
         },
         "overrides": [
           {
             "matcher": {
               "id": "byName",
-              "options": "value"
+              "options": "resp_max"
             },
             "properties": [
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "purple",
+                  "fixedColor": "#e15759",
                   "mode": "fixed"
                 }
               },
               {
                 "id": "displayName",
-                "value": "lat"
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "read_max"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#59a14f",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "read max"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "write_max"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#f28e2b",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "write max"
               }
             ]
           }
@@ -1210,8 +1208,8 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 12,
+        "x": 12,
         "y": 43
       },
       "id": 13,
@@ -1225,8 +1223,8 @@
           "sort": "none"
         }
       },
-      "title": "Total Latency [fio]",
-      "description": "Average total latency from fio",
+      "title": "Max Response Time [vdbench]",
+      "description": "Maximum response time from vdbench flatfile",
       "type": "timeseries",
       "targets": [
         {
@@ -1235,7 +1233,7 @@
           "source": "url",
           "parser": "backend",
           "format": "dataframe",
-          "url": "http://csv-server:8080/${campaign}/${workload}_lat.1.log",
+          "url": "http://csv-server:8080/${campaign}/${workload}.flatfile.csv",
           "url_options": {
             "method": "GET"
           },
@@ -1248,8 +1246,242 @@
               "timestampFormat": "2006/01/02 15:04:05"
             },
             {
-              "selector": "value",
-              "text": "value",
+              "selector": "resp_max",
+              "text": "resp_max",
+              "type": "number"
+            },
+            {
+              "selector": "read_max",
+              "text": "read_max",
+              "type": "number"
+            },
+            {
+              "selector": "write_max",
+              "text": "write_max",
+              "type": "number"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "infinity"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 2,
+            "lineInterpolation": "smooth",
+            "showPoints": "never"
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "queue_depth"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#76b7b2",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "queue depth"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 51
+      },
+      "id": 14,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "title": "Queue Depth [vdbench]",
+      "description": "Calculated average I/O queue depth from vdbench flatfile",
+      "type": "timeseries",
+      "targets": [
+        {
+          "refId": "A",
+          "type": "csv",
+          "source": "url",
+          "parser": "backend",
+          "format": "dataframe",
+          "url": "http://csv-server:8080/${campaign}/${workload}.flatfile.csv",
+          "url_options": {
+            "method": "GET"
+          },
+          "root_selector": "",
+          "columns": [
+            {
+              "selector": "time",
+              "text": "time",
+              "type": "timestamp",
+              "timestampFormat": "2006/01/02 15:04:05"
+            },
+            {
+              "selector": "queue_depth",
+              "text": "queue_depth",
+              "type": "number"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "infinity"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 2,
+            "lineInterpolation": "smooth",
+            "showPoints": "never"
+          },
+          "unit": "ms"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "resp_std"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#edc948",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "overall"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "read_std"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#59a14f",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "read"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "write_std"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#f28e2b",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "write"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 51
+      },
+      "id": 16,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "title": "Response Time Std Dev [vdbench]",
+      "description": "Standard deviation of response time from vdbench flatfile",
+      "type": "timeseries",
+      "targets": [
+        {
+          "refId": "A",
+          "type": "csv",
+          "source": "url",
+          "parser": "backend",
+          "format": "dataframe",
+          "url": "http://csv-server:8080/${campaign}/${workload}.flatfile.csv",
+          "url_options": {
+            "method": "GET"
+          },
+          "root_selector": "",
+          "columns": [
+            {
+              "selector": "time",
+              "text": "time",
+              "type": "timestamp",
+              "timestampFormat": "2006/01/02 15:04:05"
+            },
+            {
+              "selector": "resp_std",
+              "text": "resp_std",
+              "type": "number"
+            },
+            {
+              "selector": "read_std",
+              "text": "read_std",
+              "type": "number"
+            },
+            {
+              "selector": "write_std",
+              "text": "write_std",
               "type": "number"
             }
           ]
@@ -1262,7 +1494,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 51
+        "y": 59
       },
       "id": 103,
       "title": "Network",
@@ -1323,7 +1555,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 52
+        "y": 60
       },
       "id": 15,
       "options": {
@@ -1377,7 +1609,7 @@
   "schemaVersion": 39,
   "tags": [
     "campaign",
-    "fio",
+    "vdbench",
     "dstat"
   ],
   "templating": {
@@ -1391,7 +1623,7 @@
           "value": ""
         },
         "options": [],
-        "description": "Campaign folder name (e.g. campaign_20260502_154647)"
+        "description": "Campaign folder name (e.g. vdbench_ext4_posix_2_9_odirect)"
       },
       {
         "name": "workload",
@@ -1412,8 +1644,8 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "description": "Dashboard for FIO campaign results. Correlates FIO benchmark metrics (throughput, IOPS, latency) with system-level metrics collected by pcp-dstat (CPU, memory, disk, network). Set the Campaign and Workload variables to load the corresponding result files.",
-  "title": "Campaign Results - FIO",
-  "uid": "campaign-fio",
+  "description": "Dashboard for Vdbench campaign results. Correlates Vdbench benchmark metrics (throughput, IOPS, response time, queue depth) with system-level metrics collected by pcp-dstat (CPU, memory, disk, network). Set the Campaign and Workload variables to load the corresponding result files.",
+  "title": "Campaign Results - Vdbench",
+  "uid": "campaign-vdbench",
   "version": 1
 }
