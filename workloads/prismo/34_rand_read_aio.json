@@ -3,7 +3,7 @@
     "channel": "blocking",
     "name": "34_rand_read_aio",
     "numjobs": 1,
-    "filename": "/mnt/nvme/data/testfile_campaign",
+    "filename": "/dev/nvme0n1",
     "block_size": 4096,
     "size":  66262417408,
     "metric": "base",

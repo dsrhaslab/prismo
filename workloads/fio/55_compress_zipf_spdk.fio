@@ -7,6 +7,10 @@ spdk_json_conf=/home/gsd/prismo/workloads/bdev/nvme_bdev.json
 iodepth=128
 thread=1
 direct=1
+write_bw_log=$jobname
+write_lat_log=$jobname
+write_iops_log=$jobname
+log_avg_msec=1000
 norandommap=1
 
 [55_compress_zipf_spdk]

@@ -4,6 +4,10 @@ filename=/tank/testfile_campaign
 size=66262417408
 ioengine=psync
 direct=1
+write_bw_log=$jobname
+write_lat_log=$jobname
+write_iops_log=$jobname
+log_avg_msec=1000
 
 [11_dedup_zipf_posix]
 bs=4k

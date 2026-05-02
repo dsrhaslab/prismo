@@ -1,8 +1,12 @@
 ; 09_rw_rand_multijob_posix
 [global]
-filename=/mnt/nvme/data/testfile_campaign
+filename=/dev/nvme0n1
 ioengine=psync
 direct=1
+write_bw_log=$jobname
+write_lat_log=$jobname
+write_iops_log=$jobname
+log_avg_msec=1000
 buffer_compress_percentage=0
 
 [job1]

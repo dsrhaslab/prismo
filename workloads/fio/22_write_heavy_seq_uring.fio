@@ -1,12 +1,16 @@
 ; 22_write_heavy_seq_uring
 [global]
-filename=/mnt/nvme/data/testfile_campaign
+filename=/dev/nvme0n1
 size=66262417408
 ioengine=io_uring
 iodepth=128
 sqthread_poll=1
 sqthread_poll_cpu=0
 direct=1
+write_bw_log=$jobname
+write_lat_log=$jobname
+write_iops_log=$jobname
+log_avg_msec=1000
 
 [22_write_heavy_seq_uring]
 bs=4k

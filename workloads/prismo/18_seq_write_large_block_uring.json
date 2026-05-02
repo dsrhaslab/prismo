@@ -3,7 +3,7 @@
     "channel": "blocking",
     "name": "18_seq_write_large_block_uring",
     "numjobs": 1,
-    "filename": "/mnt/nvme/data/testfile_campaign",
+    "filename": "/dev/nvme0n1",
     "block_size": 65536,
     "size":  66262417408,
     "metric": "base",

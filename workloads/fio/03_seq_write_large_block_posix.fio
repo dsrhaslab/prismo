@@ -1,9 +1,13 @@
 ; 03_seq_write_large_block_posix
 [global]
-filename=/mnt/nvme/data/testfile_campaign
+filename=/dev/nvme0n1
 size=66262417408
 ioengine=psync
 direct=1
+write_bw_log=$jobname
+write_lat_log=$jobname
+write_iops_log=$jobname
+log_avg_msec=1000
 
 [03_seq_write_large_block_posix]
 bs=64k

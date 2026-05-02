@@ -1,10 +1,14 @@
 ; 32_seq_read_aio
 [global]
-filename=/mnt/nvme/data/testfile_campaign
+filename=/dev/nvme0n1
 size=66262417408
 ioengine=libaio
 iodepth=128
 direct=1
+write_bw_log=$jobname
+write_lat_log=$jobname
+write_iops_log=$jobname
+log_avg_msec=1000
 
 [32_seq_read_aio]
 bs=4k
