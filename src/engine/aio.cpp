@@ -3,9 +3,9 @@
 namespace Engine {
 
     AioEngine::AioEngine(
-        std::shared_ptr<Logger::Base> _logger,
+        std::unique_ptr<Logger::Base> _logger,
         const AioConfig& _config
-    ) : Base(_logger), entries(_config.entries) {
+    ) : Base(std::move(_logger)), entries(_config.entries) {
         int ret = io_queue_init(entries, &io_context);
         if (ret < 0)
             throw std::runtime_error("aio_queue_init: failed: " + std::string(strerror(-ret)));

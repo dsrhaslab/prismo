@@ -2,13 +2,20 @@
 
 namespace Logger {
 
-    Spdlog::Spdlog(const nlohmann::json& j)
-        : Base(j.at("avg_interval_ms").get<uint64_t>()) {
-        std::vector<spdlog::sink_ptr> sinks;
-        spdlog::init_thread_pool(
-            j.at("queue_size").get<size_t>(),
-            j.at("thread_count").get<size_t>()
+    Spdlog::Spdlog(const nlohmann::json& j) : Base(j) {
+        std::string logger_name = fmt::format("{}-job{}",
+            j.at("name").get<std::string>(),
+            j.at("worker_id").get<int>()
         );
+
+        std::vector<spdlog::sink_ptr> sinks;
+
+        std::call_once(Spdlog::tp_flag, [&]() {
+            spdlog::init_thread_pool(
+                j.at("queue_size").get<size_t>(),
+                j.at("thread_count").get<size_t>()
+            );
+        });
 
         if (j.at("to_stdout").get<bool>()) {
             auto stdout_sink = std::make_shared<spdlog::sinks::stdout_sink_mt>();
@@ -16,13 +23,14 @@ namespace Logger {
         }
 
         for (auto& file : j.at("files").get<std::vector<std::string>>()) {
+            file = fmt::format("{}-job{}", file, j.at("worker_id").get<int>());
             auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>
                 (file, j.at("truncate").get<bool>());
             sinks.push_back(file_sink);
         }
 
         logger = std::make_shared<spdlog::async_logger>(
-            j.at("name").get<std::string>(),
+            logger_name,
             sinks.begin(),
             sinks.end(),
             spdlog::thread_pool(),

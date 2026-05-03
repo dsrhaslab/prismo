@@ -28,7 +28,7 @@ namespace Engine {
 
         public:
             explicit UringEngine(
-                std::shared_ptr<Logger::Base> _logger,
+                std::unique_ptr<Logger::Base> _logger,
                 const UringConfig& _config
             );
 

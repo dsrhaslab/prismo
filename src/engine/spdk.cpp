@@ -3,9 +3,9 @@
 namespace Engine {
 
     SpdkEngine::SpdkEngine(
-        std::shared_ptr<Logger::Base> _logger,
+        std::unique_ptr<Logger::Base> _logger,
         const SpdkConfig& config
-    ) : Base(_logger) {
+    ) : Base(std::move(_logger)) {
         spdk_main_thread = std::thread([this, config]() {
             start_spdk_app(this, config, &(this->trigger_atomic));
         });

@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <common/operation.hpp>
 #include <prismo/metric/metric.hpp>
+#include <nlohmann/json.hpp>
 
 namespace Logger {
 
@@ -20,10 +21,11 @@ namespace Logger {
             virtual void write(const Metric::Metric& metric) = 0;
 
         public:
-            explicit Base(uint64_t _avg_interval_ms);
+            explicit Base(const nlohmann::json& j);
 
             virtual ~Base();
 
+            void flush(void);
             void info(const Metric::Metric& metric);
     };
 };

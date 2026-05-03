@@ -49,5 +49,6 @@ namespace Worker {
 
         engine->reap_left_completions();
         engine->finish_statistics();
+        engine->flush_logger();
     }
 }

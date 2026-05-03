@@ -3,8 +3,8 @@
 namespace Engine {
 
     PosixEngine::PosixEngine(
-        std::shared_ptr<Logger::Base> _logger
-    ) : Base(_logger) {}
+        std::unique_ptr<Logger::Base> _logger
+    ) : Base(std::move(_logger)) {}
 
     PosixEngine::~PosixEngine() {
         std::cout << "~Destroying PosixEngine" << std::endl;

@@ -144,11 +144,11 @@ namespace Factory {
         return std::make_unique<Control::Termination>(config.at("termination"));
     }
 
-    std::shared_ptr<Logger::Base> get_logger(const nlohmann::json& config) {
+    std::unique_ptr<Logger::Base> get_logger(const nlohmann::json& config) {
         const std::string type = config.value("type", "null");
 
         if (type == "spdlog") {
-            return std::make_shared<Logger::Spdlog>(config);
+            return std::make_unique<Logger::Spdlog>(config);
         } else if (type != "null") {
             throw std::invalid_argument(
                 "get_logger: type '" + type + "' not recognized");
@@ -176,7 +176,7 @@ namespace Factory {
 
     std::unique_ptr<Engine::Base> get_engine(
         const nlohmann::json& config,
-        std::shared_ptr<Logger::Base> logger
+        std::unique_ptr<Logger::Base> logger
     ) {
         std::string type = config.value("type", "posix");
 

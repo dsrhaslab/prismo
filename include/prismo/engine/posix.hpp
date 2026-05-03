@@ -18,7 +18,7 @@ namespace Engine {
 
         public:
             explicit PosixEngine(
-                std::shared_ptr<Logger::Base> _logger
+                std::unique_ptr<Logger::Base> _logger
             );
 
             ~PosixEngine() override;

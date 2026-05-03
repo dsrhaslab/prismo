@@ -16,7 +16,7 @@ namespace Engine {
             Base() = delete;
 
             explicit Base(
-                std::shared_ptr<Logger::Base> _logger
+                std::unique_ptr<Logger::Base> _logger
             );
 
             void record_metric(const Metric::Metric& metric);
@@ -24,7 +24,7 @@ namespace Engine {
 
         private:
             Metric::Statistics statistics;
-            std::shared_ptr<Logger::Base> logger;
+            std::unique_ptr<Logger::Base> logger;
 
         public:
             virtual ~Base();
@@ -35,6 +35,7 @@ namespace Engine {
             void start_statistics(void);
             void finish_statistics(void);
 
+            void flush_logger(void);
             const Metric::Statistics get_statistics(void) const;
 
             virtual int open(Protocol::OpenRequest& request) = 0;

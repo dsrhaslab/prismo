@@ -1,6 +1,7 @@
 #ifndef PRISMO_LOGGER_SPDLOG_H
 #define PRISMO_LOGGER_SPDLOG_H
 
+#include <mutex>
 #include <spdlog/spdlog.h>
 #include <spdlog/async.h>
 #include <spdlog/fmt/fmt.h>
@@ -13,6 +14,7 @@ namespace Logger {
 
     class Spdlog : public Base {
         private:
+            inline static std::once_flag tp_flag;
             std::shared_ptr<spdlog::logger> logger;
 
         public:

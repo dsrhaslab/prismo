@@ -46,7 +46,7 @@ namespace Factory {
     std::unique_ptr<Control::Termination> get_termination(
         const nlohmann::json& config);
 
-    std::shared_ptr<Logger::Base> get_logger(
+    std::unique_ptr<Logger::Base> get_logger(
         const nlohmann::json& config);
 
     std::shared_ptr<Communication::Channel> get_channel(
@@ -54,7 +54,7 @@ namespace Factory {
 
     std::unique_ptr<Engine::Base> get_engine(
         const nlohmann::json& config,
-        std::shared_ptr<Logger::Base> logger);
+        std::unique_ptr<Logger::Base> logger);
 };
 
 #endif

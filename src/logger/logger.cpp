@@ -2,8 +2,8 @@
 
 namespace Logger {
 
-    Base::Base(uint64_t _avg_interval_ms)
-        : avg_interval_ms(_avg_interval_ms),
+    Base::Base(const nlohmann::json& j)
+        : avg_interval_ms(j.value("avg_interval_ms", 1000)),
           last_avg_time(std::chrono::steady_clock::now()) {}
 
     Base::~Base() {
@@ -11,9 +11,20 @@ namespace Logger {
     }
 
     Metric::Metric Base::merge(const std::vector<Metric::Metric>& metrics) const {
-        Metric::Metric merged{};
-        size_t n = metrics.size();
-        merged.start_ns = UINT64_MAX;
+        Metric::Metric merged{
+            .operation_type = Operation::OperationType::READ,
+            .block_id = 0,
+            .compression = 0,
+            .start_ns = UINT64_MAX,
+            .end_ns = 0,
+            .pid = 0,
+            .tid = 0,
+            .requested_bytes = 0,
+            .processed_bytes = 0,
+            .offset = 0,
+            .return_code = 0,
+            .error_no = 0
+        };
 
         for (const auto& m : metrics) {
             merged.start_ns = std::min(merged.start_ns, m.start_ns);
@@ -25,16 +36,19 @@ namespace Logger {
         merged.operation_type = metrics.front().operation_type;
         merged.pid = metrics.front().pid;
         merged.tid = metrics.front().tid;
-        merged.processed_bytes /= n;
-        merged.requested_bytes /= n;
-
-        merged.block_id = 0;
-        merged.compression = 0;
-        merged.offset = 0;
-        merged.return_code = 0;
-        merged.error_no = 0;
 
         return merged;
+    }
+
+    void Base::flush(void) {
+        for (auto& [op_type, op_metrics] : metrics_by_op) {
+            if (!op_metrics.empty()) {
+                Metric::Metric merged_metric = merge(op_metrics);
+                write(merged_metric);
+                op_metrics.clear();
+            }
+        }
+        last_avg_time = std::chrono::steady_clock::now();
     }
 
     void Base::info(const Metric::Metric& metric) {
@@ -46,14 +60,7 @@ namespace Logger {
         ).count();
 
         if (static_cast<uint64_t>(elapsed) >= avg_interval_ms) {
-            for (auto& [op_type, op_metrics] : metrics_by_op) {
-                if (!op_metrics.empty()) {
-                    Metric::Metric merged_metric = merge(op_metrics);
-                    write(merged_metric);
-                    op_metrics.clear();
-                }
-            }
-            last_avg_time = now;
+            flush();
         }
     }
 };

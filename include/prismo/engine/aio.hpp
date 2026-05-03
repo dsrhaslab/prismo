@@ -32,7 +32,7 @@ namespace Engine {
 
         public:
             AioEngine(
-                std::shared_ptr<Logger::Base> _logger,
+                std::unique_ptr<Logger::Base> _logger,
                 const AioConfig& _config
             );
 

@@ -141,7 +141,7 @@ namespace Engine {
 
         public:
             explicit SpdkEngine(
-                std::shared_ptr<Logger::Base> _logger,
+                std::unique_ptr<Logger::Base> _logger,
                 const SpdkConfig& config
             );
 

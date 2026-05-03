@@ -31,16 +31,16 @@ namespace Worker {
         spdlog::debug("Setting up {} job(s)", numjobs);
         jobs.resize(numjobs);
         threads.reserve(numjobs * 2);
+        std::string logging_name = logging_json["name"].get<std::string>();
 
         spdlog::debug("Parsing logger config (shared across all jobs)");
-        auto shared_logger = Factory::get_logger(logging_json);
-
         for (size_t i = 0; i < numjobs; i++) {
             spdlog::debug("Setting up job {}", i);
             spdlog::debug("Parsing access generator config");
 
             access_json["worker_id"] = i;
             access_json["num_workers"] = numjobs;
+            logging_json["worker_id"] = i;
 
             auto access =
                 Factory::get_access_generator(access_json);
@@ -69,13 +69,17 @@ namespace Worker {
             auto termination =
                 Factory::get_termination(job_json);
 
+            spdlog::debug("Parsing logger config");
+            auto logger =
+                Factory::get_logger(logging_json);
+
             spdlog::debug("Parsing open flags");
             auto open_flags =
                 engine_json.at("open_flags").get<Engine::OpenFlags>();
 
             spdlog::debug("Parsing engine");
             auto engine =
-                Factory::get_engine(engine_json, shared_logger);
+                Factory::get_engine(engine_json, std::move(logger));
 
             spdlog::debug(
                 "Creating to_producer channel with initial capacity {}",

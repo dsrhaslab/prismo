@@ -3,9 +3,9 @@
 namespace Engine {
 
     UringEngine::UringEngine(
-        std::shared_ptr<Logger::Base> _logger,
+        std::unique_ptr<Logger::Base> _logger,
         const UringConfig& _config
-    ) : Base(_logger) {
+    ) : Base(std::move(_logger)) {
         UringConfig config = _config;
         int ret = io_uring_queue_init_params(config.entries, &ring, &config.params);
         if (ret)
