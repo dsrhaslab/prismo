@@ -624,13 +624,32 @@
             "lineInterpolation": "smooth",
             "showPoints": "never"
           },
-          "unit": "KBs"
+          "unit": "decbytes"
         },
         "overrides": [
           {
             "matcher": {
               "id": "byName",
-              "options": "value"
+              "options": "read_bw"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "read"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "write_bw"
             },
             "properties": [
               {
@@ -642,7 +661,7 @@
               },
               {
                 "id": "displayName",
-                "value": "bandwidth"
+                "value": "write"
               }
             ]
           }
@@ -665,8 +684,8 @@
           "sort": "none"
         }
       },
-      "title": "Disk Throughput [fio]",
-      "description": "Bandwidth from fio",
+      "title": "Disk Throughput [prismo]",
+      "description": "Aggregated throughput (processed bytes per interval) from prismo logs",
       "type": "timeseries",
       "targets": [
         {
@@ -675,7 +694,7 @@
           "source": "url",
           "parser": "backend",
           "format": "dataframe",
-          "url": "http://csv-server:8080/${campaign}/${workload}_bw.log",
+          "url": "http://csv-server:8080/${campaign}/${workload}.prismo.csv",
           "url_options": {
             "method": "GET"
           },
@@ -688,8 +707,13 @@
               "timestampFormat": "2006/01/02 15:04:05"
             },
             {
-              "selector": "value",
-              "text": "value",
+              "selector": "read_bw",
+              "text": "read_bw",
+              "type": "number"
+            },
+            {
+              "selector": "write_bw",
+              "text": "write_bw",
               "type": "number"
             }
           ]
@@ -822,7 +846,26 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "value"
+              "options": "read_iops"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "read"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "write_iops"
             },
             "properties": [
               {
@@ -834,7 +877,64 @@
               },
               {
                 "id": "displayName",
-                "value": "iops"
+                "value": "write"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "fsync_iops"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "fsync"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "fdatasync_iops"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "fdatasync"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "nop_iops"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "nop"
               }
             ]
           }
@@ -857,8 +957,8 @@
           "sort": "none"
         }
       },
-      "title": "Disk IOPS [fio]",
-      "description": "IOPS from fio",
+      "title": "Disk IOPS [prismo]",
+      "description": "IOPS (processed_bytes / block_size) from prismo logs",
       "type": "timeseries",
       "targets": [
         {
@@ -867,7 +967,7 @@
           "source": "url",
           "parser": "backend",
           "format": "dataframe",
-          "url": "http://csv-server:8080/${campaign}/${workload}_iops.log",
+          "url": "http://csv-server:8080/${campaign}/${workload}.prismo.csv",
           "url_options": {
             "method": "GET"
           },
@@ -880,8 +980,28 @@
               "timestampFormat": "2006/01/02 15:04:05"
             },
             {
-              "selector": "value",
-              "text": "value",
+              "selector": "read_iops",
+              "text": "read_iops",
+              "type": "number"
+            },
+            {
+              "selector": "write_iops",
+              "text": "write_iops",
+              "type": "number"
+            },
+            {
+              "selector": "fsync_iops",
+              "text": "fsync_iops",
+              "type": "number"
+            },
+            {
+              "selector": "fdatasync_iops",
+              "text": "fdatasync_iops",
+              "type": "number"
+            },
+            {
+              "selector": "nop_iops",
+              "text": "nop_iops",
               "type": "number"
             }
           ]
@@ -993,276 +1113,12 @@
       "description": "Virtual memory page-in and page-out rates from pcp-dstat"
     },
     {
-      "datasource": {
-        "type": "yesoreyeram-infinity-datasource",
-        "uid": "infinity"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "fillOpacity": 10,
-            "lineWidth": 2,
-            "lineInterpolation": "smooth",
-            "showPoints": "never"
-          },
-          "unit": "ns"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "value"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "red",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "slat"
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 0,
-        "y": 43
-      },
-      "id": 14,
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "title": "Submission Latency [fio]",
-      "description": "Average submission latency from fio",
-      "type": "timeseries",
-      "targets": [
-        {
-          "refId": "A",
-          "type": "csv",
-          "source": "url",
-          "parser": "backend",
-          "format": "dataframe",
-          "url": "http://csv-server:8080/${campaign}/${workload}_slat.log",
-          "url_options": {
-            "method": "GET"
-          },
-          "root_selector": "",
-          "columns": [
-            {
-              "selector": "time",
-              "text": "time",
-              "type": "timestamp",
-              "timestampFormat": "2006/01/02 15:04:05"
-            },
-            {
-              "selector": "value",
-              "text": "value",
-              "type": "number"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "datasource": {
-        "type": "yesoreyeram-infinity-datasource",
-        "uid": "infinity"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "fillOpacity": 10,
-            "lineWidth": 2,
-            "lineInterpolation": "smooth",
-            "showPoints": "never"
-          },
-          "unit": "ns"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "value"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "blue",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "clat"
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 8,
-        "y": 43
-      },
-      "id": 12,
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "title": "Completion Latency [fio]",
-      "description": "Average completion latency from fio",
-      "type": "timeseries",
-      "targets": [
-        {
-          "refId": "A",
-          "type": "csv",
-          "source": "url",
-          "parser": "backend",
-          "format": "dataframe",
-          "url": "http://csv-server:8080/${campaign}/${workload}_clat.log",
-          "url_options": {
-            "method": "GET"
-          },
-          "root_selector": "",
-          "columns": [
-            {
-              "selector": "time",
-              "text": "time",
-              "type": "timestamp",
-              "timestampFormat": "2006/01/02 15:04:05"
-            },
-            {
-              "selector": "value",
-              "text": "value",
-              "type": "number"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "datasource": {
-        "type": "yesoreyeram-infinity-datasource",
-        "uid": "infinity"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "fillOpacity": 10,
-            "lineWidth": 2,
-            "lineInterpolation": "smooth",
-            "showPoints": "never"
-          },
-          "unit": "ns"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "value"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "purple",
-                  "mode": "fixed"
-                }
-              },
-              {
-                "id": "displayName",
-                "value": "lat"
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 16,
-        "y": 43
-      },
-      "id": 13,
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "title": "Total Latency [fio]",
-      "description": "Average total latency from fio",
-      "type": "timeseries",
-      "targets": [
-        {
-          "refId": "A",
-          "type": "csv",
-          "source": "url",
-          "parser": "backend",
-          "format": "dataframe",
-          "url": "http://csv-server:8080/${campaign}/${workload}_lat.log",
-          "url_options": {
-            "method": "GET"
-          },
-          "root_selector": "",
-          "columns": [
-            {
-              "selector": "time",
-              "text": "time",
-              "type": "timestamp",
-              "timestampFormat": "2006/01/02 15:04:05"
-            },
-            {
-              "selector": "value",
-              "text": "value",
-              "type": "number"
-            }
-          ]
-        }
-      ]
-    },
-    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 51
+        "y": 43
       },
       "id": 103,
       "title": "Network",
@@ -1323,7 +1179,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 52
+        "y": 44
       },
       "id": 15,
       "options": {
@@ -1377,7 +1233,7 @@
   "schemaVersion": 39,
   "tags": [
     "campaign",
-    "fio",
+    "prismo",
     "dstat"
   ],
   "templating": {
@@ -1412,8 +1268,8 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "description": "Dashboard for FIO campaign results. Correlates FIO benchmark metrics (throughput, IOPS, latency) with system-level metrics collected by pcp-dstat (CPU, memory, disk, network). Set the Campaign and Workload variables to load the corresponding result files.",
-  "title": "Campaign Results - FIO",
-  "uid": "campaign-fio",
+  "description": "Dashboard for Prismo campaign results. Correlates Prismo benchmark metrics (throughput per operation type) with system-level metrics collected by pcp-dstat (CPU, memory, disk, network). Set the Campaign and Workload variables to load the corresponding result files.",
+  "title": "Campaign Results - Prismo",
+  "uid": "campaign-prismo",
   "version": 1
 }
