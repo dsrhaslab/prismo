@@ -229,13 +229,11 @@ namespace Engine {
         moodycamel::ConcurrentQueue<int>& available_indexes,
         std::atomic<int>* out_standing
     ) {
-        SpdkEngine* engine = static_cast<SpdkEngine*>(app_context->spdk_engine);
         SPDK_NOTICELOG("[INIT] Initializing %zu callback contexts\n", thread_cb_contexts.size());
         for (size_t i = 0; i < thread_cb_contexts.size(); i++) {
             SpdkThreadCallBackContext* thread_cb_context = new SpdkThreadCallBackContext();
             thread_cb_context->spdk_engine = app_context->spdk_engine;
             thread_cb_context->available_indexes = &available_indexes;
-            thread_cb_context->metric = engine->metric;
             thread_cb_context->out_standing = out_standing;
             thread_cb_contexts[i] = thread_cb_context;
         }
