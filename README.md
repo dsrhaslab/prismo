@@ -102,7 +102,6 @@ Workloads are defined using a JSON file divided into six independent sections. E
   "filename": "testfile",
   "block_size": 4096,
   "size": 268435456,
-  "metric": "full",
   "termination": {
     "type": "iterations",
     "value": 200000
@@ -118,13 +117,10 @@ Workloads are defined using a JSON file divided into six independent sections. E
 | `filename`    | Path of the target file                                                     | *(required)*  |
 | `block_size`  | I/O block size in bytes                                                     | *(required)*  |
 | `size`        | Maximum file size in bytes                                                  | *(required)*  |
-| `metric`      | Granularity of metric collection                                            | *(required)*  |
 | `termination` | Termination condition: stop after N operations or after M milliseconds      | *(required)*  |
 | `ramp`        | Linear increase or decrease of throughput                                   | *(optional)*  |
 
 The communication channel can be `blocking` or `non-blocking`, the former uses notifications, while the latter actively polls the queue to check for availability, which results in very high CPU usage.
-
-The `metric` parameter accepts values `none | base | standard | full`, progressively collecting more metrics and consequently reducing performance. For maximum performance, disable metric collection by selecting `none`.
 
 The `termination` condition can be expressed in two ways: one limits the number of operations to N, while the other limits execution time to M milliseconds.
 
@@ -366,8 +362,6 @@ The `spdk` engine uses the [**bdev**](https://spdk.io/doc/bdev.html) interface, 
 
 The logger captures benchmark activity and writes detailed execution records. These logs are stored in a structured format, which can then be analyzed with the scripts inside [**tools**](/tools/scripts/) to generate plots and run statistical analysis.
 
-Logging detail follows the `metric` level selected in [**job**](#job). As you move from `none` to `full`, records include progressively richer information.
-
 ```json
 "logger": {
   "type": "spdlog",
@@ -389,7 +383,7 @@ Logging detail follows the `metric` level selected in [**job**](#job). As you mo
 
 ## Report
 
-The JSON report provides a detailed benchmark summary, with one entry per job and an `all` aggregate when multiple jobs run (`numjobs > 1`). When metric collection is enabled, each job entry includes overall statistics such as total operations, total bytes transferred, runtime, IOPS, and bandwidth, plus per-operation metrics.
+The JSON report provides a detailed benchmark summary, with one entry per job and an `all` aggregate when multiple jobs run (`numjobs > 1`). Each job entry includes overall statistics such as total operations, total bytes transferred, runtime, IOPS, and bandwidth, plus per-operation metrics.
 
 ```json
 {

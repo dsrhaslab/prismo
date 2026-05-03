@@ -6,7 +6,6 @@
     "filename": "/dev/Nvme0n1",
     "block_size": 65536,
     "size":  66262417408,
-    "metric": "base",
     "termination": {
       "type": "iterations",
       "value": 1011084
