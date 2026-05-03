@@ -18,36 +18,20 @@ namespace Logger {
         public:
             Spdlog() = delete;
 
+            explicit Spdlog(const nlohmann::json& j);
+
             ~Spdlog() override {
                 std::cout << "~Destroying Spdlog Logger" << std::endl;
             };
 
-            explicit Spdlog(const nlohmann::json& j);
-
-            void info(const Metric::MetricVariant& metric) override;
+            void write(const Metric::Metric& metric) override;
         };
 };
 
 template<>
-struct fmt::formatter<Metric::BaseMetric> : fmt::formatter<std::string> {
+struct fmt::formatter<Metric::Metric> : fmt::formatter<std::string> {
     auto format(
-        const Metric::BaseMetric& metric,
-        fmt::format_context& ctx
-    ) const -> decltype(ctx.out());
-};
-
-template<>
-struct fmt::formatter<Metric::StandardMetric> : fmt::formatter<std::string> {
-    auto format(
-        const Metric::StandardMetric& metric,
-        fmt::format_context& ctx
-    ) const -> decltype(ctx.out());
-};
-
-template<>
-struct fmt::formatter<Metric::FullMetric> : fmt::formatter<std::string> {
-    auto format(
-        const Metric::FullMetric& metric,
+        const Metric::Metric& metric,
         fmt::format_context& ctx
     ) const -> decltype(ctx.out());
 };

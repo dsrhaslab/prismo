@@ -3,10 +3,9 @@
 namespace Engine {
 
     SpdkEngine::SpdkEngine(
-        Metric::MetricVariant _metric,
         std::shared_ptr<Logger::Base> _logger,
         const SpdkConfig& config
-    ) : Base(_metric, _logger) {
+    ) : Base(_logger) {
         spdk_main_thread = std::thread([this, config]() {
             start_spdk_app(this, config, &(this->trigger_atomic));
         });
@@ -553,21 +552,20 @@ namespace Engine {
             );
         }
 
-        Metric::fill_metric(
-            spdk_engine->metric,
-            spdk_engine->process_id,
-            spdk_engine->thread_id,
+        Metric::Metric m = Metric::create_metric(
             thread_cb_context->metric_data.operation_type,
             thread_cb_context->metric_data.metadata.block_id,
             thread_cb_context->metric_data.metadata.compression,
-            thread_cb_context->metric_data.offset,
-            thread_cb_context->metric_data.size,
             thread_cb_context->metric_data.start_ns,
+            spdk_engine->process_id,
+            spdk_engine->thread_id,
+            thread_cb_context->metric_data.size,
+            thread_cb_context->metric_data.offset,
             success ? thread_cb_context->metric_data.size : 0
         );
 
-        spdk_engine->log_metric(spdk_engine->metric);
-        spdk_engine->record_metric(spdk_engine->metric);
+        spdk_engine->log_metric(m);
+        spdk_engine->record_metric(m);
 
         thread_cb_context->out_standing->fetch_sub(1);
         thread_cb_context->available_indexes->enqueue(thread_cb_context->index);

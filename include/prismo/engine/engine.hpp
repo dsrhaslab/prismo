@@ -10,19 +10,17 @@ namespace Engine {
 
     class Base {
         protected:
-            Metric::MetricVariant metric;
             pid_t process_id = 0;
             uint64_t thread_id = 0;
 
             Base() = delete;
 
             explicit Base(
-                Metric::MetricVariant _metric,
                 std::shared_ptr<Logger::Base> _logger
             );
 
-            void record_metric(const Metric::MetricVariant& metric);
-            void log_metric(const Metric::MetricVariant& metric);
+            void record_metric(const Metric::Metric& metric);
+            void log_metric(const Metric::Metric& metric);
 
         private:
             Metric::Statistics statistics;

@@ -3,58 +3,29 @@
 
 #include <cstdint>
 #include <chrono>
-#include <variant>
 #include <iostream>
 #include <common/operation.hpp>
 
 namespace Metric {
 
-    struct NoneMetric {
-        ~NoneMetric() {
-            std::cout << "~Destroying NoneMetric" << std::endl;
-        }
+    struct Metric {
+        Operation::OperationType operation_type;
+        uint64_t block_id;
+        uint32_t compression;
+
+        uint64_t start_ns;
+        uint64_t end_ns;
+
+        pid_t pid;
+        uint64_t tid;
+
+        size_t requested_bytes;
+        size_t processed_bytes;
+        uint64_t offset;
+
+        int32_t return_code;
+        int32_t error_no;
     };
-
-    struct BaseMetric {
-        uint64_t block_id = 0;
-        uint32_t compression = 0;
-        uint64_t start_ns = 0;
-        uint64_t end_ns = 0;
-        size_t processed_bytes = 0;
-        Operation::OperationType operation_type = Operation::OperationType::NOP;
-
-        ~BaseMetric() {
-            std::cout << "~Destroying BaseMetric" << std::endl;
-        }
-    };
-
-    struct StandardMetric : BaseMetric {
-        pid_t pid = 0;
-        uint64_t tid = 0;
-
-        ~StandardMetric() {
-            std::cout << "~Destroying StandardMetric" << std::endl;
-        }
-    };
-
-    struct FullMetric : StandardMetric {
-        size_t requested_bytes = 0;
-        uint64_t offset = 0;
-        int32_t return_code = 0;
-        int32_t error_no = 0;
-
-        ~FullMetric() {
-            std::cout << "~Destroying FullMetric" << std::endl;
-        }
-    };
-
-
-    using MetricVariant = std::variant<
-        NoneMetric,
-        BaseMetric,
-        StandardMetric,
-        FullMetric
-    >;
 
     inline uint64_t get_current_timestamp() noexcept {
         return static_cast<uint64_t>(
@@ -64,42 +35,32 @@ namespace Metric {
         );
     }
 
-    inline void fill_metric(
-        MetricVariant& metric,
-        pid_t pid,
-        uint64_t tid,
+    inline Metric create_metric(
         Operation::OperationType op,
         uint64_t block_id,
         uint32_t compression,
+        uint64_t start_ns,
+        pid_t pid,
+        uint64_t tid,
+        size_t requested_bytes,
         uint64_t offset,
-        size_t size,
-        uint64_t start_ts,
         ssize_t result
     ) {
-        std::visit([&](auto& m) {
-            using T = std::decay_t<decltype(m)>;
+        return Metric {
+            .operation_type = op,
+            .block_id = block_id,
+            .compression = compression,
+            .start_ns = start_ns,
+            .end_ns = get_current_timestamp(),
+            .pid = pid,
+            .tid = tid,
+            .requested_bytes = requested_bytes,
+            .processed_bytes = (result > 0) ? static_cast<size_t>(result) : 0,
+            .offset = offset,
+            .return_code = static_cast<int32_t>(result),
+            .error_no = (result < 0) ? errno : 0
 
-            if constexpr (std::is_base_of_v<BaseMetric, T>) {
-                m.operation_type = op;
-                m.block_id = block_id;
-                m.compression = compression;
-                m.start_ns = start_ts;
-                m.end_ns = get_current_timestamp();
-                m.processed_bytes = (result > 0) ? static_cast<size_t>(result) : 0;
-            }
-
-            if constexpr (std::is_base_of_v<StandardMetric, T>) {
-                m.pid = pid;
-                m.tid = tid;
-            }
-
-            if constexpr (std::is_base_of_v<FullMetric, T>) {
-                m.requested_bytes = size;
-                m.offset = offset;
-                m.return_code = static_cast<int32_t>(result);
-                m.error_no = (result < 0) ? errno : 0;
-            }
-        }, metric);
+        };
     }
 }
 

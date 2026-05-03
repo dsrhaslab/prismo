@@ -2,7 +2,8 @@
 
 namespace Logger {
 
-    Spdlog::Spdlog(const nlohmann::json& j) {
+    Spdlog::Spdlog(const nlohmann::json& j)
+        : Base(j.at("avg_interval_ms").get<uint64_t>()) {
         std::vector<spdlog::sink_ptr> sinks;
         spdlog::init_thread_pool(
             j.at("queue_size").get<size_t>(),
@@ -31,52 +32,13 @@ namespace Logger {
         spdlog::register_logger(logger);
     }
 
-    void Spdlog::info(const Metric::MetricVariant& metric) {
-        std::visit([this](const auto& m) {
-            using T = std::decay_t<decltype(m)>;
-            if constexpr (!std::is_same_v<T, Metric::NoneMetric>) {
-                logger->info(m);
-            }
-        }, metric);
+    void Spdlog::write(const Metric::Metric& metric) {
+        logger->info(metric);
     }
 };
 
-auto fmt::formatter<Metric::BaseMetric>::format(
-    const Metric::BaseMetric& metric,
-    fmt::format_context& ctx
-) const -> decltype(ctx.out()) {
-    return fmt::format_to(
-        ctx.out(),
-        "[type={} block={:016x} cpr={} sts={} ets={} proc={}]",
-        static_cast<uint8_t>(metric.operation_type),
-        metric.block_id,
-        metric.compression,
-        metric.start_ns,
-        metric.end_ns,
-        metric.processed_bytes
-    );
-}
-
-auto fmt::formatter<Metric::StandardMetric>::format(
-    const Metric::StandardMetric& metric,
-    fmt::format_context& ctx
-) const -> decltype(ctx.out()) {
-    return fmt::format_to(
-        ctx.out(),
-        "[type={} block={:016x} cpr={} sts={} ets={} proc={} pid={} tid={}]",
-        static_cast<uint8_t>(metric.operation_type),
-        metric.block_id,
-        metric.compression,
-        metric.start_ns,
-        metric.end_ns,
-        metric.processed_bytes,
-        metric.pid,
-        metric.tid
-    );
-}
-
-auto fmt::formatter<Metric::FullMetric>::format(
-    const Metric::FullMetric& metric,
+auto fmt::formatter<Metric::Metric>::format(
+    const Metric::Metric& metric,
     fmt::format_context& ctx
 ) const -> decltype(ctx.out()) {
     return fmt::format_to(

@@ -46,9 +46,6 @@ namespace Factory {
     std::unique_ptr<Control::Termination> get_termination(
         const nlohmann::json& config);
 
-    Metric::MetricVariant get_metric(
-        const nlohmann::json& config);
-
     std::shared_ptr<Logger::Base> get_logger(
         const nlohmann::json& config);
 
@@ -57,7 +54,6 @@ namespace Factory {
 
     std::unique_ptr<Engine::Base> get_engine(
         const nlohmann::json& config,
-        Metric::MetricVariant metric,
         std::shared_ptr<Logger::Base> logger);
 };
 

@@ -12,8 +12,6 @@
 
 namespace Control {
 
-    inline constexpr uint64_t CHECK_INTERVAL = 4096;
-
     enum class TerminationType {
         ITERATIONS,
         RUNTIME
@@ -21,11 +19,13 @@ namespace Control {
 
     class Termination {
         private:
+            static constexpr uint64_t check_interval_ms = 4096;
+
             uint64_t iterations_count;
             std::chrono::steady_clock::time_point start_time;
 
             TerminationType type;
-            uint64_t value;
+            uint64_t termination_value;
 
         public:
             ~Termination() {
@@ -33,7 +33,7 @@ namespace Control {
             }
 
             explicit Termination(const nlohmann::json& j) {
-                value = j.at("value").get<uint64_t>();
+                termination_value = j.at("value").get<uint64_t>();
                 std::string type_str = j.at("type").get<std::string>();
 
                 if (type_str == "iterations") {
@@ -60,13 +60,13 @@ namespace Control {
             }
 
             bool is_time_check_due(void) const {
-                return iterations_count % CHECK_INTERVAL == 0;
+                return iterations_count % check_interval_ms == 0;
             }
 
             bool should_continue(void) const {
                 switch (type) {
                     case TerminationType::ITERATIONS:
-                        return iterations_count < value;
+                        return iterations_count < termination_value;
 
                     case TerminationType::RUNTIME: {
                         auto current_time =
@@ -79,7 +79,7 @@ namespace Control {
                                 current_time - start_time)
                                 .count();
 
-                        return elapsed < static_cast<long>(value);
+                        return static_cast<uint64_t>(elapsed) < termination_value;
                     }
 
                     default:
@@ -94,18 +94,18 @@ namespace Control {
 
                 switch (type) {
                     case TerminationType::ITERATIONS:
-                        if (value == 0) {
+                        if (termination_value == 0) {
                             oss << "0.0% (0/0)";
                         } else {
                             double percent = std::min(
                                 100.0,
                                 100.0 *
                                 static_cast<double>(iterations_count) /
-                                static_cast<double>(value)
+                                static_cast<double>(termination_value)
                             );
 
                             oss << percent << "% (" << iterations_count << "/"
-                               << value << ")";
+                               << termination_value << ")";
                         }
                         break;
 
@@ -115,7 +115,7 @@ namespace Control {
                             (now - start_time).count();
 
                         double elapsed_sec = elapsed / 1000.0;
-                        double total_sec = static_cast<double>(value) / 1000.0;
+                        double total_sec = static_cast<double>(termination_value) / 1000.0;
                         double percent = total_sec > 0
                             ? std::min(100.0, elapsed_sec / total_sec * 100.0)
                             : 0.0;

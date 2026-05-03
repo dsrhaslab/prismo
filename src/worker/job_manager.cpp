@@ -69,17 +69,13 @@ namespace Worker {
             auto termination =
                 Factory::get_termination(job_json);
 
-            spdlog::debug("Parsing metric config");
-            auto metric =
-                Factory::get_metric(job_json);
-
             spdlog::debug("Parsing open flags");
             auto open_flags =
                 engine_json.at("open_flags").get<Engine::OpenFlags>();
 
             spdlog::debug("Parsing engine");
             auto engine =
-                Factory::get_engine(engine_json, metric, shared_logger);
+                Factory::get_engine(engine_json, shared_logger);
 
             spdlog::debug(
                 "Creating to_producer channel with initial capacity {}",

@@ -3,9 +3,8 @@
 namespace Engine {
 
     PosixEngine::PosixEngine(
-        Metric::MetricVariant _metric,
         std::shared_ptr<Logger::Base> _logger
-    ) : Base(_metric, _logger) {}
+    ) : Base(_logger) {}
 
     PosixEngine::~PosixEngine() {
         std::cout << "~Destroying PosixEngine" << std::endl;
@@ -67,20 +66,19 @@ namespace Engine {
                 break;
         }
 
-        Metric::fill_metric(
-            metric,
-            process_id,
-            thread_id,
+        Metric::Metric m = Metric::create_metric(
             request.operation,
             request.metadata.block_id,
             request.metadata.compression,
-            request.offset,
-            request.size,
             start_ns,
+            process_id,
+            thread_id,
+            request.size,
+            request.offset,
             result
         );
 
-        Base::log_metric(metric);
-        Base::record_metric(metric);
+        Base::log_metric(m);
+        Base::record_metric(m);
     }
 }

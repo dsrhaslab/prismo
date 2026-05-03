@@ -18,7 +18,6 @@ namespace Engine {
 
         public:
             explicit PosixEngine(
-                Metric::MetricVariant _metric,
                 std::shared_ptr<Logger::Base> _logger
             );
 

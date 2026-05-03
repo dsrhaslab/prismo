@@ -3,10 +3,8 @@
 namespace Engine {
 
     Base::Base(
-        Metric::MetricVariant _metric,
         std::shared_ptr<Logger::Base> _logger
     ) :
-        metric(_metric),
         logger(_logger)
     {
         process_id = ::getpid();
@@ -18,11 +16,11 @@ namespace Engine {
         std::cout << "~Destroying Engine" << std::endl;
     }
 
-    void Base::record_metric(const Metric::MetricVariant& metric) {
+    void Base::record_metric(const Metric::Metric& metric) {
         statistics.record_metric(metric);
     }
 
-    void Base::log_metric(const Metric::MetricVariant& metric) {
+    void Base::log_metric(const Metric::Metric& metric) {
         if (logger) logger->info(metric);
     }
 
