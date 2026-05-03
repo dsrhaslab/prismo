@@ -71,6 +71,54 @@ run_workload() {
         --write_iops_log="${name}" \
         --log_avg_msec=1000)
     convert_fio_logs "$report" "$name"
+    merge_fio_logs "$name"
+}
+
+# Merge per-job FIO log files into a single file per metric.
+# For bw and iops: sum values across jobs at each timestamp.
+# For latency (clat, slat, lat): average values across jobs at each timestamp.
+merge_fio_logs() {
+    local name="$1"
+    WORKLOAD_NAME="$name" RESULTS_DIR="$RESULTS_DIR" \
+    python3 - << 'PYEOF'
+import glob, os, csv
+from collections import defaultdict
+
+resdir = os.environ['RESULTS_DIR']
+name   = os.environ['WORKLOAD_NAME']
+
+SUM_METRICS = ('bw', 'iops')
+AVG_METRICS = ('clat', 'slat', 'lat')
+
+for metric in SUM_METRICS + AVG_METRICS:
+    pattern = os.path.join(resdir, f'{name}_{metric}.*.log')
+    job_files = sorted(glob.glob(pattern))
+    if len(job_files) <= 1:
+        continue
+
+    data = defaultdict(list)
+    header = None
+    for jf in job_files:
+        with open(jf) as f:
+            reader = csv.reader(f)
+            header = next(reader)
+            for row in reader:
+                if not row:
+                    continue
+                data[row[0]].append((float(row[1]), row[2:]))
+
+    merged_path = os.path.join(resdir, f'{name}_{metric}.log')
+    with open(merged_path, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(header)
+        for ts in sorted(data.keys()):
+            entries = data[ts]
+            if metric in SUM_METRICS:
+                merged_val = sum(v for v, _ in entries)
+            else:
+                merged_val = sum(v for v, _ in entries) / len(entries)
+            writer.writerow([ts, int(merged_val)] + entries[0][1])
+PYEOF
 }
 
 run_campaign

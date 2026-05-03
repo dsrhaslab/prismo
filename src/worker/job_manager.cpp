@@ -31,7 +31,6 @@ namespace Worker {
         spdlog::debug("Setting up {} job(s)", numjobs);
         jobs.resize(numjobs);
         threads.reserve(numjobs * 2);
-        std::string logging_name = logging_json["name"].get<std::string>();
 
         spdlog::debug("Parsing logger config (shared across all jobs)");
         for (size_t i = 0; i < numjobs; i++) {

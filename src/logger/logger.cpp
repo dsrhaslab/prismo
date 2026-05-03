@@ -48,7 +48,6 @@ namespace Logger {
                 op_metrics.clear();
             }
         }
-        last_avg_time = std::chrono::steady_clock::now();
     }
 
     void Base::info(const Metric::Metric& metric) {
@@ -61,6 +60,7 @@ namespace Logger {
 
         if (static_cast<uint64_t>(elapsed) >= avg_interval_ms) {
             flush();
+            last_avg_time = std::chrono::steady_clock::now();
         }
     }
 };

@@ -362,10 +362,13 @@ The `spdk` engine uses the [**bdev**](https://spdk.io/doc/bdev.html) interface, 
 
 The logger captures benchmark activity and writes detailed execution records. These logs are stored in a structured format, which can then be analyzed with the scripts inside [**tools**](/tools/scripts/) to generate plots and run statistical analysis.
 
+The `avg_interval_ms` parameter should be consistent across all logger implementations, it specifies the log aggregation interval, thereby preventing excessive logging. If you need to display logs for all operations, simply set this parameter to zero.
+
 ```json
 "logger": {
   "type": "spdlog",
   "name": "prismo",
+  "avg_interval_ms": 1000,
   "queue_size": 8192,
   "thread_count": 1,
   "truncate": true,
