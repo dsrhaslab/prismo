@@ -14,7 +14,7 @@ namespace Logger {
             std::chrono::steady_clock::time_point last_avg_time;
             std::unordered_map<Operation::OperationType, std::vector<Metric::Metric>> metrics_by_op;
 
-            Metric::Metric compute_average(const std::vector<Metric::Metric>& metrics) const;
+            Metric::Metric merge(const std::vector<Metric::Metric>& metrics) const;
 
         protected:
             virtual void write(const Metric::Metric& metric) = 0;

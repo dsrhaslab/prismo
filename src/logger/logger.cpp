@@ -10,36 +10,31 @@ namespace Logger {
         std::cout << "~Destroying Logger" << std::endl;
     }
 
-    Metric::Metric Base::compute_average(const std::vector<Metric::Metric>& metrics) const {
-        Metric::Metric avg{};
-        if (metrics.empty()) return avg;
-
+    Metric::Metric Base::merge(const std::vector<Metric::Metric>& metrics) const {
+        Metric::Metric merged{};
         size_t n = metrics.size();
+        merged.start_ns = UINT64_MAX;
 
         for (const auto& m : metrics) {
-            avg.start_ns += m.start_ns;
-            avg.end_ns += m.end_ns;
-            avg.processed_bytes += m.processed_bytes;
-            avg.compression += m.compression;
-            avg.requested_bytes += m.requested_bytes;
-            avg.offset += m.offset;
-            avg.return_code += m.return_code;
-            avg.error_no += m.error_no;
+            merged.start_ns = std::min(merged.start_ns, m.start_ns);
+            merged.end_ns = std::max(merged.end_ns, m.end_ns);
+            merged.processed_bytes += m.processed_bytes;
+            merged.requested_bytes += m.requested_bytes;
         }
 
-        avg.operation_type = metrics.front().operation_type;
-        avg.pid = metrics.front().pid;
-        avg.tid = metrics.front().tid;
-        avg.start_ns /= n;
-        avg.end_ns /= n;
-        avg.processed_bytes /= n;
-        avg.compression = static_cast<uint32_t>(avg.compression / n);
-        avg.requested_bytes /= n;
-        avg.offset /= n;
-        avg.return_code = static_cast<int32_t>(avg.return_code / static_cast<int32_t>(n));
-        avg.error_no = static_cast<int32_t>(avg.error_no / static_cast<int32_t>(n));
+        merged.operation_type = metrics.front().operation_type;
+        merged.pid = metrics.front().pid;
+        merged.tid = metrics.front().tid;
+        merged.processed_bytes /= n;
+        merged.requested_bytes /= n;
 
-        return avg;
+        merged.block_id = 0;
+        merged.compression = 0;
+        merged.offset = 0;
+        merged.return_code = 0;
+        merged.error_no = 0;
+
+        return merged;
     }
 
     void Base::info(const Metric::Metric& metric) {
@@ -53,8 +48,8 @@ namespace Logger {
         if (static_cast<uint64_t>(elapsed) >= avg_interval_ms) {
             for (auto& [op_type, op_metrics] : metrics_by_op) {
                 if (!op_metrics.empty()) {
-                    Metric::Metric avg_metric = compute_average(op_metrics);
-                    write(avg_metric);
+                    Metric::Metric merged_metric = merge(op_metrics);
+                    write(merged_metric);
                     op_metrics.clear();
                 }
             }
