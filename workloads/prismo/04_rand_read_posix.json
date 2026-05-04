@@ -5,7 +5,7 @@
     "numjobs": 1,
     "filename": "/dev/nvme0n1",
     "block_size": 4096,
-    "size":  66262417408,
+    "size": 66262417408,
     "termination": {
       "type": "runtime",
       "value": 900000
@@ -28,6 +28,18 @@
       "O_CREAT",
       "O_RDWR",
       "O_DIRECT"
+    ]
+  },
+  "logger": {
+    "type": "spdlog",
+    "name": "prismo",
+    "avg_interval_ms": 1000,
+    "queue_size": 8192,
+    "thread_count": 1,
+    "truncate": true,
+    "to_stdout": false,
+    "files": [
+      "log1.log"
     ]
   }
 }

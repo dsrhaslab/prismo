@@ -19,7 +19,7 @@ namespace Control {
 
     class Termination {
         private:
-            static constexpr uint64_t check_interval_ms = 4096;
+            static constexpr uint64_t check_interval = 4096;
 
             uint64_t iterations_count;
             std::chrono::steady_clock::time_point start_time;
@@ -60,7 +60,7 @@ namespace Control {
             }
 
             bool is_time_check_due(void) const {
-                return iterations_count % check_interval_ms == 0;
+                return iterations_count % check_interval == 0;
             }
 
             bool should_continue(void) const {

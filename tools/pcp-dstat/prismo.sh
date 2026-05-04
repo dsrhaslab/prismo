@@ -84,7 +84,7 @@ import json, os
 cfg = '$cfg'
 with open(cfg) as f:
     config = json.load(f)
-config['logger']['files'] = [os.path.join(os.environ['RESULTS_DIR'], os.environ['WORKLOAD_NAME'])]
+config.setdefault('logger', {})['files'] = [os.path.join(os.environ['RESULTS_DIR'], os.environ['WORKLOAD_NAME'])]
 with open('${patched_cfg}', 'w') as f:
     json.dump(config, f, indent=2)
 "
@@ -92,7 +92,7 @@ with open('${patched_cfg}', 'w') as f:
     local block_size
     block_size=$(python3 -c "import json; print(json.load(open('$patched_cfg'))['job']['block_size'])")
 
-    "$TOOL_BIN" -c "$patched_cfg" -o "$report" > /dev/null 2>&1
+    "$TOOL_BIN" -c "$patched_cfg" -o "$report" -l
     convert_prismo_logs "$name" "$block_size"
 }
 

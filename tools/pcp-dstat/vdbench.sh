@@ -78,7 +78,7 @@ run_workload() {
     local name
     name="$(basename "$cfg")"
     name="${name%.*}"
-    "$TOOL_BIN" -f "$cfg" -o "$report" > /dev/null 2>&1
+    "$TOOL_BIN" -f "$cfg" -o "$report"
     convert_vdbench_flatfile "$report" "$(dirname "$report")/${name}.flatfile.csv"
 }
 

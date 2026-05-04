@@ -1,7 +1,7 @@
 ; 01_seq_write_posix
 [global]
-filename=/home/gsd/test
-size=662624174
+filename=/dev/nvme0n1
+size=66262417408
 ioengine=psync
 direct=1
 

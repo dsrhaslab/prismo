@@ -93,7 +93,12 @@ AVG_METRICS = ('clat', 'slat', 'lat')
 for metric in SUM_METRICS + AVG_METRICS:
     pattern = os.path.join(resdir, f'{name}_{metric}.*.log')
     job_files = sorted(glob.glob(pattern))
-    if len(job_files) <= 1:
+    if not job_files:
+        continue
+
+    merged_path = os.path.join(resdir, f'{name}_{metric}.log')
+    if len(job_files) == 1:
+        os.rename(job_files[0], merged_path)
         continue
 
     data = defaultdict(list)
@@ -107,7 +112,6 @@ for metric in SUM_METRICS + AVG_METRICS:
                     continue
                 data[row[0]].append((float(row[1]), row[2:]))
 
-    merged_path = os.path.join(resdir, f'{name}_{metric}.log')
     with open(merged_path, 'w', newline='') as f:
         writer = csv.writer(f)
         writer.writerow(header)
