@@ -5,10 +5,9 @@ import matplotlib.dates as mdates
 import matplotlib.ticker as ticker
 from pathlib import Path
 
-# ── IEEE / scientific paper style ────────────────────────────────────────────
-COLUMN_WIDTH = 3.5          # single-column width in inches (IEEE)
-TEXT_WIDTH = 7.16            # full-page width in inches (IEEE)
-ASPECT = 0.62               # golden-ratio-ish height/width
+COLUMN_WIDTH = 3.5
+TEXT_WIDTH = 7.16
+ASPECT = 0.62
 
 COLORS = {
     'blue':   '#2166ac',
