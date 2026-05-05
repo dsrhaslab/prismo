@@ -5,10 +5,6 @@ size=66262417408
 ioengine=libaio
 iodepth=128
 direct=1
-write_bw_log=$jobname
-write_lat_log=$jobname
-write_iops_log=$jobname
-log_avg_msec=1000
 
 [37_write_heavy_seq_aio]
 bs=4k
