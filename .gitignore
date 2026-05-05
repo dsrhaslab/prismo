@@ -2,6 +2,7 @@ builddir/
 external/
 traces/
 *.log
+.env
 testfile*
 tests/
 workloads/results/

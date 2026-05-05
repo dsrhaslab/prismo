@@ -23,7 +23,7 @@ validate_common
 
 run_workload() {
     local cfg="$1" report="$2"
-    "$TOOL_BIN" -f "$cfg" -o "$report" > /dev/null 2>&1
+    "$TOOL_BIN" -f "$cfg" -o "$report"
 }
 
 run_campaign

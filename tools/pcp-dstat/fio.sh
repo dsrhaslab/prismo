@@ -25,4 +25,20 @@ run_workload() {
     "$TOOL_BIN" "$cfg" --output-format=json --output="$report" > /dev/null 2>&1
 }
 
+run_workload() {
+    local cfg report abs_cfg name
+    cfg="$1"; report="$2"
+    abs_cfg="$(realpath "$cfg")"
+    name="$(basename "$cfg" .fio)"
+
+    cd "$RESULTS_DIR"
+    "$TOOL_BIN" "$abs_cfg" \
+        --output-format=json \
+        --output="$report" \
+        --write_bw_log="${name}" \
+        --write_lat_log="${name}" \
+        --write_iops_log="${name}" \
+        --log_avg_msec=1000
+}
+
 run_campaign

@@ -6,3 +6,5 @@
 /png
 /share
 pyvenv.cfg
+.venv/
+uv.lock

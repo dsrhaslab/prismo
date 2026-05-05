@@ -201,7 +201,7 @@
           "root_selector": "",
           "columns": [
             { "selector": "time",           "text": "time",  "type": "timestamp", "timestampFormat": "2006/01/02 15:04:05" },
-            { "selector": "dsk/total:read", "text": "read",  "type": "number" },
+            { "selector": "dsk/total:read", "text": "dsk/read",  "type": "number" },
             { "selector": "dsk/total:writ", "text": "write", "type": "number" }
           ]
         }
