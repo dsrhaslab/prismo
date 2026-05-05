@@ -76,7 +76,7 @@ namespace Metric {
             void start(void);
             void finish(void);
 
-            void record_metric(const Metric& metric);
+            void record_metric(const MetricVariant& metric);
             void merge(const Statistics& other);
 
             nlohmann::json to_json(void) const;

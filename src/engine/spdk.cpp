@@ -3,9 +3,10 @@
 namespace Engine {
 
     SpdkEngine::SpdkEngine(
-        std::unique_ptr<Logger::Base> _logger,
+        Metric::MetricVariant _metric,
+        std::shared_ptr<Logger::Base> _logger,
         const SpdkConfig& config
-    ) : Base(std::move(_logger)) {
+    ) : Base(_metric, _logger) {
         spdk_main_thread = std::thread([this, config]() {
             start_spdk_app(this, config, &(this->trigger_atomic));
         });
@@ -229,11 +230,13 @@ namespace Engine {
         moodycamel::ConcurrentQueue<int>& available_indexes,
         std::atomic<int>* out_standing
     ) {
+        SpdkEngine* engine = static_cast<SpdkEngine*>(app_context->spdk_engine);
         SPDK_NOTICELOG("[INIT] Initializing %zu callback contexts\n", thread_cb_contexts.size());
         for (size_t i = 0; i < thread_cb_contexts.size(); i++) {
             SpdkThreadCallBackContext* thread_cb_context = new SpdkThreadCallBackContext();
             thread_cb_context->spdk_engine = app_context->spdk_engine;
             thread_cb_context->available_indexes = &available_indexes;
+            thread_cb_context->metric = engine->metric;
             thread_cb_context->out_standing = out_standing;
             thread_cb_contexts[i] = thread_cb_context;
         }
@@ -550,20 +553,21 @@ namespace Engine {
             );
         }
 
-        Metric::Metric m = Metric::create_metric(
+        Metric::fill_metric(
+            spdk_engine->metric,
+            spdk_engine->process_id,
+            spdk_engine->thread_id,
             thread_cb_context->metric_data.operation_type,
             thread_cb_context->metric_data.metadata.block_id,
             thread_cb_context->metric_data.metadata.compression,
-            thread_cb_context->metric_data.start_ns,
-            spdk_engine->process_id,
-            spdk_engine->thread_id,
-            thread_cb_context->metric_data.size,
             thread_cb_context->metric_data.offset,
+            thread_cb_context->metric_data.size,
+            thread_cb_context->metric_data.start_ns,
             success ? thread_cb_context->metric_data.size : 0
         );
 
-        spdk_engine->log_metric(m);
-        spdk_engine->record_metric(m);
+        spdk_engine->log_metric(spdk_engine->metric);
+        spdk_engine->record_metric(spdk_engine->metric);
 
         thread_cb_context->out_standing->fetch_sub(1);
         thread_cb_context->available_indexes->enqueue(thread_cb_context->index);

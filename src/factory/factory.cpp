@@ -144,11 +144,11 @@ namespace Factory {
         return std::make_unique<Control::Termination>(config.at("termination"));
     }
 
-    std::unique_ptr<Logger::Base> get_logger(const nlohmann::json& config) {
+    std::shared_ptr<Logger::Base> get_logger(const nlohmann::json& config) {
         const std::string type = config.value("type", "null");
 
         if (type == "spdlog") {
-            return std::make_unique<Logger::Spdlog>(config);
+            return std::make_shared<Logger::Spdlog>(config);
         } else if (type != "null") {
             throw std::invalid_argument(
                 "get_logger: type '" + type + "' not recognized");
@@ -174,28 +174,60 @@ namespace Factory {
         }
     }
 
+    Metric::MetricVariant get_metric(
+        const nlohmann::json& config
+    ) {
+        std::string type = config.value("metric", "base");
+
+        if (type == "none") {
+            return Metric::MetricVariant {
+                std::in_place_type<Metric::NoneMetric>
+            };
+        } else if (type == "base") {
+            return Metric::MetricVariant {
+                std::in_place_type<Metric::BaseMetric>
+            };
+        } else if (type == "standard") {
+            return Metric::MetricVariant {
+                std::in_place_type<Metric::StandardMetric>
+            };
+        } else if (type == "full") {
+            return Metric::MetricVariant {
+                std::in_place_type<Metric::FullMetric>
+            };
+        } else {
+            throw std::invalid_argument(
+                "get_metric: type '" + type + "' not recognized");
+        }
+    }
+
     std::unique_ptr<Engine::Base> get_engine(
         const nlohmann::json& config,
-        std::unique_ptr<Logger::Base> logger
+        Metric::MetricVariant metric,
+        std::shared_ptr<Logger::Base> logger
     ) {
         std::string type = config.value("type", "posix");
 
         if (type == "posix") {
             return std::make_unique<Engine::PosixEngine>(
+                std::move(metric),
                 std::move(logger)
             );
         } else if (type == "uring") {
             return std::make_unique<Engine::UringEngine>(
+                std::move(metric),
                 std::move(logger),
                 config.get<Engine::UringConfig>()
             );
         } else if (type == "aio") {
             return std::make_unique<Engine::AioEngine>(
+                std::move(metric),
                 std::move(logger),
                 config.get<Engine::AioConfig>()
             );
         } else if (type == "spdk") {
             return std::make_unique<Engine::SpdkEngine>(
+                std::move(metric),
                 std::move(logger),
                 config.get<Engine::SpdkConfig>()
             );

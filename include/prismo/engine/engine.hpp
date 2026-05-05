@@ -10,21 +10,23 @@ namespace Engine {
 
     class Base {
         protected:
+            Metric::MetricVariant metric;
             pid_t process_id = 0;
             uint64_t thread_id = 0;
 
             Base() = delete;
 
             explicit Base(
-                std::unique_ptr<Logger::Base> _logger
+                Metric::MetricVariant _metric,
+                std::shared_ptr<Logger::Base> _logger
             );
 
-            void record_metric(const Metric::Metric& metric);
-            void log_metric(const Metric::Metric& metric);
+            void record_metric(const Metric::MetricVariant& metric);
+            void log_metric(const Metric::MetricVariant& metric);
 
         private:
             Metric::Statistics statistics;
-            std::unique_ptr<Logger::Base> logger;
+            std::shared_ptr<Logger::Base> logger;
 
         public:
             virtual ~Base();
@@ -35,7 +37,6 @@ namespace Engine {
             void start_statistics(void);
             void finish_statistics(void);
 
-            void flush_logger(void);
             const Metric::Statistics get_statistics(void) const;
 
             virtual int open(Protocol::OpenRequest& request) = 0;

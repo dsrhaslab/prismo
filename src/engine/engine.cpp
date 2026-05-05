@@ -3,9 +3,11 @@
 namespace Engine {
 
     Base::Base(
-        std::unique_ptr<Logger::Base> _logger
+        Metric::MetricVariant _metric,
+        std::shared_ptr<Logger::Base> _logger
     ) :
-        logger(std::move(_logger))
+        metric(_metric),
+        logger(_logger)
     {
         process_id = ::getpid();
         thread_id =
@@ -16,11 +18,11 @@ namespace Engine {
         std::cout << "~Destroying Engine" << std::endl;
     }
 
-    void Base::record_metric(const Metric::Metric& metric) {
+    void Base::record_metric(const Metric::MetricVariant& metric) {
         statistics.record_metric(metric);
     }
 
-    void Base::log_metric(const Metric::Metric& metric) {
+    void Base::log_metric(const Metric::MetricVariant& metric) {
         if (logger) logger->info(metric);
     }
 
@@ -38,10 +40,6 @@ namespace Engine {
 
     void Base::finish_statistics(void) {
         statistics.finish();
-    }
-
-    void Base::flush_logger(void) {
-        if (logger) logger->flush();
     }
 
     const Metric::Statistics Base::get_statistics(void) const {

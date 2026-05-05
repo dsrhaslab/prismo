@@ -5,7 +5,8 @@
     "numjobs": 1,
     "filename": "/dev/nvme0n1",
     "block_size": 65536,
-    "size": 66262417408,
+    "size":  66262417408,
+    "metric": "base",
     "termination": {
       "type": "iterations",
       "value": 1011084
@@ -39,17 +40,5 @@
         "IORING_SETUP_SQ_AFF"
       ]
     }
-  },
-  "logger": {
-    "type": "spdlog",
-    "name": "prismo",
-    "avg_interval_ms": 1000,
-    "queue_size": 8192,
-    "thread_count": 1,
-    "truncate": true,
-    "to_stdout": false,
-    "files": [
-      "log1.log"
-    ]
   }
 }

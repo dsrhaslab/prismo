@@ -11,10 +11,22 @@ namespace Metric {
         end_time_ns = get_current_timestamp();
     }
 
-    void Statistics::record_metric(const Metric& metric) {
-        uint64_t latency_ns = metric.end_ns - metric.start_ns;
-        stats_per_operation[metric.operation_type].record(
-            latency_ns, metric.processed_bytes);
+    void Statistics::record_metric(const MetricVariant& metric) {
+        std::visit(
+            [this](const auto& m) {
+                using T = std::decay_t<decltype(m)>;
+
+                if constexpr (
+                    std::is_same_v<T, BaseMetric> ||
+                    std::is_same_v<T, StandardMetric> ||
+                    std::is_same_v<T, FullMetric>
+                ) {
+                    uint64_t latency_ns = m.end_ns - m.start_ns;
+                    stats_per_operation[m.operation_type].record(
+                        latency_ns, m.processed_bytes);
+                }
+            },
+            metric);
     }
 
     void Statistics::merge(const Statistics& other) {

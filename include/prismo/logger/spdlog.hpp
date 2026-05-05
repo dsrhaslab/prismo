@@ -1,7 +1,6 @@
 #ifndef PRISMO_LOGGER_SPDLOG_H
 #define PRISMO_LOGGER_SPDLOG_H
 
-#include <mutex>
 #include <spdlog/spdlog.h>
 #include <spdlog/async.h>
 #include <spdlog/fmt/fmt.h>
@@ -14,26 +13,41 @@ namespace Logger {
 
     class Spdlog : public Base {
         private:
-            inline static std::once_flag tp_flag;
             std::shared_ptr<spdlog::logger> logger;
 
         public:
             Spdlog() = delete;
 
-            explicit Spdlog(const nlohmann::json& j);
-
             ~Spdlog() override {
                 std::cout << "~Destroying Spdlog Logger" << std::endl;
             };
 
-            void write(const Metric::Metric& metric) override;
+            explicit Spdlog(const nlohmann::json& j);
+
+            void info(const Metric::MetricVariant& metric) override;
         };
 };
 
 template<>
-struct fmt::formatter<Metric::Metric> : fmt::formatter<std::string> {
+struct fmt::formatter<Metric::BaseMetric> : fmt::formatter<std::string> {
     auto format(
-        const Metric::Metric& metric,
+        const Metric::BaseMetric& metric,
+        fmt::format_context& ctx
+    ) const -> decltype(ctx.out());
+};
+
+template<>
+struct fmt::formatter<Metric::StandardMetric> : fmt::formatter<std::string> {
+    auto format(
+        const Metric::StandardMetric& metric,
+        fmt::format_context& ctx
+    ) const -> decltype(ctx.out());
+};
+
+template<>
+struct fmt::formatter<Metric::FullMetric> : fmt::formatter<std::string> {
+    auto format(
+        const Metric::FullMetric& metric,
         fmt::format_context& ctx
     ) const -> decltype(ctx.out());
 };

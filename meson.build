@@ -39,7 +39,6 @@ src = files(
 	'src/generator/tracebased/extension.cpp',
 	'src/generator/tracebased/tracebased.cpp',
 	'src/generator/tracebased/tracereader.cpp',
-	'src/logger/logger.cpp',
 	'src/logger/spdlog.cpp',
 	'src/main.cpp',
 	'src/metric/statistics.cpp',
