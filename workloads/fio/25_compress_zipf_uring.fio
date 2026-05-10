@@ -13,6 +13,6 @@ bs=4k
 rw=randrw
 rwmixread=33
 random_distribution=zipf:0.9
-number_ios=16165652
+number_ios=197131312
 buffer_compress_percentage=30
 refill_buffers

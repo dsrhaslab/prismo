@@ -9,5 +9,5 @@ direct=1
 [31_seq_write_aio]
 bs=4k
 rw=write
-number_ios=16165652
+number_ios=197131312
 zero_buffers

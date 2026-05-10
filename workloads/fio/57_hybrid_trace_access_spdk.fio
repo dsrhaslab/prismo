@@ -13,7 +13,7 @@ norandommap=1
 bs=4k
 rw=randrw
 rwmixread=70
-number_ios=16165652
+number_ios=197131312
 refill_buffers
 ; NOTE: prismo uses trace-based access (homes-110108-112108.1.blkparse.prismo)
 ; fio approximation: uniform random (trace replay requires blktrace format)

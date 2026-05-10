@@ -12,5 +12,5 @@ norandommap=1
 [47_seq_read_spdk]
 bs=4k
 rw=read
-number_ios=16165652
+number_ios=197131312
 zero_buffers
