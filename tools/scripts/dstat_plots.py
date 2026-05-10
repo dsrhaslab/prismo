@@ -84,7 +84,6 @@ def plot_cpu_usage(df: pd.DataFrame, output: Path) -> None:
         ('total usage:sys', 'System',   COLORS['red'],    '--'),
         ('total usage:wai', 'I/O wait', COLORS['orange'], '-.'),
         ('total usage:stl', 'Steal',    COLORS['purple'], ':'),
-        ('total usage:idl', 'Idle',     COLORS['grey'],   '-'),
     ]
 
     for col, label, color, ls in series:
@@ -92,7 +91,8 @@ def plot_cpu_usage(df: pd.DataFrame, output: Path) -> None:
         ax.plot(elapsed, y, color=color, linestyle=ls, label=label)
         ax.fill_between(elapsed, y, alpha=0.12, color=color)
 
-    ax.set_ylim(0, 100)
+    ymax = max(df[col].max() for col, *_ in series)
+    ax.set_ylim(0, ymax * 1.05)
     ax.set_ylabel('CPU utilization (%)')
     _finish(fig, ax, output)
 
