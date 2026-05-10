@@ -79,6 +79,13 @@ cleanup_dstat_csv() {
     fi
 }
 
+drop_caches_and_wait() {
+    sync
+    echo "Dropping caches and waiting 5 minutes..."
+    echo 3 | sudo tee /proc/sys/vm/drop_caches > /dev/null
+    sleep 300
+}
+
 run_campaign() {
     local TOTAL=${#WORKLOADS[@]}
     local REPORT_EXT="${REPORT_EXT:-.report.json}"
@@ -106,10 +113,7 @@ run_campaign() {
         cleanup_dstat_csv "$csv"
 
         if (( i < TOTAL - 1 )); then
-            sync
-            echo "Dropping caches and waiting 5 minutes..."
-            echo 3 | sudo tee /proc/sys/vm/drop_caches > /dev/null
-            sleep 300
+            drop_caches_and_wait
         fi
     done
 
