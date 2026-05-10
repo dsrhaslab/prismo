@@ -1,7 +1,7 @@
 ; 33_seq_write_large_block_aio
 [global]
 filename=/dev/nvme0n1
-size=66262417408
+size=807453851648
 ioengine=libaio
 iodepth=128
 direct=1

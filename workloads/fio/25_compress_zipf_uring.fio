@@ -1,7 +1,7 @@
 ; 25_compress_zipf_uring
 [global]
 filename=/tank/testfile_campaign
-size=66262417408
+size=807453851648
 ioengine=io_uring
 iodepth=128
 sqthread_poll=1

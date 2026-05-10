@@ -1,7 +1,7 @@
 ; 06_rw_zipf_posix
 [global]
 filename=/dev/nvme0n1
-size=66262417408
+size=807453851648
 ioengine=psync
 direct=1
 

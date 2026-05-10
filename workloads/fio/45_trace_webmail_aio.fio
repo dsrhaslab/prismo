@@ -1,7 +1,7 @@
 ; 45_trace_webmail_aio
 [global]
 filename=/tank/testfile_campaign
-size=66262417408
+size=807453851648
 ioengine=libaio
 iodepth=128
 direct=1

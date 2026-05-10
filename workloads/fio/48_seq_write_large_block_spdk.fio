@@ -1,7 +1,7 @@
 ; 48_seq_write_large_block_spdk
 [global]
 filename=Nvme0n1
-size=66262417408
+size=807453851648
 ioengine=/home/gsd/spdk/build/fio/spdk_bdev
 spdk_json_conf=/home/gsd/prismo/workloads/bdev/nvme_bdev.json
 iodepth=128

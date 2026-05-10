@@ -5,7 +5,7 @@
     "numjobs": 3,
     "filename": "/dev/nvme0n1",
     "block_size": 4096,
-    "size": 66262417408,
+    "size": 807453851648,
     "metric": "base",
     "termination": {
       "type": "runtime",
