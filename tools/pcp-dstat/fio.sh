@@ -20,12 +20,7 @@ OUTPUT_DIR="${ROOT_DIR}/workloads/results"
 parse_common_args "$@"
 validate_common
 
-run_workload() {
-    local cfg="$1" report="$2"
-    "$TOOL_BIN" "$cfg" --output-format=json --output="$report" > /dev/null 2>&1
-}
-
-run_workload() {
+run_workload() (
     local cfg report abs_cfg name
     cfg="$1"; report="$2"
     abs_cfg="$(realpath "$cfg")"
@@ -39,6 +34,6 @@ run_workload() {
         --write_lat_log="${name}" \
         --write_iops_log="${name}" \
         --log_avg_msec=1000
-}
+)
 
 run_campaign
