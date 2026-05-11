@@ -101,6 +101,7 @@ run_campaign() {
         local report="${RESULTS_DIR}/${name}${REPORT_EXT}"
         local csv="${RESULTS_DIR}/${name}.dstat.csv"
 
+        drop_caches_and_wait
         echo "Running workload $((i+1))/${TOTAL}: ${cfg}"
 
         local pcp_dstat_pid
@@ -111,10 +112,6 @@ run_campaign() {
 
         stop_dstat "$pcp_dstat_pid"
         cleanup_dstat_csv "$csv"
-
-        if (( i < TOTAL - 1 )); then
-            drop_caches_and_wait
-        fi
     done
 
     echo "Results saved in: ${RESULTS_DIR}"
