@@ -14,7 +14,7 @@ struct Cli {
     prismo: String,
 
     /// Directory containing workload files
-    #[arg(short = 'd', long, default_value = "../../workloads/campaign")]
+    #[arg(short = 'd', long, default_value = "../../workloads/prismo")]
     workloads_dir: String,
 
     /// Output directory for results
