@@ -4,69 +4,12 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.ticker as ticker
 from pathlib import Path
-
-COLUMN_WIDTH = 3.5
-TEXT_WIDTH = 7.16
-ASPECT = 0.62
-
-COLORS = {
-    'blue':   '#2166ac',
-    'red':    '#b2182b',
-    'green':  '#1b7837',
-    'orange': '#e08214',
-    'purple': '#7b3294',
-    'grey':   '#636363',
-    'yellow': '#dfc27d',
-}
-
-RC_PAPER = {
-    'font.family':       'serif',
-    'font.size':         8,
-    'axes.titlesize':    9,
-    'axes.labelsize':    8,
-    'xtick.labelsize':   7,
-    'ytick.labelsize':   7,
-    'legend.fontsize':   7,
-    'figure.dpi':        300,
-    'savefig.dpi':       300,
-    'savefig.bbox':      'tight',
-    'savefig.pad_inches': 0.02,
-    'axes.linewidth':    0.6,
-    'xtick.major.width': 0.5,
-    'ytick.major.width': 0.5,
-    'lines.linewidth':   1.0,
-    'lines.markersize':  3,
-    'axes.grid':         True,
-    'grid.alpha':        0.25,
-    'grid.linewidth':    0.4,
-}
-
-
-def _apply_style() -> None:
-    plt.rcParams.update(RC_PAPER)
-
-
-def _fig(width: float = TEXT_WIDTH) -> tuple:
-    fig, ax = plt.subplots(figsize=(width, width * ASPECT))
-    return fig, ax
+from plot_style import COLORS, apply_style, fig as _fig, finish as _finish
 
 
 def _elapsed_seconds(df: pd.DataFrame) -> pd.Series:
     t0 = df['time'].iloc[0]
     return (df['time'] - t0).dt.total_seconds()
-
-
-def _finish(fig, ax, output: Path, xlabel: str = 'Elapsed time (s)') -> None:
-    ax.set_xlabel(xlabel)
-    ax.legend(loc='upper right', frameon=True, fancybox=False,
-              edgecolor='#cccccc', framealpha=0.9, borderpad=0.4)
-    # ax.spines['top'].set_visible(False)
-    # ax.spines['right'].set_visible(False)
-    ax.margins(x=0, y=0)
-    fig.tight_layout()
-    fig.savefig(output)
-    fig.savefig(output.with_suffix('.svg'))
-    plt.close(fig)
 
 
 def load_csv(path: str) -> pd.DataFrame:
@@ -212,7 +155,7 @@ if __name__ == '__main__':
     )
 
     args = parser.parse_args()
-    _apply_style()
+    apply_style()
     df = load_csv(args.input)
 
     out = Path(args.output_dir)

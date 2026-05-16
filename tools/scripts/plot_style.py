@@ -11,6 +11,7 @@ COLORS = {
     'orange': '#e08214',
     'purple': '#7b3294',
     'grey':   '#636363',
+    'yellow': '#dfc27d',
 }
 
 RC_PAPER = {
