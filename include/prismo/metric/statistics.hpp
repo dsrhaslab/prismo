@@ -68,7 +68,7 @@ namespace Metric {
             return {
                 {"iops", iops_aggr.values()},
                 {"bandwidth_bytes_per_sec", bw_aggr.values()},
-                {"avg_latency_ns_per_sex", lat_aggr.values()}
+                {"avg_latency_ns_per_sec", lat_aggr.values()}
             };
         }
 
@@ -95,8 +95,8 @@ namespace Metric {
 
     class Statistics {
         private:
-            uint64_t start_ns;
-            uint64_t end_ns;
+            uint64_t start_ns = 0;
+            uint64_t end_ns = 0;
             std::unordered_map<Operation::OperationType, OperationStats> stats_per_operation;
 
         public:

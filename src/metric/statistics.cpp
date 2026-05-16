@@ -35,8 +35,13 @@ namespace Metric {
     }
 
     void Statistics::merge(const Statistics& other) {
-        start_ns = std::min(start_ns, other.start_ns);
-        end_ns = std::max(end_ns, other.end_ns);
+        if (start_ns == 0 && end_ns == 0) {
+            start_ns = other.start_ns;
+            end_ns = other.end_ns;
+        } else {
+            start_ns = std::min(start_ns, other.start_ns);
+            end_ns = std::max(end_ns, other.end_ns);
+        }
 
         for (const auto& [op, other_stats] : other.stats_per_operation) {
             stats_per_operation[op].merge(other_stats);

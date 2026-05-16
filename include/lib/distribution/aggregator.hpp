@@ -23,6 +23,7 @@ namespace Distribution {
 
         private:
             uint64_t start_ns = 0;
+            uint64_t origin_ns = 0;
             static constexpr uint64_t interval_ns = 1'000'000'000LL;
 
             std::vector<T> aggregated_values;
@@ -57,6 +58,7 @@ namespace Distribution {
 
             void start(uint64_t ns) {
                 start_ns = ns;
+                origin_ns = ns;
             }
 
             void record(const T& value, uint64_t timestamp_ns) {
@@ -83,20 +85,47 @@ namespace Distribution {
             }
 
             void merge(const Aggregator& other) {
-                size_t max_size = std::max(
-                    aggregated_values.size(),
-                    other.aggregated_values.size()
-                );
-                aggregated_values.resize(max_size, T{});
-                aggregated_counts.resize(max_size, 0);
+                if (origin_ns == 0 && aggregated_values.empty()) {
+                    origin_ns = other.origin_ns;
+                    start_ns = other.start_ns;
+                    aggregated_values = other.aggregated_values;
+                    aggregated_counts = other.aggregated_counts;
+                    return;
+                }
+
+                if (other.origin_ns == 0 && other.aggregated_values.empty()) {
+                    return;
+                }
+
+                uint64_t new_origin = std::min(origin_ns, other.origin_ns);
+
+                size_t this_offset = (origin_ns - new_origin) / interval_ns;
+                size_t other_offset = (other.origin_ns - new_origin) / interval_ns;
+
+                size_t this_end = this_offset + aggregated_values.size();
+                size_t other_end = other_offset + other.aggregated_values.size();
+                size_t total_size = std::max(this_end, other_end);
+
+                std::vector<T> new_values(total_size, T{});
+                std::vector<size_t> new_counts(total_size, 0);
+
+                for (size_t i = 0; i < aggregated_values.size(); i++) {
+                    new_values[this_offset + i] = aggregated_values[i];
+                    new_counts[this_offset + i] = aggregated_counts[i];
+                }
 
                 for (size_t i = 0; i < other.aggregated_values.size(); i++) {
-                    aggregated_values[i] = merge_reduce(
-                        aggregated_values[i], aggregated_counts[i],
+                    size_t idx = other_offset + i;
+                    new_values[idx] = merge_reduce(
+                        new_values[idx], new_counts[idx],
                         other.aggregated_values[i], other.aggregated_counts[i]
                     );
-                    aggregated_counts[i] += other.aggregated_counts[i];
+                    new_counts[idx] += other.aggregated_counts[i];
                 }
+
+                aggregated_values = std::move(new_values);
+                aggregated_counts = std::move(new_counts);
+                origin_ns = new_origin;
             }
     };
 }
