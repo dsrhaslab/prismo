@@ -3,12 +3,15 @@
 namespace Metric {
 
     void Statistics::start(void) {
-        start_time_ns = get_current_timestamp();
+        start_ns = get_current_timestamp();
         stats_per_operation.clear();
     }
 
     void Statistics::finish(void) {
-        end_time_ns = get_current_timestamp();
+        end_ns = get_current_timestamp();
+        for (auto& [_, stats] : stats_per_operation) {
+            stats.flush();
+        }
     }
 
     void Statistics::record_metric(const MetricVariant& metric) {
@@ -21,17 +24,19 @@ namespace Metric {
                     std::is_same_v<T, StandardMetric> ||
                     std::is_same_v<T, FullMetric>
                 ) {
-                    uint64_t latency_ns = m.end_ns - m.start_ns;
-                    stats_per_operation[m.operation_type].record(
-                        latency_ns, m.processed_bytes);
+                    auto [it, inserted] = stats_per_operation.try_emplace(m.operation_type);
+                    if (inserted) {
+                        it->second.set_start_ns(start_ns);
+                    }
+                    it->second.record(m);
                 }
             },
             metric);
     }
 
     void Statistics::merge(const Statistics& other) {
-        start_time_ns = std::min(start_time_ns, other.start_time_ns);
-        end_time_ns = std::max(end_time_ns, other.end_time_ns);
+        start_ns = std::min(start_ns, other.start_ns);
+        end_ns = std::max(end_ns, other.end_ns);
 
         for (const auto& [op, other_stats] : other.stats_per_operation) {
             stats_per_operation[op].merge(other_stats);
@@ -56,6 +61,7 @@ namespace Metric {
 
         op_json["latency_ns"] = stats.latency_json();
         op_json["percentiles_ns"] = stats.percentiles_json();
+        op_json["aggregations"] = stats.aggregations_json();
 
         return op_json;
     }
@@ -69,7 +75,7 @@ namespace Metric {
         }
 
         const double runtime_sec =
-           static_cast<double>(end_time_ns - start_time_ns) / 1e9;
+           static_cast<double>(end_ns - start_ns) / 1e9;
 
         report["total_operations"] = combined.total_ops;
         report["total_bytes"] = combined.total_bytes;
@@ -82,6 +88,7 @@ namespace Metric {
 
         report["overall_latency_ns"] = combined.latency_json();
         report["overall_percentiles_ns"] = combined.percentiles_json();
+        report["overall_aggregations"] = combined.aggregations_json();
 
         if (!stats_per_operation.empty()) {
             report["operations"] = nlohmann::json::array();

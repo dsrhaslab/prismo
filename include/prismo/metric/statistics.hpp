@@ -3,6 +3,7 @@
 
 #include <nlohmann/json.hpp>
 #include <prismo/metric/metric.hpp>
+#include <lib/distribution/aggregator.hpp>
 #include <lib/distribution/percentile.hpp>
 
 namespace Metric {
@@ -20,13 +21,23 @@ namespace Metric {
         uint64_t max_latency_ns = 0;
         Percentile::HDR percentile_hdr;
 
-        void record(uint64_t latency_ns, uint64_t bytes) {
+        Distribution::Aggregator<uint64_t, Distribution::ReduceOp::Sum> iops_aggr;
+        Distribution::Aggregator<uint64_t, Distribution::ReduceOp::Sum> bw_aggr;
+        Distribution::Aggregator<uint64_t, Distribution::ReduceOp::Average> lat_aggr;
+
+        void record(const BaseMetric& metric) {
             total_ops++;
-            total_bytes += bytes;
+            total_bytes += metric.processed_bytes;
+
+            uint64_t latency_ns = metric.end_ns - metric.start_ns;
             total_latency_ns += latency_ns;
             min_latency_ns = std::min(min_latency_ns, latency_ns);
             max_latency_ns = std::max(max_latency_ns, latency_ns);
             percentile_hdr.record(latency_ns);
+
+            iops_aggr.record(1, metric.end_ns);
+            bw_aggr.record(metric.processed_bytes, metric.end_ns);
+            lat_aggr.record(latency_ns, metric.end_ns);
         }
 
         void merge(const OperationStats& other) {
@@ -36,6 +47,29 @@ namespace Metric {
             min_latency_ns = std::min(min_latency_ns, other.min_latency_ns);
             max_latency_ns = std::max(max_latency_ns, other.max_latency_ns);
             percentile_hdr.merge(other.percentile_hdr);
+            iops_aggr.merge(other.iops_aggr);
+            bw_aggr.merge(other.bw_aggr);
+            lat_aggr.merge(other.lat_aggr);
+        }
+
+        void set_start_ns(uint64_t ns) {
+            iops_aggr.start(ns);
+            bw_aggr.start(ns);
+            lat_aggr.start(ns);
+        }
+
+        void flush() {
+            iops_aggr.flush();
+            bw_aggr.flush();
+            lat_aggr.flush();
+        }
+
+        nlohmann::json aggregations_json() const {
+            return {
+                {"iops", iops_aggr.values()},
+                {"bandwidth_bytes_per_sec", bw_aggr.values()},
+                {"avg_latency_ns_per_sex", lat_aggr.values()}
+            };
         }
 
         nlohmann::json latency_json() const {
@@ -61,9 +95,8 @@ namespace Metric {
 
     class Statistics {
         private:
-            uint64_t start_time_ns = UINT64_MAX;
-            uint64_t end_time_ns = 0;
-
+            uint64_t start_ns;
+            uint64_t end_ns;
             std::unordered_map<Operation::OperationType, OperationStats> stats_per_operation;
 
         public:
