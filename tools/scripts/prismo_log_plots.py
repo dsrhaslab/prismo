@@ -5,14 +5,19 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 from pathlib import Path
 from prismo_parser import load_csv
-from plot_style import COLORS, apply_style, fig as _fig, finish as _finish
+from plot_style import COLORS, OP_STYLES as _OP_STYLES, apply_style, fig as _fig, finish as _finish
+
+OP_CODES = {
+    0: 'read',
+    1: 'write',
+    2: 'fsync',
+    3: 'fdatasync',
+    4: 'nop',
+}
 
 OP_STYLES = [
-    (0, 'Read',      COLORS['green'],  '-'),
-    (1, 'Write',     COLORS['orange'], '--'),
-    (2, 'Fsync',     COLORS['blue'],   '-.'),
-    (3, 'Fdatasync', COLORS['purple'], ':'),
-    (4, 'Nop',       COLORS['grey'],   'dotted'),
+    (code, name.capitalize(), *_OP_STYLES[name])
+    for code, name in OP_CODES.items()
 ]
 
 

@@ -14,6 +14,14 @@ COLORS = {
     'yellow': '#dfc27d',
 }
 
+OP_STYLES = {
+    'read':      (COLORS['green'],  '-'),
+    'write':     (COLORS['orange'], '--'),
+    'fsync':     (COLORS['blue'],   '-.'),
+    'fdatasync': (COLORS['purple'], ':'),
+    'nop':       (COLORS['grey'],   'dotted'),
+}
+
 RC_PAPER = {
     'font.family':       'serif',
     'font.size':         8,
