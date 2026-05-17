@@ -5,11 +5,11 @@
     "numjobs": 1,
     "filename": "/dev/Nvme0n1",
     "block_size": 65536,
-    "size": 807453851648,
+    "size": 808435761152,
     "metric": "base",
     "termination": {
       "type": "iterations",
-      "value": 12318056
+      "value": 12335750
     }
   },
   "operation": {

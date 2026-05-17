@@ -1,7 +1,7 @@
 ; 12_hybrid_trace_access_posix
 [global]
 filename=/tank/testfile_campaign
-size=807453851648
+size=808435761152
 ioengine=psync
 direct=1
 
@@ -9,7 +9,7 @@ direct=1
 bs=4k
 rw=randrw
 rwmixread=70
-number_ios=197131312
+number_ios=197372012
 refill_buffers
 ; NOTE: prismo uses trace-based access (homes-110108-112108.1.blkparse.prismo)
 ; fio approximation: uniform random (trace replay requires blktrace format)

@@ -1,7 +1,7 @@
 ; 59_trace_homes_spdk
 [global]
 filename=Nvme0n1
-size=807453851648
+size=808435761152
 ioengine=/home/gsd/spdk/build/fio/spdk_bdev
 spdk_json_conf=/home/gsd/prismo/workloads/bdev/nvme_bdev.json
 iodepth=128
@@ -13,6 +13,6 @@ norandommap=1
 bs=4k
 rw=randrw
 rwmixread=50
-number_ios=197131312
+number_ios=197372012
 ; NOTE: prismo replays homes-110108-112108.1.blkparse.prismo
 ; For exact trace replay: use replay_redirect with blktrace files

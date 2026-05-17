@@ -1,7 +1,7 @@
 ; 07_write_heavy_seq_posix
 [global]
 filename=/dev/nvme0n1
-size=807453851648
+size=808435761152
 ioengine=psync
 direct=1
 
@@ -9,5 +9,5 @@ direct=1
 bs=4k
 rw=rw
 rwmixread=10
-number_ios=197131312
+number_ios=197372012
 buffer_compress_percentage=0

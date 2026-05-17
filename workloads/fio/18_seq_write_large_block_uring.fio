@@ -1,7 +1,7 @@
 ; 18_seq_write_large_block_uring
 [global]
 filename=/dev/nvme0n1
-size=807453851648
+size=808435761152
 ioengine=io_uring
 iodepth=128
 sqthread_poll=1
@@ -11,5 +11,5 @@ direct=1
 [18_seq_write_large_block_uring]
 bs=64k
 rw=write
-number_ios=12318056
+number_ios=12335750
 buffer_compress_percentage=0

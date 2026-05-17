@@ -1,7 +1,7 @@
 ; 43_hybrid_trace_ops_aio
 [global]
 filename=/tank/testfile_campaign
-size=807453851648
+size=808435761152
 ioengine=libaio
 iodepth=128
 direct=1
@@ -11,7 +11,7 @@ bs=4k
 rw=randrw
 rwmixread=50
 random_distribution=zipf:0.9
-number_ios=197131312
+number_ios=197372012
 refill_buffers
 ; NOTE: prismo uses trace-based ops (cheetah.cs.fiu.edu-110108-113008.1.blkparse.prismo)
 ; fio approximation: 50/50 randrw with zipfian access

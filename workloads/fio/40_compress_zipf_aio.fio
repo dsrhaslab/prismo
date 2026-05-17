@@ -1,7 +1,7 @@
 ; 40_compress_zipf_aio
 [global]
 filename=/tank/testfile_campaign
-size=807453851648
+size=808435761152
 ioengine=libaio
 iodepth=128
 direct=1
@@ -11,6 +11,6 @@ bs=4k
 rw=randrw
 rwmixread=33
 random_distribution=zipf:0.9
-number_ios=197131312
+number_ios=197372012
 buffer_compress_percentage=30
 refill_buffers

@@ -1,7 +1,7 @@
 ; 14_trace_homes_posix
 [global]
 filename=/tank/testfile_campaign
-size=807453851648
+size=808435761152
 ioengine=psync
 direct=1
 
@@ -9,6 +9,6 @@ direct=1
 bs=4k
 rw=randrw
 rwmixread=50
-number_ios=197131312
+number_ios=197372012
 ; NOTE: prismo replays homes-110108-112108.1.blkparse.prismo
 ; For exact trace replay: use replay_redirect with blktrace files

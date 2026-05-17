@@ -1,7 +1,7 @@
 ; 17_seq_read_uring
 [global]
 filename=/dev/nvme0n1
-size=807453851648
+size=808435761152
 ioengine=io_uring
 iodepth=128
 sqthread_poll=1
@@ -11,5 +11,5 @@ direct=1
 [17_seq_read_uring]
 bs=4k
 rw=read
-number_ios=197131312
+number_ios=197372012
 zero_buffers

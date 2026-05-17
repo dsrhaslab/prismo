@@ -5,11 +5,11 @@
     "numjobs": 1,
     "filename": "/tank/testfile_campaign",
     "block_size": 4096,
-    "size": 807453851648,
+    "size": 808435761152,
     "metric": "base",
     "termination": {
       "type": "iterations",
-      "value": 197131312
+      "value": 197372012
     }
   },
   "operation": {

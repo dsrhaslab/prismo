@@ -1,7 +1,7 @@
 ; 31_seq_write_aio
 [global]
 filename=/dev/nvme0n1
-size=807453851648
+size=808435761152
 ioengine=libaio
 iodepth=128
 direct=1
@@ -9,5 +9,5 @@ direct=1
 [31_seq_write_aio]
 bs=4k
 rw=write
-number_ios=197131312
+number_ios=197372012
 zero_buffers

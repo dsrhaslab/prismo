@@ -7,7 +7,7 @@ buffer_compress_percentage=0
 
 [job1]
 offset=0
-size=270582939648
+size=269478584320
 bs=4k
 rw=randrw
 rwmixread=50
@@ -15,8 +15,8 @@ runtime=900
 time_based
 
 [job2]
-offset=270582939648
-size=270582939648
+offset=269478584320
+size=269478584320
 bs=4k
 rw=randrw
 rwmixread=50
@@ -24,8 +24,8 @@ runtime=900
 time_based
 
 [job3]
-offset=541165879296
-size=266287972352
+offset=538957168640
+size=269478584320
 bs=4k
 rw=randrw
 rwmixread=50
