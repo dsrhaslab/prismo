@@ -2,8 +2,8 @@
 [global]
 filename=Nvme0n1
 size=808435761152
-ioengine=/home/gsd/spdk/build/fio/spdk_bdev
-spdk_json_conf=/home/gsd/prismo/workloads/bdev/nvme_bdev.json
+ioengine=/home/gsd/diogo_marques/spdk/build/fio/spdk_bdev
+spdk_json_conf=/home/gsd/diogo_marques/prismo/workloads/bdev/nvme_bdev.json
 iodepth=128
 thread=1
 direct=1
