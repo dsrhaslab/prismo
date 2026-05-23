@@ -1,6 +1,6 @@
 ; 30_trace_webmail_uring
 [global]
-filename=/tank/testfile_campaign
+filename=/mnt/tank/workloads/testfile
 size=808435761152
 ioengine=io_uring
 iodepth=128

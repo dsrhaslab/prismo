@@ -8,8 +8,8 @@
     "size": 808435761152,
     "metric": "base",
     "termination": {
-      "type": "iterations",
-      "value": 197372012
+      "type": "runtime",
+      "value": 900000
     }
   },
   "operation": {

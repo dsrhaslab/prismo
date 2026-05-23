@@ -1,6 +1,6 @@
 ; 43_hybrid_trace_ops_aio
 [global]
-filename=/tank/testfile_campaign
+filename=/mnt/tank/workloads/testfile
 size=808435761152
 ioengine=libaio
 iodepth=128

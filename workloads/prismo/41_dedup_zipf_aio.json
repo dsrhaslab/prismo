@@ -3,13 +3,13 @@
     "channel": "blocking",
     "name": "41_dedup_zipf_aio",
     "numjobs": 1,
-    "filename": "/tank/testfile_campaign",
+    "filename": "/mnt/tank/workloads/testfile",
     "block_size": 4096,
     "size": 808435761152,
     "metric": "base",
     "termination": {
-      "type": "iterations",
-      "value": 197372012
+      "type": "runtime",
+      "value": 900000
     }
   },
   "operation": {

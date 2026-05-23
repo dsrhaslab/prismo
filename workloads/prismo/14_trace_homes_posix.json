@@ -3,7 +3,7 @@
     "channel": "blocking",
     "name": "14_trace_homes_posix",
     "numjobs": 1,
-    "filename": "/tank/testfile_campaign",
+    "filename": "/mnt/tank/workloads/testfile",
     "block_size": 4096,
     "size": 808435761152,
     "metric": "base",

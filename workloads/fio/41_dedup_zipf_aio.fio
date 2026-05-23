@@ -1,6 +1,6 @@
 ; 41_dedup_zipf_aio
 [global]
-filename=/tank/testfile_campaign
+filename=/mnt/tank/workloads/testfile
 size=808435761152
 ioengine=libaio
 iodepth=128
@@ -11,7 +11,8 @@ bs=4k
 rw=randrw
 rwmixread=33
 random_distribution=zipf:0.9
-number_ios=197372012
+time_based
+runtime=900
 dedupe_percentage=50
 buffer_compress_percentage=20
 refill_buffers

@@ -1,6 +1,6 @@
 ; 13_hybrid_trace_ops_posix
 [global]
-filename=/tank/testfile_campaign
+filename=/mnt/tank/workloads/testfile
 size=808435761152
 ioengine=psync
 direct=1

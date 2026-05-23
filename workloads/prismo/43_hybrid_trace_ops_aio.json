@@ -3,7 +3,7 @@
     "channel": "blocking",
     "name": "43_hybrid_trace_ops_aio",
     "numjobs": 1,
-    "filename": "/tank/testfile_campaign",
+    "filename": "/mnt/tank/workloads/testfile",
     "block_size": 4096,
     "size": 808435761152,
     "metric": "base",
