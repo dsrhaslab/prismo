@@ -10,7 +10,7 @@ namespace Engine {
         UringConfig config = _config;
         int ret = io_uring_queue_init_params(config.entries, &ring, &config.params);
         if (ret)
-            throw std::runtime_error("uring_constructor: initialization failed: " + std::string(strerror(ret)));
+            throw std::runtime_error("uring_constructor: initialization failed: " + std::string(strerror(-ret)));
 
         iovecs.resize(config.params.sq_entries);
         user_data.resize(config.params.sq_entries);
@@ -28,7 +28,7 @@ namespace Engine {
         ret = io_uring_register_buffers(&ring, iovecs.data(), config.params.sq_entries);
         if (ret) {
             io_uring_queue_exit(&ring);
-            throw std::runtime_error("uring_constructor: register buffers failed: " + std::string(strerror(errno)));
+            throw std::runtime_error("uring_constructor: register buffers failed: " + std::string(strerror(-ret)));
         }
     }
 
@@ -47,7 +47,7 @@ namespace Engine {
             throw std::runtime_error("uring_open: failed to open file: " + std::string(strerror(errno)));
         int ret = io_uring_register_files(&ring, &fd, 1);
         if (ret)
-            throw std::runtime_error("uring_open: register file failed: " + std::string(strerror(ret)));
+            throw std::runtime_error("uring_open: register file failed: " + std::string(strerror(-ret)));
         return fd;
     }
 
@@ -129,6 +129,7 @@ namespace Engine {
 
         io_uring_sqe_set_data(sqe, &uring_user_data);
         sqe->flags |= IOSQE_FIXED_FILE;
+        io_uring_submit(&ring);
     }
 
     void UringEngine::reap_completions(void) {
@@ -136,7 +137,7 @@ namespace Engine {
 
         do {
             completions = io_uring_peek_batch_cqe(
-                &ring, completed_cqes.data(), completed_cqes.capacity());
+                &ring, completed_cqes.data(), completed_cqes.size());
         } while (!completions);
 
         for (int i = 0; i < completions; i++) {
@@ -160,13 +161,14 @@ namespace Engine {
             Base::record_metric(metric);
 
             available_indexes.push_back(uring_user_data->index);
-            io_uring_cqe_seen(&ring, cqe);
         }
+
+        io_uring_cq_advance(&ring, completions);
     }
 
     void UringEngine::reap_left_completions(void) {
         io_uring_submit(&ring);
-        while (available_indexes.size() < available_indexes.capacity()) {
+        while (available_indexes.size() < iovecs.size()) {
             this->reap_completions();
         }
     }
