@@ -158,6 +158,7 @@ dpdk_libs = [
 
 spdk_libs = [
 	join_paths(spdk_build_lib, 'libspdk_accel.a'),
+	join_paths(spdk_build_lib, 'libspdk_event.a'),
 	join_paths(spdk_build_lib, 'libspdk_bdev_malloc.a'),
 	join_paths(spdk_build_lib, 'libspdk_event_accel.a'),
 	join_paths(spdk_build_lib, 'libspdk_event_bdev.a'),
@@ -172,6 +173,8 @@ spdk_libs = [
 	join_paths(spdk_build_lib, 'libspdk_scsi.a'),
 	join_paths(spdk_build_lib, 'libspdk_vhost.a'),
 	join_paths(spdk_build_lib, 'libspdk_nvmf.a'),
+	join_paths(spdk_build_lib, 'libspdk_nvme.a'),
+	join_paths(spdk_build_lib, 'libspdk_bdev_nvme.a'),
 ]
 
 common_flags = [
