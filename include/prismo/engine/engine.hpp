@@ -2,6 +2,7 @@
 #define PRISMO_ENGINE_ENGINE_H
 
 #include <thread>
+#include <unistd.h>
 #include <prismo/logger/logger.hpp>
 #include <prismo/protocol/protocol.hpp>
 #include <prismo/metric/statistics.hpp>
