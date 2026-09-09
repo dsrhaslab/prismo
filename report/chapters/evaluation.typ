@@ -822,7 +822,7 @@ Quanto ao conteúdo, o resultado mais consequente não reside no ganho em si, ma
 
 Já a replicação de traces confirmou-se fiel enquanto o ficheiro dispõe de registos, revelando a @trace-eval que nenhuma estratégia de extensão prolonga a execução sem sacrificar alguma propriedade, a repetição a variabilidade, a amostragem a concentração temporal dos duplicados e a regressão o conteúdo repetido na sua totalidade.
 
-Por fim, um aspeto atravessa todo o capítulo e condiciona aquilo que dele se pode concluir, ou seja, a dispersão das medições aumenta dos 0.50% - 2.71% registados sobre o dispositivo em acesso direto para os 10% - 18% observados sobre sistemas de ficheiros. Assim, uma diferença observável no primeiro caso exige, no segundo, uma amplitude quase dez vezes superior para o ser.
+Por fim, um aspeto atravessa todo o capítulo e condiciona aquilo que dele se pode concluir, ou seja, a dispersão das medições aumenta dos 0.50% - 2.71% registados sobre o dispositivo em acesso direto para os 10% - 18% observados sobre sistemas de ficheiros. Uma diferença observável no primeiro caso exige portanto, no segundo, uma amplitude quase dez vezes superior para o ser.
 
 ==== Resultados Contrários à Expectativa
 
@@ -832,17 +832,17 @@ Três dos resultados obtidos contrariam aquilo que a literatura ou o próprio de
 
 Esperava-se que a introdução de duplicados elevasse o débito, dado ambos os sistemas de ficheiros disporem de deduplicação e a @conteudo confirmar que o conteúdo submetido continha as cópias configuradas. A @impacto-dedup regista porém diferenças inferiores a 2% face à workload anterior, valor muito abaixo da dispersão das medições.
 
-No Btrfs a janela de medição terminou antes de o serviço em segundo plano percorrer os dados escritos, ao passo que no @zfs a deduplicação foi seguramente exercida, sem que daí resultasse ganho por o débito não ser limitado pelo dispositivo, conforme a @impacto-recursos sugere ao situar o custo dominante no anfitrião.
+No Btrfs, a janela de medição terminou antes de o serviço em segundo plano percorrer os dados escritos, ao passo que no @zfs a deduplicação foi seguramente exercida, sem que daí resultasse qualquer ganho, dado que o desempenho estava limitado pelo processamento no anfitrião e não pelo dispositivo, conforme a @impacto-recursos sugere.
 
 ===== Localidade a Penalizar o Desempenho
 
 Esperava-se que a concentração dos acessos favorecesse o desempenho, por ativar mecanismos de cache e de antecipação. A @localidade-iops mostra porém a distribuição Zipfian a penalizar o débito em 14%, agravando-se a penalização para 30% na cauda da latência conforme a @localidade-cauda.
 
-A causa não foi apurada, no entanto a expectativa provinha dos suportes rotativos e o dispositivo utilizado é de estado sólido, exigindo o esclarecimento do fenómeno instrumentação ao nível do controlador, indisponível no âmbito deste trabalho.
+A causa não foi apurada, a expectativa baseava-se sobretudo em comportamentos característicos de suportes rotativos, ao passo que o dispositivo utilizado é de estado sólido, pelo que o esclarecimento do fenómeno exigiria instrumentação ao nível do controlador, indisponível no âmbito deste trabalho.
 
 ===== Regressão sem Capacidade Preditiva
 
-Esperava-se que a extensão por regressão, apresentada na @chapter3 como a mais sofisticada das três, preservasse as dependências entre dimensões. A @traces-assinaturas revela porém que esta anula por completo os duplicados, sendo na prática a menos variável das três estratégias.
+Esperava-se que a extensão por regressão, apresentada na @chapter3 como a mais sofisticada das três, preservasse as dependências entre dimensões. A @traces-assinaturas revela porém que esta anula por completo os duplicados, sendo na prática a menos viável das três estratégias.
 
 A causa reside na natureza do identificador de bloco, que resulta de uma função de hash sem relação linear com o offset, pelo que o ajuste por mínimos quadrados colapsa numa proporcionalidade e a sequência gerada, sendo estritamente monótona, jamais reincide num valor já submetido.
 
@@ -864,7 +864,7 @@ Do mesmo modo, as workloads 10 e 11 diferem na presença de duplicados mas tamb�
 
 O espaço efetivamente ocupado em disco não foi acompanhado ao longo das execuções, grandeza que teria permitido confirmar quando e em que medida as otimizações foram acionadas, e cuja ausência limita as conclusões alcançadas sobre a deduplicação.
 
-Também as operações sobre o espaço de nomes ficam por exercitar, dado que o Prismo, tal como o @fio e o Vdbench, opera sobre um ficheiro previamente alocado e limita-se a ler e a escrever no seu interior. Os metadados associados aos dados são ainda assim atualizados a cada escrita, por via da semântica copy-on-write, ficando por avaliar apenas a criação, a remoção e a pesquisa de ficheiros.
+Também a latência reportada não distingue o tempo decorrido no dispositivo daquele que é consumido dentro da própria ferramenta, ausência que deixou por confirmar a explicação avançada na @io-interfaces para a diferença observada entre o Prismo e o @fio nas interfaces assíncronas.
 
 ===== Material Disponível
 
@@ -872,6 +872,6 @@ Os traces disponíveis constituem a última limitação, quer pela idade quer pe
 
 ==== Sumário
 
-O percurso do capítulo assenta em três patamares, começando pela equivalência, dado o Prismo reproduzir em workloads genéricas os valores das ferramentas consagradas com uma oscilação que não excede 2.71%, passando pela diferenciação, ao revelar no @zfs um débito cerca de um terço superior ao obtido com uma taxa única de compressibilidade, e terminando na exclusividade, por ser a única das três a replicar em conjunto os acessos, as operações e o conteúdo de um trace.
+É certo que nem todos os eixos produziram o que se esperava, a deduplicação não alterou o débito, a localidade penalizou-o em vez de o favorecer e a extensão por regressão revelou-se a menos fiel das três, ao que acresce o facto de os controlos nem sempre isolarem uma única propriedade e de o espaço ocupado em disco não ter sido acompanhado.
 
-As limitações enunciadas condicionam o alcance de algumas conclusões, sem porém afetar aquela que sustenta o trabalho, ou seja, a de que a fidelidade do conteúdo e da distribuição dos acessos não constitui um requisito acessório do benchmarking, mas antes condição para que os valores medidos correspondam ao regime em que o sistema efetivamente opera.
+Apesar destas reservas, ficou estabelecido que o Prismo iguala as ferramentas consagradas em workloads genéricas, revela no @zfs um débito cerca de um terço superior ao obtido com uma taxa única de compressibilidade e é a única das três a replicar um trace nas suas várias dimensões. Daqui decorre a conclusão que sustenta o trabalho, ou seja, a de ser a fidelidade do conteúdo e dos acessos condição para que os valores medidos correspondam ao regime em que o sistema opera.
