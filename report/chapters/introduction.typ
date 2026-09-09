@@ -1,4 +1,4 @@
-== Introdução <chapter1>
+= Introdução <chapter1>
 
 Com o crescimento das aplicações intensivas em @io, em particular nas áreas da inteligência artificial e análise de dados, os sistemas de armazenamento assumem um papel cada vez mais determinante no desempenho das aplicações. A capacidade de processar e armazenar grandes volumes de dados de forma eficiente tornou-se um fator crítico, tornando igualmente relevante a existência de mecanismos de avaliação, como benchmarks, que permitam analisar e comparar o comportamento destes sistemas de forma rigorosa @traeger2008 @tarasov2011.
 
@@ -10,7 +10,7 @@ Entretanto, e com o objetivo de ultrapassar limitações impostas pela stack de 
 
 Por fim, a qualidade das avaliações não depende única e exclusivamente da ferramenta de benchmark, o realismo das workloads é outra propriedade essencial no levantamento de ilações corretas acerca do sistema de armazenamento @gracia-tinedo2015 @pang2026 @tarasov2011.
 
-=== Definição do Problema e Desafios
+== Definição do Problema e Desafios
 
 Os sistemas de armazenamento atuais combinam múltiplas técnicas de otimização, cujo impacto no desempenho depende fortemente das propriedades dos dados processados. A criação de workloads realistas que respeitem estas propriedades e reflitam ambientes de produção continua a ser um desafio significativo, fazendo com que as condições observadas em ambientes reais raramente sejam reproduzidas em contexto de benchmarking, o que contribui para avaliações indevidas do sistema @gracia-tinedo2018 @talasila2019 @tarasov2011.
 
@@ -28,7 +28,7 @@ Posto isto, a seleção dos benchmarks amplamente utilizados pela comunidade rev
 
 Em suma, os benchmarks atuais não permitem definir workloads realistas nem suportam múltiplas interfaces que proporcionam a exercitação das otimizações implementadas, tornando impossível avaliar de forma precisa as características essenciais dos sistemas de armazenamento @tarasov2011.
 
-=== Objetivos e Contribuições
+== Objetivos e Contribuições
 
 Perante os problemas mencionados anteriormente, esta dissertação procura, em parte, melhorar a eficiência e dotar duma maior flexibilidade os algoritmos para geração de conteúdo, em particular o respeito pelas taxas de deduplicação e compressão num sistema orientado ao bloco, podendo estes ser aplicados sobre múltiplas interfaces de @io @koller2010 @zhu2008.
 
@@ -48,10 +48,12 @@ Assim sendo, o protótipo do benchmark reúne todas as contribuições da disser
 
 Tendo um protótipo com estas características, contribuímos para que a avaliação dos sistemas de armazenamento seja efetuada como mais critério, afinal o utilizador tem a possibilidade de testar várias interfaces de @io e para cada uma selecionar workloads que avaliem determinadas características do sistema, tudo com o maior realismo possível, e não através de métodos simplistas como praticam as demais soluções @fio_docs @dedisbench @dedisbenchpp @tarasov2011.
 
-=== Estrutura do Documento
+== Estrutura do Documento
 
-Este documento encontra-se dividido em três capítulos, o #link(<chapter1>)[Capitulo 1] serve de introdução ao problema abordado na dissertação, procurando desvendar os desafios inerentes ao mesmo, sendo ainda apontadas as contribuições que se pretendem alcançar.
+Este documento encontra-se dividido em quatro capítulos, o @chapter1 serve de introdução ao problema abordado na dissertação, procurando desvendar os desafios inerentes ao mesmo, sendo ainda apontadas as contribuições que se pretendem alcançar.
 
-Já o #link(<chapter2>)[Capítulo 2] apresenta o background relativo ao benchmarking, explorando ainda os conceitos de deduplicação e compressão, em particular as técnicas aplicadas para gerar conteúdo com estas propriedades. Além disso, a stack de @io é analisada para justificar as diferenças entre @api:pl e perceber os pontos de melhoria em soluções de benchmark já estabelecidas @fio_docs @dedisbench @dedisbenchpp.
+Já o @chapter2 apresenta o background relativo ao benchmarking, explorando ainda os conceitos de deduplicação e compressão, em particular as técnicas aplicadas para gerar conteúdo com estas propriedades. Além disso, a stack de @io é analisada para justificar as diferenças entre @api:pl e perceber os pontos de melhoria em soluções de benchmark já estabelecidas @fio_docs @dedisbench @dedisbenchpp.
 
-Por fim, o #link(<chapter3>)[Capitulo 3] corresponde a uma visão geral da arquitetura da solução, especificando os fluxos entre componentes e configurações necessárias à descrição de workloads por parte do utilizador, concluindo-se com a apresentação do plano para o restante da dissertação.
+Posteriormente, o @chapter3 corresponde a uma visão geral da arquitetura da solução, especificando os fluxos entre componentes e configurações necessárias à descrição de workloads por parte do utilizador, sendo ainda abordada a integração com @api:pl de @io de natureza diversa e o mecanismo de recolha de métricas.
+
+Por fim, o @chapter4 procede à avaliação experimental do Prismo, partindo das perguntas de investigação e pontos de validação que orientam as experiências realizadas. Demonstrada a equivalência com os benchmarks de referência em workloads genéricas, exploram-se os cenários onde o conteúdo, a interface de @io e a replicação de traces se revelam determinantes, terminando o capítulo com uma síntese dos resultados obtidos.

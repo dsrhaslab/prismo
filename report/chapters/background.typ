@@ -1,6 +1,6 @@
 #import "../utils/functions.typ" : raw_code_block
 
-== Background e Trabalho Relacionado <chapter2>
+= Background e Trabalho Relacionado <chapter2>
 
 Este capítulo tem por objetivo apresentar os conceitos e trabalho relacionado que sejam relevantes para a compreensão do projeto, neste sentido, inicialmente é apresentada uma breve descrição das técnicas de benchmarking atuais, referindo as métricas relevantes para a avaliação do sistema de armazenamento, bem como as características singulares entre workloads sintéticas e baseadas em traces.
 
@@ -10,13 +10,13 @@ Serão também analisadas as últimas técnicas para geração de conteúdo real
 
 Desta forma, pretende-se evidenciar a complexidade da geração de datasets e a sua importância para uma avaliação rigorosa do sistema de armazenamento. Finalmente, o capítulo termina com uma síntese da informação recolhida, procurando desvendar os impactos que isso terá na arquitetura da proposta de solução.
 
-=== Background
+== Background
 
 Nesta secção são apresentados os conceitos essenciais relacionados com benchmarking, interfaces de @io e geração de conteúdo, tendo por objetivo fornecer o contexto necessário para compreender as técnicas e decisões que influenciam a avaliação e o desempenho dos sistemas de armazenamento.
 
 Convém mencionar que a proposta de solução funciona ao nível do bloco, portanto, e por motivos de simplicidade, os conceitos serão apresentados tendo isso em conta, embora a granularidade não lhes seja diretamente incutida.
 
-==== Benchmarking
+=== Benchmarking
 
 O benchmarking de sistemas de armazenamento passa por aplicar cargas de trabalho controladas e reprodutíveis, consentindo assim a avaliação do desempenho, eficiência e escalabilidade das soluções de @io. Mais tarde, os dados recolhidos são utilizados para decidir entre arquiteturas, interfaces de acesso e configurações de hardware/software que melhor respondem às necessidades do ambiente de produção @traeger2008 @lee2012 @tarasov2011 @ruwart2001 @borrill2007.
 
@@ -24,7 +24,7 @@ Entre as métricas recolhidas, destacam-se a latência (intervalo entre submiss�
 
 Finalmente, a representatividade das workloads corresponde a um desafio central do benchmarking, pois testes sintéticos tendem a não refletir fielmente comportamentos e padrões observados em ambientes reais @gracia-tinedo2015 @talwadker2014 @pang2026 @tracegen2024. Além disso, certas soluções de @io foram desenhadas para favorecer determinadas características, por exemplo deduplicação e compressão, como tal uma workload genérica é incapaz de extrair o máximo das capacidades do sistema.
 
-===== Traces
+==== Traces
 
 A melhor forma de simular workloads realistas é saber exatamente em que consistem essas workloads, por conseguinte um trace oferece uma visão detalhada de todas as operações que ocorrem no sistema, permitindo conhecer os momentos em que as aplicações e processos interagiram com o sistema de armazenamento.
 
@@ -51,7 +51,7 @@ A estrutura do trace é descritiva das operações efetuadas, sendo para cada um
 
 Em suma, os traces permitem compreender detalhadamente como os dados são lidos, escritos e manipulados ao longo do tempo. No entanto, para interpretar corretamente estes registos e avaliar o seu impacto no desempenho do sistema, é essencial entender o funcionamento da stack de @io, uma vez que é através desta que as operações são processadas e geridas @didona2022 @ren2023 @uring_kernel @fio_docs @spdk_docs @rust_iouring_async.
 
-==== Stack de I/O
+=== Stack de I/O
 
 Sempre que uma aplicação solicita operações de @io, as mesmas são obrigadas a fluir através de várias camadas a fim de garantir segurança e eficiência, contribuindo para ligar a aplicação ao hardware de modo totalmente abstrato.
 
@@ -66,15 +66,15 @@ No caso contrário, perante a necessidade de aceder ao disco, o pedido é encami
 
 Assim sendo, este fluxo permite que as aplicações realizem operações de @io de modo transparente, enquanto o sistema operativo gere a complexidade, desempenho e segurança dos acessos ao dispositivo de armazenamento.
 
-==== Interfaces de I/O
+=== Interfaces de I/O
 
 Devido aos imensos passos realizados no interior de stack de @io, a execução dos pedidos tende a ser bastante demorada, o que contribui para uma penalização da performance das aplicações. Tendo isto em mente, surgiram diversas @api:pl que trazem otimizações para cenários específicos, e como tal estabelecem compromissos entre simplicidade, desempenho e controlo.
 
-===== POSIX
+==== POSIX
 
 De todas a mais simplista, esta interface funciona através das system calls `OPEN`, `READ`, `WRITE` e `CLOSE`, o que a torna bastante portável e amplamente utilizada entre os sistemas UNIX. Por outro lado, acarreta a desvantagem das chamadas serem síncronas e realizar cópias entre user e kernel space, consequentemente penaliza aplicações com workloads intensivas.
 
-===== io_uring
+==== io_uring
 
 Recentemente as interfaces assíncronas têm ganho popularidade por conseguirem submeter novos pedidos enquanto os anteriores ainda não foram concluídos, além disso possibilitam a execução de pedidos em batch como meio para diminuir as system calls, afinal o custo da mudança de contexto entre user para kernel space é deveras elevado.
 
@@ -89,13 +89,13 @@ Assim que o kernel termina o pedido resultante de uma @sqe, o mesmo origina uma 
 
 Por fim, a interface suporta @dma através de buffers registados, ou seja, em vez dos dados serem constantemente copiados entre user e kernel space, a aplicação compromete-se a gerir uma zona de memória que o kernel confiará como sendo segura, daí que não possam haver modificações da memória entre a submissão e conclusão dos pedidos @uring_kernel.
 
-===== Libaio
+==== Libaio
 
 De forma semelhante à interface anterior, esta também funcionar de modo assíncrono e permite a submissão de pedidos em batch, no entanto apenas atua com @io direto, conseguido através da flag `O_DIRECT`, e portanto torna-se muito limitada face aos sistemas de ficheiros atuais.
 
 Além disso, uma vez que são utilizadas system calls AIO do kernel, os pedidos continuam a passar através da stack tradicional de @io, o que origina as penalizações de performance mencionadas anteriormente e das quais todas as interfaces referidas até ao momento sofrem @didona2022.
 
-===== SPDK
+==== SPDK
 
 Com o objetivo de dar bypass ao kernel, esta interface possibilita acesso direto ao controlador de disco a partir do user space, deste modo evita por completo as penalizações das system calls e interrupções que normalmente lhes estão associadas @spdk_docs.
 
@@ -103,7 +103,7 @@ Ao utilizar um mecanismo de polling ativo, a latência entre pedidos é diminuí
 
 Por fim, esta interface disponibiliza uma @api de @bdev que abstrai as operações enquanto as orienta ao bloco, tornando-se por isso bastante conveniente para a implementação do protótipo, no entanto o modelo de concorrência entre threads acarreta algumas dificuldades de gestão comparativamente ao modelo tradicional em stack. Por estas razões, apenas sistemas onde a performance seja um fator crítico devem utilizar @spdk, caso contrário estaremos a tornar a aplicação menos portável sem necessidade @ren2023.
 
-===== Generalização
+==== Generalização
 
 As interfaces de @io mencionadas apresentam modelos de funcionamento distintos, desde a forma como lidam com system calls e polling até à gestão de concorrência e callbacks. Estas diferenças tornam particularmente difícil a criação de um benchmark que suporte todas as interfaces de forma genérica, sem perder fidelidade ou desempenho.
 
@@ -111,13 +111,13 @@ Na prática, os benchmarks existentes são frequentemente desenvolvidos com foco
 
 Esta realidade justifica por que motivo benchmarks que pretendem ser altamente precisos costumam ser otimizados para uma interface em particular, em vez de adotarem uma abordagem única e universal para todos os sistemas de @io.
 
-==== Manipulação de Conteúdo
+=== Manipulação de Conteúdo
 
 Embora as interfaces de @io desempenhem um papel fundamental na avaliação dos sistemas de armazenamento, o seu impacto é limitado quando as propriedades destes sistemas não são plenamente exercitadas. Diferentes interfaces podem variar a latência e débito, porém não capturaram o efeito de otimizações como deduplicação e compressão se o conteúdo utilizado não refletir essas características @koller2010 @meyer2012 @policroniades2004 @paulo2014  @talasila2019.
 
 Os sistemas modernos combinam deduplicação e compressão para otimizar espaço e desempenho. Por este motivo, gerar conteúdo que reproduza estas propriedades é extremamente relevante para workloads realistas. No entanto, antes de explorar a forma como este conteúdo é gerado, é necessário compreender em que consistem estas técnicas e como influenciam o comportamento do sistema de armazenamento.
 
-===== Deduplicação
+==== Deduplicação
 
 A deduplicação caracteriza-se por poupar espaço ao não escrever conteúdo redundante, sendo aplicada numa grande variedade de contextos, que vão desde backup, archival e primary storage até a @ram. Uma visão geral do funcionamento deste processo está apresentada na @dedup @paulo2013.
 
@@ -134,13 +134,13 @@ Embora existam diversas granularidades de deduplicação, esta dissertação ape
 
 Fora isso, a técnica em questão pode ser aplicada em diferentes alturas e com índices variados, dos quais se destacam os seguintes casos:
 
-====== Deduplicação Inline
+===== Deduplicação Inline
 
 Nesta alternativa, os blocos duplicados são identificados no caminho crítico de @io, ao ser realizado um pedido é calculada a assinatura do bloco e verificada na estrutura do índice de modo a determinar o endereço físico caso o bloco em questão já tenha sido registado. Não esquecer que o mapeamento e contador de referências devem ser atualizados antes do pedido ser dado como concluído.
 
 Embora esta técnica consiga reduzir as operações de @io no disco subjacente e consequentemente aumentar o débito do sistema, a latência dos pedidos tende a aumentar devido às múltiplas repetições do processo anteriormente descrito. Daí que manter a performance e salvaguardar a latência seja um dos desafios na deduplicação inline @koller2010 @zhu2008.
 
-====== Deduplicação Offline
+===== Deduplicação Offline
 
 Ao contrário da estratégia anterior, a deduplicação offline não interfere no caminho crítico de @io, os dados são escritos diretamente no disco, salvaguardando assim baixa latência entre pedidos. Na verdade, a deduplicação é realizada mais tarde e em segundo plano, por exemplo, em alturas de menor demanda do sistema de armazenamento @meyer2012.
 
@@ -148,19 +148,19 @@ Após a operação de escrita, os blocos são colocados numa fila de espera, ond
 
 Apesar desta estratégia diminuir a latência dos pedidos, o consumo de armazenamento aumenta temporariamente, e como não reduz os pedidos ao disco, os ganhos no débito são marginais. Por outro lado, o processo em background pode trazer implicações de desempenho e consistência se não for agendado para o momento certo.
 
-====== Índice Completo
+===== Índice Completo
 
 Este índice caracteriza-se por conter as assinaturas de todos os blocos únicos submetidos ao sistema, sendo impossível perder oportunidades para encontrar duplicados, no entanto a estrutura subjacente tende a crescer imenso e torna-se difícil de manter em @ram, geralmente é transferida para o disco. Deste modo, workloads de backup e archival, que não exigem baixa latência, costumam adotar este índice @paulo2014.
 
-====== Índice Parcial
+===== Índice Parcial
 
 Com o objetivo de tirar partido da localidade espacial e temporal, este índice armazena somente as informações relativas aos blocos mais recentes e populares, por conseguinte a estrutura de dados pode ser armazenada em @ram, o que permite diminuir a latência dos pedidos. Por outro lado, uma vez que o índice não contém todos os blocos, é possível que blocos antigos ou pouco populares possam não ser identificados como duplicados e portanto existirão cópias no sistema de armazenamento @paulo2014.
 
-===== Compreensão
+==== Compreensão
 
 Os sistemas de armazenamento modernos aplicam compressão aos blocos únicos identificados pelo processo de deduplicação, assim a informação é codificada de modo mais eficiente, reduzindo a quantidade de bytes necessários para representar os mesmos dados. Daqui obtém-se aproveitamento do espaço de armazenamento, o que diminui custos e aumenta a rapidez da transferência entre sistemas @constantinescu2011.
 
-====== Entropia
+===== Entropia
 
 A fim de conhecer o limite de compressão, a entropia consiste numa medida que reflete a incerteza ou aleatoriedade associada à informação, como tal baixa entropia implica a existência de padrões e uma oportunidade para comprimir, enquanto entropia elevada resulta da aleatoriedade dos dados, havendo por isso pouca margem de compressão @maxg_lz77 @huffman_wiki.
 
@@ -178,7 +178,7 @@ $
 
 Tendo em conta que a string é constituída por seis caracteres, $6 dot 1.46 = 8.76 #text("bits")$ corresponde ao limite teórico mínimo para codificar `banana` de forma ideal através de codificação ótima como Huffman ou Shannon-Fano @huffman_wiki.
 
-====== Huffman Coding
+===== Huffman Coding
 
 A fórmula da entropia nada diz sobre a codificação dos símbolos, para isso é necessário recorrer a um algoritmo de codificação, neste caso abordamos o Huffman Coding, que permitem gerar códigos binários de tamanho variável para uma compressão sem perdas, nela os símbolos mais frequentes recebem códigos mais curtos enquanto os símbolos menos frequentes códigos mais longos @huffman_wiki.
 
@@ -191,7 +191,7 @@ O funcionamento do algoritmo é bastante simples, inicialmente os símbolos são
 
 Ao repetir este processo, obtemos uma árvore com as frequências dos símbolos, deste modo os mais populares estão posicionados perto da raiz e portanto necessitam de menos bits para serem representados. Tendo em consideração a @huffman, a codificação de cada símbolo obtém-se ao atravessar a árvore, onde um salto para a esquerda corresponde a `0`, e para a direita `1`. Por conseguinte, o símbolo `a` possui o código `010`, enquanto `x` corresponde a `10010`.
 
-====== LZ77
+===== LZ77
 
 Huffman provou que o seu código é a forma mais eficiente de associar uns e zeros a caracteres individuais, é matematicamente impossível superar isso. Porém os algoritmos de compressão procuram identificar padrões que aumentem o tamanho dos símbolos e assim alcançar melhores taxas de compressão @huffman_wiki @maxg_lz77.
 
@@ -208,7 +208,7 @@ Quanto maior for a sliding window, maior será a probabilidade de encontrar padr
 
 Tendo por base estes conceitos, a geração de conteúdo que comprime X% torna-se deveras simples, bastando para isso fixar X% dos símbolos da string, enquanto os restantes devem ser completamente aleatórios e sem qualquer padrão possível de exploração. No fundo, procuramos o mínimo de entropia em X% da string, e o máximo de aleatoriedade entre os demais símbolos.
 
-===== Ambientes Reais
+==== Ambientes Reais
 
 Após a análise das técnicas de deduplicação e compressão, torna-se evidente que a geração de conteúdo que respeite estas propriedades pode ser definida a partir de distribuições estatísticas observadas em ambientes reais @gracia-tinedo2015 @ameri2016 @pang2026.
 

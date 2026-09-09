@@ -1,12 +1,12 @@
 #import "../utils/functions.typ" : raw_code_block
 
-=== Trabalho Relacionado
+== Trabalho Relacionado
 
 A fim de explorar ferramentas que solucionem problemas semelhantes aos abordados na dissertação, esta secção procura explicar algumas das técnicas utilizadas para obter workloads mais realistas e assim avaliar com maior critério os sistemas de armazenamento @paulo2013 @paulo2014 @koller2010.
 
 Na verdade, o problema em questão não é completamente resolvido pelas ferramentas que se apresentam de seguida, cada uma sofre de limitações ao nível da geração de conteúdo, replicação de traces, ou suporte a diversas @api:pl de @io @gracia-tinedo2015 @ameri2016. No entanto, convém perceber essas mesmas limitações para concluir em que medida a solução proposta se destaca das existentes.
 
-==== DEDISbench
+=== DEDISbench
 
 Tratando-se de um micro-benchmark de @io para sistemas de deduplicação orientados ao bloco, o DEDISbench gera dados com padrões de deduplicação semelhantes aos encontrados em ambientes reais, para isso serve-se do DEDISgen, que após analisar um dataset, resume a informação numa grelha que indica a quantidade de blocos com X cópias @dedisbench @dedisbenchpp.
 
@@ -46,7 +46,7 @@ Apesar desta versatilidade, a impossibilidade de simular traces e falta de supor
 
 Por outro lado, a própria distribuição de duplicados resulta numa limitação das workloads, uma vez que esta é definida em termos absolutos, ao ser atingido o limite de blocos únicos e respetivas cópias torna-se impossível continuar a escrever mais blocos, afinal não conseguimos depreender o grupo a que estes pertenceriam. Além disso, uma workload inferior àquela estabelecida pela distribuição resulta numa infração da taxa de duplicados, daí que a única forma de respeitar os limites seja não estender nem diminuir a distribuição @dedisbenchpp.
 
-==== DEDISbench++
+=== DEDISbench++
 
 Os sistemas de armazenamento modernos combinam técnicas de deduplicação e compressão para obter melhor desempenho, no entanto o DEDISbench não tem em conta as taxas de compressão no momento da geração de conteúdo, consequentemente as workloads tornam-se irrealista e não permitem uma avaliação fiel do sistema @dedisbenchpp.
 
@@ -95,7 +95,7 @@ Se considerarmos $P$ como sendo a taxa de compreensão inter-bloco, isso implica
 
 Em suma, apesar de incorporar a geração de conteúdo sintético com propriedades realistas de compressibilidade, o DEDISbench++ continua a sofrer das mesmas fragilidades apontadas ao seu antecessor, nomeadamente a replicação de traces e suporte a múltiplas interfaces de @io, no entanto até a definição das taxas de compressão revela debilidades, quer por exigir conhecer o número total de blocos, quer por limitar a sua especificação a múltiplos de dez @dedisbenchpp.
 
-==== FIO
+=== FIO
 
 No que se refere ao estado da arte da avaliação de sistemas de armazenamento, o @fio é a ferramenta mais avançada e amplamente utilizada pela comunidade @fio_docs. Além de permitir a manipulação duma infinidade de parâmetros relativos à workload, que vão desde os padrões de acesso, distribuição das operações, escolha da interface de @io e definição de barreiras, as métricas obtidas são de fácil compreensão e um bom indicador das capacidades do sistema de armazenamento @fio_docs.
 
@@ -130,7 +130,7 @@ Por outro lado, a compressão é alcançada com a flag `buffer_compress_chunk=in
 
 Em suma, estes fatores contribuem para que a geração de conteúdo do @fio não respeite os critérios de duplicados e compressibilidade que gostaríamos de ver nas workloads, além disso os traces do @fiu vêm acompanhados com a identificação do processo responsável pela operação de @io, algo que o @fio não é capaz de reproduzir por as workloads não serem partilhadas entre processos, quando muito dívidas @fio_docs.
 
-==== Vdbench
+=== Vdbench
 
 À semelhança do @fio, o Vdbench permite a manipulação de parâmetros relativos ao padrão de acesso, distribuição das operações e profundidade de @io, oferecendo igualmente suporte à simulação de deduplicação e compressão através dos parâmetros `dedupratio` e `compratio` @vdbench.
 
@@ -150,7 +150,7 @@ No entanto, estes parâmetros são especificados enquanto rácios globais e não
 
 Ademais, o Vdbench não oferece suporte à reprodução de traces reais, sendo todas as workloads geradas sinteticamente @vdbench. A ferramenta está igualmente limitada à interface POSIX síncrona, não existindo suporte nativo para interfaces assíncronas como io_uring ou @spdk, o que restringe a capacidade de avaliar os sistemas de armazenamento modernos que beneficiam destas interfaces @didona2022 @ren2023.
 
-=== Discussão
+== Discussão
 
 Após a experienciação das ferramentas anteriormente mencionadas, destaca-se que os requisitos para workloads realistas são cumpridos apenas parcialmente, contudo a combinação das configurações que cada uma oferece aproxima-nos no objetivo final, ou seja, se o @fio conseguisse replicar a estratégia de duplicados e compressão do DEDISbench++ e ao mesmo tempo manter o suporte a múltiplas @api:pl de @io, somente ficava por resolver a questão da simulação de traces do @fiu @paulo2014 @dedisbenchpp. Por outro lado, o Vdbench apesar de ser amplamente utilizado em ambientes empresariais, apresenta as mesmas limitações ao nível da geração de conteúdo, agravadas pela ausência de interfaces assíncronas e pelo overhead inerente à máquina virtual Java @vdbench.
 

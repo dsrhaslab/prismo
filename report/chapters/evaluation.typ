@@ -1,7 +1,7 @@
 #import "../utils/charts.typ" : tool-bars, tool-lines, cpu-stack, component-bars, trace-lines, workload-lines
 #import "../utils/functions.typ" : question_block, validation_point_block, doc_table, cell_yes, cell_no, cell_partial
 
-== Avaliação Experimental <chapter4>
+= Avaliação Experimental <chapter4>
 
 Após a descrição da arquitetura e dos mecanismos que sustentam a geração de workloads realistas, importa agora avaliar experimentalmente o Prismo, por um lado validando a sua correção e comparando o desempenho com as ferramentas de referência, e por outro demonstrando que a incorporação de propriedades de conteúdo nas workloads revela comportamentos dos sistemas de armazenamento que, de outro modo, permaneceriam invisíveis.
 
@@ -53,11 +53,11 @@ Neste sentido, são definidas sete perguntas de investigação e quatro pontos d
 
 Posto isto, o capítulo inicia-se pela descrição da metodologia experimental, avançando depois para a validação da ferramenta através da demonstração de equivalência com os benchmarks de referência em workloads genéricas. De seguida, são analisados cenários onde as funcionalidades exclusivas do Prismo se revelam determinantes, nomeadamente a geração de conteúdo com propriedades de deduplicação e compressão, a comparação entre interfaces de @io e a replicação de workloads baseadas em traces. Por fim, explora-se a localidade de acesso enquanto eixo complementar, antes de sintetizar as conclusões.
 
-=== Metodologia <methodology>
+== Metodologia <methodology>
 
 A avaliação experimental assenta na execução de um conjunto alargado de workloads sobre a mesma máquina e sob condições controladas, sendo esta secção responsável por descrever o ambiente utilizado, as ferramentas comparadas, o procedimento seguido e as métricas recolhidas, de modo a que os resultados apresentados nas secções seguintes possam ser corretamente interpretados e reproduzidos.
 
-==== Setup Experimental
+=== Setup Experimental
 
 Todas as experiências foram conduzidas numa única máquina, evitando assim que diferenças de hardware ou de configuração entre execuções se reflitam nas métricas recolhidas. As especificações do sistema encontram-se descritas na @hardware, sendo de realçar a capacidade de memória disponível, pois a condição de terminação de algumas workloads é calculada com base nesta.
 
@@ -81,7 +81,7 @@ O sistema opera sobre Ubuntu 20.04.6 LTS com kernel Linux 5.4.0-216-generic, ver
 
 Convém realçar que todos os acessos são efetuados com a flag `O_DIRECT`, o que elimina a intervenção da page cache e garante que os pedidos atingem efetivamente o dispositivo, sendo esta uma condição indispensável para que as métricas reflitam o comportamento do sistema de armazenamento e não o da memória @didona2022 @ren2023. Esta garantia é integral quando o dispositivo é acedido diretamente, sem sistema de ficheiros interposto, no entanto os sistemas de ficheiros avaliados impõem-lhe restrições que serão detalhadas adiante.
 
-==== Ferramentas Comparadas
+=== Ferramentas Comparadas
 
 A avaliação confronta o Prismo, na versão 1.0.0, com o @fio e o Vdbench, duas das ferramentas mais utilizadas na avaliação de sistemas de armazenamento, nas versões mais recentes de cada uma, respetivamente a 3.42 e a 5.04.07 @fio_docs @vdbench.
 
@@ -115,7 +115,7 @@ As interfaces comuns a mais do que uma ferramenta foram configuradas de forma eq
 
 Esta equivalência nem sempre é alcançável no que toca ao conteúdo, uma vez que o Vdbench não dispõe de barreiras de sincronização nem de geração de conteúdo constante, sendo a distribuição Zipfian aproximada através do parâmetro `hotband`, aproximações que devem ser tidas em conta na leitura dos resultados @vdbench.
 
-==== Campanha Experimental
+=== Campanha Experimental
 
 A campanha experimental é constituída por quinze workloads base, cada uma isolando exatamente uma dimensão relativamente à anterior, o que permite atribuir as diferenças observadas a um único fator. Estas workloads encontram-se descritas na @workloads-base, e posteriormente replicadas para as quatro interfaces de @io avaliadas, do que resulta um total de sessenta configurações.
 
@@ -150,7 +150,7 @@ A dimensão das workloads foi fixada em 752.91 GiB, valor que corresponde a quat
 
 Cada configuração corresponde a uma única execução, sendo a estabilidade das medições aferida a partir das séries temporais recolhidas ao longo dessa execução, conforme descrito adiante @traeger2008 @tarasov2011.
 
-===== Estabilização do Sistema entre Execuções
+==== Estabilização do Sistema entre Execuções
 
 Antes de cada execução é aplicado um procedimento de limpeza que garante o isolamento entre medições, evitando que o estado deixado pela execução anterior contamine os resultados da seguinte. Este procedimento inicia-se com um `sync`, que força a escrita para o disco de todas as páginas ainda pendentes em memória, assegurando deste modo que nenhuma operação da execução anterior transita para a janela de medição seguinte.
 
@@ -158,7 +158,7 @@ De seguida, é escrito o valor 3 em `/proc/sys/vm/drop_caches`, invalidando não
 
 Por fim, o procedimento aguarda cinco minutos antes de iniciar a execução seguinte, período durante o qual o dispositivo permanece em repouso e conclui as tarefas internas de manutenção, como o garbage collection e o esvaziamento dos buffers. Sem esta pausa, uma workload intensiva em escritas deixaria o dispositivo num estado degradado, penalizando artificialmente a execução subsequente @traeger2008 @tarasov2011.
 
-==== Sistemas de Armazenamento Avaliados
+=== Sistemas de Armazenamento Avaliados
 
 As workloads são executadas sobre três sistemas de armazenamento distintos, sendo o primeiro o próprio dispositivo @nvme acedido sem qualquer sistema de ficheiros interposto, cenário que serve a comparação entre ferramentas e entre interfaces de @io, enquanto o Btrfs e o @zfs são avaliados por implementarem otimizações sensíveis às propriedades dos dados, nomeadamente compressão e deduplicação.
 
@@ -185,7 +185,7 @@ Desta forma, os resultados obtidos sobre sistemas de ficheiros não são diretam
 
 Em qualquer dos casos, o Prismo, tal como o @fio e o Vdbench, emite pedidos de leitura e escrita de tamanho fixo sobre um ficheiro previamente alocado, exercitando por isso o caminho de dados e não as operações de metadados. Assim sendo, não se trata de uma avaliação de sistemas de ficheiros, mas antes da forma como cada sistema reage às propriedades do conteúdo que lhe é submetido.
 
-==== Métricas
+=== Métricas
 
 As métricas recolhidas dividem-se entre aquelas reportadas pelas próprias ferramentas e as obtidas ao nível do sistema. Do primeiro grupo fazem parte o débito, os @iops e a latência, esta última caracterizada não apenas pelo valor médio mas também pelos percentis p50, p99 e p99.9, pois a média isoladamente esconde o comportamento da cauda da distribuição @traeger2008 @tarasov2011.
 
@@ -193,17 +193,17 @@ Já as métricas de sistema, nomeadamente a utilização de @cpu e de @ram, são
 
 Nas workloads que exercitam deduplicação e compressão é ainda registado o espaço efetivamente ocupado em disco, pois só através deste é possível confirmar que as otimizações do sistema de armazenamento foram de facto acionadas pelo conteúdo gerado.
 
-===== Agregação de Métricas
+==== Agregação de Métricas
 
 Uma vez recolhidas, as métricas são apresentadas através do valor reportado pela ferramenta, acompanhado do desvio padrão calculado sobre a respetiva série temporal. Deste modo, as barras de erro presentes nas figuras adiante traduzem a oscilação da medição ao longo da execução, sendo descartadas as primeiras amostras de modo a excluir o período de arranque.
 
 No entanto, os percentis de latência constituem um caso particular, dado que os relatórios registam apenas o valor já calculado sobre a totalidade da execução, não sendo por isso possível acompanhar a sua evolução temporal nem associar-lhes uma medida de dispersão.
 
-=== Validação do Prismo <validation>
+== Validação do Prismo <validation>
 
 Previamente a utilizar o Prismo para avaliar sistemas de armazenamento, é necessário estabelecer confiança na ferramenta, daí que esta secção procure demonstrar que os resultados produzidos são fiáveis e comparáveis aos das ferramentas de referência em workloads genéricas, ao mesmo tempo que valida a correção dos mecanismos de geração de conteúdo.
 
-==== Débito dos Componentes
+=== Débito dos Componentes
 
 Antes de confrontar o Prismo com as ferramentas de referência, importa determinar o débito máximo que os seus componentes conseguem sustentar, pois qualquer limite imposto pela própria ferramenta comprometeria a atribuição dos resultados ao sistema de armazenamento. Para o efeito, cada gerador foi exercitado isoladamente, sem submissão de pedidos, ao longo de 100 milhões de invocações.
 
@@ -226,7 +226,7 @@ Nestes termos, a configuração menos favorável corresponde a três extensões 
 
 Assim sendo, mesmo a configuração mais exigente mantém-se cerca de catorze vezes acima do débito máximo observado nas experiências, que foi de 113 015 @iops na workload 02 (demonstrado adiante), margem suficiente para acomodar dispositivos consideravelmente mais rápidos do que o utilizado. Deste modo, nenhuma combinação de geradores constitui o fator limitante da avaliação, e os resultados apresentados traduzem o comportamento do sistema de armazenamento.
 
-==== Reprodutibilidade
+=== Reprodutibilidade
 
 A validação assenta nas workloads 01 a 09 executadas sobre o dispositivo @nvme através da interface POSIX, único cenário em que as três ferramentas operam sobre configurações muito semelhantes e podem por isso ser confrontadas diretamente.
 
@@ -247,7 +247,7 @@ Estes valores fixam o critério de leitura adotado no restante capítulo, dado q
 
 Convém realçar que esta análise caracteriza a estabilidade da medição e não a variabilidade entre execuções independentes, a qual exigiria a repetição integral da campanha e não foi avaliada, conforme se assinala nas limitações.
 
-==== Equivalência em Workloads Genéricas
+=== Equivalência em Workloads Genéricas
 
 Aferida a estabilidade das medições, importa agora verificar se o Prismo produz valores comparáveis aos das ferramentas de referência quando submetido às mesmas condições, confronto que incide sobre o débito de operações, a latência e o consumo de recursos.
 
@@ -296,9 +296,9 @@ Este comportamento é atribuível ao mesmo modelo produtor-consumidor que explic
 
 Por fim, o consumo de recursos apresentado na @validacao-recursos demonstra que as decisões arquiteturais do Prismo não acarretam um custo desproporcional, sendo a utilização de @cpu indistinguível da do @fio, ao passo que o Vdbench se destaca por executar sobre a máquina virtual do Java @vdbench.
 
-Ao nível da memória utilizada pela máquina a distância é mais nítida, embora modesta em termos absolutos, pois o Prismo ocupa cerca de meio gigabyte acima do @fio, diferença que decorre do pool de pacotes pré-alocado durante a inicialização do canal descrito na @chapter3, enquanto o Vdbench requer perto de três gigabytes adicionais. Tratando-se de uma máquina com 188 GiB, nenhum destes valores condiciona a avaliação.
+Ao nível da memória utilizada pela máquina a distância é mais nítida, embora modesta em termos absolutos, pois o Prismo ocupa cerca de meio gigabyte acima do @fio, diferença que decorre do pool de pacotes pré-alocado durante a inicialização do canal descrito no @chapter3, enquanto o Vdbench requer perto de três gigabytes adicionais. Tratando-se de uma máquina com 188 GiB, nenhum destes valores condiciona a avaliação.
 
-==== Fator Limitante da Avaliação
+=== Fator Limitante da Avaliação
 
 O débito dos componentes, analisado no início desta secção, demonstrou que nenhum gerador limita a avaliação, no entanto essa medição incidiu sobre cada peça isoladamente e não sobre a execução completa. A repartição do tempo de @cpu recolhida pelo `pcp dstat` permite confirmar a conclusão em condições reais.
 
@@ -316,7 +316,7 @@ Convém realçar que a componente de utilizador, onde reside a geração de cont
 
 Em suma, os resultados apresentados ao longo desta secção medem a capacidade do sistema de armazenamento e não o limite das ferramentas utilizadas, conclusão que sustenta a interpretação de todas as comparações realizadas no restante capítulo @traeger2008 @didona2022.
 
-==== Validação da Geração de Conteúdo
+=== Validação da Geração de Conteúdo
 
 A equivalência demonstrada até aqui atesta a fiabilidade da instrumentação, no entanto nada diz sobre a propriedade que distingue o Prismo, ou seja, a capacidade de gerar conteúdo com distribuições de duplicados e compressibilidade controladas. Assim sendo, o #link("https://github.com/dsrhaslab/prismo/blob/main/tools/deltoide/README.md")[Deltoide] é aplicado sobre os dados efetivamente escritos, extraindo as distribuições presentes no dispositivo de armazenamento.
 
@@ -337,13 +337,13 @@ Os desvios observados na @conteudo não ultrapassam 1.1% na repartição de dupl
 
 Estes resultados fundamentam o V1, dado que a distribuição medida sobre os dados escritos corresponde à configurada, e não a uma aproximação global como a praticada pelas ferramentas de referência, cujas configurações apenas admitem uma taxa única de duplicados e de compressibilidade @fio_docs @vdbench.
 
-=== Impacto das Propriedades dos Dados no Desempenho <data-properties>
+== Impacto das Propriedades dos Dados no Desempenho <data-properties>
 
 Estabelecida a credibilidade do Prismo enquanto instrumento de medição, esta secção explora o eixo que o distingue das ferramentas de referência, nomeadamente o impacto das propriedades intrínsecas dos dados no desempenho dos sistemas de armazenamento. Na prática, benchmarks que ignoram a compressibilidade e a taxa de duplicados tendem a produzir avaliações que não refletem o comportamento real dos sistemas sensíveis ao conteúdo.
 
 Toda a análise decorre sobre o Btrfs e o @zfs, únicos sistemas avaliados que reagem ao conteúdo, começando pelo estabelecimento de uma linha de base com dados aleatórios, uma vez que só a comparação entre workloads que diferem exclusivamente nas propriedades do conteúdo, executadas sobre o mesmo sistema, permite isolar o contributo dessas propriedades.
 
-==== Linha de Base por Sistema de Armazenamento
+=== Linha de Base por Sistema de Armazenamento
 
 As workloads 04, 05 e 06 operam sobre conteúdo aleatório, logo incompressível e sem duplicados, pelo que o débito de operações obtido traduz aquilo que cada sistema de ficheiros consegue entregar quando as suas otimizações nada têm para explorar. Entre estas destaca-se a workload 06, que partilha com as duas seguintes (workloads 10 e 11) a distribuição Zipfian de acessos e constitui por isso a referência mais próxima.
 
@@ -361,7 +361,7 @@ Por outro lado, a workload 06 fica ligeiramente abaixo da workload 05 nos dois s
 
 Convém realçar que a dispersão registada nestas workloads é bastante superior à observada sobre o dispositivo em acesso direto, situando-se entre 10% e 18% do valor médio, o que decorre de os sistemas de ficheiros introduzirem trabalho assíncrono que não acompanha o ritmo dos pedidos, oscilando por isso o débito instantâneo conforme essas tarefas são despachadas.
 
-==== Compressão
+=== Compressão
 
 A workload 10 escreve conteúdo com compressibilidade controlada segundo três níveis de redução, cenário que o @fio e o Vdbench apenas conseguem aproximar através de uma taxa global aplicada a todos os blocos, sendo o débito de operações obtido por cada ferramenta em cada sistema de ficheiros apresentado na @impacto-compressao.
 
@@ -387,7 +387,7 @@ Convém realçar que a elevada dispersão do Btrfs decorre da sua própria arqui
 
 Determinar se existe de facto uma diferença no Btrfs exigiria a medição do espaço ocupado em disco, única grandeza capaz de revelar quanto foi efetivamente reduzido em cada caso, e cuja ausência constitui a principal limitação desta subsecção @btrfs_docs.
 
-==== Deduplicação
+=== Deduplicação
 
 A workload 11 acrescenta à compressibilidade uma distribuição de duplicados repartida por três grupos, exercitando deste modo as duas otimizações em conjunto, sendo de recordar que a deduplicação opera de forma distinta nos dois sistemas de ficheiros, inline no @zfs e diferida no Btrfs, o que condiciona o momento em que os seus efeitos se tornam observáveis.
 
@@ -409,7 +409,7 @@ A segunda explicação aponta para o recurso que limita a execução, visto o @z
 
 Convém realçar que a primeira explicação constitui igualmente uma limitação do desenho experimental, dado que as duas workloads não diferem apenas na presença de duplicados, o que impede o isolamento do contributo da deduplicação.
 
-==== Custo Computacional das Otimizações
+=== Custo Computacional das Otimizações
 
 A redução do volume escrito não é gratuita, dado que a compressão e a deduplicação consomem processador e memória em troca das operações de @io poupadas, custo que a @impacto-recursos apresenta para a workload 11, onde ambas as otimizações se encontram ativas.
 
@@ -434,13 +434,13 @@ Deste modo, o custo de comprimir depende não apenas da quantidade de dados redu
 
 Em suma, um benchmark que ignore as propriedades do conteúdo subestima em cerca de um terço o débito que o @zfs entrega perante dados realistas, resultado que demonstra não ser a fidelidade do conteúdo um requisito acessório, mas antes condição para que a avaliação seja representativa. Estabelecido o efeito das propriedades dos dados, importa agora averiguar em que medida a interface de @io condiciona os valores medidos @koller2010 @meyer2012.
 
-=== Comparação de Interfaces de I/O <io-interfaces>
+== Comparação de Interfaces de I/O <io-interfaces>
 
 O suporte a múltiplas interfaces de @io constitui uma das funcionalidades distintivas do Prismo, daí que faça todo o sentido avaliar o impacto da escolha da interface no desempenho observado. Embora o @fio suporte as mesmas interfaces, o acesso ao @spdk é conseguido através de um plugin cuja utilização é deveras complexa, não sendo por isso suportado nativamente. Por outro lado, o Vdbench opera exclusivamente sobre POSIX síncrono. Deste modo, a comparação entre as três ferramentas é possível para POSIX, enquanto para io_uring, libaio e @spdk a comparação é restrita ao Prismo e ao @fio.
 
 Todas as execuções recorrem ao dispositivo acedido diretamente e partilham a parametrização descrita adiante, o que permite separar dois efeitos distintos. As diferenças entre interfaces medidas com a mesma ferramenta traduzem o custo do próprio mecanismo de submissão, ao passo que as diferenças entre ferramentas dentro da mesma interface só podem ser imputadas ao modo como cada uma a utiliza.
 
-==== Configuração das Interfaces
+=== Configuração das Interfaces
 
 A interface POSIX opera de forma síncrona através das chamadas `pread` e `pwrite`, mantendo por isso um único pedido em curso de cada vez, condição que a torna a referência natural contra a qual as restantes são confrontadas, afinal qualquer ganho observado traduz o benefício de sobrepor operações.
 
@@ -450,7 +450,7 @@ Já o @spdk dispensa por completo a intervenção do kernel, acedendo ao disposi
 
 Convém realçar que apenas o libaio e o io_uring admitem uma comparação rigorosa entre ferramentas, dado que o modelo de reactors do Prismo não encontra correspondência direta nos parâmetros do plugin, pelo que os valores do @spdk devem ser lidos com a devida reserva.
 
-==== Workloads Sequenciais
+=== Workloads Sequenciais
 
 As workloads 01 e 02 percorrem o dispositivo de forma sequencial com blocos de 4 KiB, a primeira em escrita e a segunda em leitura, constituindo por isso o cenário mais favorável à submissão assíncrona, uma vez que o padrão de acessos é previsível e permite ao dispositivo antecipar os pedidos seguintes.
 
@@ -475,7 +475,7 @@ Convém realçar que o mesmo padrão se observa no @fio, cujo @spdk fica igualme
 
 Porém, no caso do Prismo, a explicação mais provável reside na configuração de reactors adotada, que reserva quatro núcleos e oito threads lógicas independentemente do perfil da workload, repartição que não é necessariamente a mais favorável a um padrão sequencial servido por um único produtor. Assim sendo, importa admitir que este resultado não fica cabalmente explicado pelos dados recolhidos.
 
-==== Saturação da Largura de Banda
+=== Saturação da Largura de Banda
 
 As workloads anteriores mantiveram o bloco em 4 KiB, dimensão que obriga a submeter um elevado número de pedidos para movimentar um volume modesto de dados e que coloca por isso o esforço do lado da submissão. A workload 03 altera exclusivamente este parâmetro, elevando-o para 64 KiB, reduzindo em 16 vezes o número de operações necessárias para transferir a mesma quantidade de dados.
 
@@ -493,7 +493,7 @@ Merece destaque o facto de esta convergência abranger igualmente o @spdk, cujo 
 
 Por fim, importa reter que a escolha da interface apenas é determinante enquanto o estrangulamento reside no número de operações submetidas, pois a partir do momento em que o volume de dados satura o dispositivo qualquer interface atinge o mesmo limite.
 
-==== Workloads Aleatórias e Mistas
+=== Workloads Aleatórias e Mistas
 
 As workloads 04 e 05 substituem o acesso sequencial por acessos aleatórios distribuídos por toda a extensão do dispositivo, o que impede qualquer antecipação por parte deste e obriga cada pedido a suportar integralmente a latência do acesso. Nestas condições, o débito deixa de depender predominantemente da rapidez com que os dados são transferidos e passa a ser limitado pela capacidade de manter pedidos em curso, pelo que a profundidade da fila assume um papel determinante.
 
@@ -535,7 +535,7 @@ Também o canal entre produtor e consumidor fica afastado, visto medições real
 
 Resta assim o ciclo do consumidor, que alterna entre submeter pedidos e recolher conclusões numa única thread, e onde o tempo despendido a recolher atrasa a reposição da fila. Convém realçar, no entanto, que esta explicação permanece por confirmar, pois a latência reportada não permite distinguir o tempo passado no dispositivo daquele que decorre dentro do próprio Prismo.
 
-==== Concorrência
+=== Concorrência
 
 A workload 09 replica o padrão aleatório misto da workload 05, distribuindo-o por três jobs independentes, cada um com a sua fila e respetiva thread submissora, o que permite averiguar se cada interface acompanha o aumento do número de produtores ou se algum recurso partilhado impede essa escalabilidade.
 
@@ -574,15 +574,15 @@ Assim sendo, as duas interfaces que fixam afinidade ao processador exibem o mesm
 
 Em suma, a interface de @io condiciona fortemente o débito medido, com ganhos que vão de nulos, quando o dispositivo satura, até catorze vezes nos acessos aleatórios, disparidade que fundamenta a necessidade de um benchmark capaz de as exercitar a todas. Convém realçar, contudo, que nenhuma interface se revela superior em todos os cenários, pois o @spdk vence nos acessos aleatórios com um único job mas fica atrás nas workloads sequenciais e degrada-se perante concorrência, sendo por isso desaconselhadas recomendações absolutas. Estabelecido este efeito, importa agora verificar se as workloads derivadas de traces reproduzem fielmente as propriedades dos dados originais.
 
-=== Workloads Baseadas em Traces <trace-eval>
+== Workloads Baseadas em Traces <trace-eval>
 
 De todas as funcionalidades do Prismo, a replicação de traces é aquela que mais o distingue das ferramentas de referência, uma vez que nenhuma delas consegue reproduzir em conjunto os padrões de acesso, o mix de operações e as propriedades do conteúdo registados numa execução real.
 
 Replicar o trace não é, porém, suficiente, dado que os registos disponíveis cobrem uma fração ínfima do tempo necessário para um dispositivo moderno atingir o regime estacionário. Esta secção averigua se a reprodução é fiel e em que medida as estratégias de extensão preservam as características originais.
 
-==== Traces Utilizados
+=== Traces Utilizados
 
-Os traces utilizados provêm do repositório do @fiu e resultam da instrumentação de três servidores em produção, apresentando a estrutura já descrita na @chapter2. Cada registo inclui uma assinatura do conteúdo, componente indispensável ao presente trabalho, pois é através dela que se reconstitui a distribuição de duplicados sem aceder aos dados originais @koller2010.
+Os traces utilizados provêm do repositório do @fiu e resultam da instrumentação de três servidores em produção, apresentando a estrutura já descrita no @chapter2. Cada registo inclui uma assinatura do conteúdo, componente indispensável ao presente trabalho, pois é através dela que se reconstitui a distribuição de duplicados sem aceder aos dados originais @koller2010.
 
 #figure(
   doc_table(
@@ -602,7 +602,7 @@ Merece destaque a distância entre servidores, com a proporção de escritas a v
 
 Convém realçar que qualquer destas percentagens é configurável no @fio e no Vdbench, dado tratar-se de rácios globais. A limitação não reside portanto no valor em si, mas no facto de cada percentagem resumir a execução inteira a um único número, ocultando a forma como a grandeza evolui entre o primeiro e o último pedido @fio_docs @vdbench.
 
-==== Fidelidade do Replay
+=== Fidelidade do Replay
 
 Uma workload baseada em traces atravessa dois momentos distintos, pois enquanto o ficheiro dispõe de registos por consumir cada pedido corresponde ao que foi observado no servidor original, ao passo que, esgotado o ficheiro, é a extensão que assume a geração. A fidelidade exigida a cada um difere por conseguinte, tratando-se no primeiro de reprodução literal e no segundo de semelhança estatística.
 
@@ -614,7 +614,7 @@ Daí que estas últimas sejam calculadas sobre os dois mil pedidos centrados em 
 
 Convém realçar que as três séries partilham a primeira metade por construção, pelo que a leitura destas figuras deve concentrar-se no que sucede depois da linha vertical, onde cada estratégia passa a responder pela totalidade dos registos submetidos.
 
-===== Padrões de Acesso
+==== Padrões de Acesso
 
 A primeira dimensão a examinar é o offset de cada pedido, do qual depende a localidade dos acessos e, por consequência, o partido que o dispositivo consegue tirar de leituras antecipadas e de escritas contíguas.
 
@@ -633,7 +633,7 @@ Já a extensão por regressão rompe com ambas, desenhando uma única reta que p
 
 Assim sendo, das três estratégias apenas a repetição preserva a localidade original, sendo de admitir que as restantes produzam, na segunda metade da execução, um padrão de acessos cujo efeito no dispositivo pouco tem em comum com o do servidor instrumentado.
 
-===== Mix de Operações
+==== Mix de Operações
 
 A segunda dimensão respeita ao tipo de cada pedido, cuja proporção determina o caminho percorrido dentro do sistema de armazenamento. Uma leitura obriga a localizar o bloco e a trazê-lo do dispositivo sempre que este não se encontre em cache, ao passo que uma escrita atravessa a compressão e a deduplicação antes de ser confirmada, sendo o dado efetivamente gravado mais tarde.
 
@@ -650,7 +650,7 @@ Ora o modelo linear devolve um número real que é depois arredondado e limitado
 
 A série fixa-se portanto nos 100% e a workload deixa de emitir um único pedido de leitura, ficando por exercitar metade do efeito que o conteúdo duplicado produz, dado que a deduplicação tanto evita escritas de blocos já presentes como permite satisfazer acessos a partir de conteúdo que a cache retém @koller2010.
 
-===== Duplicados de Conteúdo
+==== Duplicados de Conteúdo
 
 Resta a dimensão que motiva o recurso a estes traces, ou seja, a repetição de conteúdo. Ao contrário das duas anteriores, esta não se lê no pedido em si mas na assinatura que o acompanha, sendo a distribuição dessas repetições ao longo do tempo, e não apenas a sua quantidade total, que determina aquilo que a deduplicação consegue eliminar.
 
@@ -675,15 +675,15 @@ Por fim, a extensão por regressão anula os duplicados por completo, dado que o
 
 Um sistema de armazenamento avaliado nestas condições suporta o custo de consultar e manter a tabela de deduplicação sem jamais registar uma eliminação, sendo por isso medido no seu pior caso.
 
-===== Comparação entre Estratégias
+==== Comparação entre Estratégias
 
-Confrontando com o previsto na @chapter3, as extensões por repetição e por amostragem comportam-se conforme antecipado, conservando a repetição todas as correlações à custa de uma periodicidade estrita, enquanto a amostragem retém apenas as distribuições marginais de cada dimensão.
+Confrontando com o previsto no @chapter3, as extensões por repetição e por amostragem comportam-se conforme antecipado, conservando a repetição todas as correlações à custa de uma periodicidade estrita, enquanto a amostragem retém apenas as distribuições marginais de cada dimensão.
 
 Já a extensão por regressão não confirma a expectativa de capturar as dependências entre dimensões, isto porque o identificador de bloco resulta de uma função de hash sem relação linear com o offset, acabando a estratégia mais sofisticada por ser a menos variável das três.
 
 Daí que a escolha da estratégia deva depender da propriedade que se pretende exercitar, sendo a repetição preferível quando importa preservar a localidade e o conteúdo, e a amostragem quando se procura variabilidade sem compromisso com a ordem original.
 
-==== Desempenho das Workloads Baseadas em Traces
+=== Desempenho das Workloads Baseadas em Traces
 
 Conhecido o grau de fidelidade alcançado, importa perceber que comportamento estas cargas produzem no sistema de armazenamento, confrontando as workloads que extraem do trace as três dimensões com aquelas que dele retiram apenas uma.
 
@@ -711,7 +711,7 @@ Deste modo, o débito não constitui a grandeza através da qual uma workload ba
 
 Determinar esse efeito exigiria acompanhar o espaço ocupado em disco e a taxa de acerto da tabela de deduplicação ao longo da execução, grandezas que as ferramentas utilizadas não expõem por intervalo, constituindo a sua ausência a principal limitação desta subsecção.
 
-==== Comparação de Capacidades
+=== Comparação de Capacidades
 
 Independentemente dos valores medidos, importa situar o Prismo face às ferramentas de referência quanto àquilo que cada uma consegue reproduzir a partir de um trace, comparação que a subsecção anterior tornou impossível ao nível do débito precisamente por nenhuma das outras duas oferecer mecanismo equivalente.
 
@@ -734,13 +734,13 @@ Merece destaque a combinação com geração sintética, que permite isolar o co
 
 Em suma, a replicação é fiel enquanto o ficheiro dura, no entanto nenhuma das estratégias de extensão consegue prolongá-la sem sacrificar alguma das propriedades originais, limitação que importa ter presente sempre que a execução se estenda muito para lá do material disponível. Estabelecido este eixo, importa agora averiguar de que modo a localidade dos acessos condiciona o desempenho observado.
 
-=== Efeitos de Localidade e Cache <locality>
+== Efeitos de Localidade e Cache <locality>
 
 Em ambientes de produção, as workloads exibem frequentemente padrões de acesso com forte localidade espacial e temporal, o que ativa mecanismos internos de cache e prefetching nos dispositivos e sistemas de ficheiros. No entanto, estes comportamentos não são exercitados por workloads puramente aleatórias, como tal esta secção procura avaliar em que medida diferentes distribuições de acesso influenciam o desempenho observado.
 
 Toda a análise que se segue incide sobre as workloads executadas no dispositivo em acesso direto, condição em que a flag `O_DIRECT` afasta a page cache e garante que o medido decorre do dispositivo. Os mecanismos aqui exercitados são por isso os internos do @nvme e não os do sistema operativo, ressalva que condiciona a leitura de tudo o que se segue.
 
-==== Sequencial e Aleatório
+=== Sequencial e Aleatório
 
 A dimensão isolada nesta subsecção é a ordenação dos acessos, confrontando-se as workloads sequenciais 01 e 02 com as aleatórias 04 e 05, todas elas assentes em blocos de 4 KiB e submetidas através da interface POSIX.
 
@@ -758,7 +758,7 @@ Convém realçar que esta disparidade é integralmente imputável ao padrão de 
 
 Assim sendo, a ordenação dos acessos constitui um dos fatores de maior amplitude medidos ao longo do capítulo, a par da escolha da interface de @io, estabelecendo assim a referência contra a qual os resultados da subsecção seguinte devem ser interpretados.
 
-==== Localidade Zipfian
+=== Localidade Zipfian
 
 As workloads 05 e 06 constituem o par mais controlado de toda a campanha, dado partilharem a repartição das operações em partes iguais, o conteúdo aleatório regenerado e a condição de paragem, diferindo unicamente na distribuição que governa os offsets.
 
@@ -774,7 +774,7 @@ Tal conjetura não é, no entanto, verificável a partir das medições recolhid
 
 Regista-se por isso o resultado sem explicação estabelecida, ficando demonstrado que a distribuição Zipfian penaliza este dispositivo de forma reprodutível face à uniforme, ao passo que o esclarecimento da causa exigiria instrumentação ao nível do controlador, indisponível no âmbito deste trabalho.
 
-==== Estabilidade e Cauda da Latência
+=== Estabilidade e Cauda da Latência
 
 A penalização apurada na subsecção anterior assenta em valores médios, os quais nada dizem quanto à regularidade com que são alcançados. Importa por isso examinar a dispersão das medições e a cauda da distribuição de latências, grandezas que revelam se a distribuição de acessos afeta igualmente a previsibilidade do sistema.
 
@@ -808,11 +808,11 @@ Em suma, a substituição da distribuição uniforme pela Zipfian altera o débi
 
 Independentemente dos valores concretos, fica estabelecido que a escolha da distribuição altera o resultado da avaliação, pelo que um benchmark que apenas ofereça acessos sequenciais ou uniformes mede um regime distinto daquele em que o sistema opera. Estabelecido este último eixo, importa agora reunir as conclusões dispersas ao longo do capítulo.
 
-=== Síntese e Discussão Geral <evaluation-synthesis>
+== Síntese e Discussão Geral <evaluation-synthesis>
 
 O capítulo percorreu cinco eixos de avaliação, desde a validação da própria ferramenta até aos efeitos da localidade dos acessos, importando agora confrontar os resultados entre si e apurar o que deles decorre para a avaliação de sistemas de armazenamento.
 
-==== Síntese dos Resultados
+=== Síntese dos Resultados
 
 Numa análise geral, obtém-se uma hierarquia que nenhuma secção isolada poderia estabelecer. À cabeça surge a interface de @io, cuja escolha produz diferenças de até catorze vezes na @io-interfaces, seguida da ordem pela qual os blocos são percorridos, que separa o acesso sequencial do aleatório por um fator de 8.6 na @locality.
 
@@ -824,53 +824,53 @@ Já a replicação de traces confirmou-se fiel enquanto o ficheiro dispõe de re
 
 Por fim, um aspeto atravessa todo o capítulo e condiciona aquilo que dele se pode concluir, ou seja, a dispersão das medições aumenta dos 0.50% - 2.71% registados sobre o dispositivo em acesso direto para os 10% - 18% observados sobre sistemas de ficheiros. Uma diferença observável no primeiro caso exige portanto, no segundo, uma amplitude quase dez vezes superior para o ser.
 
-==== Resultados Contrários à Expectativa
+=== Resultados Contrários à Expectativa
 
 Três dos resultados obtidos contrariam aquilo que a literatura ou o próprio desenho experimental faziam prever, importando a sua enumeração conjunta tanto quanto a das confirmações, dado ser dela que decorrem as direções de trabalho futuro.
 
-===== Duplicados sem Efeito no Débito
+==== Duplicados sem Efeito no Débito
 
 Esperava-se que a introdução de duplicados elevasse o débito, dado ambos os sistemas de ficheiros disporem de deduplicação e a @conteudo confirmar que o conteúdo submetido continha as cópias configuradas. A @impacto-dedup regista porém diferenças inferiores a 2% face à workload anterior, valor muito abaixo da dispersão das medições.
 
 No Btrfs, a janela de medição terminou antes de o serviço em segundo plano percorrer os dados escritos, ao passo que no @zfs a deduplicação foi seguramente exercida, sem que daí resultasse qualquer ganho, dado que o desempenho estava limitado pelo processamento no anfitrião e não pelo dispositivo, conforme a @impacto-recursos sugere.
 
-===== Localidade a Penalizar o Desempenho
+==== Localidade a Penalizar o Desempenho
 
 Esperava-se que a concentração dos acessos favorecesse o desempenho, por ativar mecanismos de cache e de antecipação. A @localidade-iops mostra porém a distribuição Zipfian a penalizar o débito em 14%, agravando-se a penalização para 30% na cauda da latência conforme a @localidade-cauda.
 
 A causa não foi apurada, a expectativa baseava-se sobretudo em comportamentos característicos de suportes rotativos, ao passo que o dispositivo utilizado é de estado sólido, pelo que o esclarecimento do fenómeno exigiria instrumentação ao nível do controlador, indisponível no âmbito deste trabalho.
 
-===== Regressão sem Capacidade Preditiva
+==== Regressão sem Capacidade Preditiva
 
-Esperava-se que a extensão por regressão, apresentada na @chapter3 como a mais sofisticada das três, preservasse as dependências entre dimensões. A @traces-assinaturas revela porém que esta anula por completo os duplicados, sendo na prática a menos viável das três estratégias.
+Esperava-se que a extensão por regressão, apresentada no @chapter3 como a mais sofisticada das três, preservasse as dependências entre dimensões. A @traces-assinaturas revela porém que esta anula por completo os duplicados, sendo na prática a menos viável das três estratégias.
 
 A causa reside na natureza do identificador de bloco, que resulta de uma função de hash sem relação linear com o offset, pelo que o ajuste por mínimos quadrados colapsa numa proporcionalidade e a sequência gerada, sendo estritamente monótona, jamais reincide num valor já submetido.
 
-==== Limitações
+=== Limitações
 
 Nenhuma campanha experimental esgota o espaço de configurações possíveis, pelo que a leitura dos resultados apresentados deve ter presente um conjunto de limitações, umas decorrentes das condições em que a campanha decorreu, outras do desenho das próprias workloads, e as restantes do material disponível para replicação.
 
-===== Âmbito Experimental
+==== Âmbito Experimental
 
 A avaliação decorreu sobre uma única máquina e um único dispositivo, correspondendo além disso cada configuração a uma execução, pelo que a dispersão reportada ao longo do capítulo traduz a estabilidade da medição e não a variabilidade entre execuções independentes.
 
-===== Controlos Imperfeitos
+==== Controlos Imperfeitos
 
 A linha de base da @data-properties recorre à workload 06, que partilha com as workloads 10 e 11 a distribuição de acessos mas não o mix de operações. Um controlo estrito exigiria uma variante da workload 10 com redução nula, que das restantes diferisse apenas no conteúdo.
 
 Do mesmo modo, as workloads 10 e 11 diferem na presença de duplicados mas também na compressibilidade média, 30% contra 22%, o que impede o isolamento do contributo da deduplicação e cuja resolução passaria por igualar essa propriedade entre ambas.
 
-===== Grandezas Não Medidas
+==== Grandezas Não Medidas
 
 O espaço efetivamente ocupado em disco não foi acompanhado ao longo das execuções, grandeza que teria permitido confirmar quando e em que medida as otimizações foram acionadas, e cuja ausência limita as conclusões alcançadas sobre a deduplicação.
 
 Também a latência reportada não distingue o tempo decorrido no dispositivo daquele que é consumido dentro da própria ferramenta, ausência que deixou por confirmar a explicação avançada na @io-interfaces para a diferença observada entre o Prismo e o @fio nas interfaces assíncronas.
 
-===== Material Disponível
+==== Material Disponível
 
 Os traces disponíveis constituem a última limitação, quer pela idade quer pela dimensão, cobrindo o mais extenso deles apenas 11.5% do volume que uma workload da campanha movimenta, o que confere à extensão sintética um peso determinante naquilo que é medido.
 
-==== Sumário
+=== Sumário
 
 É certo que nem todos os eixos produziram o que se esperava, a deduplicação não alterou o débito, a localidade penalizou-o em vez de o favorecer e a extensão por regressão revelou-se a menos fiel das três, ao que acresce o facto de os controlos nem sempre isolarem uma única propriedade e de o espaço ocupado em disco não ter sido acompanhado.
 

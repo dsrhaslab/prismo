@@ -1,4 +1,4 @@
-#import "@preview/prometeu-thesis:0.2.0": colors, formatting, thesis
+#import "@preview/prometeu-thesis:1.1.0": colors, thesis
 
 #show: thesis(
   author: "Diogo Alexandre Correia Marques",
@@ -50,7 +50,14 @@
 // Setup index
 #import "@preview/in-dexter:0.7.2": *
 
-#formatting.show-preamble[
+#[
+  #set page(numbering: "i")
+  // A capa não é numerada, mas conta, por isso o preâmbulo começa em 2
+  #counter(page).update(2)
+
+  // O preâmbulo não entra no índice
+  #set heading(outlined: false, supplement: none, numbering: none)
+
   #include "preamble/copyright.typ"
   #pagebreak()
   #include "preamble/acknowledgements.typ"
@@ -73,7 +80,13 @@
   // #pagebreak()
 ]
 
-#show: formatting.show-main-content
+#counter(page).update(1)
+#set heading(
+  numbering: "1.1",
+  // O supplement tem de depender do nível: "Capítulo" só para o nível 1,
+  // caso contrário as referências a secções também diriam "Capítulo".
+  supplement: it => if it.depth == 1 { [Capítulo] } else { [Secção] },
+)
 
 #set par(
   justify: true,
@@ -87,7 +100,9 @@
 #include "chapters/architecture.typ"
 #include "chapters/evaluation.typ"
 
-#formatting.show-postamble[
+#[
+  #set heading(numbering: none)
+
   // Render bibliography
   // Change this to a .bib file if you prefer that format instead
   #bibliography("bibliography.yml", full: true)
@@ -107,7 +122,9 @@
   // )
 ]
 
-// #formatting.show-appendix[
+// #[
+//   #counter(heading).update(0)
+//   #set heading(numbering: "A.1", supplement: [Apêndice])
 //   #include "appendix.typ"
 // ]
 
