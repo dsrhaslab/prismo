@@ -132,4 +132,6 @@
 
 #page(fill: colors.pantonecoolgray7)[]
 
-#pagebreak()
+#align(
+  horizon,
+)[The first three months of this work were supported by a Research Initiation Scholarship (BII) awarded by INESC TEC under call AE2025-0401, financed by national funds through the FCT -- Fundação para a Ciência e a Tecnologia, I.P., within the scope of the Multiannual Funding of R&D Units 2025-2029, reference UID/50014/2023.]
