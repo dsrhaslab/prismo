@@ -210,10 +210,10 @@ Antes de confrontar o Prismo com as ferramentas de referência, importa determin
 #figure(
   grid(
     columns: 2, gutter: 6pt, row-gutter: 10pt,
-    component-bars("componentes.csv", "Acesso"),
-    component-bars("componentes.csv", "Conteúdo"),
-    component-bars("componentes.csv", "Operação"),
-    component-bars("componentes.csv", "Extensão"),
+    component-bars("components.csv", "Acesso"),
+    component-bars("components.csv", "Conteúdo"),
+    component-bars("components.csv", "Operação"),
+    component-bars("components.csv", "Extensão"),
   ),
   caption: [Débito máximo de cada componente do Prismo]
 ) <componentes>
@@ -235,7 +235,7 @@ O primeiro requisito a verificar é a estabilidade das medições, pois uma ferr
 Esta estabilidade é quantificada pelo coeficiente de variação das séries por segundo recolhidas ao longo de cada execução, apresentado na @reprodutibilidade.
 
 #figure(
-  tool-lines("validacao-cv.csv", ylabel: [Coeficiente de variação (%)]),
+  tool-lines("validation-cv.csv", ylabel: [Coeficiente de variação (%)]),
   caption: [Coeficiente de variação do débito de operações por workload]
 ) <reprodutibilidade>
 
@@ -252,7 +252,7 @@ Convém realçar que esta análise caracteriza a estabilidade da medição e nã
 Aferida a estabilidade das medições, importa agora verificar se o Prismo produz valores comparáveis aos das ferramentas de referência quando submetido às mesmas condições, confronto que incide sobre o débito de operações, a latência e o consumo de recursos.
 
 #figure(
-  tool-bars("validacao-iops.csv", ylabel: [Milhares de @iops]),
+  tool-bars("validation-iops.csv", ylabel: [Milhares de @iops]),
   caption: [Débito de operações por workload em cada ferramenta]
 ) <validacao-iops>
 
@@ -269,9 +269,9 @@ Esta leitura é corroborada pela workload 03, que recorre igualmente à regenera
 #figure(
   grid(
     columns: 2, gutter: 4pt,
-    tool-bars("validacao-latencia.csv", ylabel: [Latência média (µs)],
+    tool-bars("validation-latency.csv", ylabel: [Latência média (µs)],
               width: 6.0cm, height: 4.6cm, legend: false),
-    tool-bars("validacao-p99.csv", ylabel: [Latência p99 (µs)],
+    tool-bars("validation-p99.csv", ylabel: [Latência p99 (µs)],
               width: 6.0cm, height: 4.6cm),
   ),
   caption: [Latência média e percentil 99 por workload em cada ferramenta]
@@ -286,9 +286,9 @@ Este comportamento é atribuível ao mesmo modelo produtor-consumidor que explic
 #figure(
   grid(
     columns: 2, gutter: 4pt,
-    tool-bars("validacao-cpu.csv", ylabel: [Utilização de @cpu (%)],
+    tool-bars("validation-cpu.csv", ylabel: [Utilização de @cpu (%)],
               width: 6.0cm, height: 4.4cm, legend: false),
-    tool-bars("validacao-ram.csv", ylabel: [Memória utilizada (GiB)],
+    tool-bars("validation-ram.csv", ylabel: [Memória utilizada (GiB)],
               width: 6.0cm, height: 4.4cm),
   ),
   caption: [Consumo de recursos por workload em cada ferramenta]
@@ -304,7 +304,7 @@ O débito dos componentes, analisado no início desta secção, demonstrou que n
 
 
 #figure(
-  cpu-stack("validacao-cpu-tipos.csv"),
+  cpu-stack("validation-cpu-types.csv"),
   caption: [Repartição do tempo de @cpu durante a execução do Prismo]
 ) <validacao-cpu-tipos>
 
@@ -348,7 +348,7 @@ Toda a análise decorre sobre o Btrfs e o @zfs, únicos sistemas avaliados que r
 As workloads 04, 05 e 06 operam sobre conteúdo aleatório, logo incompressível e sem duplicados, pelo que o débito de operações obtido traduz aquilo que cada sistema de ficheiros consegue entregar quando as suas otimizações nada têm para explorar. Entre estas destaca-se a workload 06, que partilha com as duas seguintes (workloads 10 e 11) a distribuição Zipfian de acessos e constitui por isso a referência mais próxima.
 
 #figure(
-  tool-bars("impacto-baseline.csv", ylabel: [Milhares de @iops],
+  tool-bars("impact-baseline.csv", ylabel: [Milhares de @iops],
             xlabel: [Workload]),
   caption: [Débito de operações do Prismo com conteúdo aleatório em cada sistema de ficheiros]
 ) <impacto-baseline>
@@ -366,7 +366,7 @@ Convém realçar que a dispersão registada nestas workloads é bastante superio
 A workload 10 escreve conteúdo com compressibilidade controlada segundo três níveis de redução, cenário que o @fio e o Vdbench apenas conseguem aproximar através de uma taxa global aplicada a todos os blocos, sendo o débito de operações obtido por cada ferramenta em cada sistema de ficheiros apresentado na @impacto-compressao.
 
 #figure(
-  tool-bars("impacto-compressao.csv", ylabel: [Milhares de @iops],
+  tool-bars("impact-compression.csv", ylabel: [Milhares de @iops],
             xlabel: [Sistema de ficheiros]),
   caption: [Débito de operações na workload 10 em cada sistema de ficheiros]
 ) <impacto-compressao>
@@ -392,7 +392,7 @@ Determinar se existe de facto uma diferença no Btrfs exigiria a medição do es
 A workload 11 acrescenta à compressibilidade uma distribuição de duplicados repartida por três grupos, exercitando deste modo as duas otimizações em conjunto, sendo de recordar que a deduplicação opera de forma distinta nos dois sistemas de ficheiros, inline no @zfs e diferida no Btrfs, o que condiciona o momento em que os seus efeitos se tornam observáveis.
 
 #figure(
-  tool-bars("impacto-dedup.csv", ylabel: [Milhares de @iops],
+  tool-bars("impact-dedup.csv", ylabel: [Milhares de @iops],
             xlabel: [Sistema de ficheiros]),
   caption: [Débito de operações na workload 11 em cada sistema de ficheiros]
 ) <impacto-dedup>
@@ -416,9 +416,9 @@ A redução do volume escrito não é gratuita, dado que a compressão e a dedup
 #figure(
   grid(
     columns: 2, gutter: 4pt,
-    tool-bars("impacto-cpu.csv", ylabel: [Utilização de @cpu (%)],
+    tool-bars("impact-cpu.csv", ylabel: [Utilização de @cpu (%)],
               xlabel: [Sistema de ficheiros], width: 6.0cm, height: 4.4cm, legend: false),
-    tool-bars("impacto-ram.csv", ylabel: [Memória utilizada (GiB)],
+    tool-bars("impact-ram.csv", ylabel: [Memória utilizada (GiB)],
               xlabel: [Sistema de ficheiros], width: 6.0cm, height: 4.4cm),
   ),
   caption: [Consumo de recursos na workload 11 em cada sistema de ficheiros]
@@ -638,7 +638,7 @@ Assim sendo, das três estratégias apenas a repetição preserva a localidade o
 A segunda dimensão respeita ao tipo de cada pedido, cuja proporção determina o caminho percorrido dentro do sistema de armazenamento. Uma leitura obriga a localizar o bloco e a trazê-lo do dispositivo sempre que este não se encontre em cache, ao passo que uma escrita atravessa a compressão e a deduplicação antes de ser confirmada, sendo o dado efetivamente gravado mais tarde.
 
 #figure(
-  trace-lines("traces-operacoes.csv", ylabel: [Escritas na janela (%)]),
+  trace-lines("traces-operations.csv", ylabel: [Escritas na janela (%)]),
   caption: [Evolução do mix de operações ao longo da execução do trace homes]
 ) <traces-operacoes>
 
@@ -655,7 +655,7 @@ A série fixa-se portanto nos 100% e a workload deixa de emitir um único pedido
 Resta a dimensão que motiva o recurso a estes traces, ou seja, a repetição de conteúdo. Ao contrário das duas anteriores, esta não se lê no pedido em si mas na assinatura que o acompanha, sendo a distribuição dessas repetições ao longo do tempo, e não apenas a sua quantidade total, que determina aquilo que a deduplicação consegue eliminar.
 
 #figure(
-  trace-lines("traces-assinaturas.csv", ylabel: [Duplicados na janela (%)]),
+  trace-lines("traces-signatures.csv", ylabel: [Duplicados na janela (%)]),
   caption: [Evolução das assinaturas de conteúdo ao longo da execução do trace homes]
 ) <traces-assinaturas>
 
@@ -745,7 +745,7 @@ Toda a análise que se segue incide sobre as workloads executadas no dispositivo
 A dimensão isolada nesta subsecção é a ordenação dos acessos, confrontando-se as workloads sequenciais 01 e 02 com as aleatórias 04 e 05, todas elas assentes em blocos de 4 KiB e submetidas através da interface POSIX.
 
 #figure(
-  tool-bars("localidade-iops.csv", ylabel: [Milhares de @iops],
+  tool-bars("locality-iops.csv", ylabel: [Milhares de @iops],
             xlabel: [Workload], width: 8.5cm, height: 4.6cm, legend: false),
   caption: [Débito de operações do Prismo em cada padrão de acesso]
 ) <localidade-iops>
@@ -781,9 +781,9 @@ A penalização apurada na subsecção anterior assenta em valores médios, os q
 #figure(
   grid(
     columns: 2, gutter: 4pt,
-    tool-bars("localidade-p99.csv", ylabel: [Latência p99 (µs)],
+    tool-bars("locality-p99.csv", ylabel: [Latência p99 (µs)],
               xlabel: [Workload], width: 6.0cm, height: 4.6cm, legend: false),
-    tool-bars("localidade-cv.csv", ylabel: [Coeficiente de variação (%)],
+    tool-bars("locality-cv.csv", ylabel: [Coeficiente de variação (%)],
               xlabel: [Workload], width: 6.0cm, height: 4.6cm, legend: false),
   ),
   caption: [Percentil 99 e dispersão do débito em cada padrão de acesso]
@@ -796,7 +796,7 @@ A penalização mantém-se no confronto entre a distribuição uniforme e a Zipf
 A dispersão elevada não é porém exclusiva da distribuição Zipfian, visto a workload 02 apresentar valor semelhante ao da 06, apesar de operar a um nível de desempenho muito superior, bem mais próximo do limite do dispositivo.
 
 #figure(
-  workload-lines("localidade-series.csv", ylabel: [Milhares de @iops]),
+  workload-lines("locality-series.csv", ylabel: [Milhares de @iops]),
   caption: [Evolução do débito ao longo da execução em cada padrão de acesso]
 ) <localidade-series>
 
