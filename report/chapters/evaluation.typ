@@ -846,7 +846,7 @@ Esperava-se que a extensão por regressão, apresentada no @chapter3 como a mais
 
 A causa reside na natureza do identificador de bloco, que resulta de uma função de hash sem relação linear com o offset, pelo que o ajuste por mínimos quadrados colapsa numa proporcionalidade e a sequência gerada, sendo estritamente monótona, jamais reincide num valor já submetido.
 
-=== Limitações
+=== Limitações <limitations>
 
 Nenhuma campanha experimental esgota o espaço de configurações possíveis, pelo que a leitura dos resultados apresentados deve ter presente um conjunto de limitações, umas decorrentes das condições em que a campanha decorreu, outras do desenho das próprias workloads, e as restantes do material disponível para replicação.
 
