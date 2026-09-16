@@ -3,7 +3,7 @@
 #show: thesis(
   author: "Diogo Alexandre Correia Marques",
   title: [Realistic Benchmarking of Data Deduplication \ and  Compression Systems],
-  date: [jully 2026],
+  date: [october 2026],
   supervisors: (
     [João Tiago Medeiros Paulo],
     // [Co-Supervisor Name],

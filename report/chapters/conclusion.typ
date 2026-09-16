@@ -6,7 +6,7 @@ Foi com o objetivo de colmatar estas lacunas que se desenvolveu o Prismo, um ben
 
 A avaliação experimental permitiu estabelecer, por um lado, que o Prismo mede com a mesma fiabilidade das ferramentas de referência quando as workloads são equivalentes, e por outro, que a forma como o conteúdo se distribui pelos blocos altera aquilo que se mede num sistema de armazenamento, efeito que uma descrição baseada em taxas globais é incapaz de revelar.
 
-Nem todos os resultados corresponderam ao que se antecipava, tendo algumas otimizações produzido um efeito inferior ao esperado e outras um efeito contrário, a que acrescem as limitações inerentes a uma campanha conduzida em condições controladas e com material de replicação escasso. Nenhuma destas reservas compromete, porém, a conclusão que sustenta o trabalho.
+Nem todos os resultados corresponderam ao que se antecipava, tendo algumas otimizações produzido um efeito inferior ao esperado e outras um efeito contrário, a que acrescem limitações da própria campanha, como o facto de algumas workloads não diferirem num único parâmetro, o que impede atribuir as variações observadas a uma propriedade concreta. Nenhuma destas reservas põe, porém, em causa as duas constatações anteriores, dado assentarem em comparações onde apenas a ferramenta, e com ela o conteúdo submetido, variava.
 
 Em suma, avaliar com rigor um sistema de armazenamento exige workloads fiéis tanto ao conteúdo como às cargas que este serve em produção, pois só assim os valores obtidos traduzem o comportamento que as aplicações efetivamente observarão, sendo precisamente esse o contributo que o Prismo procura oferecer à comunidade.
 
@@ -18,7 +18,7 @@ O trabalho desenvolvido deixa em aberto um conjunto de questões que constituem 
 
 As estratégias de extensão de traces podem ser aperfeiçoadas, de modo a que prolongar uma execução preserve melhor as propriedades do trace original, dado nenhuma das abordagens atuais o conseguir sem sacrificar alguma delas. Tal reduziria a distância entre as propriedades registadas no trace e aquelas que a workload continua a exercitar depois de o ficheiro se esgotar.
 
-Além disso, a geração de conteúdo pode ir além dos duplicados exatos e da compressibilidade de cada bloco, passando a modelar a semelhança parcial entre blocos distintos, propriedade que algumas técnicas de redução de dados exploram e que o Prismo não contempla atualmente.
+Além disso, a geração de conteúdo pode ir além dos duplicados exatos e da compressibilidade de cada bloco, passando a modelar a semelhança parcial entre blocos distintos, situação frequente em backups sucessivos ou em imagens de máquinas virtuais, onde blocos quase idênticos diferem apenas em pequenas porções. Atualmente, tais blocos são tratados como únicos, pelo que os sistemas que armazenam somente as diferenças entre eles não retiram vantagem alguma das workloads geradas, ficando essa capacidade por avaliar.
 
 === Aprofundamento da Avaliação
 
@@ -27,3 +27,5 @@ Grande parte desta frente decorre diretamente das limitações identificadas na 
 Do mesmo modo, o desenho experimental beneficiaria de comparações que diferissem numa única propriedade de cada vez, acompanhadas de métricas adicionais, nomeadamente o espaço efetivamente ocupado em disco e a repartição da latência entre o dispositivo e a própria ferramenta, grandezas cuja ausência deixou algumas hipóteses por confirmar.
 
 Por fim, os traces disponíveis são antigos e demasiado curtos face aos dispositivos atuais, pelo que o recurso a registos recentes, ou a caracterização direta de cargas em produção, reduziria a dependência da extensão sintética naquilo que é medido.
+
+Encerra-se deste modo o capítulo, ficando o Prismo como ponto de partida para avaliações de sistemas de armazenamento que tratem o conteúdo e as cargas com o mesmo rigor com que medem o desempenho.
