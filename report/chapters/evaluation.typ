@@ -434,7 +434,7 @@ Deste modo, o custo de comprimir depende não apenas da quantidade de dados redu
 
 Em suma, um benchmark que ignore as propriedades do conteúdo subestima em cerca de um terço o débito que o @zfs entrega perante dados realistas, resultado que demonstra não ser a fidelidade do conteúdo um requisito acessório, mas antes condição para que a avaliação seja representativa. Estabelecido o efeito das propriedades dos dados, importa agora averiguar em que medida a interface de @io condiciona os valores medidos @koller2010 @meyer2012.
 
-== Comparação de Interfaces de I/O <io-interfaces>
+== Comparação de Interfaces de E/S <io-interfaces>
 
 O suporte a múltiplas interfaces de @io constitui uma das funcionalidades distintivas do Prismo, daí que faça todo o sentido avaliar o impacto da escolha da interface no desempenho observado. Embora o @fio suporte as mesmas interfaces, o acesso ao @spdk é conseguido através de um plugin cuja utilização é deveras complexa, não sendo por isso suportado nativamente. Por outro lado, o Vdbench opera exclusivamente sobre POSIX síncrono. Deste modo, a comparação entre as três ferramentas é possível para POSIX, enquanto para io_uring, libaio e @spdk a comparação é restrita ao Prismo e ao @fio.
 

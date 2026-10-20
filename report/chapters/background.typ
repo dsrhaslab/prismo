@@ -49,9 +49,9 @@ Infelizmente existem pouquíssimos traces disponíveis, e os do @fiu já contam 
 
 A estrutura do trace é descritiva das operações efetuadas, sendo para cada uma identificado o timestamp, processo responsável e dados da operação de @io, como offset, tamanho e tipo. Ademais, cada registo conta com uma assinatura, pois sendo este um trace de deduplicação, é necessário conhecer o bloco alvo da operação, o que permite posteriormente identificar duplicados.
 
-Em suma, os traces permitem compreender detalhadamente como os dados são lidos, escritos e manipulados ao longo do tempo. No entanto, para interpretar corretamente estes registos e avaliar o seu impacto no desempenho do sistema, é essencial entender o funcionamento da stack de @io, uma vez que é através desta que as operações são processadas e geridas @didona2022 @ren2023 @uring_kernel @fio_docs @spdk_docs @rust_iouring_async.
+Em suma, os traces permitem compreender detalhadamente como os dados são lidos, escritos e manipulados ao longo do tempo. No entanto, para interpretar corretamente estes registos e avaliar o seu impacto no desempenho do sistema, é essencial entender o funcionamento da pilha de @io, uma vez que é através desta que as operações são processadas e geridas @didona2022 @ren2023 @uring_kernel @fio_docs @spdk_docs @rust_iouring_async.
 
-=== Stack de I/O
+=== Pilha de E/S
 
 Sempre que uma aplicação solicita operações de @io, as mesmas são obrigadas a fluir através de várias camadas a fim de garantir segurança e eficiência, contribuindo para ligar a aplicação ao hardware de modo totalmente abstrato.
 
@@ -61,14 +61,14 @@ No caso contrário, perante a necessidade de aceder ao disco, o pedido é encami
 
 #figure(
   image("../images/stack.png", width: 50%),
-  caption: [Visão alto nível da stack de @io do kernel @ren2023]
+  caption: [Visão alto nível da pilha de @io do kernel @ren2023]
 ) <iostack>
 
 Assim sendo, este fluxo permite que as aplicações realizem operações de @io de modo transparente, enquanto o sistema operativo gere a complexidade, desempenho e segurança dos acessos ao dispositivo de armazenamento.
 
-=== Interfaces de I/O
+=== Interfaces de E/S
 
-Devido aos imensos passos realizados no interior de stack de @io, a execução dos pedidos tende a ser bastante demorada, o que contribui para uma penalização da performance das aplicações. Tendo isto em mente, surgiram diversas @api:pl que trazem otimizações para cenários específicos, e como tal estabelecem compromissos entre simplicidade, desempenho e controlo.
+Devido aos imensos passos realizados no interior de pilha de @io, a execução dos pedidos tende a ser bastante demorada, o que contribui para uma penalização da performance das aplicações. Tendo isto em mente, surgiram diversas @api:pl que trazem otimizações para cenários específicos, e como tal estabelecem compromissos entre simplicidade, desempenho e controlo.
 
 ==== POSIX
 
@@ -126,9 +126,9 @@ A deduplicação caracteriza-se por poupar espaço ao não escrever conteúdo re
   caption: [Visão geral do funcionamento da deduplicação]
 ) <dedup>
 
-Sempre que um pedido de @io é submetido ao sistema, a stack de @io calcula a assinatura do bloco e consulta um índice responsável por estabelecer um mapeamento entre endereços físicos e lógicos, verificando assim a existência de duplicados. Caso a entrada já se encontre no índice, o bloco em questão é duplicado, como tal simplesmente será criado um apontador para a sua posição no disco, evitando uma escrita de conteúdo repetido. Consequentemente nenhuma cópia é escrita, diminuindo os requisitos de armazenamento da aplicação.
+Sempre que um pedido de @io é submetido ao sistema, a pilha de @io calcula a assinatura do bloco e consulta um índice responsável por estabelecer um mapeamento entre endereços físicos e lógicos, verificando assim a existência de duplicados. Caso a entrada já se encontre no índice, o bloco em questão é duplicado, como tal simplesmente será criado um apontador para a sua posição no disco, evitando uma escrita de conteúdo repetido. Consequentemente nenhuma cópia é escrita, diminuindo os requisitos de armazenamento da aplicação.
 
-Uma vez que este processo ocorre numa camada superficial da stack de @io, a execução do processo de deduplicação é completamente transparente à aplicação, afinal a visão lógica apresenta os dados tal como foram solicitados, e portanto contém duplicados, enquanto a visão física - onde os dados são realmente armazenados - não permite tal.
+Uma vez que este processo ocorre numa camada superficial da pilha de @io, a execução do processo de deduplicação é completamente transparente à aplicação, afinal a visão lógica apresenta os dados tal como foram solicitados, e portanto contém duplicados, enquanto a visão física - onde os dados são realmente armazenados - não permite tal.
 
 Embora existam diversas granularidades de deduplicação, esta dissertação apenas aborda a orientada ao bloco, deste modo os dados são divididos em blocos de tamanho fixo, sendo realizado um padding em caso de necessidade e armazenados somente os blocos únicos. Por norma, quanto menor for o tamanho do bloco, melhor será a utilização do espaço de armazenamento, pois à partida serão detetadas mais cópias, no entanto isso acarreta custos ao nível computacional, visto ser necessário lidar com mais blocos, neste sentido é preciso encontrar um tamanho razoável, sendo 4096 bytes um padrão aplicado em diversos sistemas de armazenamento @paulo2014 @constantinescu2011.
 

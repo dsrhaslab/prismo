@@ -479,7 +479,7 @@ $
 
 Desta forma, a extensão por regressão é particularmente adequada quando se pretende prolongar a workload para além da duração do trace mantendo as dependências estruturais entre as dimensões, algo que a amostragem independente não consegue garantir @tracegen2024 @pang2026.
 
-== Interfaces de I/O
+== Interfaces de E/S
 
 Tendo em consideração o modelo de execução previamente descrito, o consumidor recebe os pedidos do produtor e procede de imediato ao desencapsulamento para compreender o tipo de operação em questão e assim facilitar o acesso aos restantes parâmetros, como offset e conteúdo @didona2022.
 

@@ -31,8 +31,8 @@
   long: Florida International University
 
 - key: io
-  short: I/O
-  long: Input/Output
+  short: E/S
+  long: Entrada/Saída
 
 - key: iops
   short: IOPS
