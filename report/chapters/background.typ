@@ -163,7 +163,7 @@ Tendo em conta que a string é constituída por seis caracteres, $6 dot 1.46 = 8
 *Huffman Coding.* A fórmula da entropia nada diz sobre a codificação dos símbolos, para isso é necessário recorrer a um algoritmo de codificação, neste caso abordamos o Huffman Coding, que permitem gerar códigos binários de tamanho variável para uma compressão sem perdas, nela os símbolos mais frequentes recebem códigos mais curtos enquanto os símbolos menos frequentes códigos mais longos @huffman_wiki.
 
 #figure(
-  image("../images/huffman.png", width: 60%),
+  image("../images/huffman.png", width: 55%),
   caption: [Árvore de Huffman @huffman_wiki]
 ) <huffman>
 
