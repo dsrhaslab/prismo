@@ -1,18 +1,18 @@
 #import "../utils/functions.typ" : raw_code_block
 
-= Background e Trabalho Relacionado <chapter2>
+= Estado da Arte <chapter2>
 
-Este capítulo tem por objetivo apresentar os conceitos e trabalho relacionado que sejam relevantes para a compreensão do projeto, neste sentido, inicialmente é apresentada uma breve descrição das técnicas de benchmarking atuais, referindo as métricas relevantes para a avaliação do sistema de armazenamento, bem como as características singulares entre workloads sintéticas e baseadas em traces.
+Este capítulo tem por objetivo apresentar os conceitos e trabalho relacionado que sejam relevantes para a compreensão do projeto, neste sentido, inicialmente é apresentada uma breve descrição das técnicas de benchmarking atuais, referindo as métricas relevantes para a avaliação do sistema de armazenamento, bem como as características singulares entre cargas de trabalho sintéticas e baseadas em _traces_.
 
-Posteriormente, estudam-se as técnicas de deduplicação e compressão, permitindo compreender como é possível gerar conteúdo que respeite estas propriedades, além de estender traces mantendo as características originais dos dados.
+Posteriormente, estudam-se as técnicas de deduplicação e compressão, permitindo compreender como é possível gerar conteúdo que respeite estas propriedades, além de estender _traces_ mantendo as características originais dos dados.
 
 Serão também analisadas as últimas técnicas para geração de conteúdo realista e as soluções de benchmark amplamente utilizadas pela comunidade, procurando perceber se os resultados por estas apresentados providenciam uma avaliação realista dos sistemas de armazenamento.
 
 Desta forma, pretende-se evidenciar a complexidade da geração de datasets e a sua importância para uma avaliação rigorosa do sistema de armazenamento. Finalmente, o capítulo termina com uma síntese da informação recolhida, procurando desvendar os impactos que isso terá na arquitetura da proposta de solução.
 
-== Background
+== Conceitos Base
 
-Nesta secção são apresentados os conceitos essenciais relacionados com benchmarking, interfaces de @io e geração de conteúdo, tendo por objetivo fornecer o contexto necessário para compreender as técnicas e decisões que influenciam a avaliação e o desempenho dos sistemas de armazenamento.
+Nesta secção são apresentados os conceitos essenciais relacionados com a avaliação de sistemas de armazenamento, interfaces de @io e geração de conteúdo, tendo por objetivo fornecer o contexto necessário para compreender as técnicas e decisões que influenciam a avaliação e o desempenho dos sistemas de armazenamento.
 
 Convém mencionar que a proposta de solução funciona ao nível do bloco, portanto, e por motivos de simplicidade, os conceitos serão apresentados tendo isso em conta, embora a granularidade não lhes seja diretamente incutida.
 
@@ -20,17 +20,19 @@ Convém mencionar que a proposta de solução funciona ao nível do bloco, porta
 
 O benchmarking de sistemas de armazenamento passa por aplicar cargas de trabalho controladas e reprodutíveis, consentindo assim a avaliação do desempenho, eficiência e escalabilidade das soluções de @io. Mais tarde, os dados recolhidos são utilizados para decidir entre arquiteturas, interfaces de acesso e configurações de hardware/software que melhor respondem às necessidades do ambiente de produção @traeger2008 @lee2012 @tarasov2011 @ruwart2001 @borrill2007.
 
-Entre as métricas recolhidas, destacam-se a latência (intervalo entre submissão e conclusão), débito (quantidade de dados transferidos por unidade de tempo) e @iops (operações de @io realizadas por unidade de tempo), sendo claro que, para além dos componentes técnicos, as características da workload influenciam o valor das métricas.
+Entre as métricas recolhidas, destacam-se a latência (intervalo entre submissão e conclusão), débito (quantidade de dados transferidos por unidade de tempo) e @iops (operações de @io realizadas por unidade de tempo), sendo claro que, para além dos componentes técnicos, as características da carga de trabalho influenciam o valor das métricas.
 
-Finalmente, a representatividade das workloads corresponde a um desafio central do benchmarking, pois testes sintéticos tendem a não refletir fielmente comportamentos e padrões observados em ambientes reais @gracia-tinedo2015 @talwadker2014 @pang2026 @tracegen2024. Além disso, certas soluções de @io foram desenhadas para favorecer determinadas características, por exemplo deduplicação e compressão, como tal uma workload genérica é incapaz de extrair o máximo das capacidades do sistema.
+Finalmente, a representatividade das cargas de trabalho corresponde a um desafio central da avaliação, pois testes sintéticos tendem a não refletir fielmente comportamentos e padrões observados em ambientes reais @gracia-tinedo2015 @talwadker2014 @pang2026 @tracegen2024. Além disso, certas soluções de @io foram desenhadas para favorecer determinadas características, por exemplo deduplicação e compressão, como tal uma carga genérica é incapaz de extrair o máximo das capacidades do sistema.
 
-==== Traces
+*Traces.* A melhor forma de reproduzir cargas realistas é saber exatamente em que consistem, por conseguinte um _trace_ oferece uma visão detalhada de todas as operações que ocorrem no sistema, permitindo conhecer os momentos em que as aplicações e processos interagiram com o sistema de armazenamento.
 
-A melhor forma de simular workloads realistas é saber exatamente em que consistem essas workloads, por conseguinte um trace oferece uma visão detalhada de todas as operações que ocorrem no sistema, permitindo conhecer os momentos em que as aplicações e processos interagiram com o sistema de armazenamento.
+Idealmente, os _traces_ são obtidos em ambiente de produção, dado que somente aí se observa o sistema sob condições reais de uso, portanto faz todo o sentido que o _benchmark_ consiga replicar esse ambiente para se obter uma noção do desempenho esperado.
 
-Idealmente, os traces são obtidos em ambiente de produção, dado que somente aí observamos o sistema sob condições reais de uso, portanto faz todo o sentido que o benchmark consiga replicar esse ambiente para termos uma noção do desempenho esperado.
+Infelizmente existem pouquíssimos _traces_ públicos que registem o conteúdo dos blocos acedidos, requisito indispensável para exercitar a deduplicação, sendo os do @fiu a referência mais utilizada pela comunidade e aqueles que esta dissertação adota @koller2010.
 
-Infelizmente existem pouquíssimos traces disponíveis, e os do @fiu já contam com imensos anos, não sendo a sua replicação viável em máquinas modernas, isto por terem sido obtidos em dispositivos obsoletos aos dias de hoje.
+Tais registos resultam da instrumentação de três servidores em produção ao longo de três semanas, nomeadamente um servidor de diretórios pessoais, um servidor de correio eletrónico e um servidor de páginas web, cobrindo assim perfis de utilização distintos entre si @koller2010.
+
+O seu principal inconveniente reside na idade, visto terem sido recolhidos em dispositivos há muito obsoletos, o que torna a sua replicação integral pouco representativa quando aplicada às máquinas atuais.
 
 #figure(
   raw_code_block[
@@ -45,17 +47,17 @@ Infelizmente existem pouquíssimos traces disponíveis, e os do @fiu já contam 
   ```
   ],
   caption: [Estrutura do trace do @fiu]
-)
+) <fiu-trace>
 
-A estrutura do trace é descritiva das operações efetuadas, sendo para cada uma identificado o timestamp, processo responsável e dados da operação de @io, como offset, tamanho e tipo. Ademais, cada registo conta com uma assinatura, pois sendo este um trace de deduplicação, é necessário conhecer o bloco alvo da operação, o que permite posteriormente identificar duplicados.
+Tal como ilustrado na @fiu-trace, a estrutura do _trace_ é descritiva das operações efetuadas, sendo para cada uma identificado o instante de submissão, o processo responsável e os dados da operação de @io, como o offset, o tamanho e o tipo. Ademais, cada registo conta com uma assinatura do conteúdo, pois sendo este um _trace_ de deduplicação, é necessário conhecer o bloco alvo da operação, o que permite posteriormente identificar duplicados @koller2010.
 
-Em suma, os traces permitem compreender detalhadamente como os dados são lidos, escritos e manipulados ao longo do tempo. No entanto, para interpretar corretamente estes registos e avaliar o seu impacto no desempenho do sistema, é essencial entender o funcionamento da pilha de @io, uma vez que é através desta que as operações são processadas e geridas @didona2022 @ren2023 @uring_kernel @fio_docs @spdk_docs @rust_iouring_async.
+Em suma, os _traces_ permitem compreender detalhadamente como os dados são lidos, escritos e manipulados ao longo do tempo. No entanto, para interpretar corretamente estes registos e avaliar o seu impacto no desempenho do sistema, é essencial entender o funcionamento da pilha de @io, uma vez que é através desta que as operações são processadas e geridas @didona2022 @ren2023 @uring_kernel @fio_docs @spdk_docs @rust_iouring_async.
 
 === Pilha de E/S
 
-Sempre que uma aplicação solicita operações de @io, as mesmas são obrigadas a fluir através de várias camadas a fim de garantir segurança e eficiência, contribuindo para ligar a aplicação ao hardware de modo totalmente abstrato.
+Sempre que uma aplicação solicita operações de @io, as mesmas são obrigadas a fluir através de várias camadas a fim de garantir segurança e eficiência, permitindo assim que a aplicação utilize o hardware com maior abstração sobre o mesmo.
 
-Posto isto, ao ser invocada uma system call, por exemplo `READ` ou `WRITE`, o kernel é notificado da existência de uma operação de @io, havendo assim uma transição de user para kernel space. Já dentro do kernel, o pedido é recebido pelo @vfs, que fornece uma interface independente do sistema de ficheiros, sendo este último responsável por traduzir a operação em acessos a blocos lógicos e verificar se os dados encontram-se em cache, em caso afirmativo o pedido é satisfeito imediatamente sem aceder ao disco.
+Ao ser invocada uma chamada ao sistema, por exemplo `READ` ou `WRITE`, o kernel é notificado da existência de uma operação de @io, havendo assim uma transição de _user_ para _kernel space_. Já dentro do kernel, o pedido é recebido pelo @vfs, que fornece uma interface independente do sistema de ficheiros, sendo este último responsável por traduzir a operação em acessos a blocos lógicos e verificar se os dados encontram-se em cache, em caso afirmativo o pedido é satisfeito imediatamente sem aceder ao disco.
 
 No caso contrário, perante a necessidade de aceder ao disco, o pedido é encaminhado para a camada de blocos, de modo a agrupar e escalonar os pedidos de @io o mais eficientemente possível. Por fim, o pedido é transmitido ao driver do dispositivo, que conhece os detalhes específicos do hardware e por isso converte o pedido em instruções claras ao controlador de disco.
 
@@ -64,60 +66,50 @@ No caso contrário, perante a necessidade de aceder ao disco, o pedido é encami
   caption: [Visão alto nível da pilha de @io do kernel @ren2023]
 ) <iostack>
 
-Assim sendo, este fluxo permite que as aplicações realizem operações de @io de modo transparente, enquanto o sistema operativo gere a complexidade, desempenho e segurança dos acessos ao dispositivo de armazenamento.
+A @iostack resume o percurso descrito, desde a chamada ao sistema emitida pela aplicação até ao controlador do dispositivo. Assim sendo, este fluxo permite que as aplicações realizem operações de @io de modo transparente, enquanto o sistema operativo gere a complexidade, desempenho e segurança dos acessos ao dispositivo de armazenamento.
 
 === Interfaces de E/S
 
-Devido aos imensos passos realizados no interior de pilha de @io, a execução dos pedidos tende a ser bastante demorada, o que contribui para uma penalização da performance das aplicações. Tendo isto em mente, surgiram diversas @api:pl que trazem otimizações para cenários específicos, e como tal estabelecem compromissos entre simplicidade, desempenho e controlo.
+Devido aos imensos passos realizados no interior da pilha de @io, a execução dos pedidos tende a ser demorada, o que contribui para uma penalização do desempenho das aplicações. Tendo isto em mente, surgiram diversas @api:pl que trazem otimizações para cenários específicos, e como tal estabelecem compromissos entre simplicidade, desempenho e controlo.
 
-==== POSIX
+*POSIX.* De todas a mais simplista, esta interface funciona através das chamadas ao sistema `OPEN`, `READ`, `WRITE` e `CLOSE`, o que a torna bastante portável e amplamente utilizada entre os sistemas UNIX. Por outro lado, acarreta a desvantagem das chamadas serem síncronas e realizar cópias entre _user_ e _kernel space_, consequentemente penaliza aplicações com cargas intensivas.
 
-De todas a mais simplista, esta interface funciona através das system calls `OPEN`, `READ`, `WRITE` e `CLOSE`, o que a torna bastante portável e amplamente utilizada entre os sistemas UNIX. Por outro lado, acarreta a desvantagem das chamadas serem síncronas e realizar cópias entre user e kernel space, consequentemente penaliza aplicações com workloads intensivas.
+*Libaio.* As interfaces assíncronas surgiram para permitir a submissão de novos pedidos enquanto os anteriores ainda não foram concluídos, possibilitando além disso a execução de pedidos em lote como meio para diminuir as chamadas ao sistema, afinal o custo da mudança de contexto entre _user_ e _kernel space_ é deveras elevado.
 
-==== io_uring
+Sendo a primeira destas interfaces a ser disponibilizada pelo kernel, a libaio apenas atua com @io direto, conseguido através da flag `O_DIRECT`, e portanto torna-se muito limitada face aos sistemas de ficheiros atuais.
 
-Recentemente as interfaces assíncronas têm ganho popularidade por conseguirem submeter novos pedidos enquanto os anteriores ainda não foram concluídos, além disso possibilitam a execução de pedidos em batch como meio para diminuir as system calls, afinal o custo da mudança de contexto entre user para kernel space é deveras elevado.
+Além disso, uma vez que são utilizadas chamadas ao sistema AIO do kernel, os pedidos continuam a passar através da pilha tradicional de @io, o que origina as penalizações de desempenho mencionadas anteriormente @didona2022.
+
+*io_uring.* Mais recente, esta interface retoma o modelo assíncrono e organiza a comunicação com o kernel em duas filas circulares partilhadas, dispensando uma chamada ao sistema por cada pedido submetido @rust_iouring_async.
 
 #figure(
   image("../images/uring.png", width: 70%),
   caption: [Visão alto nível das queues circulares do io_uring @rust_iouring_async]
 ) <uring>
 
-Inicialmente  a @sq encontra-se vazia e por isso disponível para receber @sqe, quando a aplicação julgar conveniente ou a @sq ficar cheia é necessário realizar uma syscall de `submit`, informando o kernel sobre a existência de @sqe disponíveis para submissão, neste momento ocorre uma mudança de contexto, no entanto a aplicação pode continuar a submeter novos pedidos caso encontre espaço disponível na @sq @rust_iouring_async.
+Conforme ilustrado na @uring, inicialmente a @sq encontra-se vazia e por isso disponível para receber @sqe, quando a aplicação julgar conveniente ou a @sq ficar cheia é necessário realizar uma chamada ao sistema de `submit`, informando o kernel sobre a existência de @sqe disponíveis para submissão, neste momento ocorre uma mudança de contexto, no entanto a aplicação pode continuar a submeter novos pedidos caso encontre espaço disponível na @sq @rust_iouring_async.
 
 Assim que o kernel termina o pedido resultante de uma @sqe, o mesmo origina uma @cqe com os dados resultantes da operação de @io, sendo este inserido na @cq de modo a informar a aplicação sobre a conclusão do pedido. Convém realçar que a aplicação é responsável por recolher as @cqe, caso contrário a @cq ficará cheia e o kernel bloqueará por não conseguir transmitir os resultados à aplicação @rust_iouring_async.
 
-Por fim, a interface suporta @dma através de buffers registados, ou seja, em vez dos dados serem constantemente copiados entre user e kernel space, a aplicação compromete-se a gerir uma zona de memória que o kernel confiará como sendo segura, daí que não possam haver modificações da memória entre a submissão e conclusão dos pedidos @uring_kernel.
+Por fim, a interface suporta @dma através de buffers registados, ou seja, em vez dos dados serem constantemente copiados entre _user_ e _kernel space_, a aplicação compromete-se a gerir uma zona de memória que o kernel confiará como sendo segura, daí que não possam haver modificações da memória entre a submissão e conclusão dos pedidos @uring_kernel.
 
-==== Libaio
-
-De forma semelhante à interface anterior, esta também funcionar de modo assíncrono e permite a submissão de pedidos em batch, no entanto apenas atua com @io direto, conseguido através da flag `O_DIRECT`, e portanto torna-se muito limitada face aos sistemas de ficheiros atuais.
-
-Além disso, uma vez que são utilizadas system calls AIO do kernel, os pedidos continuam a passar através da stack tradicional de @io, o que origina as penalizações de performance mencionadas anteriormente e das quais todas as interfaces referidas até ao momento sofrem @didona2022.
-
-==== SPDK
-
-Com o objetivo de dar bypass ao kernel, esta interface possibilita acesso direto ao controlador de disco a partir do user space, deste modo evita por completo as penalizações das system calls e interrupções que normalmente lhes estão associadas @spdk_docs.
+*SPDK.* Com o objetivo de contornar por completo o kernel, esta interface possibilita acesso direto ao controlador de disco a partir do _user space_, evitando deste modo as penalizações das chamadas ao sistema e interrupções que normalmente lhes estão associadas @spdk_docs.
 
 Ao utilizar um mecanismo de polling ativo, a latência entre pedidos é diminuída ao máximo em detrimento da utilização dos cores da @cpu. Deste modo, um runtime assíncrono é estabelecido às custas de um reactor, sendo depois submetidas operações de @io que o escalonador atribuiu aos cores corretos. Quando a operação é dada por terminada, o escalonador volta a atribuir um callback para execução, sendo que este contém o resultado da operação de @io.
 
-Por fim, esta interface disponibiliza uma @api de @bdev que abstrai as operações enquanto as orienta ao bloco, tornando-se por isso bastante conveniente para a implementação do protótipo, no entanto o modelo de concorrência entre threads acarreta algumas dificuldades de gestão comparativamente ao modelo tradicional em stack. Por estas razões, apenas sistemas onde a performance seja um fator crítico devem utilizar @spdk, caso contrário estaremos a tornar a aplicação menos portável sem necessidade @ren2023.
+Por fim, esta interface disponibiliza uma @api de @bdev que abstrai as operações enquanto as orienta ao bloco, tornando-se por isso bastante conveniente para a implementação de um _benchmark_ orientado ao bloco, no entanto o modelo de concorrência entre threads acarreta algumas dificuldades de gestão comparativamente ao modelo tradicional em pilha. Por estas razões, apenas sistemas onde o desempenho seja um fator crítico devem utilizar @spdk, caso contrário estaremos a tornar a aplicação menos portável sem necessidade @ren2023.
 
-==== Generalização
+*Generalização.* As interfaces de @io mencionadas apresentam modelos de funcionamento distintos, desde a forma como lidam com chamadas ao sistema e polling até à gestão de concorrência e callbacks. Estas diferenças tornam particularmente difícil a criação de um _benchmark_ que suporte todas as interfaces de forma genérica, sem perder fidelidade ou desempenho.
 
-As interfaces de @io mencionadas apresentam modelos de funcionamento distintos, desde a forma como lidam com system calls e polling até à gestão de concorrência e callbacks. Estas diferenças tornam particularmente difícil a criação de um benchmark que suporte todas as interfaces de forma genérica, sem perder fidelidade ou desempenho.
+Na prática, os _benchmarks_ existentes são frequentemente desenvolvidos com foco numa interface específica, explorando otimizações próprias desse modelo. Por exemplo, as técnicas de polling ativo em @spdk ou submissão assíncrona em Uring são utilizadas para reduzir a latência e aumentar o débito, no entanto não se traduzem diretamente em interfaces tradicionais (POSIX). Como resultado, generalizar um benchmark implica sacrificar estas otimizações, podendo levar a resultados menos representativos do desempenho real de cada interface @fio_docs @spdk_docs @uring_kernel.
 
-Na prática, os benchmarks existentes são frequentemente desenvolvidos com foco numa interface específica, explorando otimizações próprias desse modelo. Por exemplo, as técnicas de polling ativo em @spdk ou submissão assíncrona em Uring são utilizadas para reduzir a latência e aumentar o débito, no entanto não se traduzem diretamente em interfaces tradicionais (POSIX). Como resultado, generalizar um benchmark implica sacrificar estas otimizações, podendo levar a resultados menos representativos do desempenho real de cada interface @fio_docs @spdk_docs @uring_kernel.
+Esta realidade justifica por que motivo os _benchmarks_ que pretendem ser altamente precisos costumam ser otimizados para uma interface em particular, em vez de adotarem uma abordagem única e universal para todos os sistemas de @io.
 
-Esta realidade justifica por que motivo benchmarks que pretendem ser altamente precisos costumam ser otimizados para uma interface em particular, em vez de adotarem uma abordagem única e universal para todos os sistemas de @io.
+=== Deduplicação
 
-=== Manipulação de Conteúdo
+Embora as interfaces de @io desempenhem um papel fundamental na avaliação dos sistemas de armazenamento, o seu impacto é limitado quando as propriedades destes sistemas não são plenamente exercitadas. Diferentes interfaces podem variar a latência e o débito, porém não capturam o efeito de otimizações como a deduplicação e a compressão se o conteúdo utilizado não refletir essas características @koller2010 @meyer2012 @policroniades2004 @paulo2014 @talasila2019.
 
-Embora as interfaces de @io desempenhem um papel fundamental na avaliação dos sistemas de armazenamento, o seu impacto é limitado quando as propriedades destes sistemas não são plenamente exercitadas. Diferentes interfaces podem variar a latência e débito, porém não capturaram o efeito de otimizações como deduplicação e compressão se o conteúdo utilizado não refletir essas características @koller2010 @meyer2012 @policroniades2004 @paulo2014  @talasila2019.
-
-Os sistemas modernos combinam deduplicação e compressão para otimizar espaço e desempenho. Por este motivo, gerar conteúdo que reproduza estas propriedades é extremamente relevante para workloads realistas. No entanto, antes de explorar a forma como este conteúdo é gerado, é necessário compreender em que consistem estas técnicas e como influenciam o comportamento do sistema de armazenamento.
-
-==== Deduplicação
+Os sistemas modernos combinam ambas as técnicas para otimizar espaço e desempenho, pelo que gerar conteúdo que reproduza estas propriedades é extremamente relevante para cargas realistas. No entanto, antes de explorar a forma como esse conteúdo é gerado, é necessário compreender em que consistem e como influenciam o comportamento do sistema de armazenamento.
 
 A deduplicação caracteriza-se por poupar espaço ao não escrever conteúdo redundante, sendo aplicada numa grande variedade de contextos, que vão desde backup, archival e primary storage até a @ram. Uma visão geral do funcionamento deste processo está apresentada na @dedup @paulo2013.
 
@@ -132,37 +124,27 @@ Uma vez que este processo ocorre numa camada superficial da pilha de @io, a exec
 
 Embora existam diversas granularidades de deduplicação, esta dissertação apenas aborda a orientada ao bloco, deste modo os dados são divididos em blocos de tamanho fixo, sendo realizado um padding em caso de necessidade e armazenados somente os blocos únicos. Por norma, quanto menor for o tamanho do bloco, melhor será a utilização do espaço de armazenamento, pois à partida serão detetadas mais cópias, no entanto isso acarreta custos ao nível computacional, visto ser necessário lidar com mais blocos, neste sentido é preciso encontrar um tamanho razoável, sendo 4096 bytes um padrão aplicado em diversos sistemas de armazenamento @paulo2014 @constantinescu2011.
 
-Fora isso, a técnica em questão pode ser aplicada em diferentes alturas e com índices variados, dos quais se destacam os seguintes casos:
+Fora isso, a técnica em questão pode ser aplicada em diferentes alturas e com índices variados, dos quais se destacam os seguintes casos.
 
-===== Deduplicação Inline
-
-Nesta alternativa, os blocos duplicados são identificados no caminho crítico de @io, ao ser realizado um pedido é calculada a assinatura do bloco e verificada na estrutura do índice de modo a determinar o endereço físico caso o bloco em questão já tenha sido registado. Não esquecer que o mapeamento e contador de referências devem ser atualizados antes do pedido ser dado como concluído.
+*Inline.* Nesta alternativa, os blocos duplicados são identificados no caminho crítico de @io, ao ser realizado um pedido é calculada a assinatura do bloco e verificada na estrutura do índice de modo a determinar o endereço físico caso o bloco em questão já tenha sido registado. Não esquecer que o mapeamento e contador de referências devem ser atualizados antes do pedido ser dado como concluído.
 
 Embora esta técnica consiga reduzir as operações de @io no disco subjacente e consequentemente aumentar o débito do sistema, a latência dos pedidos tende a aumentar devido às múltiplas repetições do processo anteriormente descrito. Daí que manter a performance e salvaguardar a latência seja um dos desafios na deduplicação inline @koller2010 @zhu2008.
 
-===== Deduplicação Offline
+*Offline.* Ao contrário da estratégia anterior, a deduplicação offline não interfere no caminho crítico de @io, os dados são escritos diretamente no disco, salvaguardando assim baixa latência entre pedidos. Na verdade, a deduplicação é realizada mais tarde e em segundo plano, por exemplo, em alturas de menor demanda do sistema de armazenamento @meyer2012.
 
-Ao contrário da estratégia anterior, a deduplicação offline não interfere no caminho crítico de @io, os dados são escritos diretamente no disco, salvaguardando assim baixa latência entre pedidos. Na verdade, a deduplicação é realizada mais tarde e em segundo plano, por exemplo, em alturas de menor demanda do sistema de armazenamento @meyer2012.
+Após a operação de escrita, os blocos são colocados numa fila de espera, onde um processo em segundo plano irá calcular as assinaturas e consultar o índice, em caso de duplicados, os mapeamentos lógicos são atualizados juntamente com os contadores de referências, e o espaço duplicado é libertado.
 
-Após a operação de escrita, os blocos são colocados numa fila de espera, onde um processo em background irá calcular as assinaturas e consultar o índice, em caso de duplicados, os mapeamentos lógicos são atualizados juntamente com os contadores de referências, e o espaço duplicado é libertado.
+Apesar desta estratégia diminuir a latência dos pedidos, o consumo de armazenamento aumenta temporariamente, e como não reduz os pedidos ao disco, os ganhos no débito são marginais. Por outro lado, o processo em segundo plano pode trazer implicações de desempenho e consistência se não for agendado para o momento certo.
 
-Apesar desta estratégia diminuir a latência dos pedidos, o consumo de armazenamento aumenta temporariamente, e como não reduz os pedidos ao disco, os ganhos no débito são marginais. Por outro lado, o processo em background pode trazer implicações de desempenho e consistência se não for agendado para o momento certo.
+*Índices.* A estrutura consultada em qualquer das alternativas anteriores pode ainda ser completa ou parcial, contendo no primeiro caso as assinaturas de todos os blocos únicos submetidos, o que impede perder oportunidades de deduplicação mas obriga a uma estrutura que cresce imenso e dificilmente se mantém em @ram @paulo2014.
 
-===== Índice Completo
+Já o índice parcial retém somente os blocos mais recentes e populares, tirando partido da localidade espacial e temporal para caber em @ram, embora ao custo de deixar escapar duplicados cujo original já foi substituído. Esta distinção revela-se determinante para o presente trabalho, dado que apenas um índice parcial reage à forma como as repetições se distribuem ao longo do tempo @paulo2014.
 
-Este índice caracteriza-se por conter as assinaturas de todos os blocos únicos submetidos ao sistema, sendo impossível perder oportunidades para encontrar duplicados, no entanto a estrutura subjacente tende a crescer imenso e torna-se difícil de manter em @ram, geralmente é transferida para o disco. Deste modo, workloads de backup e archival, que não exigem baixa latência, costumam adotar este índice @paulo2014.
-
-===== Índice Parcial
-
-Com o objetivo de tirar partido da localidade espacial e temporal, este índice armazena somente as informações relativas aos blocos mais recentes e populares, por conseguinte a estrutura de dados pode ser armazenada em @ram, o que permite diminuir a latência dos pedidos. Por outro lado, uma vez que o índice não contém todos os blocos, é possível que blocos antigos ou pouco populares possam não ser identificados como duplicados e portanto existirão cópias no sistema de armazenamento @paulo2014.
-
-==== Compreensão
+=== Compressão
 
 Os sistemas de armazenamento modernos aplicam compressão aos blocos únicos identificados pelo processo de deduplicação, assim a informação é codificada de modo mais eficiente, reduzindo a quantidade de bytes necessários para representar os mesmos dados. Daqui obtém-se aproveitamento do espaço de armazenamento, o que diminui custos e aumenta a rapidez da transferência entre sistemas @constantinescu2011.
 
-===== Entropia
-
-A fim de conhecer o limite de compressão, a entropia consiste numa medida que reflete a incerteza ou aleatoriedade associada à informação, como tal baixa entropia implica a existência de padrões e uma oportunidade para comprimir, enquanto entropia elevada resulta da aleatoriedade dos dados, havendo por isso pouca margem de compressão @maxg_lz77 @huffman_wiki.
+*Entropia.* A fim de conhecer o limite de compressão, a entropia consiste numa medida que reflete a incerteza ou aleatoriedade associada à informação, como tal baixa entropia implica a existência de padrões e uma oportunidade para comprimir, enquanto entropia elevada resulta da aleatoriedade dos dados, havendo por isso pouca margem de compressão @maxg_lz77 @huffman_wiki.
 
 $
   H = - sum_(i=0)^k p_i log_2(p_i)
@@ -178,42 +160,38 @@ $
 
 Tendo em conta que a string é constituída por seis caracteres, $6 dot 1.46 = 8.76 #text("bits")$ corresponde ao limite teórico mínimo para codificar `banana` de forma ideal através de codificação ótima como Huffman ou Shannon-Fano @huffman_wiki.
 
-===== Huffman Coding
-
-A fórmula da entropia nada diz sobre a codificação dos símbolos, para isso é necessário recorrer a um algoritmo de codificação, neste caso abordamos o Huffman Coding, que permitem gerar códigos binários de tamanho variável para uma compressão sem perdas, nela os símbolos mais frequentes recebem códigos mais curtos enquanto os símbolos menos frequentes códigos mais longos @huffman_wiki.
+*Huffman Coding.* A fórmula da entropia nada diz sobre a codificação dos símbolos, para isso é necessário recorrer a um algoritmo de codificação, neste caso abordamos o Huffman Coding, que permitem gerar códigos binários de tamanho variável para uma compressão sem perdas, nela os símbolos mais frequentes recebem códigos mais curtos enquanto os símbolos menos frequentes códigos mais longos @huffman_wiki.
 
 #figure(
   image("../images/huffman.png", width: 60%),
   caption: [Árvore de Huffman @huffman_wiki]
 ) <huffman>
 
-O funcionamento do algoritmo é bastante simples, inicialmente os símbolos são ordenados conforme a sua frequência, de seguida os dois primeiros da lista são agrupados numa árvore cuja raiz tem valor de frequência igual ao somatório, sendo esta colocada de novo na lista conforme o seu valor de frequência.
+O funcionamento do algoritmo é simples, inicialmente os símbolos são ordenados conforme a sua frequência, de seguida os dois primeiros da lista são agrupados numa árvore cuja raiz tem valor de frequência igual ao somatório, sendo esta colocada de novo na lista conforme o seu valor de frequência.
 
 Ao repetir este processo, obtemos uma árvore com as frequências dos símbolos, deste modo os mais populares estão posicionados perto da raiz e portanto necessitam de menos bits para serem representados. Tendo em consideração a @huffman, a codificação de cada símbolo obtém-se ao atravessar a árvore, onde um salto para a esquerda corresponde a `0`, e para a direita `1`. Por conseguinte, o símbolo `a` possui o código `010`, enquanto `x` corresponde a `10010`.
 
-===== LZ77
-
-Huffman provou que o seu código é a forma mais eficiente de associar uns e zeros a caracteres individuais, é matematicamente impossível superar isso. Porém os algoritmos de compressão procuram identificar padrões que aumentem o tamanho dos símbolos e assim alcançar melhores taxas de compressão @huffman_wiki @maxg_lz77.
+*LZ77.* Huffman provou que o seu código é a forma mais eficiente de associar uns e zeros a caracteres individuais, é matematicamente impossível superar isso. Porém os algoritmos de compressão procuram identificar padrões que aumentem o tamanho dos símbolos e assim alcançar melhores taxas de compressão @huffman_wiki @maxg_lz77.
 
 #figure(
   image("../images/lz77_sliding_window.png", width: 60%),
   caption: [Sliding window no algoritmo LZ77 @maxg_lz77]
 ) <lz77>
 
-Na grande maioria dos algoritmos, incluído o LZ77, a identificação de padrões ocorre dentro de uma sliding window, assim sempre que um padrão é quebrado, a codificação dos símbolos anteriores é dada por um tuplo com o deslocamento, comprimento e novo símbolo.
+Conforme ilustrado na @lz77, na grande maioria dos algoritmos, incluindo o LZ77, a identificação de padrões ocorre dentro de uma janela deslizante, assim sempre que um padrão é quebrado, a codificação dos símbolos anteriores é dada por um tuplo com o deslocamento, comprimento e novo símbolo.
 
-Deste modo o índice `(3,3,a)` indica que é necessário deslocar três posições para trás e repetir os três símbolos seguintes, sendo no final adicionado um `a` que originou a quebra do padrão dentro da sliding window.
+Deste modo o índice `(3,3,a)` indica que é necessário deslocar três posições para trás e repetir os três símbolos seguintes, sendo no final adicionado um `a` que originou a quebra do padrão dentro da janela deslizante.
 
-Quanto maior for a sliding window, maior será a probabilidade de encontrar padrões, no entanto isso acarreta custos computacionais, daí que 65536 bytes seja um standard adotado em vários algoritmos. Por outro lado, reparamos que a codificação dos próprios índices através de Huffman Coding pode trazer melhorias de desempenho ao LZ77, de facto os algoritmos mais recentes, como o `DEFLATE` utilizado no `gzip`, aplicam este princípio @maxg_lz77 @huffman_wiki.
+Quanto maior for a janela deslizante, maior será a probabilidade de encontrar padrões, no entanto isso acarreta custos computacionais, daí que 65536 bytes seja um standard adotado em vários algoritmos. Por outro lado, reparamos que a codificação dos próprios índices através de Huffman Coding pode trazer melhorias de desempenho ao LZ77, de facto os algoritmos mais recentes, como o `DEFLATE` utilizado no `gzip`, aplicam este princípio @maxg_lz77 @huffman_wiki.
 
 Tendo por base estes conceitos, a geração de conteúdo que comprime X% torna-se deveras simples, bastando para isso fixar X% dos símbolos da string, enquanto os restantes devem ser completamente aleatórios e sem qualquer padrão possível de exploração. No fundo, procuramos o mínimo de entropia em X% da string, e o máximo de aleatoriedade entre os demais símbolos.
 
-==== Ambientes Reais
+=== Geração de Conteúdo Realista
 
 Após a análise das técnicas de deduplicação e compressão, torna-se evidente que a geração de conteúdo que respeite estas propriedades pode ser definida a partir de distribuições estatísticas observadas em ambientes reais @gracia-tinedo2015 @ameri2016 @pang2026.
 
-Além disso, a modelação de conteúdo deve considerar não apenas a taxa global de duplicados, mas também a localização espacial das repetições e a sua evolução temporal. Em muitos sistemas reais, a redundância apresenta padrões correlacionados com o tipo de workload (backups incrementais, máquinas virtuais ou repositórios), o que influencia diretamente a eficácia dos algoritmos de deduplicação baseados em blocos fixos @meyer2012 @paulo2014.
+Além disso, a modelação de conteúdo deve considerar não apenas a taxa global de duplicados, mas também a localização espacial das repetições e a sua evolução temporal. Em muitos sistemas reais, a redundância apresenta padrões correlacionados com o tipo de carga (backups incrementais, máquinas virtuais ou repositórios), o que influencia diretamente a eficácia dos algoritmos de deduplicação baseados em blocos fixos @meyer2012 @paulo2014.
 
-Outro aspeto relevante é a entropia dos dados e a sua variabilidade ao longo do tempo. A compressibilidade não depende apenas da presença de repetições exatas, mas também de similaridades parciais e de estruturas internas recorrentes. Assim, benchmarks que integrem modelos estatísticos capazes de reproduzir diferentes níveis de entropia e correlação entre blocos permitem avaliar de forma mais abrangente algoritmos de compressão tradicionais e adaptativos @huffman_wiki @constantinescu2011.
+Outro aspeto relevante é a entropia dos dados e a sua variabilidade ao longo do tempo. A compressibilidade não depende apenas da presença de repetições exatas, mas também de similaridades parciais e de estruturas internas recorrentes. Assim, os _benchmarks_ que integrem modelos estatísticos capazes de reproduzir diferentes níveis de entropia e correlação entre blocos permitem avaliar de forma mais abrangente algoritmos de compressão tradicionais e adaptativos @huffman_wiki @constantinescu2011.
 
-Por fim, a incorporação de métricas complementares, como latência, débito, consumo de @cpu e utilização de @ram, permite relacionar diretamente as propriedades estatísticas do conteúdo com o custo operacional das otimizações. Desta forma, os benchmarks deixam de avaliar apenas a taxa de redução de dados e passam a oferecer uma visão sistémica do desempenho, aproximando-se das exigências observadas em ambientes de produção @ruwart2001 @traeger2008 @tarasov2011 @lee2012.
+Por fim, a incorporação de métricas complementares, como latência, débito, consumo de @cpu e utilização de @ram, permite relacionar diretamente as propriedades estatísticas do conteúdo com o custo operacional das otimizações. Desta forma, os _benchmarks_ deixam de avaliar apenas a taxa de redução de dados e passam a oferecer uma visão sistémica do desempenho, aproximando-se das exigências observadas em ambientes de produção @ruwart2001 @traeger2008 @tarasov2011 @lee2012.

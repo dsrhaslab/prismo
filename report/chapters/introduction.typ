@@ -40,7 +40,7 @@ Assim sendo, o desenho proposto reúne as contribuições da dissertação numa 
 
 + Geração de conteúdo realista a partir de distribuições de duplicados e compressibilidade, além disso os restantes parâmetros dos pedidos de @io são igualmente obtidos por distribuições ou padrões configuráveis pelo utilizador @gracia-tinedo2015 @talasila2019.
 
-+ Replicação completa de _traces_ do @fiu para avaliação do sistema de armazenamento sobre cargas de trabalho reais, permitindo a identificação de gargalos em ambientes de produção e reprodutibilidade dos resultados @talwadker2014 @tracegen2024.
++ Replicação completa de _traces_ de @io para avaliação do sistema de armazenamento sobre cargas de trabalho reais, permitindo a identificação de gargalos em ambientes de produção e reprodutibilidade dos resultados @talwadker2014 @tracegen2024.
 
 + Replicação parcial de _traces_ com geração de dados sintéticos para os parâmetros em falta, desta forma a replicação das operações de @io pode ser efetuada sobre diferentes padrões de acesso, adição de barreiras e outros critérios à escolha do utilizador @pang2026 @tracegen2024.
 
