@@ -44,7 +44,7 @@ Assim sendo, o desenho proposto reúne as contribuições da dissertação numa 
 
 + Replicação parcial de _traces_ com geração de dados sintéticos para os parâmetros em falta, desta forma a replicação das operações de @io pode ser efetuada sobre diferentes padrões de acesso, adição de barreiras e outros critérios à escolha do utilizador @pang2026 @tracegen2024.
 
-+ Extensão de _traces_ com dados sintéticos, assim após o conteúdo original ser totalmente replicado, o mesmo é continuamente estendido pelo tempo necessário, salvaguardando as características e padrões encontrados originalmente nos dados @pang2026 @tracegen2024.
++ Extensão de _traces_ com dados sintéticos, assim após o conteúdo original ser totalmente replicado, o mesmo é continuamente estendido pelo tempo necessário, para o que se propõem três estratégias distintas, nomeadamente a repetição cíclica do registo, a amostragem das distribuições observadas e um modelo de regressão que procura captar as correlações entre dimensões, salvaguardando cada uma delas um subconjunto diferente das características encontradas originalmente nos dados @pang2026 @tracegen2024.
 
 Este desenho é concretizado num protótipo do Prismo, que permite avaliar os sistemas de armazenamento com mais critério, afinal o utilizador tem a possibilidade de testar várias interfaces de @io e para cada uma selecionar cargas que avaliem determinadas características do sistema, tudo com o maior realismo possível, e não através de métodos simplistas como praticam as demais soluções @fio_docs @dedisbench @dedisbenchpp @tarasov2011.
 

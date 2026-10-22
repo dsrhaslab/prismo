@@ -1,4 +1,5 @@
 #import "../utils/functions.typ" : raw_code_block
+#import "../utils/diagrams.typ" : architecture-overview
 
 = Prismo <chapter3>
 
@@ -22,11 +23,12 @@ A geração de conteúdo é dissociável das operações solicitadas ao sistema 
 
 Tal abstração é o que permite ao utilizador alternar entre dados sintéticos e registos reais obtidos a partir de _traces_ sem alterar o restante da descrição, aplicando-se o mesmo raciocínio à interface que abstrai o acesso ao dispositivo @tracegen2024 @gracia-tinedo2015.
 
-// TODO: acrescentar aqui uma figura de visão geral da arquitetura, com o produtor, o consumidor,
-//       os dois canais e os três geradores, conforme pedido na revisão. As figuras existentes
-//       (producer.png e consumer.png) detalham cada metade isoladamente e surgem mais à frente.
+#figure(
+  architecture-overview(),
+  caption: [Visão geral da arquitetura do Prismo]
+) <visao-geral>
 
-A execução de uma carga envolve a orquestração destes componentes segundo um modelo produtor-consumidor @didona2022 @ren2023. O produtor invoca os geradores que definem o acesso, a operação e o conteúdo, encapsula o resultado num pedido de @io e coloca-o numa fila concorrente, ao passo que o consumidor retira os pedidos dessa fila e os submete à interface escolhida.
+A execução de uma carga envolve a orquestração destes componentes segundo o modelo produtor-consumidor que a @visao-geral representa @didona2022 @ren2023. O produtor invoca os geradores que definem o acesso, a operação e o conteúdo, encapsula o resultado num pedido de @io e coloca-o numa fila concorrente, ao passo que o consumidor retira os pedidos dessa fila e os submete à interface escolhida.
 
 Concluído o pedido, a estrutura que o transporta é devolvida ao produtor por um segundo canal, permitindo a sua reutilização sem novas alocações. É este ciclo que define o fluxo do benchmark, e é em torno dele que se organizam as secções seguintes, começando pelo modelo de execução e terminando nas métricas recolhidas.
 
@@ -102,7 +104,7 @@ Por esta lógica, quando o rácio inicial é inferior ao final, a rampa de aquec
 
 Na generalidade das interfaces, os pedidos de @io são caracterizados pelo tipo de operação, conteúdo e offset, ou seja a posição no disco onde o pedido será satisfeito, consequentemente a geração de cargas de trabalho pode ser desacoplada nestas três funcionalidades, dando origem a interfaces independentes para cada dimensão dos pedidos @gracia-tinedo2015 @talwadker2014.
 
-Como fruto desta abordagem, e uma vez que os geradores são definidos ao nível dos parâmetros, a combinação entre geradores sintéticos e reais torna-se bastante simples, isto porque o produtor apenas conhece uma interface que é independente da implementação concreta, assim podemos ter acessos reais e operações sintéticas, sendo o contrário igualmente válido @gracia-tinedo2015 @pang2026.
+Como fruto desta abordagem, e uma vez que os geradores são definidos ao nível dos parâmetros, a combinação entre geradores sintéticos e reais não exige qualquer tratamento adicional, isto porque o produtor apenas conhece uma interface que é independente da implementação concreta, assim podemos ter acessos reais e operações sintéticas, sendo o contrário igualmente válido @gracia-tinedo2015 @pang2026.
 
 #figure(
   image("../images/producer.png", width: 60%),
@@ -113,7 +115,7 @@ Tal como representado na @produtor, ao recolher um pacote através da operação
 
 === Acesso
 
-Os pedidos de `READ` e `WRITE` necessitam de ser identificados pelo offset onde a operação irá ocorrer, conforme a hierarquia apresentada na @hier-acesso, neste sentido a interface `AccessGenerator` disponibiliza o método `nextAccess` que devolve o offset da próxima operação a realizar, sendo de realçar que nem todas as implementações concretas apresentam a mesma performance, pois algumas seguem distribuições enquanto outras utilizam aritmética simples @tracegen2024 @gracia-tinedo2015.
+Os pedidos de `READ` e `WRITE` necessitam de ser identificados pelo offset onde a operação irá ocorrer, conforme a hierarquia apresentada na @hier-acesso, neste sentido o gerador de acessos devolve o offset da próxima operação a realizar, sendo de realçar que nem todas as implementações concretas apresentam a mesma performance, pois algumas seguem distribuições enquanto outras utilizam aritmética simples @tracegen2024 @gracia-tinedo2015.
 
 #figure(
   image("../images/access.png", width: 60%),
@@ -197,7 +199,7 @@ O gerador constante devolve sempre a mesma operação que foi definida previamen
   caption: [Configuração dos geradores de operações]
 ) <conf-operacao>
 
-Conforme se observa na @conf-operacao, a replicação de padrões é obtida com recurso ao gerador de sequência, sendo o utilizador responsável por definir uma lista de operações que mais tarde será repetidamente devolvida, neste caso em concreto, se o método `nextOperation` fosse invocado cinco vezes, as operações seriam devolvidas pela ordem: `WRITE`, `FSYNC`, `WRITE`, `FSYNC`, `WRITE` @ren2023.
+Conforme se observa na @conf-operacao, a replicação de padrões é obtida com recurso ao gerador de sequência, sendo o utilizador responsável por definir uma lista de operações que mais tarde será repetidamente devolvida, neste caso em concreto, se o gerador fosse solicitado cinco vezes, as operações seriam devolvidas pela ordem: `WRITE`, `FSYNC`, `WRITE`, `FSYNC`, `WRITE` @ren2023.
 
 *Barreiras.* Em determinados cenários, torna-se necessário injetar operações de sincronização após a execução de um número definido de escritas, algo particularmente relevante na simulação de cargas de trabalho reais onde os sistemas de ficheiros periodicamente forçam a persistência dos dados em disco @ren2023.
 
@@ -222,7 +224,7 @@ A composição de múltiplas barreiras é igualmente suportada, tal como a @conf
 
 === Conteúdo
 
-A geração de conteúdo, cuja hierarquia a @hier-bloco apresenta, é sem dúvida a operação mais custosa, no entanto apenas torna-se necessária quando a operação selecionada for um `WRITE`, nesse sentido a interface `BlockGenerator` disponibiliza o método `nextBlock` que preenche um buffer passado como argumento @constantinescu2011 @meyer2012.
+A geração de conteúdo, cuja hierarquia a @hier-bloco apresenta, é sem dúvida a operação mais custosa, no entanto apenas torna-se necessária quando a operação selecionada for um `WRITE`, nesse sentido o gerador de conteúdo preenche o buffer associado ao pedido @constantinescu2011 @meyer2012.
 
 Embora o gerador principal seja aquele que combina duplicados e compressão, existem outros mais rudimentares que servem para testar cenários específicos com maior eficiência, isto porque o gerador de duplicados é capaz de simular os blocos dos outros geradores, mas com uma performance significativamente menor @koller2010 @zhu2008 @talasila2019.
 
@@ -231,7 +233,7 @@ Embora o gerador principal seja aquele que combina duplicados e compressão, exi
   caption: [Hierarquia da interface de geração de blocos]
 ) <hier-bloco>
 
-Tal como se observa na @conf-bloco, os geradores necessitam de conhecer o tamanho do bloco, deste modo podem garantir que os limites dos buffers jamais serão violados. A implementação mais simplista deste gerador corresponde ao constante, que devolve sempre o mesmo buffer, resultando numa deduplicação e compressibilidade interbloco máximas. Por outro lado, o aleatório tem exatamente o comportamento oposto, pois ao devolver buffers diferentes não existem duplicados e a entropia é elevada, resultando em dados virtualmente incompressíveis @constantinescu2011.
+Tal como se observa na @conf-bloco, os geradores necessitam de conhecer o tamanho do bloco, deste modo podem garantir que os limites dos buffers jamais serão violados. A variante mais elementar deste gerador corresponde ao constante, que devolve sempre o mesmo buffer, resultando numa deduplicação e compressibilidade interbloco máximas. Por outro lado, o aleatório tem exatamente o comportamento oposto, pois ao devolver buffers diferentes não existem duplicados e a entropia é elevada, resultando em dados virtualmente incompressíveis @constantinescu2011.
 
 #figure(
   grid(
@@ -365,7 +367,7 @@ Neste sentido, cada um dos três geradores previamente descritos (acesso, opera�
 
 Cada registo apresenta a estrutura indicada na @trace-record, sendo a leitura realizada por um componente partilhado entre todos os geradores baseados em traces, o qual mantém um buffer de leitura configurável pelo utilizador através do parâmetro `memory`, evitando assim carregamentos excessivos em memória quando o trace excede a capacidade disponível.
 
-Uma vez que os geradores são definidos ao nível dos parâmetros individuais e o produtor conhece apenas a interface abstrata de cada um, a combinação entre geradores sintéticos e trace-based torna-se trivial @gracia-tinedo2015 @pang2026. A @conf-hibridas exemplifica duas destas combinações, utilizando a primeira acessos provenientes de um trace real enquanto as operações seguem uma distribuição percentual sintética, e extraindo a segunda do trace as operações e o conteúdo sobre uma distribuição Zipfian de acessos.
+Uma vez que os geradores são definidos ao nível dos parâmetros individuais e o produtor conhece apenas a interface abstrata de cada um, a combinação entre geradores sintéticos e baseados em traces resulta diretamente do desenho @gracia-tinedo2015 @pang2026. A @conf-hibridas exemplifica duas destas combinações, utilizando a primeira acessos provenientes de um trace real enquanto as operações seguem uma distribuição percentual sintética, e extraindo a segunda do trace as operações e o conteúdo sobre uma distribuição Zipfian de acessos.
 
 #figure(
   grid(
@@ -422,19 +424,12 @@ O problema fundamental da utilização de traces prende-se com a sua natureza fi
 
 Ao atingir o final do trace, a segunda fase é iniciada com a construção de uma _alias table_ para cada dimensão @walker1977 @vose1991. Esta estrutura reparte os valores observados por tantas colunas quantos os valores distintos, cabendo em cada coluna um valor principal e um alternativo, de tal modo que sortear uma coluna ao acaso e decidir entre os dois com um lançamento ponderado devolve uma amostra em tempo constante $O(1)$ que respeita as distribuições marginais observadas @tracegen2024. Desta forma, os registos sintéticos gerados após o trace preservam as frequências relativas de cada offset, operação e identificador de bloco, embora a correlação entre dimensões não seja mantida por estas serem amostradas de forma independente.
 
-*Regressão.* A extensão mais sofisticada procura capturar não apenas as distribuições marginais mas também as correlações entre as várias dimensões do trace, recorrendo para isso a um modelo de regressão linear bivariada @tracegen2024.
+*Regressão.* A extensão mais sofisticada procura capturar não apenas as distribuições marginais mas também as correlações entre as várias dimensões do _trace_, recorrendo para isso a dois modelos de regressão linear que relacionam a operação e o identificador de bloco entre si e com o offset de cada registo @tracegen2024.
 
-À semelhança da amostragem, a primeira fase é dedicada à recolha de dados, sendo acumulados até `max_samples` registos nos vetores de offsets, operações e identificadores de bloco. Seguidamente, na transição para a segunda fase, dois modelos lineares acoplados são ajustados por mínimos quadrados:
+À semelhança da amostragem, a primeira fase é dedicada à recolha de dados, sendo guardados os primeiros `max_samples` registos enquanto o _trace_ continua a ser reproduzido sem alterações, e retendo-se de cada um o offset $x_i$, o identificador de bloco $z_i$ e a operação $y_i$, esta última representada pelo código numérico do respetivo tipo, em que o zero corresponde à leitura e o um à escrita.
 
-$
-"operation" = a_0 + a_1 dot "offset" + a_2 dot "block_id"
-$
+Nesta formulação, o offset assume o papel de variável independente, isto porque é a única dimensão que pode ser prolongada sem recorrer ao modelo, ao passo que a operação e o identificador de bloco são explicados cada um pelo offset e pela dimensão restante:
 
-$
-"block_id" = b_0 + b_1 dot "offset" + b_2 dot "operation"
-$
-
-A resolução é realizada através de decomposição ortogonal completa, garantindo estabilidade numérica mesmo perante sistemas mal condicionados. Para a geração de novos registos, os dois modelos são resolvidos em simultâneo como um sistema $2 times 2$, onde o offset é extrapolado linearmente a partir do último valor observado no trace e do passo médio entre registos consecutivos @tracegen2024.
 $
 y = a_0 + a_1 x + a_2 z
 $
@@ -443,17 +438,23 @@ $
 z = b_0 + b_1 x + b_2 y
 $
 
-Reorganizando:
+Nestas equações, $a_0$ e $b_0$ correspondem aos termos independentes, ou seja, ao valor de base de cada dimensão, enquanto $a_1$ e $b_1$ traduzem a variação da operação e do identificador de bloco ao longo do disco, por exemplo uma maior concentração de escritas nos offsets mais elevados, e $a_2$ e $b_2$ quantificam a influência que cada uma destas dimensões exerce sobre a outra.
+
+Os seis coeficientes são ajustados por mínimos quadrados, ou seja, escolhidos de modo a minimizar a soma dos quadrados das diferenças entre os valores observados nos $n$ registos recolhidos e os previstos pelo modelo, sendo o ajuste de $b_0$, $b_1$ e $b_2$ idêntico ao seguinte, apenas com os papéis de $y_i$ e $z_i$ trocados:
 
 $
-y - a_2 z = a_0 + a_1 x
+min_(a_0, a_1, a_2) sum_(i=1)^n (y_i - a_0 - a_1 x_i - a_2 z_i)^2
 $
 
+A resolução é realizada através de decomposição ortogonal completa, que garante estabilidade numérica e devolve uma solução mesmo quando as colunas do sistema são linearmente dependentes, algo que acontece, por exemplo, num _trace_ composto apenas por escritas, onde a operação é constante e portanto indistinguível do termo independente. Concluído o ajuste, os registos recolhidos são descartados, uma vez que a partir daí apenas os coeficientes são necessários.
+
+Esgotado o _trace_, a geração de cada novo registo começa pelo offset, extrapolado linearmente a partir do último valor recolhido $x_n$ e do passo médio $Delta$ entre registos consecutivos, o qual corresponde à média das diferenças entre offsets sucessivos, pelo que o $k$-ésimo registo sintético é posicionado em:
+
 $
--b_2 y + z = b_0 + b_1 x
+x_(n+k) = x_n + k Delta, quad Delta = (x_n - x_1) / (n - 1)
 $
 
-Na forma matricial:
+Conhecido o offset, a operação e o identificador de bloco não podem ser calculados um após o outro, visto cada equação depender do valor que a outra devolve, daí que ambas sejam resolvidas em simultâneo, passando para o lado esquerdo os termos que envolvem as incógnitas, o que dá origem ao seguinte sistema $2 times 2$:
 
 $
 mat(
@@ -466,10 +467,12 @@ mat(
 )
 =
 mat(
-  a_0 + a_1 x;
-  b_0 + b_1 x
+  a_0 + a_1 x_(n+k);
+  b_0 + b_1 x_(n+k)
 )
 $
+
+Sempre que o determinante $1 - a_2 b_2$ é não nulo, o sistema admite uma solução única, sendo os valores reais assim obtidos convertidos num registo válido, ou seja, a operação é arredondada ao código mais próximo entre os tipos suportados, o identificador de bloco ao inteiro não negativo mais próximo, e o offset reconduzido à partição do dispositivo atribuída ao job, tal como acontece com qualquer offset lido do _trace_ @tracegen2024.
 
 #figure(
   table(
@@ -501,43 +504,7 @@ Conforme representado na @consumidor, a interface de submissão aceita operaçõ
   caption: [Interação do consumidor com a interface de engine]
 ) <consumidor>
 
-Tal como a @tipos-pedido indica, um pedido obtido a partir da fila pode ser de três tipos distintos, onde as structs de abertura e fecho são caracterizadas pelos argumentos encontrados nas syscalls de `open` e `close`, importa realçar que tais estruturas não fazem sentido para a engine de @spdk, visto esta funcionar diretamente sobre o dispositivo de armazenamento e portanto não existir uma abstração do sistema de ficheiros @spdk_docs.
-
-#figure(
-  grid(
-    columns: 3,
-    gutter: 5pt,
-    raw_code_block[
-      ```c
-      struct CloseRequest {
-          int fd;
-      };
-      ```
-    ],
-    raw_code_block[
-      ```c
-      struct OpenRequest {
-        int flags;
-        mode_t mode;
-        char* filename;
-      };
-      ```
-    ],
-    raw_code_block[
-      ```c
-      struct CommonRequest {
-          int fd;
-          size_t size;
-          uint64_t offset;
-          uint8_t* buffer;
-          Metadata metadata;
-          OperationType op;
-      };
-      ```
-    ]
-  ),
-  caption: [Estrutura dos vários tipos de pedidos]
-) <tipos-pedido>
+Além da submissão de pedidos, a interface assegura a abertura do ficheiro ou dispositivo alvo antes de o produtor e o consumidor entrarem em execução, bem como o respetivo fecho depois de ambos terminarem, delimitando assim o ciclo de vida de cada _job_, sendo estas duas operações dispensadas pelo motor do @spdk, visto este aceder diretamente ao dispositivo de armazenamento sem passar por qualquer sistema de ficheiros @spdk_docs.
 
 Perante a combinação de interfaces síncronas e assíncronas, o método `submit` nem sempre devolve uma struct para reutilização, pois, no caso das interfaces assíncronas nunca sabemos exatamente quando o pedido será dado por concluído e além disso não é possível esperar até que tal aconteça, caso contrário estaria a ser dado comportamento síncrono e as vantagens de paralelismo seriam perdidas @uring_kernel @rust_iouring_async.
 
@@ -545,7 +512,7 @@ Perante a combinação de interfaces síncronas e assíncronas, o método `submi
 
 === POSIX
 
-Com o objetivo de flexibilizar o benchmark, todas as implementações de `Engine` possuem uma configuração para manipulação dos parâmetros e respetivo comportamento, neste caso em concreto, ao tratar-se de uma interface bastante simplista, a única configuração possível ocorre na syscall `open` através das flags passadas como argumento @didona2022.
+Com o objetivo de flexibilizar o benchmark, todas as implementações de `Engine` possuem uma configuração para manipulação dos parâmetros e respetivo comportamento, neste caso em concreto, e por se tratar da interface com menos parâmetros expostos, a única configuração possível ocorre na chamada `open` através das flags passadas como argumento @didona2022.
 
 Posto isto, e conforme a @conf-posix demonstra, a estrutura de configuração indica o motor selecionado, bem como uma lista das flags que o utilizador considera relevantes para a execução da carga de trabalho, por questões de comodidade na implementação, somente as flags mais relevantes são suportadas.
 
@@ -674,61 +641,61 @@ Durante a execução de cargas de trabalho, o benchmark é responsável por reco
 
 #figure(
   grid(
-    columns: 3,
+    columns: (1.15fr, 0.8fr, 1.05fr),
     gutter: 5pt,
     raw_code_block[
-      ```c
-      struct BaseMetric : Metric {
-        uint64_t sts;
-        uint64_t ets;
-        uint64_t block_id;
-        uint32_t compression;
-        OperationType op;
-      };
+      ```yaml
+      base:
+        type: operação
+        block: id do bloco
+        cpr: taxa de compressão
+        sts: instante inicial
+        ets: instante final
+        proc: bytes processados
       ```
     ],
     raw_code_block[
-      ```c
-      struct StandardMetric : BaseMetric {
-        pid_t pid;
-        uint64_t tid;
-      };
+      ```yaml
+      standard:
+        # campos de base
+        pid: processo
+        tid: thread
       ```
     ],
     raw_code_block[
-      ```c
-      struct FullMetric : StandardMetric {
-        uint64_t offset;
-        size_t req_bytes;
-        size_t proc_bytes;
-        int32_t error_no;
-        int32_t return_code;
-      };
+      ```yaml
+      full:
+        # campos de standard
+        req: bytes pedidos
+        offset: posição
+        ret: código de retorno
+        errno: código de erro
       ```
     ],
   ),
-  caption: [Estrutura dos pacotes de métricas]
+  caption: [Campos registados por cada pacote de métricas]
 ) <pacotes-metricas>
 
-Tendo isto em consideração, e conforme a @pacotes-metricas apresenta, o utilizador escolhe entre três pacotes de métricas que são progressivamente mais completos e suportam todos os parâmetros do pacote anterior. Assim sendo, `BaseMetric` corresponde à estrutura mais simples, contendo apenas os timestamp de início e fim, bem como o identificador do bloco utilizado e respetiva taxa de compressão, importa realçar que somente as operações de `WRITE` levam à geração de blocos, como tal qualquer outra operação apresenta um `block_id` igual a zero @didona2022.
+Tendo isto em consideração, e conforme a @pacotes-metricas apresenta, o utilizador escolhe entre três pacotes de métricas progressivamente mais completos, incluindo cada um todos os campos do anterior, de modo a ajustar o detalhe recolhido às necessidades da avaliação. Importa realçar que somente as operações de `WRITE` levam à geração de blocos, como tal qualquer outra operação apresenta um identificador de bloco igual a zero @didona2022.
 
 #figure(
   raw_code_block[
+  #set text(size: 9.5pt)
   ```
-  [prismo] [info] [type=1 block=1 cpr=0 sts=3480446313169 ets=3480446319309]
-  [prismo] [info] [type=1 block=2 cpr=100 sts=3480446320554 ets=3480446323543]
-  [prismo] [info] [type=1 block=3 cpr=100 sts=3480446324413 ets=3480446326723]
-  [prismo] [info] [type=1 block=4 cpr=0 sts=3480446327460 ets=3480446329981]
-  [prismo] [info] [type=1 block=5 cpr=100 sts=3480446330781 ets=3480446332925]
-  [prismo] [info] [type=1 block=6 cpr=50 sts=3480446333681 ets=3480446336316]
+  [prismo] [info] [type=1 block=1 cpr=0 sts=3480446313169 ets=3480446319309 proc=4096]
+  [prismo] [info] [type=1 block=2 cpr=100 sts=3480446320554 ets=3480446323543 proc=4096]
+  [prismo] [info] [type=1 block=3 cpr=100 sts=3480446324413 ets=3480446326723 proc=4096]
+  [prismo] [info] [type=1 block=4 cpr=0 sts=3480446327460 ets=3480446329981 proc=4096]
+  [prismo] [info] [type=1 block=5 cpr=100 sts=3480446330781 ets=3480446332925 proc=4096]
+  [prismo] [info] [type=1 block=6 cpr=50 sts=3480446333681 ets=3480446336316 proc=4096]
   ```
   ],
   caption: [Estrutura do ficheiro de log]
 ) <ficheiro-log>
 
-A @ficheiro-log exemplifica a estrutura do ficheiro onde as métricas são armazenadas, a qual dispensa processamento adicional, dado cada linha corresponder a um pedido e conter os campos separados por espaços, neste caso em particular o pacote de métricas selecionado foi o `BasicMetric`, portanto os parâmetros presentes são idênticos aos da struct @didona2022.
+A @ficheiro-log exemplifica a estrutura do ficheiro onde as métricas são armazenadas, a qual dispensa processamento adicional, dado cada linha corresponder a um pedido e conter os campos separados por espaços, neste caso em particular o pacote selecionado foi o mais elementar, portanto os campos presentes coincidem com os da primeira coluna da @pacotes-metricas, surgindo a operação codificada pelo respetivo valor numérico, em que o um corresponde à escrita @didona2022.
 
-Por fim, quanto mais detalhadas forem as métricas recolhidas, pior será o desempenho do benchmark, daí que exista uma opção de desativação de métricas para atingir o máximo de performance @ren2023. Ademais, como as métricas são escritas num ficheiro de logging, o dispositivo que o acolhe suporta carga para além da execução do benchmark, algo que pode enviesar os resultados caso coincida com o dispositivo avaliado, bastando porém destiná-lo a outro alvo para que a escrita deixe de competir com a carga em medição @didona2022.
+Por fim, quanto mais detalhadas forem as métricas recolhidas, pior será o desempenho do benchmark, daí que o registo possa ser desativado por completo para atingir o máximo de performance @ren2023. Ademais, como as métricas são escritas num ficheiro de logging, o dispositivo que o acolhe suporta carga para além da execução do benchmark, algo que pode enviesar os resultados caso coincida com o dispositivo avaliado, bastando porém destiná-lo a outro alvo para que a escrita deixe de competir com a carga em medição @didona2022.
 
 === Estatísticas e Relatório Final
 
@@ -765,12 +732,12 @@ Quando múltiplos jobs são executados em paralelo, o relatório contém os resu
 
 == Implementação
 
-O Prismo encontra-se implementado em C++20 e totaliza cerca de 5600 linhas de código, repartidas entre a biblioteca de cabeçalhos que define as interfaces e os ficheiros que concretizam cada componente, sendo a compilação orquestrada pelo Meson.
+O Prismo encontra-se implementado em C++20, escolha que decorre do requisito de manter o custo da geração de conteúdo muito abaixo do débito do dispositivo, o que exige controlo explícito sobre a disposição da memória e a ausência de um _garbage collector_.
 
-A escolha da linguagem decorre do requisito de manter o custo da geração de conteúdo muito abaixo do débito do dispositivo, o que exige controlo explícito sobre a disposição da memória e a ausência de um recoletor de lixo no caminho crítico.
+Essa exigência estende-se às bibliotecas adotadas, começando pela fila concorrente que liga o produtor ao consumidor @moodycamel, e seguindo pelo gerador pseudoaleatório SHISHUA @shishua, cujo débito em lote sustenta a construção de cada bloco sem se tornar o fator limitante da execução.
 
-As interfaces de @io assentam diretamente nas bibliotecas de cada tecnologia, nomeadamente a libaio, a liburing e o @spdk, ao passo que a comunicação entre produtor e consumidor recorre a uma fila concorrente lock-free @moodycamel. A geração pseudoaleatória utiliza o SHISHUA @shishua, a identificação de blocos apoia-se numa função de hash não criptográfica, e o ajuste dos modelos de regressão recorre à Eigen.
+Quanto às interfaces de @io, cada uma assenta diretamente na biblioteca da respetiva tecnologia, nomeadamente a libaio, a liburing e o @spdk, sem qualquer camada intermédia entre o motor e a interface que este representa, pelo que o comportamento medido corresponde ao da própria interface.
 
-Completam o conjunto as bibliotecas de apoio, nomeadamente a nlohmann/json para a leitura das configurações e a escrita dos relatórios, o spdlog para o registo por operação, e a zstd para aferir a compressibilidade efetivamente alcançada pelo conteúdo gerado.
+Completam o conjunto as bibliotecas de apoio, concretamente a Eigen para o ajuste dos modelos lineares da extensão por regressão, a nlohmann/json para a leitura das configurações e a escrita dos relatórios, e o spdlog para o registo por operação, sendo a compilação orquestrada pelo Meson.
 
-Ao protótipo juntam-se ainda duas ferramentas auxiliares, o Astroide, que converte os traces do @fiu para o formato binário consumido pelo benchmark, e o Deltoide, que analisa os dados efetivamente escritos em disco e extrai deles as distribuições de duplicados e compressibilidade, permitindo assim confirmar que o conteúdo submetido corresponde ao configurado.
+Ao protótipo juntam-se ainda duas ferramentas auxiliares, o Astroide, que converte os _traces_ do @fiu para o formato binário consumido pelo benchmark, e o Deltoide, que analisa os dados efetivamente escritos em disco e deles extrai as distribuições de duplicados e compressibilidade, recorrendo à zstd para aferir esta última, permitindo assim confirmar que o conteúdo submetido corresponde ao configurado.
