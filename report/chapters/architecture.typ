@@ -1,5 +1,5 @@
 #import "../utils/functions.typ" : raw_code_block
-#import "../utils/diagrams.typ" : architecture-overview
+#import "../utils/diagrams.typ" : *
 
 = Prismo <chapter3>
 
@@ -107,7 +107,7 @@ Na generalidade das interfaces, os pedidos de @io são caracterizados pelo tipo 
 Como fruto desta abordagem, e uma vez que os geradores são definidos ao nível dos parâmetros, a combinação entre geradores sintéticos e reais não exige qualquer tratamento adicional, isto porque o produtor apenas conhece uma interface que é independente da implementação concreta, assim podemos ter acessos reais e operações sintéticas, sendo o contrário igualmente válido @gracia-tinedo2015 @pang2026.
 
 #figure(
-  image("../images/producer.png", width: 60%),
+  producer-flow(),
   caption: [Interação do produtor com a interface de geração de conteúdo]
 ) <produtor>
 
@@ -118,7 +118,7 @@ Tal como representado na @produtor, ao recolher um pacote através da operação
 Os pedidos de `READ` e `WRITE` necessitam de ser identificados pelo offset onde a operação irá ocorrer, conforme a hierarquia apresentada na @hier-acesso, neste sentido o gerador de acessos devolve o offset da próxima operação a realizar, sendo de realçar que nem todas as implementações concretas apresentam a mesma performance, pois algumas seguem distribuições enquanto outras utilizam aritmética simples @tracegen2024 @gracia-tinedo2015.
 
 #figure(
-  image("../images/access.png", width: 60%),
+  access-hierarchy(),
   caption: [Hierarquia da interface de acessos]
 ) <hier-acesso>
 
@@ -163,7 +163,7 @@ Por outro lado, os acessos totalmente aleatórios não favorecem quaisquer propr
 Os sistemas de armazenamento suportam diversas operações, conforme a @hier-operacao, no entanto o gerador de operações apenas disponibiliza `READ`, `WRITE`, `FSYNC`, `FDATASYNC` e `NOP` por serem as mais comuns e portanto adotadas pela maioria das @api:pl de @io @didona2022 @ren2023. Embora a operação `NOP` não faça rigorosamente nada, a mesma é útil para testar a performance do benchmark independente da capacidade do disco, permitindo identificar o débito máximo que o benchmark consegue sustentar quando o dispositivo não constitui limitação @ren2023.
 
 #figure(
-  image("../images/operation.png", width: 60%),
+  operation-hierarchy(),
   caption: [Hierarquia da interface de operações]
 ) <hier-operacao>
 
@@ -229,7 +229,7 @@ A geração de conteúdo, cuja hierarquia a @hier-bloco apresenta, é sem dúvid
 Embora o gerador principal seja aquele que combina duplicados e compressão, existem outros mais rudimentares que servem para testar cenários específicos com maior eficiência, isto porque o gerador de duplicados é capaz de simular os blocos dos outros geradores, mas com uma performance significativamente menor @koller2010 @zhu2008 @talasila2019.
 
 #figure(
-  image("../images/block.png", width: 60%),
+  content-hierarchy(),
   caption: [Hierarquia da interface de geração de blocos]
 ) <hier-bloco>
 
@@ -312,17 +312,17 @@ Além disso, a opção `refill_buffers` permite a partilha do buffer base entre 
 A distribuição de duplicados e compressão é definida de modo particular, inicialmente é realizada uma associação entre o número de cópias e a respetiva probabilidade, sendo mais tarde definidas as taxas de compressão dentro de cada grupo @constantinescu2011 @paulo2014.
 
 #grid(
-  columns: 2,
+  columns: (1.3fr, 1fr),
   gutter: 5pt,
   [
     #figure(
-      image("../images/deduplication.png", width: 100%),
+      dedup-map(),
       caption: [Mapa dos duplicados],
     ) <dedup-map>
   ],
   [
     #figure(
-      image("../images/compression.png", width: 100%),
+      compression-map(),
       caption: [Mapa das taxas de compressão],
     ) <compression-map>
   ],
@@ -500,8 +500,8 @@ Tendo em consideração o modelo de execução previamente descrito, o consumido
 Conforme representado na @consumidor, a interface de submissão aceita operações de qualquer tipo, assim o consumidor não é responsável por definir as alterações de comportamento associadas @ren2023. Mal o pedido seja dado por concluído, a struct é devolvida pela interface, permitindo ao consumidor fazer dequeue para que a zona de memória seja reutilizada mais tarde.
 
 #figure(
-  image("../images/consumer.png", width: 60%),
-  caption: [Interação do consumidor com a interface de engine]
+  consumer-flow(),
+  caption: [Interação do consumidor com a interface de submissão]
 ) <consumidor>
 
 Além da submissão de pedidos, a interface assegura a abertura do ficheiro ou dispositivo alvo antes de o produtor e o consumidor entrarem em execução, bem como o respetivo fecho depois de ambos terminarem, delimitando assim o ciclo de vida de cada _job_, sendo estas duas operações dispensadas pelo motor do @spdk, visto este aceder diretamente ao dispositivo de armazenamento sem passar por qualquer sistema de ficheiros @spdk_docs.
@@ -532,8 +532,8 @@ Posto isto, e conforme a @conf-posix demonstra, a estrutura de configuração in
 ) <conf-posix>
 
 #figure(
-  image("../images/flow_posix.png", width: 65%),
-  caption: [Funcionamento interno da POSIX Engine]
+  posix-flow(),
+  caption: [Funcionamento interno do motor POSIX]
 ) <fluxo-posix>
 
 Por ostentar comportamento síncrono, o método `reap_left_completions` não tem relevância prática, destarte a receção de pedidos é seguida da syscall associada ao tipo de operação, sendo mais tarde devolvido o código de erro, bem como a estrutura do pedido @didona2022.
@@ -592,8 +592,8 @@ Relativamente às flags para controlo do anel e processamento de @io, o utilizad
 ) <conf-uring>
 
 #figure(
-  image("../images/flow_uring.png", width: 75%),
-  caption: [Funcionamento interno da io_uring Engine]
+  uring-flow(),
+  caption: [Funcionamento interno do motor io_uring]
 ) <fluxo-uring>
 
 Tratando-se de uma interface assíncrona, o seu bom uso passa por diminuir a invocação de syscalls e manter os pedidos in-flight no máximo permitido, o que corresponde à capacidade da @sq @uring_kernel. Tendo isto em consideração, a `UringEngine` não executa os pedidos mal estes sejam recebidos, procura sim formar um batch para submeter vários em simultâneo @rust_iouring_async.
@@ -625,8 +625,8 @@ Embora as threads lógicas possam ser fixadas em qualquer core, o componente `SP
 ) <conf-spdk>
 
 #figure(
-  image("../images/flow_spdk.png", width: 85%),
-  caption: [Funcionamento interno da SPDK Engine]
+  spdk-flow(),
+  caption: [Funcionamento interno do motor SPDK]
 ) <fluxo-spdk>
 
 Ao iniciar o runtime do @spdk, o ambiente de execução muda completamente e torna-se difícil comunicar com os restante componentes do nível aplicacional, deste modo `SPDKEngine` serve essencialmente para transmitir os pedidos de @io através de um trigger partilhado pelo runtime @spdk_docs.

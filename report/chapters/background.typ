@@ -1,4 +1,5 @@
 #import "../utils/functions.typ" : raw_code_block
+#import "../utils/diagrams.typ" : io-stack, uring-rings, dedup-overview, huffman-tree, lz77-window
 
 = Estado da Arte <chapter2>
 
@@ -62,8 +63,8 @@ Ao ser invocada uma chamada ao sistema, por exemplo `READ` ou `WRITE`, o kernel 
 No caso contrário, perante a necessidade de aceder ao disco, o pedido é encaminhado para a camada de blocos, de modo a agrupar e escalonar os pedidos de @io o mais eficientemente possível. Por fim, o pedido é transmitido ao driver do dispositivo, que conhece os detalhes específicos do hardware e por isso converte o pedido em instruções claras ao controlador de disco.
 
 #figure(
-  image("../images/stack.png", width: 50%),
-  caption: [Visão alto nível da pilha de @io do kernel @ren2023]
+  io-stack(),
+  caption: [Visão alto nível da pilha de @io do kernel]
 ) <iostack>
 
 A @iostack resume o percurso descrito, desde a chamada ao sistema emitida pela aplicação até ao controlador do dispositivo. Assim sendo, este fluxo permite que as aplicações realizem operações de @io de modo transparente, enquanto o sistema operativo gere a complexidade, desempenho e segurança dos acessos ao dispositivo de armazenamento.
@@ -83,8 +84,8 @@ Além disso, uma vez que são utilizadas chamadas ao sistema AIO do kernel, os p
 *io_uring.* Mais recente, esta interface retoma o modelo assíncrono e organiza a comunicação com o kernel em duas filas circulares partilhadas, dispensando uma chamada ao sistema por cada pedido submetido @rust_iouring_async.
 
 #figure(
-  image("../images/uring.png", width: 70%),
-  caption: [Visão alto nível das queues circulares do io_uring @rust_iouring_async]
+  uring-rings(),
+  caption: [Visão alto nível das filas circulares do io_uring]
 ) <uring>
 
 Conforme ilustrado na @uring, inicialmente a @sq encontra-se vazia e por isso disponível para receber @sqe, quando a aplicação julgar conveniente ou a @sq ficar cheia é necessário realizar uma chamada ao sistema de `submit`, informando o kernel sobre a existência de @sqe disponíveis para submissão, neste momento ocorre uma mudança de contexto, no entanto a aplicação pode continuar a submeter novos pedidos caso encontre espaço disponível na @sq @rust_iouring_async.
@@ -114,7 +115,7 @@ Os sistemas modernos combinam ambas as técnicas para otimizar espaço e desempe
 A deduplicação caracteriza-se por poupar espaço ao não escrever conteúdo redundante, sendo aplicada numa grande variedade de contextos, que vão desde backup, archival e primary storage até a @ram. Uma visão geral do funcionamento deste processo está apresentada na @dedup @paulo2013.
 
 #figure(
-  image("../images/view.png", width: 80%),
+  dedup-overview(),
   caption: [Visão geral do funcionamento da deduplicação]
 ) <dedup>
 
@@ -163,8 +164,8 @@ Tendo em conta que a string é constituída por seis caracteres, $6 dot 1.46 = 8
 *Huffman Coding.* A fórmula da entropia nada diz sobre a codificação dos símbolos, para isso é necessário recorrer a um algoritmo de codificação, neste caso abordamos o Huffman Coding, que permitem gerar códigos binários de tamanho variável para uma compressão sem perdas, nela os símbolos mais frequentes recebem códigos mais curtos enquanto os símbolos menos frequentes códigos mais longos @huffman_wiki.
 
 #figure(
-  image("../images/huffman.png", width: 55%),
-  caption: [Árvore de Huffman @huffman_wiki]
+  huffman-tree(),
+  caption: [Árvore de Huffman]
 ) <huffman>
 
 O funcionamento do algoritmo é simples, inicialmente os símbolos são ordenados conforme a sua frequência, de seguida os dois primeiros da lista são agrupados numa árvore cuja raiz tem valor de frequência igual ao somatório, sendo esta colocada de novo na lista conforme o seu valor de frequência.
@@ -174,8 +175,8 @@ Ao repetir este processo, obtemos uma árvore com as frequências dos símbolos,
 *LZ77.* Huffman provou que o seu código é a forma mais eficiente de associar uns e zeros a caracteres individuais, é matematicamente impossível superar isso. Porém os algoritmos de compressão procuram identificar padrões que aumentem o tamanho dos símbolos e assim alcançar melhores taxas de compressão @huffman_wiki @maxg_lz77.
 
 #figure(
-  image("../images/lz77_sliding_window.png", width: 60%),
-  caption: [Sliding window no algoritmo LZ77 @maxg_lz77]
+  lz77-window(),
+  caption: [Janela deslizante no algoritmo LZ77]
 ) <lz77>
 
 Conforme ilustrado na @lz77, na grande maioria dos algoritmos, incluindo o LZ77, a identificação de padrões ocorre dentro de uma janela deslizante, assim sempre que um padrão é quebrado, a codificação dos símbolos anteriores é dada por um tuplo com o deslocamento, comprimento e novo símbolo.
