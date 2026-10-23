@@ -12,6 +12,8 @@
 
 // Séries por sistema de armazenamento, usadas nas figuras que comparam targets.
 #let series-colors = tool-colors + (
+  configurado: rgb("#8c8c8c"),
+  medido: rgb("#1f4e79"),
   dev_nvme: rgb("#4d4d4d"),
   btrfs: rgb("#1f4e79"),
   zfs: rgb("#e08214"),
@@ -21,8 +23,44 @@
 )
 
 #let series-labels = tool-labels + (
+  configurado: [Configurado], medido: [Medido (Deltoide)],
   dev_nvme: [NVMe], btrfs: [Btrfs], zfs: [ZFS],
   original: [Trace original], replay: [Fase de replay], extensao: [Fase de extensão],
+)
+
+// Nome curto de cada carga, apresentado por baixo do número no eixo das figuras, de modo a
+// que o leitor identifique a carga sem regressar à tabela que as descreve.
+#let workload-names = (
+  "01": "seqwrite", "02": "seqread", "03": "seqwrite64", "04": "randread",
+  "05": "randrw", "06": "zipfrw", "07": "seqwrite90", "08": "fsync",
+  "09": "randrw3j", "10": "compress", "11": "dedup", "12": "hybaccess",
+  "13": "hybops", "14": "homes", "15": "webmail",
+)
+
+// Rótulos das categorias tal como surgem no texto, em vez dos identificadores dos CSV.
+#let category-labels = (
+  posix: [POSIX], uring: [io_uring], aio: [libaio], spdk: [SPDK],
+  btrfs: [Btrfs], zfs: [ZFS],
+)
+
+#let category-tick(label) = {
+  if label in workload-names {
+    align(center, stack(spacing: 2.5pt, [#label], text(size: 7pt, raw(workload-names.at(label)))))
+  } else if label in category-labels {
+    category-labels.at(label)
+  } else {
+    [#label]
+  }
+}
+
+// Painéis de uma figura dispostos lado a lado ou empilhados, cada um com a largura que lhe cabe,
+// de modo a que a legenda de cada painel possa quebrar linha sem empurrar o vizinho.
+#let panels(columns: 2, ..charts) = grid(
+  columns: (1fr,) * columns,
+  column-gutter: 4pt,
+  row-gutter: 14pt,
+  align: center + bottom,
+  ..charts.pos(),
 )
 
 // Lê um CSV de figura com o formato
@@ -51,9 +89,9 @@
   )
 }
 
-// Linhas por ferramenta ao longo das workloads. Espera-se um CSV com o formato
+// Linhas por ferramenta ao longo das cargas. Espera-se um CSV com o formato
 // workload,prismo,fio,vdbench, sem colunas de desvio.
-#let tool-lines(name, ylabel: none, xlabel: [Workload], width: 12.2cm, height: 5.0cm) = {
+#let tool-lines(name, ylabel: none, xlabel: [Carga], width: 12.2cm, height: 5.0cm) = {
   let rows = csv("../data/" + name).slice(1)
   let tools = ("prismo", "fio", "vdbench")
   let xs = range(rows.len())
@@ -65,7 +103,7 @@
     xlabel: xlabel,
     ylabel: ylabel,
     legend: (position: right + top),
-    xaxis: (ticks: xs.zip(rows.map(r => [#r.at(0)])).map(((i, l)) => (i, l))),
+    xaxis: (ticks: xs.zip(rows.map(r => category-tick(r.at(0))))),
     ..tools.enumerate().map(((i, t)) => lq.plot(
       xs,
       rows.map(r => float(r.at(i + 1))),
@@ -106,11 +144,11 @@
   lq.diagram(
     width: width,
     height: height,
-    xlabel: [Workload],
+    xlabel: [Carga],
     ylabel: [Tempo de @cpu (%)],
     ylim: (0, calc.max(..running) * headroom),
     legend: (position: right + top),
-    xaxis: (ticks: xs.zip(rows.map(r => [#r.at(0)])).map(((i, l)) => (i, l))),
+    xaxis: (ticks: xs.zip(rows.map(r => category-tick(r.at(0))))),
     ..values.enumerate().map(((i, layer)) => lq.bar(
       xs,
       tops.at(i),
@@ -124,10 +162,15 @@
 
 // Gráfico de barras agrupadas por ferramenta, com barras de erro correspondentes ao
 // desvio padrão das execuções. As barras de erro só são desenhadas quando existe
-// dispersão, o que evita marcas espúrias enquanto houver uma única execução.
+// dispersão, o que evita marcas espúrias enquanto houver uma única execução. A legenda é
+// disposta numa única linha por cima da área de dados, onde nunca tapa barras, e o expoente
+// do eixo vertical é desativado para que os valores se leiam diretamente na unidade indicada.
+//
+// O `subcaption` identifica o painel quando o gráfico integra uma figura com vários, sendo
+// desenhado por baixo do rótulo do eixo horizontal para ficar centrado na área de dados.
 #let tool-bars(
-  name, ylabel: none, xlabel: [Workload],
-  width: 12.2cm, height: 5.4cm, yscale: auto, legend: true,
+  name, ylabel: none, xlabel: [Carga],
+  width: 12.2cm, height: 5.4cm, yscale: auto, ylim: auto, legend: true, subcaption: none,
 ) = {
   let data = read-series(name)
   let n = data.series.len()
@@ -136,14 +179,27 @@
   let bar-width = 0.8 / calc.max(n, 1)
   let xs = range(data.labels.len())
 
+  show lq.selector(lq.legend): set grid(columns: 2 * calc.max(n, 1), column-gutter: 0.6em)
   lq.diagram(
     width: width,
     height: height,
-    xlabel: xlabel,
+    xlabel: if subcaption == none { xlabel } else {
+      // Nos painéis estreitos a legenda ocupa sempre duas linhas, para que gráficos lado a lado
+      // mantenham os eixos alinhados mesmo quando uma das legendas cabe numa só.
+      set par(leading: 0.45em, justify: false)
+      stack(spacing: 9pt, xlabel, block(
+        width: width,
+        height: if width < 8cm { 2.3em } else { auto },
+        text(size: 0.9em, subcaption),
+      ))
+    },
     ylabel: ylabel,
     yscale: yscale,
-    legend: if legend { (position: right + top) } else { none },
-    xaxis: (ticks: xs.zip(data.labels.map(l => [#l])).map(((i, l)) => (i, l))),
+    ylim: ylim,
+    legend: if legend == true { (position: bottom + center, dy: -100%, pad: 4pt) }
+            else if type(legend) == alignment { (position: legend) } else { none },
+    xaxis: (ticks: xs.zip(data.labels.map(category-tick))),
+    yaxis: (exponent: 0),
     ..data.series.enumerate().map(((k, s)) => lq.bar(
       xs.map(x => x + (k - (n - 1) / 2) * bar-width),
       s.values,
@@ -163,15 +219,18 @@
 
 // Painel de barras horizontais para uma categoria de componentes. As barras horizontais
 // acomodam nomes de variantes longos sem sobreposição, e cada painel mantém a sua própria
-// escala, dado que o débito difere em ordens de grandeza entre categorias.
-#let component-bars(name, categoria, width: 5.7cm, height: 3.6cm) = {
+// escala, dado que o débito difere em ordens de grandeza entre categorias. O expoente é
+// desativado para que os valores se leiam diretamente em milhões.
+#let component-bars(name, categoria, title: none, width: 5.7cm, height: 3.6cm) = {
   let rows = csv("../data/" + name).slice(1).filter(r => r.at(0) == categoria)
   let ys = range(rows.len())
   lq.diagram(
     width: width,
     height: height,
-    title: categoria,
+    title: if title == none { categoria } else { title },
     xlabel: [Milhões de operações por segundo],
+    xlim: (0, calc.max(..rows.map(r => float(r.at(2)))) * 1.1),
+    xaxis: (exponent: 0),
     yaxis: (ticks: ys.zip(rows.map(r => [#r.at(1)])).map(((i, l)) => (i, l))),
     lq.hbar(rows.map(r => float(r.at(2))), ys, width: 0.6, fill: tool-colors.prismo),
   )
@@ -180,19 +239,31 @@
 // Séries temporais das três estratégias de extensão, com uma linha vertical a assinalar o
 // instante em que o ficheiro de trace se esgota e a extensão assume a geração. Espera-se um
 // CSV com o formato indice,fase,repeat,sample,regression, onde `fase` toma os valores
-// `replay` e `extensao`.
+// `replay` e `extensao`. Cada estratégia combina uma cor de matiz distinta com um padrão de
+// traço próprio, de modo a que as séries se separem mesmo onde se cruzam ou em impressão a
+// preto e branco.
 #let extension-colors = (
   repeat: rgb("#1f4e79"),
   sample: rgb("#e08214"),
-  regression: rgb("#4d4d4d"),
+  regression: rgb("#b2182b"),
+)
+
+#let extension-strokes = (
+  repeat: (thickness: 0.6pt),
+  sample: (thickness: 0.6pt, dash: (2pt, 1pt)),
+  regression: (thickness: 1.1pt, dash: "dash-dotted"),
 )
 
 #let extension-labels = (
   repeat: [Repetição], sample: [Amostragem], regression: [Regressão],
 )
 
+// Até ao corte as três estratégias reproduzem o mesmo trace, pelo que essa fase é desenhada
+// uma única vez, numa cor neutra, e só a partir daí cada estratégia ganha a sua própria série.
+#let replay-color = luma(110)
+
 #let trace-lines(name, ylabel: none, xlabel: [Milhares de pedidos submetidos],
-                 width: 12.2cm, height: 5.0cm) = {
+                 width: 10.4cm, height: 5.0cm) = {
   let rows = csv("../data/" + name).slice(1)
   let estrategias = ("repeat", "sample", "regression")
   let xs = rows.map(r => float(r.at(0)))
@@ -206,16 +277,29 @@
     ylabel: ylabel,
     // fixa o domínio para que o referencial se mantenha completo enquanto não houver séries
     xlim: (xs.first(), xs.last()),
-    legend: (position: right + top),
+    // a legenda fica fora da área de dados, que as séries ocupam por inteiro
+    legend: (position: left + top, dx: 100%),
+    ..if corte != none { (lq.plot(
+        xs.slice(0, corte + 1),
+        rows.slice(0, corte + 1).map(r => float(r.at(2))),
+        mark: none,
+        color: replay-color,
+        stroke: 0.6pt,
+        label: [Reprodução],
+      ),) } else { () },
     ..estrategias.enumerate()
       .filter(((i, e)) => rows.any(r => r.at(i + 2) != ""))
-      .map(((i, e)) => lq.plot(
-        xs,
-        rows.map(r => if r.at(i + 2) == "" { 0.0 } else { float(r.at(i + 2)) }),
-        mark: none,
-        color: extension-colors.at(e),
-        label: extension-labels.at(e),
-      )),
+      .map(((i, e)) => {
+        let inicio = if corte == none { 0 } else { corte }
+        lq.plot(
+          xs.slice(inicio),
+          rows.slice(inicio).map(r => if r.at(i + 2) == "" { 0.0 } else { float(r.at(i + 2)) }),
+          mark: none,
+          color: extension-colors.at(e),
+          stroke: extension-strokes.at(e),
+          label: extension-labels.at(e),
+        )
+      }),
     ..if corte != none { (lq.vlines(xs.at(corte),
         stroke: (paint: luma(90), dash: "dashed", thickness: 0.8pt)),) } else { () },
   )

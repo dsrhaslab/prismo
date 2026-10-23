@@ -106,7 +106,7 @@ Na prática, os _benchmarks_ existentes são frequentemente desenvolvidos com fo
 
 Esta realidade justifica por que motivo os _benchmarks_ que pretendem ser altamente precisos costumam ser otimizados para uma interface em particular, em vez de adotarem uma abordagem única e universal para todos os sistemas de @io.
 
-=== Deduplicação
+=== Deduplicação <deduplication>
 
 Embora as interfaces de @io desempenhem um papel fundamental na avaliação dos sistemas de armazenamento, o seu impacto é limitado quando as propriedades destes sistemas não são plenamente exercitadas. Diferentes interfaces podem variar a latência e o débito, porém não capturam o efeito de otimizações como a deduplicação e a compressão se o conteúdo utilizado não refletir essas características @koller2010 @meyer2012 @policroniades2004 @paulo2014 @talasila2019.
 

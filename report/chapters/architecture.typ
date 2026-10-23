@@ -730,7 +730,7 @@ Adicionalmente, três séries temporais são mantidas com granularidade ao segun
 
 Quando múltiplos jobs são executados em paralelo, o relatório contém os resultados individuais de cada job e um registo adicional resultante da fusão de todas as estatísticas, onde os histogramas de latência são combinados e os timestamps de início e fim são ajustados para refletir o intervalo global de execução @ren2023.
 
-== Implementação
+== Implementação <implementation>
 
 O Prismo encontra-se implementado em C++20, escolha que decorre do requisito de manter o custo da geração de conteúdo muito abaixo do débito do dispositivo, o que exige controlo explícito sobre a disposição da memória e a ausência de um _garbage collector_.
 
