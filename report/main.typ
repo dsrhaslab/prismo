@@ -1,4 +1,4 @@
-#import "@preview/prometeu-thesis:1.1.0": colors, thesis
+#import "@preview/prometeu-thesis:1.2.1": appendix, colors, thesis
 
 #show: thesis(
   author: "Diogo Alexandre Correia Marques",
@@ -124,8 +124,8 @@
 ]
 
 // #[
-//   #counter(heading).update(0)
-//   #set heading(numbering: "A.1", supplement: [Apêndice])
+//   // Numera os apêndices como A, B, ... e as figuras como A.1, A.2, ...
+//   #show: appendix
 //   #include "appendix.typ"
 // ]
 
