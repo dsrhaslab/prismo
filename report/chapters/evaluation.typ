@@ -185,7 +185,7 @@ As métricas recolhidas dividem-se entre aquelas reportadas pelas próprias ferr
 
 Já as métricas de sistema, nomeadamente a utilização de @cpu e de @ram, são recolhidas através do `pcp dstat` com uma frequência de amostragem de um segundo, que constitui a única fonte comum às três ferramentas e portanto a única que permite uma comparação justa do consumo de recursos.
 
-Nas cargas que exercitam deduplicação e compressão, o espaço efetivamente ocupado em disco seria a grandeza capaz de confirmar que as otimizações do sistema de armazenamento foram de facto acionadas pelo conteúdo gerado, no entanto a sua recolha não chegou a ser incluída na campanha por limitações de tempo, ausência cujas consequências se discutem na @limitations.
+Nas cargas que exercitam deduplicação e compressão, o espaço efetivamente ocupado em disco seria a grandeza capaz de confirmar que as otimizações do sistema de armazenamento foram de facto acionadas pelo conteúdo gerado, ficando a sua recolha como trabalho futuro e as consequências da sua ausência discutidas na @limitations.
 
 *Agregação de métricas.* Uma vez recolhidas, as métricas são apresentadas através do valor reportado pela ferramenta, acompanhado do desvio padrão calculado sobre a respetiva série temporal. Deste modo, as barras de erro presentes nas figuras adiante traduzem a oscilação da medição ao longo da execução, sendo descartadas as primeiras amostras de modo a excluir o período de arranque.
 
@@ -389,7 +389,7 @@ No Btrfs as duas ferramentas divergem em sentido oposto, em cerca de 16%, diverg
 
 Convém realçar que a elevada dispersão do Btrfs decorre da sua própria arquitetura, dado que a compressão opera sobre _extents_ de dimensão superior ao bloco de 4 KiB submetido, agrupando num mesmo _extent_ blocos de compressibilidade distinta. Deste modo, a redução alcançada depende de quais os blocos que ficam agrupados, variando ao longo da execução de uma forma que o @zfs, ao comprimir cada _record_ isoladamente, não apresenta.
 
-Determinar se existe de facto uma divergência no Btrfs exigiria a medição do espaço ocupado em disco, única grandeza capaz de revelar quanto foi efetivamente reduzido em cada caso, medição que não chegou a ser incluída na campanha por limitações de tempo e cuja ausência constitui a principal limitação desta subsecção @btrfs_docs.
+Determinar se existe de facto uma divergência no Btrfs exigiria a medição do espaço ocupado em disco, única grandeza capaz de revelar quanto foi efetivamente reduzido em cada caso, medição que fica como trabalho futuro @btrfs_docs.
 
 === Deduplicação <dedup-section>
 
@@ -781,7 +781,7 @@ Nenhuma campanha experimental esgota o espaço de configurações possíveis, pe
 
 Do mesmo modo, as cargas 10 e 11 diferem na presença de duplicados mas também na compressibilidade média, 30% contra 22%, o que impede o isolamento do contributo da deduplicação e cuja resolução passaria por igualar essa propriedade entre ambas.
 
-*Grandezas não medidas.* O espaço efetivamente ocupado em disco não foi acompanhado ao longo das execuções, por limitações de tempo da campanha, grandeza que teria permitido confirmar quando e em que medida as otimizações foram acionadas, e cuja ausência limita as conclusões alcançadas sobre a deduplicação.
+*Grandezas não medidas.* O espaço efetivamente ocupado em disco não foi acompanhado ao longo das execuções, grandeza que teria permitido confirmar quando e em que medida as otimizações foram acionadas, e cuja ausência limita as conclusões alcançadas sobre a deduplicação.
 
 Também a latência reportada não distingue o tempo decorrido no dispositivo daquele que é consumido dentro da própria ferramenta, ausência que deixou por confirmar a explicação avançada na @io-interfaces para a diferença observada entre o Prismo e o @fio nas interfaces assíncronas.
 
