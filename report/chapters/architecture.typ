@@ -28,17 +28,21 @@ Tal abstração é o que permite ao utilizador alternar entre dados sintéticos 
   caption: [Visão geral da arquitetura do Prismo]
 ) <visao-geral>
 
-A execução de uma carga envolve a orquestração destes componentes segundo o modelo produtor-consumidor que a @visao-geral representa @didona2022 @ren2023. O produtor invoca os geradores que definem o acesso, a operação e o conteúdo, encapsula o resultado num pedido de @io e coloca-o numa fila concorrente, ao passo que o consumidor retira os pedidos dessa fila e os submete à interface escolhida.
+Qualquer execução parte da descrição da carga que o utilizador fornece num ficheiro de configuração, onde escolhe o gerador de cada dimensão do pedido, sintético ou baseado num _trace_, e a interface de @io com os respetivos parâmetros. É a partir desta descrição que o Prismo instancia os geradores e o motor antes de a execução começar, conforme a @visao-geral ilustra, ficando o produtor e o consumidor a conhecer apenas as interfaces abstratas que estes implementam.
+
+Instanciados os componentes, a execução de uma carga envolve a sua orquestração segundo o modelo produtor-consumidor que a mesma figura representa @didona2022 @ren2023. O produtor invoca os geradores que definem o padrão de acesso (por exemplo, sequencial ou aleatório), o tipo de operação (incluíndo, leitura ou escrita) e as características do conteúdo (tais como, duplicado ou compressível). Em seguida, encapsula o resultado num pedido de @io e coloca-o numa fila concorrente. O consumidor, por sua vez, retira os pedidos dessa fila e submete-os à interface selecionada.
 
 Concluído o pedido, a estrutura que o transporta é devolvida ao produtor por um segundo canal, permitindo a sua reutilização sem novas alocações. É este ciclo que define o fluxo do _benchmark_, e é em torno dele que se organizam as secções seguintes, começando pelo modelo de execução e terminando nas métricas recolhidas.
 
 == Modelo de Execução <execution-model>
 
+O ciclo representado na @visao-geral assenta num conjunto de mecanismos que determinam durante quanto tempo, com que paralelismo e a que ritmo a carga é executada, desde os canais que ligam o produtor ao consumidor até à rampa de aquecimento, passando pelo critério de terminação e pela replicação do par em vários _jobs_, sendo todos eles independentes do conteúdo dos pedidos e da interface que os submete.
+
 === Canais de Comunicação
 
 A comunicação entre produtor e consumidor é realizada através de duas filas concorrentes _lock-free_ @moodycamel: a primeira transporta os pedidos preenchidos do produtor para o consumidor, enquanto a segunda devolve as estruturas cujo pedido já foi concluído, possibilitando a sua reutilização sem alocações dinâmicas durante a execução.
 
-Uma vez que as filas apresentam capacidade limitada, e tendo em consideração que à partida o produtor será mais rápido que o consumidor, este mecanismo permite simultaneamente acumular pedidos à espera de execução e travar o produtor, pois quando a capacidade limite for atingida, o produtor irá bloquear e portanto o consumidor jamais será sobrecarregado com uma quantidade infindável de pedidos, o que contribui para um uso eficiente da memória disponível.
+Uma vez que as filas apresentam capacidade limitada, e tendo em consideração que à partida o produtor será mais rápido que o consumidor, este mecanismo permite acumular pedidos à espera de execução e travar o produtor em simultâneo, pois quando a capacidade limite for atingida, o produtor irá bloquear e portanto o consumidor jamais será sobrecarregado com uma quantidade infindável de pedidos, o que contribui para um uso eficiente da memória disponível.
 
 O _benchmark_ disponibiliza dois modos de operação para os canais: bloqueante e não-bloqueante. No modo bloqueante, a remoção de um elemento suspende a _thread_ caso a fila esteja vazia, sendo esta retomada quando um novo elemento é inserido, resultando num consumo energético reduzido @didona2022. Em contrapartida, o modo não-bloqueante mantém a _thread_ em espera ativa até que um elemento esteja disponível, sacrificando ciclos de @cpu em troca de menor latência de resposta @ren2023.
 
@@ -506,9 +510,9 @@ Conforme representado na @consumidor, a interface de submissão aceita operaçõ
 
 Além da submissão de pedidos, a interface assegura a abertura do ficheiro ou dispositivo alvo antes de o produtor e o consumidor entrarem em execução, bem como o respetivo fecho depois de ambos terminarem, delimitando assim o ciclo de vida de cada _job_, sendo estas duas operações dispensadas pelo motor do @spdk, visto este aceder diretamente ao dispositivo de armazenamento sem passar por qualquer sistema de ficheiros @spdk_docs.
 
-Perante a combinação de interfaces síncronas e assíncronas, o método `submit` nem sempre devolve uma estrutura para reutilização, pois, no caso das interfaces assíncronas nunca se sabe exatamente quando o pedido será dado por concluído e além disso não é possível esperar até que tal aconteça, caso contrário estaria a ser dado comportamento síncrono e as vantagens de paralelismo seriam perdidas @uring_kernel @rust_iouring_async.
+Perante a combinação de interfaces síncronas e assíncronas, a submissão de um pedido nem sempre permite devolver de imediato a estrutura que o transporta, pois no caso das interfaces assíncronas nunca se sabe exatamente quando o pedido será dado por concluído e além disso não é possível esperar até que tal aconteça, caso contrário estaria a ser dado comportamento síncrono e as vantagens de paralelismo seriam perdidas @uring_kernel @rust_iouring_async.
 
-/// Tendo isto em mente, o método `reap_left_completions` possibilita a espera forçosa dos pedidos pendentes, algo que deve ser utilizado entre a última submissão e a operação de `close` @didona2022.
+Daqui decorre um segundo problema para o motor no final de cada carga, isto porque numa interface assíncrona a última submissão não coincide com a última conclusão. Podem por isso existir pedidos em curso no momento em que o _job_ termina, os quais o motor tem de aguardar antes de fechar o ficheiro, sob pena de a execução terminar com escritas por confirmar e estruturas por devolver.
 
 === POSIX
 
@@ -536,7 +540,7 @@ Posto isto, e conforme a @conf-posix demonstra, a estrutura de configuração in
   caption: [Funcionamento interno do motor POSIX]
 ) <fluxo-posix>
 
-Por ostentar comportamento síncrono, o método `reap_left_completions` não tem relevância prática, destarte a receção de pedidos é seguida da chamada ao sistema associada ao tipo de operação, sendo mais tarde devolvido o código de erro, bem como a estrutura do pedido @didona2022.
+Por ostentar comportamento síncrono, o motor POSIX não conhece o problema dos pedidos pendentes, visto a receção de cada pedido ser seguida da chamada ao sistema associada ao tipo de operação, que apenas retorna depois de o pedido estar concluído, pelo que o código de erro e a estrutura do pedido são devolvidos de imediato e nenhum pedido fica pendente no final da execução @didona2022.
 
 === AIO
 
@@ -734,10 +738,12 @@ Quando múltiplos _jobs_ são executados em paralelo, o relatório contém os re
 
 O Prismo encontra-se implementado em C++20, escolha que decorre do requisito de manter o custo da geração de conteúdo muito abaixo do débito do dispositivo, o que exige controlo explícito sobre a disposição da memória e a ausência de um _garbage collector_.
 
-Essa exigência estende-se às bibliotecas adotadas, começando pela fila concorrente que liga o produtor ao consumidor @moodycamel, e seguindo pelo gerador pseudoaleatório SHISHUA @shishua, cujo débito em lote sustenta a construção de cada bloco sem se tornar o fator limitante da execução.
+Essa exigência estende-se às bibliotecas adotadas, começando pela fila concorrente que liga o produtor ao consumidor, a moodycamel::ConcurrentQueue 1.0.4 @moodycamel, e seguindo pelo gerador pseudoaleatório SHISHUA @shishua, cujo débito em lote sustenta a construção de cada bloco sem se tornar o fator limitante da execução.
 
-Quanto às interfaces de @io, cada uma assenta diretamente na biblioteca da respetiva tecnologia, nomeadamente a libaio, a liburing e o @spdk, sem qualquer camada intermédia entre o motor e a interface que este representa, pelo que o comportamento medido corresponde ao da própria interface.
+Quanto às interfaces de @io, cada uma assenta diretamente na biblioteca da respetiva tecnologia, nomeadamente a libaio 0.3.113 @libaio, a liburing 2.14 @liburing e o @spdk 26.01 @spdk_docs, sem qualquer camada intermédia entre o motor e a interface que este representa, pelo que o comportamento medido corresponde ao da própria interface.
 
-Completam o conjunto as bibliotecas de apoio, concretamente a Eigen para o ajuste dos modelos lineares da extensão por regressão, a nlohmann/json para a leitura das configurações e a escrita dos relatórios, e o spdlog para o registo por operação, sendo a compilação orquestrada pelo Meson.
+Completam o conjunto as bibliotecas de apoio, concretamente a Eigen 5.0.1 @eigen para o ajuste dos modelos lineares da extensão por regressão, a nlohmann/json 3.12.0 @nlohmann_json para a leitura das configurações e a escrita dos relatórios, e o spdlog 1.17.0 @spdlog para o registo por operação.
 
-Ao protótipo juntam-se ainda duas ferramentas auxiliares, o Astroide, que converte os _traces_ do @fiu para o formato binário consumido pelo _benchmark_, e o Deltoide, que analisa os dados efetivamente escritos em disco e deles extrai as distribuições de duplicados e compressibilidade, recorrendo à zstd para aferir esta última, permitindo assim confirmar que o conteúdo submetido corresponde ao configurado.
+A estas juntam-se o Boost.Pool 1.90.0 @boost_pool, que gere a memória dos blocos retidos pelo gerador de duplicados enquanto aguardam as respetivas cópias, e a argparse 3.2 @argparse, que interpreta os argumentos da linha de comandos, sendo a compilação orquestrada pelo Meson 1.12.1 @meson.
+
+Além do próprio _benchmark_, resultam ainda deste trabalho duas ferramentas autónomas, o Astroide, que converte os _traces_ do @fiu para o formato binário consumido pelo Prismo, e o Deltoide, que analisa os dados efetivamente escritos em disco e deles extrai as distribuições de duplicados e compressibilidade, recorrendo à zstd 1.5.7 @zstd para aferir esta última, permitindo assim confirmar que o conteúdo submetido corresponde ao configurado.

@@ -507,7 +507,7 @@ moodycamel:
   title: "moodycamel::ConcurrentQueue: An industrial-strength lock-free queue for C++"
   author: Cameron Desrochers
   url: https://github.com/cameron314/concurrentqueue
-  date: 2024
+  date: 2023-06
 
 shishua:
   type: web
@@ -522,3 +522,65 @@ vdbench:
   author: Henk Vandenbergh
   url: https://wiki.lustre.org/images/c/c7/Vdbench_Users_Guide_50407.pdf
   date: 2014
+
+libaio:
+  type: web
+  title: "libaio: Linux-native asynchronous I/O access library"
+  author: Jeff Moyer
+  url: https://pagure.io/libaio
+
+liburing:
+  type: web
+  title: "liburing: io_uring library"
+  author: Jens Axboe
+  url: https://github.com/axboe/liburing
+  date: 2026-02
+
+eigen:
+  type: web
+  title: "Eigen: a C++ template library for linear algebra"
+  author: ["Guennebaud, Gaël", "Jacob, Benoît"]
+  url: https://eigen.tuxfamily.org
+  date: 2025-11
+
+nlohmann_json:
+  type: web
+  title: "JSON for Modern C++"
+  author: Niels Lohmann
+  url: https://github.com/nlohmann/json
+  date: 2025-04
+
+spdlog:
+  type: web
+  title: "spdlog: Fast C++ logging library"
+  author: Gabi Melman
+  url: https://github.com/gabime/spdlog
+  date: 2026-01
+
+boost_pool:
+  type: web
+  title: "Boost.Pool"
+  author: Stephen Cleary
+  url: https://www.boost.org/doc/libs/1_90_0/libs/pool/
+  date: 2025-12
+
+argparse:
+  type: web
+  title: "argparse: Argument Parser for Modern C++"
+  author: Pranav Srinivas Kumar
+  url: https://github.com/p-ranav/argparse
+  date: 2025-01
+
+meson:
+  type: web
+  title: "The Meson Build System"
+  author: Jussi Pakkanen
+  url: https://mesonbuild.com
+  date: 2026-09
+
+zstd:
+  type: web
+  title: "Zstandard: Fast real-time compression algorithm"
+  author: Yann Collet
+  url: https://github.com/facebook/zstd
+  date: 2025-02

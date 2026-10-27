@@ -558,6 +558,19 @@
 
     line((14.6, 2.6), (15.4, 2.6), mark: arrow)
     node("dispositivo", (16.6, 2.6), 2.4, 1.5, [Dispositivo], kind: "system")
+
+    // Configuração fornecida pelo utilizador, a partir da qual os geradores e o motor são
+    // instanciados antes de a execução começar
+    node("utilizador", (1.45, 7.6), 2.9, 0.8, [Utilizador])
+    node("configuracao", (7.65, 7.6), 3.9, 0.8, [Configuração da carga], kind: "highlight")
+    line("utilizador.east", "configuracao.west", mark: arrow)
+    tag((4.5, 7.6), [descreve])
+    line("configuracao.south", (7.65, 6.75))
+    line((1.45, 6.75), (13.35, 6.75))
+    line((1.45, 6.75), (1.45, 5.225), mark: arrow)
+    line((13.35, 6.75), (13.35, 5.225), mark: arrow)
+    note((1.65, 6.35), anchor: "west", [instancia os geradores])
+    note((13.15, 6.35), anchor: "east", [instancia o motor])
   })
 }
 
