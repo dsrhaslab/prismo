@@ -77,7 +77,7 @@ Posto isto, o DEDISgen foi alterado para capturar as taxas de duplicados e compr
   caption: [Distribuição de duplicados e taxas de compressão]
 ) <dedisbenchppdedup>
 
-Ao contrário da distribuição gerada pela primeira versão do DEDISgen, desta vez os duplicados são definidos à custa de percentagens, como tal as limitações anteriormente referidas deixam de ser aplicável, pois os valores relativos são totalmente independentes do tamanho da carga de trabalho, e portanto esta pode ser estendida indefinidamente @dedisbenchpp.
+Ao contrário da distribuição gerada pela primeira versão do DEDISgen, desta vez os duplicados são definidos à custa de percentagens, como tal as limitações associadas à @dedisbenchdedup deixam de ser aplicáveis, pois os valores relativos são totalmente independentes do tamanho da carga de trabalho, e portanto esta pode ser estendida indefinidamente @dedisbenchpp.
 
 Por outro lado, observa-se que na @dedisbenchppdedup as taxas de compressão intra-bloco são definidas à custa de setores percentuais, ou seja, no caso dos blocos com três cópias, infere-se que 80% deles comprime 70%, enquanto os restantes comprimem 90%. Na verdade, esta forma de representação é pouco flexível, dado somente permitir a identificação de taxas múltiplas de dez @dedisbenchpp.
 
@@ -140,9 +140,9 @@ Em suma, estes fatores contribuem para que a geração de conteúdo do @fio não
     ```
   ],
   caption: [Configuração de uma carga de trabalho Vdbench com deduplicação e compressão]
-)
+) <vdbench-conf>
 
-No entanto, estes parâmetros são especificados enquanto rácios globais e não como distribuições, o que significa que não é possível definir grupos de blocos com taxas de duplicação e compressibilidade distintas, ao contrário do que sucede no DEDISbench++ @dedisbenchpp. Por exemplo, um `dedupratio` de 2.0 indica que metade dos blocos são duplicados, porém todos partilham a mesma taxa de compressão, o que não reflete a heterogeneidade observada em ambientes reais @gracia-tinedo2015.
+No entanto, e conforme a @vdbench-conf exemplifica, estes parâmetros são especificados enquanto rácios globais e não como distribuições, o que significa que não é possível definir grupos de blocos com taxas de duplicação e compressibilidade distintas, ao contrário do que sucede no DEDISbench++ @dedisbenchpp. Por exemplo, um `dedupratio` de 2.0 indica que metade dos blocos são duplicados, porém todos partilham a mesma taxa de compressão, o que não reflete a heterogeneidade observada em ambientes reais @gracia-tinedo2015.
 
 Ademais, o Vdbench não oferece suporte à reprodução de _traces_ reais, sendo todas as cargas geradas sinteticamente @vdbench. A ferramenta está igualmente limitada à interface POSIX síncrona, não existindo suporte nativo para interfaces assíncronas como io_uring ou @spdk, o que restringe a capacidade de avaliar os sistemas de armazenamento modernos que beneficiam destas interfaces @didona2022 @ren2023.
 

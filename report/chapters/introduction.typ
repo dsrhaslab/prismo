@@ -6,7 +6,7 @@ Os sistemas de armazenamento modernos evoluíram no sentido de oferecer uma maio
 
 Porém a avaliação do impacto destas técnicas não é trivial, pois o número crescente de otimizações implementadas nos sistemas de armazenamento atuais dificulta a obtenção de métricas representativas do seu funcionamento real @tarasov2011. Os _benchmarks_ desempenham aqui um papel crucial, permitindo caracterizar com rigor os sistemas e compreender de que forma determinadas decisões de implementação influenciam o comportamento observado pelas aplicações.
 
-== Definição do Problema e Desafios
+== Definição do Problema e Desafios <problem>
 
 Os sistemas de armazenamento atuais combinam múltiplas técnicas de otimização, cujo impacto no desempenho depende fortemente das propriedades dos dados processados. A qualidade de uma avaliação não depende por isso apenas da ferramenta utilizada, dado que o realismo das cargas de trabalho é igualmente essencial no levantamento de ilações corretas acerca do sistema de armazenamento @gracia-tinedo2015 @pang2026 @tarasov2011.
 
@@ -30,7 +30,7 @@ Em suma, os _benchmarks_ atuais não permitem definir cargas de trabalho realist
 
 == Objetivos e Contribuições
 
-Perante os problemas mencionados anteriormente, apresenta-se o Prismo, um _benchmark_ para sistemas de armazenamento orientado ao bloco, cujo desenho procura dotar de maior flexibilidade e eficiência os algoritmos de geração de conteúdo, em particular o respeito pelas taxas de deduplicação e compressão, tornando-os independentes da interface através da qual os pedidos são submetidos @koller2010 @zhu2008.
+Perante os problemas identificados na @problem, apresenta-se o Prismo, um _benchmark_ para sistemas de armazenamento orientado ao bloco, cujo desenho procura dotar de maior flexibilidade e eficiência os algoritmos de geração de conteúdo, em particular o respeito pelas taxas de deduplicação e compressão, tornando-os independentes da interface através da qual os pedidos são submetidos @koller2010 @zhu2008.
 
 Tal independência revela-se insuficiente, no entanto, para alcançar cargas realistas que efetuem uma avaliação correta do sistema, sendo para isso necessário replicar as propriedades de _traces_ extraídos a partir de ambientes em produção, pois somente estes oferecem informações acerca das cargas reais @gracia-tinedo2015 @pang2026 @ameri2016.
 

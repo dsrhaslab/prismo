@@ -71,7 +71,7 @@ Todas as experiências foram conduzidas numa única máquina, evitando assim que
 
 O sistema opera sobre Ubuntu 20.04.6 LTS com _kernel_ Linux 5.4.0-216-generic, versão que condiciona as funcionalidades disponíveis nas interfaces assíncronas, em particular no io_uring, cuja implementação tem vindo a ser progressivamente otimizada desde a sua introdução @uring_kernel.
 
-Convém realçar que todos os acessos são efetuados com a _flag_ `O_DIRECT`, o que elimina a intervenção da _page cache_ e garante que os pedidos atingem efetivamente o dispositivo, sendo esta uma condição indispensável para que as métricas reflitam o comportamento do sistema de armazenamento e não o da memória @didona2022 @ren2023. Esta garantia é integral quando o dispositivo é acedido diretamente, sem sistema de ficheiros interposto, no entanto os sistemas de ficheiros avaliados impõem-lhe restrições que serão detalhadas adiante.
+Convém realçar que todos os acessos são efetuados com a _flag_ `O_DIRECT`, o que elimina a intervenção da _page cache_ e garante que os pedidos atingem efetivamente o dispositivo, sendo esta uma condição indispensável para que as métricas reflitam o comportamento do sistema de armazenamento e não o da memória @didona2022 @ren2023. Esta garantia é integral quando o dispositivo é acedido diretamente, sem sistema de ficheiros interposto, no entanto os sistemas de ficheiros avaliados impõem-lhe restrições que se detalham na @systems.
 
 === Ferramentas Comparadas
 
@@ -216,7 +216,7 @@ Uma carga combina sempre um gerador de cada categoria, atuando estes em série n
 
 Nestes termos, a configuração menos favorável corresponde a três extensões por regressão, que consomem 213.7 nanossegundos cada e limitam o Prismo a 1.6 milhões de operações por segundo. Já a pior combinação entre geradores convencionais, reunindo acesso Zipfian, operações por percentagem e conteúdo com deduplicação, totaliza 294.0 nanossegundos e permite 3.4 milhões de operações por segundo.
 
-Assim sendo, mesmo a configuração mais exigente mantém-se cerca de 14× acima do débito máximo observado nas experiências, que foi de 113 015 @iops na carga 02 (demonstrado adiante), margem suficiente para acomodar dispositivos consideravelmente mais rápidos do que o utilizado. Deste modo, nenhuma combinação de geradores constitui o fator limitante da avaliação, e os resultados apresentados traduzem o comportamento do sistema de armazenamento.
+Assim sendo, mesmo a configuração mais exigente mantém-se cerca de 14× acima do débito máximo observado nas experiências, que foi de 113 015 @iops na carga 02, conforme a @validacao-iops mostra, margem suficiente para acomodar dispositivos consideravelmente mais rápidos do que o utilizado. Deste modo, nenhuma combinação de geradores constitui o fator limitante da avaliação, e os resultados apresentados traduzem o comportamento do sistema de armazenamento.
 
 === Reprodutibilidade
 
@@ -248,7 +248,7 @@ Aferida a estabilidade das medições, importa agora verificar se o Prismo produ
 
 O débito apresentado na @validacao-iops revela concordância entre as três ferramentas em praticamente todas as cargas, com desvios que se mantêm abaixo do limiar de dispersão nos cenários dominados pelo dispositivo, ou seja naqueles assentes em acessos aleatórios. Nestas condições o dispositivo satura muito antes de qualquer ferramenta se aproximar do seu limite, pelo que as três medem inevitavelmente a mesma realidade.
 
-As cargas sequenciais afastam-se ligeiramente deste padrão, com uma vantagem para o Prismo na ordem dos cinco pontos percentuais, atribuível ao modelo produtor-consumidor descrito no @chapter3, uma vez que a preparação dos pedidos decorre numa _thread_ distinta daquela que os submete e permite manter o dispositivo ocupado enquanto o bloco seguinte é construído.
+As cargas sequenciais afastam-se ligeiramente deste padrão, com uma vantagem para o Prismo na ordem dos cinco pontos percentuais, atribuível ao modelo produtor-consumidor representado na @visao-geral, uma vez que a preparação dos pedidos decorre numa _thread_ distinta daquela que os submete e permite manter o dispositivo ocupado enquanto o bloco seguinte é construído.
 
 A carga 07 constitui a única exceção relevante, com o Prismo a ficar cerca de um quinto abaixo do @fio. Ambas as ferramentas executaram exatamente o mesmo trabalho, com idêntico número de operações, volume escrito e repartição entre leituras e escritas, diferindo apenas na duração, pelo que a explicação tem de residir no custo por pedido e não na carga submetida.
 
@@ -272,7 +272,7 @@ Uma vez que estas diferenças se repetem no Prismo e no @fio, caracterizam o dis
   caption: [Latência média e percentil 99 por carga em cada ferramenta]
 ) <validacao-latencia>
 
-A latência média confirma a equivalência estabelecida pelo débito, sendo a @validacao-latencia (a) essencialmente uma imagem espelhada da figura anterior, o que demonstra medir a instrumentação do Prismo a mesma realidade que as ferramentas consagradas.
+A latência média confirma a equivalência estabelecida pelo débito, sendo a @validacao-latencia (a) essencialmente uma imagem espelhada da @validacao-iops, o que demonstra medir a instrumentação do Prismo a mesma realidade que as ferramentas consagradas.
 
 O percentil 99, na @validacao-latencia (b), revela porém um padrão que a média esconde, pois o Prismo apresenta uma cauda mais pesada nas cargas que combinam escritas com concorrência, chegando a duplicar o valor do @fio, enquanto nas sequenciais a situação se inverte a seu favor.
 
@@ -385,7 +385,7 @@ No entanto, merece particular destaque o facto de as duas configurações terem 
 
 Deste modo, a divergência observada não é imputável a uma carga globalmente mais compressível, mas ao modo como essa compressibilidade se distribui pelos blocos. Por outras palavras, o sistema de armazenamento responde à forma da distribuição e não apenas ao seu valor médio, propriedade que uma taxa única, como a utilizada no @fio, é por construção incapaz de exprimir.
 
-No Btrfs as duas ferramentas divergem em sentido oposto, em cerca de 16%, divergência que não deve porém ser interpretada como efetiva, dado que a dispersão das medições ronda os 13% e os intervalos das duas ferramentas se sobrepõem numa extensão considerável, obrigando assim o critério estabelecido na secção anterior a tratá-las como equivalentes.
+No Btrfs as duas ferramentas divergem em sentido oposto, em cerca de 16%, divergência que não deve porém ser interpretada como efetiva, dado que a dispersão das medições ronda os 13% e os intervalos das duas ferramentas se sobrepõem numa extensão considerável, obrigando assim o critério estabelecido na @validation a tratá-las como equivalentes.
 
 Convém realçar que a elevada dispersão do Btrfs decorre da sua própria arquitetura, dado que a compressão opera sobre _extents_ de dimensão superior ao bloco de 4 KiB submetido, agrupando num mesmo _extent_ blocos de compressibilidade distinta. Deste modo, a redução alcançada depende de quais os blocos que ficam agrupados, variando ao longo da execução de uma forma que o @zfs, ao comprimir cada _record_ isoladamente, não apresenta.
 
@@ -401,7 +401,7 @@ A carga 11 acrescenta à compressibilidade uma distribuição de duplicados repa
   caption: [Débito de operações no @zfs nas cargas 10 e 11]
 ) <impacto-dedup>
 
-A @impacto-dedup mostra a carga 11 a reproduzir de forma quase exata o comportamento da carga anterior, mantendo-se as diferenças entre ambas abaixo de 2% em todas as ferramentas, valor muito inferior à dispersão registada, pelo que a introdução de duplicados não produziu qualquer efeito mensurável no débito.
+A @impacto-dedup mostra a carga 11 a reproduzir de forma quase exata o comportamento da carga 10, mantendo-se as diferenças entre ambas abaixo de 2% em todas as ferramentas, valor muito inferior à dispersão registada, pelo que a introdução de duplicados não produziu qualquer efeito mensurável no débito.
 
 Uma vez que no @zfs a deduplicação atua no caminho crítico e a propriedade `direct` foi desativada precisamente para a manter operacional, a ausência de efeito não decorre de a otimização ter ficado por acionar, admitindo antes duas explicações. A primeira decorre da configuração das cargas, visto a carga 11 apresentar uma compressibilidade média de 22% contra os 30% da carga 10, pelo que o ganho trazido pelos duplicados pode estar a ser anulado por uma redução por compressão inferior em oito pontos percentuais.
 
@@ -441,9 +441,9 @@ Assim sendo, a resposta à Q1 é afirmativa quanto à compressibilidade e à for
 
 O suporte a múltiplas interfaces de @io constitui uma das funcionalidades distintivas do Prismo, daí que faça todo o sentido avaliar o impacto da escolha da interface no desempenho observado. Embora o @fio suporte as mesmas interfaces, o acesso ao @spdk é conseguido através de um _plugin_ cuja utilização é deveras complexa, não sendo por isso suportado nativamente. Por outro lado, o Vdbench opera exclusivamente sobre POSIX síncrono. Deste modo, a comparação entre as três ferramentas é possível para POSIX, enquanto para io_uring, libaio e @spdk a comparação é restrita ao Prismo e ao @fio.
 
-Todas as execuções recorrem ao dispositivo acedido diretamente e partilham a parametrização descrita adiante, o que permite separar dois efeitos distintos. As diferenças entre interfaces medidas com a mesma ferramenta traduzem o custo do próprio mecanismo de submissão, ao passo que as diferenças entre ferramentas dentro da mesma interface só podem ser imputadas ao modo como cada uma a utiliza.
+Todas as execuções recorrem ao dispositivo acedido diretamente e partilham a parametrização descrita na @interfaces-config, o que permite separar dois efeitos distintos. As diferenças entre interfaces medidas com a mesma ferramenta traduzem o custo do próprio mecanismo de submissão, ao passo que as diferenças entre ferramentas dentro da mesma interface só podem ser imputadas ao modo como cada uma a utiliza.
 
-=== Configuração das Interfaces
+=== Configuração das Interfaces <interfaces-config>
 
 A interface POSIX opera de forma síncrona através das chamadas `pread` e `pwrite`, mantendo por isso um único pedido em curso de cada vez, condição que a torna a referência natural contra a qual as restantes são confrontadas, afinal qualquer ganho observado traduz o benefício de sobrepor operações.
 
@@ -481,7 +481,7 @@ Porém, no caso do Prismo, a explicação mais provável reside na configuraçã
 
 === Saturação da Largura de Banda
 
-As cargas anteriores mantiveram o bloco em 4 KiB, dimensão que obriga a submeter um elevado número de pedidos para movimentar um volume modesto de dados e que coloca por isso o esforço do lado da submissão. A carga 03 altera exclusivamente este parâmetro, elevando-o para 64 KiB, reduzindo em 16× o número de operações necessárias para transferir a mesma quantidade de dados.
+As cargas 01 e 02 mantiveram o bloco em 4 KiB, dimensão que obriga a submeter um elevado número de pedidos para movimentar um volume modesto de dados e que coloca por isso o esforço do lado da submissão. A carga 03 altera exclusivamente este parâmetro, elevando-o para 64 KiB, reduzindo em 16× o número de operações necessárias para transferir a mesma quantidade de dados.
 
 Deste modo, o dispositivo deixa de ser solicitado pela cadência dos pedidos e passa a sê-lo pelo volume que deles resulta, permitindo assim averiguar se a vantagem das interfaces assíncronas se mantém quando o estrangulamento muda de natureza.
 
@@ -589,7 +589,7 @@ Replicar o _trace_ não é, porém, suficiente, dado que os registos disponívei
 
 === _Traces_ Utilizados
 
-Os _traces_ utilizados provêm do repositório do @fiu e resultam da instrumentação de três servidores em produção, apresentando a estrutura já descrita no @chapter2. Cada registo inclui uma assinatura do conteúdo, componente indispensável ao presente trabalho, pois é através dela que se reconstitui a distribuição de duplicados sem aceder aos dados originais @koller2010.
+Os _traces_ utilizados provêm do repositório do @fiu e resultam da instrumentação de três servidores em produção, apresentando a estrutura descrita na @fiu-trace. Cada registo inclui uma assinatura do conteúdo, componente indispensável ao presente trabalho, pois é através dela que se reconstitui a distribuição de duplicados sem aceder aos dados originais @koller2010.
 
 #figure(
   doc_table(
@@ -676,7 +676,7 @@ Por fim, a extensão por regressão anula os duplicados por completo, dado que o
 
 Um sistema de armazenamento avaliado nestas condições suporta o custo de consultar e manter a tabela de deduplicação sem jamais registar uma eliminação, sendo por isso medido no seu pior caso.
 
-*Comparação entre estratégias.* Confrontando com o previsto no @chapter3, as extensões por repetição e por amostragem comportam-se conforme antecipado, conservando a repetição todas as correlações à custa de uma periodicidade estrita, enquanto a amostragem retém apenas as distribuições marginais de cada dimensão.
+*Comparação entre estratégias.* Confrontando com o previsto na @comp-extensoes, as extensões por repetição e por amostragem comportam-se conforme antecipado, conservando a repetição todas as correlações à custa de uma periodicidade estrita, enquanto a amostragem retém apenas as distribuições marginais de cada dimensão.
 
 Já a extensão por regressão não confirma a expectativa de capturar as dependências entre dimensões, isto porque o identificador de bloco resulta de uma função de _hash_ sem relação linear com o _offset_, acabando a estratégia mais sofisticada por ser a menos variável das três.
 
@@ -686,7 +686,7 @@ Em suma, a reprodução é fiel enquanto o ficheiro de _trace_ dura, no entanto 
 
 == Combinação de _Traces_ com Geração Sintética <trace-hybrid>
 
-A secção anterior tratou o _trace_ como uma carga indivisível, cuja reprodução se procura prolongar no tempo, no entanto o Prismo admite ainda um uso distinto, assente no princípio enunciado no @chapter3 de que um _trace_ pode servir de fonte a cada dimensão do pedido tomada isoladamente @tracegen2024 @gracia-tinedo2015.
+A @trace-eval tratou o _trace_ como uma carga indivisível, cuja reprodução se procura prolongar no tempo, no entanto o Prismo admite ainda um uso distinto, assente no princípio enunciado na @design-principles de que um _trace_ pode servir de fonte a cada dimensão do pedido tomada isoladamente @tracegen2024 @gracia-tinedo2015.
 
 Neste paradigma, já não se trata de estender a duração do _trace_ mas a sua utilidade, extraindo dele, por exemplo, apenas os acessos e gerando sinteticamente as operações e o conteúdo, o que permite combinar a dimensão real que interessa estudar com dimensões controladas. Esta secção averigua se tal combinação altera o comportamento do sistema de armazenamento face à reprodução integral do _trace_, e de que modo esta capacidade distingue o Prismo das ferramentas de referência.
 
@@ -714,13 +714,13 @@ Esta leitura é corroborada pelo confronto com a linha de base do @zfs apresenta
 
 As cargas 14 e 15 submetem conteúdo genuinamente duplicado, ao passo que as híbridas escrevem blocos aleatórios, sem que daí resulte vantagem para as primeiras. O resultado é consistente com o observado na @dedup-section, onde a introdução de duplicados também não alterou o débito do @zfs, reforçando a leitura aí avançada de não ser o dispositivo o recurso que limita a execução nesta configuração.
 
-Deste modo, o débito não constitui a grandeza através da qual uma carga baseada em _traces_ se distingue de uma sintética, visto qualquer delas se situar na banda já coberta pelas secções anteriores. O que verdadeiramente as separa é a estrutura temporal do conteúdo e dos acessos, cuja influência a instrumentação adotada não permitiu isolar.
+Deste modo, o débito não constitui a grandeza através da qual uma carga baseada em _traces_ se distingue de uma sintética, visto qualquer delas se situar na banda já coberta pela @data-properties. O que verdadeiramente as separa é a estrutura temporal do conteúdo e dos acessos, cuja influência a instrumentação adotada não permitiu isolar.
 
 Determinar esse efeito exigiria acompanhar o espaço ocupado em disco e a taxa de acerto da tabela de deduplicação ao longo da execução, grandezas cuja recolha ficou fora desta campanha, constituindo a sua ausência a principal limitação desta subsecção.
 
 === Comparação de Capacidades
 
-Independentemente dos valores medidos, importa situar o Prismo face às ferramentas de referência quanto àquilo que cada uma consegue reproduzir a partir de um _trace_, comparação que a subsecção anterior tornou impossível ao nível do débito precisamente por nenhuma das outras duas oferecer mecanismo equivalente.
+Independentemente dos valores medidos, importa situar o Prismo face às ferramentas de referência quanto àquilo que cada uma consegue reproduzir a partir de um _trace_, comparação que a @traces-iops não permite estabelecer ao nível do débito precisamente por nenhuma das outras duas oferecer mecanismo equivalente.
 
 #figure(
   doc_table(
@@ -765,9 +765,9 @@ Uma vez que só é considerada efetiva a diferença que excede a dispersão, sob
 
 Dois dos resultados obtidos contrariam aquilo que a literatura ou o próprio desenho experimental faziam prever, importando a sua enumeração conjunta tanto quanto a das confirmações, dado ser dela que decorrem as direções de trabalho futuro.
 
-*Duplicados sem efeito no débito.* Esperava-se que a introdução de duplicados elevasse o débito do @zfs, dado este dispor de deduplicação _inline_ e a @conteudo-dup confirmar que o conteúdo submetido continha as cópias configuradas. A @impacto-dedup regista porém diferenças inferiores a 2% face à carga anterior, explicáveis quer pela compressibilidade inferior da carga 11, quer por o desempenho estar limitado pelo processamento no anfitrião, conforme a @impacto-recursos sugere.
+*Duplicados sem efeito no débito.* Esperava-se que a introdução de duplicados elevasse o débito do @zfs, dado este dispor de deduplicação _inline_ e a @conteudo-dup confirmar que o conteúdo submetido continha as cópias configuradas. A @impacto-dedup regista porém diferenças inferiores a 2% face à carga 10, explicáveis quer pela compressibilidade inferior da carga 11, quer por o desempenho estar limitado pelo processamento no anfitrião, conforme a @impacto-recursos sugere.
 
-*Regressão sem capacidade preditiva.* Esperava-se que a extensão por regressão, apresentada no @chapter3 como a mais sofisticada das três, preservasse as dependências entre dimensões. A @traces-assinaturas revela porém que esta anula por completo os duplicados, sendo na prática a menos viável das três estratégias.
+*Regressão sem capacidade preditiva.* Esperava-se que a extensão por regressão, apresentada na @trace-extensions como a mais sofisticada das três, preservasse as dependências entre dimensões. A @traces-assinaturas revela porém que esta anula por completo os duplicados, sendo na prática a menos viável das três estratégias.
 
 A causa reside na natureza do identificador de bloco, que resulta de uma função de _hash_ sem relação linear com o _offset_, pelo que o ajuste por mínimos quadrados colapsa numa proporcionalidade e a sequência gerada, sendo estritamente monótona, jamais reincide num valor já submetido.
 

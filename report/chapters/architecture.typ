@@ -5,7 +5,7 @@
 
 Depois de esclarecido o problema da avaliação realista dos sistemas de armazenamento e compreendidos os conceitos em seu redor, este capítulo apresenta o Prismo, focando-se na sua arquitetura, nos principais componentes e no modo como estes cooperam para executar uma carga de trabalho @didona2022 @ren2023.
 
-== Princípios de Desenho
+== Princípios de Desenho <design-principles>
 
 Antes de descrever a arquitetura, importa enunciar os princípios que a orientam, os quais decorrem diretamente das lacunas identificadas no @chapter2 e determinam as decisões tomadas ao longo do capítulo.
 
@@ -104,7 +104,7 @@ Para este efeito, e conforme a @conf-rampa ilustra, o _benchmark_ disponibiliza 
 
 Por esta lógica, quando o rácio inicial é inferior ao final, a rampa de aquecimento aumenta gradualmente o débito de submissão, sendo o contrário inverso igualmente válido, oferecendo ao utilizador a flexibilidade de acelerar ou desacelerar a carga de trabalho conforme necessário @ren2023.
 
-== Geração de Cargas de Trabalho
+== Geração de Cargas de Trabalho <workload-generation>
 
 Na generalidade das interfaces, os pedidos de @io são caracterizados pelo tipo de operação, conteúdo e _offset_, ou seja a posição no disco onde o pedido será satisfeito, consequentemente a geração de cargas de trabalho pode ser desacoplada nestas três funcionalidades, dando origem a interfaces independentes para cada dimensão dos pedidos @gracia-tinedo2015 @talwadker2014.
 
@@ -171,7 +171,7 @@ Os sistemas de armazenamento suportam diversas operações, conforme a @hier-ope
   caption: [Hierarquia da interface de operações]
 ) <hier-operacao>
 
-O gerador constante devolve sempre a mesma operação que foi definida previamente pelo utilizador. Em contrapartida, as operações percentuais são obtidas à custa de uma distribuição cujo somatório das probabilidade deve resultar em 100, exemplificando com a configuração abaixo, metade das operações serão `READS` e as restantes `WRITES` @ren2023.
+O gerador constante devolve sempre a mesma operação que foi definida previamente pelo utilizador. Em contrapartida, as operações percentuais são obtidas à custa de uma distribuição cujo somatório das probabilidade deve resultar em 100, exemplificando com a configuração da @conf-operacao, metade das operações serão `READS` e as restantes `WRITES` @ren2023.
 
 #figure(
   grid(
@@ -348,7 +348,7 @@ Apesar de eficiente, esta abordagem acarreta o custo associado à geração pseu
 
 Embora os geradores sintéticos ofereçam elevada flexibilidade na parametrização das cargas de trabalho, a reprodução de comportamentos observados em ambientes de produção exige a utilização de _traces_ reais, os quais capturam a sequência temporal de operações de @io executadas por sistemas em funcionamento @gracia-tinedo2015 @tracegen2024.
 
-Neste sentido, cada um dos três geradores previamente descritos (acesso, operação e conteúdo) disponibiliza uma implementação do tipo `trace`, sendo esta responsável por consumir registos de um ficheiro binário e extrair a dimensão correspondente, nomeadamente o _offset_, tipo de operação e identificador de bloco @tracegen2024 @pang2026.
+Neste sentido, cada um dos três geradores descritos na @workload-generation (acesso, operação e conteúdo) disponibiliza uma implementação do tipo `trace`, sendo esta responsável por consumir registos de um ficheiro binário e extrair a dimensão correspondente, nomeadamente o _offset_, tipo de operação e identificador de bloco @tracegen2024 @pang2026.
 
 #figure(
   raw_code_block[
@@ -499,7 +499,7 @@ A @comp-extensoes resume os compromissos assumidos por cada estratégia, sendo a
 
 == Interfaces de E/S
 
-Tendo em consideração o modelo de execução previamente descrito, o consumidor recebe os pedidos do produtor e procede de imediato ao desencapsulamento para compreender o tipo de operação em questão e assim facilitar o acesso aos restantes parâmetros, como _offset_ e conteúdo @didona2022.
+Tendo em consideração o modelo de execução descrito na @execution-model, o consumidor recebe os pedidos do produtor e procede de imediato ao desencapsulamento para compreender o tipo de operação em questão e assim facilitar o acesso aos restantes parâmetros, como _offset_ e conteúdo @didona2022.
 
 Conforme representado na @consumidor, a interface de submissão aceita operações de qualquer tipo, assim o consumidor não é responsável por definir as alterações de comportamento associadas @ren2023. Mal o pedido seja dado por concluído, a estrutura é devolvida pela interface, permitindo ao consumidor retirá-la da fila para que a zona de memória seja reutilizada mais tarde.
 
@@ -567,11 +567,11 @@ Para cada pedido em curso, é mantido um _buffer_ independente alinhado ao taman
 
 === io_uring
 
-Ao fazer uso do sistema de ficheiros, os argumentos de abertura são semelhantes aos previamente referidos, pelo que, conforme a @conf-uring, a configuração da `UringEngine` apresenta uma lista das mesmas _flags_ @uring_kernel.
+Ao fazer uso do sistema de ficheiros, os argumentos de abertura são semelhantes aos da @conf-posix, pelo que, conforme a @conf-uring, a configuração da `UringEngine` apresenta uma lista das mesmas _flags_ @uring_kernel.
 
 Conforme a @fluxo-uring ilustra, os pedidos são depositados no anel de submissão e recolhidos do anel de conclusão, definindo os parâmetros `entries` e `cq_entries` a profundidade da @sq e da @cq respetivamente, por norma estes valores são potências de dois entre 64 e 256, isto porque valores pequenos diminuem o paralelismo, enquanto o contrário resulta num aumento do consumo de memória e desperdício da localidade da _cache_ @didona2022.
 
-Relativamente às _flags_ para controlo do anel e processamento de @io, o utilizador usufruir de total liberdade de escolha, sendo de realçar a _flag_ `IORING_SETUP_SQPOLL` que cria uma _thread_ no _kernel_ para pollar a @sq e assim os pedidos serem submetidos sem a necessidade de invocar a chamada ao sistema `io_uring_enter`. Por outro lado, a _flag_ `IORING_SETUP_SQ_AFF` estabelece a afinidade da _thread_ do _kernel_, sendo tanto o núcleo escolhido como o período de inatividade definidos pelo utilizador no ficheiro de configuração apresentado adiante, caso em que a _thread_ será fixada no núcleo zero e após 100 milissegundos de inatividade entrará em suspensão @rust_iouring_async.
+Relativamente às _flags_ para controlo do anel e processamento de @io, o utilizador usufruir de total liberdade de escolha, sendo de realçar a _flag_ `IORING_SETUP_SQPOLL` que cria uma _thread_ no _kernel_ para pollar a @sq e assim os pedidos serem submetidos sem a necessidade de invocar a chamada ao sistema `io_uring_enter`. Por outro lado, a _flag_ `IORING_SETUP_SQ_AFF` estabelece a afinidade da _thread_ do _kernel_, sendo tanto o núcleo escolhido como o período de inatividade definidos pelo utilizador, tal como na configuração da @conf-uring, caso em que a _thread_ será fixada no núcleo zero e após 100 milissegundos de inatividade entrará em suspensão @rust_iouring_async.
 
 #figure(
   raw_code_block[

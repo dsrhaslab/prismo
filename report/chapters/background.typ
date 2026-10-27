@@ -79,7 +79,7 @@ Devido aos imensos passos realizados no interior da pilha de @io, a execução d
 
 Sendo a primeira destas interfaces a ser disponibilizada pelo _kernel_, a libaio apenas atua com @io direto, conseguido através da _flag_ `O_DIRECT`, e portanto torna-se muito limitada face aos sistemas de ficheiros atuais.
 
-Além disso, uma vez que são utilizadas chamadas ao sistema AIO do _kernel_, os pedidos continuam a passar através da pilha tradicional de @io, o que origina as penalizações de desempenho mencionadas anteriormente @didona2022.
+Além disso, uma vez que são utilizadas chamadas ao sistema AIO do _kernel_, os pedidos continuam a passar através da pilha tradicional de @io, o que origina as penalizações de desempenho decorrentes dos múltiplos passos que a @iostack ilustra @didona2022.
 
 *io_uring.* Mais recente, esta interface retoma o modelo assíncrono e organiza a comunicação com o _kernel_ em duas filas circulares partilhadas, dispensando uma chamada ao sistema por cada pedido submetido @rust_iouring_async.
 
