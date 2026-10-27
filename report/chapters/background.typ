@@ -98,7 +98,7 @@ Por fim, a interface suporta @dma através de _buffers_ registados, ou seja, em 
 
 Ao utilizar um mecanismo de _polling_ ativo, a latência entre pedidos é diminuída ao máximo em detrimento da utilização dos núcleos da @cpu. Deste modo, um _runtime_ assíncrono é estabelecido às custas de um _reactor_, sendo depois submetidas operações de @io que o escalonador atribuiu aos núcleos corretos. Quando a operação é dada por terminada, o escalonador volta a atribuir um _callback_ para execução, sendo que este contém o resultado da operação de @io.
 
-Por fim, esta interface disponibiliza uma @api de @bdev que abstrai as operações enquanto as orienta ao bloco, tornando-se por isso bastante conveniente para a implementação de um _benchmark_ orientado ao bloco, no entanto o modelo de concorrência entre _threads_ acarreta algumas dificuldades de gestão comparativamente ao modelo tradicional em pilha. Por estas razões, apenas sistemas onde o desempenho seja um fator crítico devem utilizar @spdk, caso contrário estaremos a tornar a aplicação menos portável sem necessidade @ren2023.
+Por fim, esta interface disponibiliza uma @api de @bdev que abstrai as operações enquanto as orienta ao bloco, tornando-se por isso bastante conveniente para a implementação de um _benchmark_ orientado ao bloco, no entanto o modelo de concorrência entre _threads_ acarreta algumas dificuldades de gestão comparativamente ao modelo tradicional em pilha. Por estas razões, apenas sistemas onde o desempenho seja um fator crítico devem utilizar @spdk, caso contrário a aplicação torna-se menos portável sem necessidade @ren2023.
 
 *Generalização.* As interfaces de @io mencionadas apresentam modelos de funcionamento distintos, desde a forma como lidam com chamadas ao sistema e _polling_ até à gestão de concorrência e _callbacks_. Estas diferenças tornam particularmente difícil a criação de um _benchmark_ que suporte todas as interfaces de forma genérica, sem perder fidelidade ou desempenho.
 
@@ -151,9 +151,9 @@ $
   H = - sum_(i=0)^k p_i log_2(p_i)
 $
 
-A partir da fórmula da entropia, ficamos a conhecer o número médio de bits necessários para representar cada símbolo de forma ideal, onde $p_i$ estabelece a probabilidade do símbolo $i$, enquanto $log_2(p_i)$ a informação associada a esse mesmo.
+A partir da fórmula da entropia, obtém-se o número médio de bits necessários para representar cada símbolo de forma ideal, onde $p_i$ estabelece a probabilidade do símbolo $i$, enquanto $log_2(p_i)$ a informação associada a esse mesmo.
 
-Com o objetivo de esclarecer a fórmula, apresentam-se de seguida os cálculos relativos à cadeia de caracteres `banana`. Uma vez que o símbolo `a` repete-se três vezes, a sua probabilidade ($p_i$) equivale a $3/6 = 1/2$, raciocínio que aplicamos aos restantes símbolos.
+Com o objetivo de esclarecer a fórmula, apresentam-se de seguida os cálculos relativos à cadeia de caracteres `banana`. Uma vez que o símbolo `a` repete-se três vezes, a sua probabilidade ($p_i$) equivale a $3/6 = 1/2$, raciocínio que se aplica aos restantes símbolos.
 
 $
   H = - (frac(log_2(1/6), 6) + frac(log_2(1/2), 2) + frac(log_2(1/3), 3)) = 1.46 #text("bits/símbolo")
@@ -170,7 +170,7 @@ Tendo em conta que a cadeia é constituída por seis caracteres, $6 dot 1.46 = 8
 
 O algoritmo funciona do seguinte modo, inicialmente os símbolos são ordenados conforme a sua frequência, de seguida os dois primeiros da lista são agrupados numa árvore cuja raiz tem valor de frequência igual ao somatório, sendo esta colocada de novo na lista conforme o seu valor de frequência.
 
-Ao repetir este processo, obtemos uma árvore com as frequências dos símbolos, deste modo os mais populares estão posicionados perto da raiz e portanto necessitam de menos bits para serem representados. Tendo em consideração a @huffman, a codificação de cada símbolo obtém-se ao atravessar a árvore, onde um salto para a esquerda corresponde a `0`, e para a direita `1`. Por conseguinte, o símbolo `a` possui o código `010`, enquanto `x` corresponde a `10010`.
+Ao repetir este processo, obtém-se uma árvore com as frequências dos símbolos, deste modo os mais populares estão posicionados perto da raiz e portanto necessitam de menos bits para serem representados. Tendo em consideração a @huffman, a codificação de cada símbolo obtém-se ao atravessar a árvore, onde um salto para a esquerda corresponde a `0`, e para a direita `1`. Por conseguinte, o símbolo `a` possui o código `010`, enquanto `x` corresponde a `10010`.
 
 *LZ77.* Huffman provou que o seu código é a forma mais eficiente de associar uns e zeros a caracteres individuais, é matematicamente impossível superar isso. Porém os algoritmos de compressão procuram identificar padrões que aumentem o tamanho dos símbolos e assim alcançar melhores taxas de compressão @huffman_wiki @maxg_lz77.
 
@@ -183,9 +183,9 @@ Conforme ilustrado na @lz77, na grande maioria dos algoritmos, incluindo o LZ77,
 
 Deste modo o índice `(3,3,a)` indica que é necessário deslocar três posições para trás e repetir os três símbolos seguintes, sendo no final adicionado um `a` que originou a quebra do padrão dentro da janela deslizante.
 
-Quanto maior for a janela deslizante, maior será a probabilidade de encontrar padrões, no entanto isso acarreta custos computacionais, daí que 65536 bytes seja um padrão adotado em vários algoritmos. Por outro lado, reparamos que a codificação dos próprios índices através da codificação de Huffman pode trazer melhorias de desempenho ao LZ77, de facto os algoritmos mais recentes, como o `DEFLATE` utilizado no `gzip`, aplicam este princípio @maxg_lz77 @huffman_wiki.
+Quanto maior for a janela deslizante, maior será a probabilidade de encontrar padrões, no entanto isso acarreta custos computacionais, daí que 65536 bytes seja um padrão adotado em vários algoritmos. Por outro lado, verifica-se que a codificação dos próprios índices através da codificação de Huffman pode trazer melhorias de desempenho ao LZ77, de facto os algoritmos mais recentes, como o `DEFLATE` utilizado no `gzip`, aplicam este princípio @maxg_lz77 @huffman_wiki.
 
-Tendo por base estes conceitos, a geração de conteúdo que comprime X% torna-se exequível, bastando para isso fixar X% dos símbolos da cadeia, enquanto os restantes devem ser completamente aleatórios e sem qualquer padrão possível de exploração. No fundo, procuramos o mínimo de entropia em X% da cadeia, e o máximo de aleatoriedade entre os demais símbolos.
+Tendo por base estes conceitos, a geração de conteúdo que comprime X% torna-se exequível, bastando para isso fixar X% dos símbolos da cadeia, enquanto os restantes devem ser completamente aleatórios e sem qualquer padrão possível de exploração. No fundo, procura-se o mínimo de entropia em X% da cadeia, e o máximo de aleatoriedade entre os demais símbolos.
 
 === Geração de Conteúdo Realista
 

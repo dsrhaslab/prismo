@@ -104,7 +104,7 @@ Por esta lógica, quando o rácio inicial é inferior ao final, a rampa de aquec
 
 Na generalidade das interfaces, os pedidos de @io são caracterizados pelo tipo de operação, conteúdo e _offset_, ou seja a posição no disco onde o pedido será satisfeito, consequentemente a geração de cargas de trabalho pode ser desacoplada nestas três funcionalidades, dando origem a interfaces independentes para cada dimensão dos pedidos @gracia-tinedo2015 @talwadker2014.
 
-Como fruto desta abordagem, e uma vez que os geradores são definidos ao nível dos parâmetros, a combinação entre geradores sintéticos e reais não exige qualquer tratamento adicional, isto porque o produtor apenas conhece uma interface que é independente da implementação concreta, assim podemos ter acessos reais e operações sintéticas, sendo o contrário igualmente válido @gracia-tinedo2015 @pang2026.
+Como fruto desta abordagem, e uma vez que os geradores são definidos ao nível dos parâmetros, a combinação entre geradores sintéticos e reais não exige qualquer tratamento adicional, isto porque o produtor apenas conhece uma interface que é independente da implementação concreta, assim é possível ter acessos reais e operações sintéticas, sendo o contrário igualmente válido @gracia-tinedo2015 @pang2026.
 
 #figure(
   producer-flow(),
@@ -506,7 +506,7 @@ Conforme representado na @consumidor, a interface de submissão aceita operaçõ
 
 Além da submissão de pedidos, a interface assegura a abertura do ficheiro ou dispositivo alvo antes de o produtor e o consumidor entrarem em execução, bem como o respetivo fecho depois de ambos terminarem, delimitando assim o ciclo de vida de cada _job_, sendo estas duas operações dispensadas pelo motor do @spdk, visto este aceder diretamente ao dispositivo de armazenamento sem passar por qualquer sistema de ficheiros @spdk_docs.
 
-Perante a combinação de interfaces síncronas e assíncronas, o método `submit` nem sempre devolve uma estrutura para reutilização, pois, no caso das interfaces assíncronas nunca sabemos exatamente quando o pedido será dado por concluído e além disso não é possível esperar até que tal aconteça, caso contrário estaria a ser dado comportamento síncrono e as vantagens de paralelismo seriam perdidas @uring_kernel @rust_iouring_async.
+Perante a combinação de interfaces síncronas e assíncronas, o método `submit` nem sempre devolve uma estrutura para reutilização, pois, no caso das interfaces assíncronas nunca se sabe exatamente quando o pedido será dado por concluído e além disso não é possível esperar até que tal aconteça, caso contrário estaria a ser dado comportamento síncrono e as vantagens de paralelismo seriam perdidas @uring_kernel @rust_iouring_async.
 
 /// Tendo isto em mente, o método `reap_left_completions` possibilita a espera forçosa dos pedidos pendentes, algo que deve ser utilizado entre a última submissão e a operação de `close` @didona2022.
 

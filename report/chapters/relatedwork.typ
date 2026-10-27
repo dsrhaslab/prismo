@@ -40,11 +40,11 @@ Neste sentido, o DEDISgen é responsável por fornecer a distribuição de dupli
 
 - *Acesso TPC-C:* uma distribuição com _hotspots_ é responsável por estabelecer os padrões de acesso, consequentemente um subconjunto reduzido de blocos é alvo da maioria dos acessos, contribuindo assim para um bom uso da _cache_ e reflexão do comportamento de partilha de blocos duplicados @dedisbench.
 
-Em sentido semelhante, o DEDISbench permite manipular outros parâmetros da carga de trabalho, dos quais se destacam a distribuição das operações de @io e o débito a que estas são realizadas, podendo ser nominal ou _stress_ quando pretendemos extrair o máximo das capacidades do sistema de armazenamento @dedisbench @paulo2013.
+Em sentido semelhante, o DEDISbench permite manipular outros parâmetros da carga de trabalho, dos quais se destacam a distribuição das operações de @io e o débito a que estas são realizadas, podendo ser nominal ou _stress_ quando se pretende extrair o máximo das capacidades do sistema de armazenamento @dedisbench @paulo2013.
 
 Apesar desta versatilidade, a impossibilidade de simular _traces_ e falta de suporte para interfaces assíncronas tornam a ferramenta pouco apetecível face aos dispositivos atuais que beneficiam as estratégias de _polling_ face a interrupções @ameri2016, consequentemente não é possível atingir o máximo de desempenho.
 
-Por outro lado, a própria distribuição de duplicados resulta numa limitação das cargas de trabalho, uma vez que esta é definida em termos absolutos, ao ser atingido o limite de blocos únicos e respetivas cópias torna-se impossível continuar a escrever mais blocos, afinal não conseguimos depreender o grupo a que estes pertenceriam. Além disso, uma carga de trabalho inferior àquela estabelecida pela distribuição resulta numa infração da taxa de duplicados, daí que a única forma de respeitar os limites seja não estender nem diminuir a distribuição @dedisbenchpp.
+Por outro lado, a própria distribuição de duplicados resulta numa limitação das cargas de trabalho, uma vez que esta é definida em termos absolutos, ao ser atingido o limite de blocos únicos e respetivas cópias torna-se impossível continuar a escrever mais blocos, afinal desconhece-se o grupo a que estes pertenceriam. Além disso, uma carga de trabalho inferior àquela estabelecida pela distribuição resulta numa infração da taxa de duplicados, daí que a única forma de respeitar os limites seja não estender nem diminuir a distribuição @dedisbenchpp.
 
 === DEDISbench++
 
@@ -79,7 +79,7 @@ Posto isto, o DEDISgen foi alterado para capturar as taxas de duplicados e compr
 
 Ao contrário da distribuição gerada pela primeira versão do DEDISgen, desta vez os duplicados são definidos à custa de percentagens, como tal as limitações anteriormente referidas deixam de ser aplicável, pois os valores relativos são totalmente independentes do tamanho da carga de trabalho, e portanto esta pode ser estendida indefinidamente @dedisbenchpp.
 
-Por outro lado, vemos que na @dedisbenchppdedup as taxas de compressão intra-bloco são definidas à custa de setores percentuais, ou seja, no caso dos blocos com três cópias, inferimos que 80% deles comprime 70%, enquanto os restantes comprimem 90%. Na verdade, esta forma de representação é pouco flexível, dado somente permitir a identificação de taxas múltiplas de dez @dedisbenchpp.
+Por outro lado, observa-se que na @dedisbenchppdedup as taxas de compressão intra-bloco são definidas à custa de setores percentuais, ou seja, no caso dos blocos com três cópias, infere-se que 80% deles comprime 70%, enquanto os restantes comprimem 90%. Na verdade, esta forma de representação é pouco flexível, dado somente permitir a identificação de taxas múltiplas de dez @dedisbenchpp.
 
 Para cumprir os propósitos da compressão inter-bloco, o DEDISbench++ estabelece a existência de modelos que têm por base um _buffer_ completamente aleatório, sendo este mais tarde replicado noutros _buffers_ que comprimem 10%, 20%, 30%, .... Tendo isto em mente, o máximo de compressão inter-bloco é atingido quando dois blocos pertencem ao mesmo modelo, afinal ambos partilham o _buffer_ de base @dedisbenchpp.
 
@@ -91,7 +91,7 @@ $
   n_1 = sqrt(P) dot N
 $
 
-Se considerarmos $P$ como sendo a taxa de compressão inter-bloco, isso implica que $P = 1$ corresponde ao máximo e portanto todos os blocos estão associados ao primeiro modelo, no entanto esta fórmula assume que o número total de blocos é conhecido à priori, o que nem sempre é verdade, especialmente em cargas que executam baseadas no tempo em vez do número de operações @dedisbenchpp.
+Considerando $P$ como a taxa de compressão inter-bloco, isso implica que $P = 1$ corresponde ao máximo e portanto todos os blocos estão associados ao primeiro modelo, no entanto esta fórmula assume que o número total de blocos é conhecido à priori, o que nem sempre é verdade, especialmente em cargas que executam baseadas no tempo em vez do número de operações @dedisbenchpp.
 
 Em suma, apesar de incorporar a geração de conteúdo sintético com propriedades realistas de compressibilidade, o DEDISbench++ continua a sofrer das mesmas fragilidades apontadas ao seu antecessor, nomeadamente a replicação de _traces_ e suporte a múltiplas interfaces de @io, no entanto até a definição das taxas de compressão revela debilidades, quer por exigir conhecer o número total de blocos, quer por limitar a sua especificação a múltiplos de dez @dedisbenchpp.
 
