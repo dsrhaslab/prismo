@@ -12,7 +12,7 @@ Os sistemas de armazenamento atuais combinam múltiplas técnicas de otimizaçã
 
 Ora a criação de cargas que respeitem estas propriedades e reflitam ambientes de produção continua a ser um desafio significativo, fazendo com que as condições observadas em ambientes reais raramente sejam reproduzidas em contexto de testes, o que contribui para avaliações indevidas do sistema @gracia-tinedo2018 @talasila2019 @tarasov2011.
 
-Além do conteúdo, também o caminho percorrido pelos pedidos se diversificou, dado que, procurando ultrapassar as limitações da pilha de @io tradicional do kernel, nomeadamente mudanças de contexto, interrupções e cópias entre _user_ e _kernel space_, surgiram diversas @api:pl assentes em _runtimes_ assíncronos @didona2022 @ren2023.
+Além do conteúdo, também o caminho percorrido pelos pedidos se diversificou, dado que, procurando ultrapassar as limitações da pilha de @io tradicional do _kernel_, nomeadamente mudanças de contexto, interrupções e cópias entre _user_ e _kernel space_, surgiram diversas @api:pl assentes em _runtimes_ assíncronos @didona2022 @ren2023.
 
 A crescente diversidade de interfaces assim expostas pelos sistemas de armazenamento dificulta, no entanto, a conceção de _benchmarks_ genéricos que consigam exercitar de forma consistente e comparável os diferentes caminhos de execução, comprometendo a uniformidade da avaliação entre sistemas heterogéneos @didona2022 @ren2023.
 
@@ -20,7 +20,7 @@ Posto isto, a seleção dos _benchmarks_ amplamente utilizados pela comunidade r
 
 + As distribuições de duplicados e compressibilidade são obtidas através de padrões simplistas que repetem constantemente o mesmo conjunto de blocos, aumentando assim a localidade temporal e espacial, o que beneficia indevidamente o sistema de armazenamento @paulo2013.
 
-+ Não existe suporte direto para as interfaces mais recentes, como o io_uring ou o @spdk, ausência particularmente limitativa no segundo caso, dado esta _framework_ ser fundamental para avaliar sistemas que operam com acesso direto ao controlador de @nvme, contornando assim a pilha de @io do kernel e explorando o desempenho real @didona2022 @ren2023.
++ Não existe suporte direto para as interfaces mais recentes, como o io_uring ou o @spdk, ausência particularmente limitativa no segundo caso, dado esta _framework_ ser fundamental para avaliar sistemas que operam com acesso direto ao controlador de @nvme, contornando assim a pilha de @io do _kernel_ e explorando o desempenho real @didona2022 @ren2023.
 
 + As cargas descritas tendem a ser estáticas e pouco configuráveis, não permitindo ajustar propriedades essenciais dos dados, como a evolução da localidade espacial e temporal dos pedidos de @io, restringindo a capacidade de simular cenários realistas @gracia-tinedo2018 @talasila2019.
 

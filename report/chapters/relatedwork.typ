@@ -4,11 +4,11 @@
 
 A fim de explorar ferramentas que solucionem problemas semelhantes aos abordados na dissertação, esta secção procura explicar algumas das técnicas utilizadas para obter cargas de trabalho mais realistas e assim avaliar com maior critério os sistemas de armazenamento @paulo2013 @paulo2014 @koller2010.
 
-Na verdade, o problema em questão não é completamente resolvido pelas ferramentas que se apresentam de seguida, cada uma sofre de limitações ao nível da geração de conteúdo, replicação de traces, ou suporte a diversas @api:pl de @io @gracia-tinedo2015 @ameri2016. No entanto, convém perceber essas mesmas limitações para concluir em que medida a solução proposta se destaca das existentes.
+Na verdade, o problema em questão não é completamente resolvido pelas ferramentas que se apresentam de seguida, cada uma sofre de limitações ao nível da geração de conteúdo, replicação de _traces_, ou suporte a diversas @api:pl de @io @gracia-tinedo2015 @ameri2016. No entanto, convém perceber essas mesmas limitações para concluir em que medida a solução proposta se destaca das existentes.
 
 === DEDISbench
 
-Tratando-se de um micro-_benchmark_ de @io para sistemas de deduplicação orientados ao bloco, o DEDISbench gera dados com padrões de deduplicação semelhantes aos encontrados em ambientes reais, para isso serve-se do DEDISgen, que após analisar um dataset, resume a informação numa grelha que indica a quantidade de blocos com X cópias @dedisbench @dedisbenchpp.
+Tratando-se de um micro-_benchmark_ de @io para sistemas de deduplicação orientados ao bloco, o DEDISbench gera dados com padrões de deduplicação semelhantes aos encontrados em ambientes reais, para isso serve-se do DEDISgen, que após analisar um conjunto de dados, resume a informação numa grelha que indica a quantidade de blocos com X cópias @dedisbench @dedisbenchpp.
 
 #figure(
   table(
@@ -36,13 +36,13 @@ Neste sentido, o DEDISgen é responsável por fornecer a distribuição de dupli
 
 - *Acesso Sequencial:* as operações de @io são realizadas de modo sequencial, o que beneficia a localidade espacial, visto os blocos encontrarem-se fisicamente próximos no sistema de armazenamento @paulo2013.
 
-- *Acesso Uniforme:* os offsets são obtidos através de uma distribuição uniforme, daí que todas as zonas do disco sejam alvo da mesma carga, não havendo por isso benefícios obtidos através da localidade espacial ou temporal @dedisbench.
+- *Acesso Uniforme:* os _offsets_ são obtidos através de uma distribuição uniforme, daí que todas as zonas do disco sejam alvo da mesma carga, não havendo por isso benefícios obtidos através da localidade espacial ou temporal @dedisbench.
 
-- *Acesso TPC-C:* uma distribuição com hotspots é responsável por estabelecer os padrões de acesso, consequentemente um subconjunto reduzido de blocos é alvo da maioria dos acessos, contribuindo assim para um bom uso da cache e reflexão do comportamento de partilha de blocos duplicados @dedisbench.
+- *Acesso TPC-C:* uma distribuição com _hotspots_ é responsável por estabelecer os padrões de acesso, consequentemente um subconjunto reduzido de blocos é alvo da maioria dos acessos, contribuindo assim para um bom uso da _cache_ e reflexão do comportamento de partilha de blocos duplicados @dedisbench.
 
-Em sentido semelhante, o DEDISbench permite manipular outros parâmetros da carga de trabalho, dos quais se destacam a distribuição das operações de @io e o débito a que estas são realizadas, podendo ser nominal ou stress quando pretendemos extrair o máximo das capacidades do sistema de armazenamento @dedisbench @paulo2013.
+Em sentido semelhante, o DEDISbench permite manipular outros parâmetros da carga de trabalho, dos quais se destacam a distribuição das operações de @io e o débito a que estas são realizadas, podendo ser nominal ou _stress_ quando pretendemos extrair o máximo das capacidades do sistema de armazenamento @dedisbench @paulo2013.
 
-Apesar desta versatilidade, a impossibilidade de simular traces e falta de suporte para interfaces assíncronas tornam a ferramenta pouco apetecível face aos dispositivos atuais que beneficiam as estratégias de polling face a interrupções @ameri2016, consequentemente não é possível atingir o máximo de performance.
+Apesar desta versatilidade, a impossibilidade de simular _traces_ e falta de suporte para interfaces assíncronas tornam a ferramenta pouco apetecível face aos dispositivos atuais que beneficiam as estratégias de _polling_ face a interrupções @ameri2016, consequentemente não é possível atingir o máximo de desempenho.
 
 Por outro lado, a própria distribuição de duplicados resulta numa limitação das cargas de trabalho, uma vez que esta é definida em termos absolutos, ao ser atingido o limite de blocos únicos e respetivas cópias torna-se impossível continuar a escrever mais blocos, afinal não conseguimos depreender o grupo a que estes pertenceriam. Além disso, uma carga de trabalho inferior àquela estabelecida pela distribuição resulta numa infração da taxa de duplicados, daí que a única forma de respeitar os limites seja não estender nem diminuir a distribuição @dedisbenchpp.
 
@@ -50,7 +50,7 @@ Por outro lado, a própria distribuição de duplicados resulta numa limitação
 
 Os sistemas de armazenamento modernos combinam técnicas de deduplicação e compressão para obter melhor desempenho, no entanto o DEDISbench não tem em conta as taxas de compressão no momento da geração de conteúdo, consequentemente as cargas de trabalho tornam-se irrealista e não permitem uma avaliação fiel do sistema @dedisbenchpp.
 
-Face a este problema, o DEDISbench++ surge com o objetivo de permitir um controlo explícito sobre as taxas de compressibilidade intra e inter-bloco, sem que isso se reflita numa perda de performance, dado que a geração de conteúdo torna-se evidentemente mais custosa @dedisbenchpp.
+Face a este problema, o DEDISbench++ surge com o objetivo de permitir um controlo explícito sobre as taxas de compressibilidade intra e inter-bloco, sem que isso se reflita numa perda de desempenho, dado que a geração de conteúdo torna-se evidentemente mais custosa @dedisbenchpp.
 
 Posto isto, o DEDISgen foi alterado para capturar as taxas de duplicados e compressibilidade em simultâneo, resultando numa grelha que indica, para cada grupo de cópias, a percentagem total de blocos atribuídos e respetiva distribuição das taxas de compressão @dedisbenchpp.
 
@@ -81,7 +81,7 @@ Ao contrário da distribuição gerada pela primeira versão do DEDISgen, desta 
 
 Por outro lado, vemos que na @dedisbenchppdedup as taxas de compressão intra-bloco são definidas à custa de setores percentuais, ou seja, no caso dos blocos com três cópias, inferimos que 80% deles comprime 70%, enquanto os restantes comprimem 90%. Na verdade, esta forma de representação é pouco flexível, dado somente permitir a identificação de taxas múltiplas de dez @dedisbenchpp.
 
-Para cumprir os propósitos da compressão inter-bloco, o DEDISbench++ estabelece a existência de modelos que têm por base um buffer completamente aleatório, sendo este mais tarde replicado noutros buffers que comprimem 10%, 20%, 30%, .... Tendo isto em mente, o máximo de compressão inter-bloco é atingido quando dois blocos pertencem ao mesmo modelo, afinal ambos partilham o buffer de base @dedisbenchpp.
+Para cumprir os propósitos da compressão inter-bloco, o DEDISbench++ estabelece a existência de modelos que têm por base um _buffer_ completamente aleatório, sendo este mais tarde replicado noutros _buffers_ que comprimem 10%, 20%, 30%, .... Tendo isto em mente, o máximo de compressão inter-bloco é atingido quando dois blocos pertencem ao mesmo modelo, afinal ambos partilham o _buffer_ de base @dedisbenchpp.
 
 Consequentemente, a criação de uma matriz com 100 modelos permite manipular a compressibilidade inter-bloco entre o seu mínimo e máximo, para isso basta encontrar o número de blocos que devem ser alocados ao primeiro modelo e distribuir de forma igualitária os restantes pelos outros modelos @dedisbenchpp.
 
@@ -93,7 +93,7 @@ $
 
 Se considerarmos $P$ como sendo a taxa de compressão inter-bloco, isso implica que $P = 1$ corresponde ao máximo e portanto todos os blocos estão associados ao primeiro modelo, no entanto esta fórmula assume que o número total de blocos é conhecido à priori, o que nem sempre é verdade, especialmente em cargas que executam baseadas no tempo em vez do número de operações @dedisbenchpp.
 
-Em suma, apesar de incorporar a geração de conteúdo sintético com propriedades realistas de compressibilidade, o DEDISbench++ continua a sofrer das mesmas fragilidades apontadas ao seu antecessor, nomeadamente a replicação de traces e suporte a múltiplas interfaces de @io, no entanto até a definição das taxas de compressão revela debilidades, quer por exigir conhecer o número total de blocos, quer por limitar a sua especificação a múltiplos de dez @dedisbenchpp.
+Em suma, apesar de incorporar a geração de conteúdo sintético com propriedades realistas de compressibilidade, o DEDISbench++ continua a sofrer das mesmas fragilidades apontadas ao seu antecessor, nomeadamente a replicação de _traces_ e suporte a múltiplas interfaces de @io, no entanto até a definição das taxas de compressão revela debilidades, quer por exigir conhecer o número total de blocos, quer por limitar a sua especificação a múltiplos de dez @dedisbenchpp.
 
 === FIO
 
@@ -120,9 +120,9 @@ No que se refere ao estado da arte da avaliação de sistemas de armazenamento, 
 
 A @fio-output reúne o relatório produzido por uma execução com os parâmetros por omissão, onde se identificam o débito, os @iops, a latência por percentis, a repartição do tempo de @cpu e a profundidade de @io observada. Importa aqui a abrangência daquilo que a ferramenta reporta, e não os valores em concreto, cuja leitura exigiria conhecer o sistema avaliado @fio_docs.
 
-Apesar desta diversidade de configurações, os requisitos para obter cargas realistas são um pouco mais complexos do que as ofertas do @fio, por exemplo, a geração de duplicados é obtida através da flag `dedupe_percentage=int`, que tal como o nome indica, estabelece a percentagem de blocos duplicados, no entanto isto é conseguido repetindo X vezes o mesmo bloco, o que não reflete minimamente as situações encontradas em ambientes reais @fio_docs.
+Apesar desta diversidade de configurações, os requisitos para obter cargas realistas são um pouco mais complexos do que as ofertas do @fio, por exemplo, a geração de duplicados é obtida através da _flag_ `dedupe_percentage=int`, que tal como o nome indica, estabelece a percentagem de blocos duplicados, no entanto isto é conseguido repetindo X vezes o mesmo bloco, o que não reflete minimamente as situações encontradas em ambientes reais @fio_docs.
 
-Por outro lado, a compressão é alcançada com a flag `buffer_compress_chunk=int`, assim uma determinada zona do bloco é repetida para atingir uma compressibilidade de X%, porém isso significa que todos os blocos irão comprimir na mesma taxa, algo que o DEDISbench++ resolvia ao atribuir distribuições diferentes por grupo de cópias @dedisbenchpp.
+Por outro lado, a compressão é alcançada com a _flag_ `buffer_compress_chunk=int`, assim uma determinada zona do bloco é repetida para atingir uma compressibilidade de X%, porém isso significa que todos os blocos irão comprimir na mesma taxa, algo que o DEDISbench++ resolvia ao atribuir distribuições diferentes por grupo de cópias @dedisbenchpp.
 
 Em suma, estes fatores contribuem para que a geração de conteúdo do @fio não respeite os critérios de duplicados e compressibilidade exigidos a uma carga realista, limitação tanto mais relevante quanto é esta a ferramenta mais completa das analisadas @fio_docs.
 
@@ -154,4 +154,4 @@ Ademais, nenhuma das ferramentas permite combinar dimensões extraídas de um _t
 
 Numa outra perspectiva, os _traces_ são limitados pelo seu tempo de duração, daí que estender o próprio registo após a sua conclusão fosse indispensável para continuar a avaliar o sistema sob condições reais de funcionamento, algo que nenhum dos _benchmarks_ é capaz de fazer em tempo de execução e sem prejudicar o desempenho da carga @ameri2016 @tracegen2024.
 
-Por fim, apesar do @fio suportar imensas interfaces de @io, a utilização do @spdk é conseguida através de um plugin cuja utilização é extremamente complicada, nesse sentido o suporte direto de @spdk constituiria uma melhoria considerável ao nível da facilidade de uso @spdk_docs.
+Por fim, apesar do @fio suportar imensas interfaces de @io, a utilização do @spdk é conseguida através de um _plugin_ cuja utilização é extremamente complicada, nesse sentido o suporte direto de @spdk constituiria uma melhoria considerável ao nível da facilidade de uso @spdk_docs.

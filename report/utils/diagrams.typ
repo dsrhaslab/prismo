@@ -143,10 +143,10 @@
 
     line((-0.2, 13.9), (width + 0.2, 13.9), stroke: (paint: marker, dash: "dashed", thickness: 1pt))
     note((-0.3, 14.15), anchor: "east", [espaço de utilizador])
-    note((-0.3, 13.65), anchor: "east", [espaço do kernel])
+    note((-0.3, 13.65), anchor: "east", [espaço do _kernel_])
 
     // VFS
-    node("vfs", (5.3, 12.4), 10.6, 0.9, [VFS e cache de páginas \ #raw("generic_file_read_iter()")])
+    node("vfs", (5.3, 12.4), 10.6, 0.9, [VFS e _cache_ de páginas \ #raw("generic_file_read_iter()")])
     for x in (1.4, 4.95) {
       line((x, 14.45), (x, 12.85), mark: arrow)
     }
@@ -281,7 +281,7 @@
     }
 
     node("aplicacao", (7.0, 6.35), 7.6, 0.7, text(size: 8.5pt)[Aplicação])
-    node("kernel", (7.0, -0.15), 7.6, 0.7, text(size: 8.5pt)[Kernel], kind: "system")
+    node("kernel", (7.0, -0.15), 7.6, 0.7, text(size: 8.5pt)[_Kernel_], kind: "system")
 
     // Fila de submissão: a aplicação insere na cauda e o kernel consome a partir da cabeça
     let sq = (4.6, 3.1)
@@ -293,7 +293,7 @@
     line((5.1, 6.0), rim(sq, outer, 45), mark: arrow)
     line((4.3, 0.2), rim(sq, outer, 270), mark: arrow)
     note((4.75, 5.1), anchor: "east", align(right)[a aplicação insere \ na cauda])
-    note((4.15, 1.0), anchor: "east", align(right)[o kernel consome da \ cabeça para a cauda])
+    note((4.15, 1.0), anchor: "east", align(right)[o _kernel_ consome da \ cabeça para a cauda])
 
     // Fila de conclusão: o kernel insere na cauda e a aplicação consome a partir da cabeça
     let cq = (9.4, 3.1)
@@ -305,7 +305,7 @@
     line((8.6, 6.0), rim(cq, outer, 90), mark: arrow)
     line((9.8, 0.2), rim(cq, outer, 270), mark: arrow)
     note((9.25, 5.45), anchor: "west", align(left)[a aplicação consome da \ cabeça para a cauda])
-    note((9.85, 1.0), anchor: "west", align(left)[o kernel insere \ na cauda])
+    note((9.85, 1.0), anchor: "west", align(left)[o _kernel_ insere \ na cauda])
   })
 }
 
@@ -572,7 +572,7 @@
 
     // Cada gerador contribui com uma dimensão do pedido, sendo o conteúdo exclusivo das escritas
     let generators = (
-      ([Gerador de acessos], [#step(2) offset], 2.6),
+      ([Gerador de acessos], [#step(2) _offset_], 2.6),
       ([Gerador de operações], [#step(3) operação], 1.4),
       ([Gerador de conteúdo], [#step(4) bloco, se \ for escrita], 0.2),
     )
@@ -710,7 +710,7 @@
 
     request-boxes(top, bottom)
     node("motor", (6.3, 0.8), 2.4, 2.2, [Motor POSIX])
-    node("kernel", (12.3, 0.8), 2.0, 2.2, [Kernel], kind: "system")
+    node("kernel", (12.3, 0.8), 2.0, 2.2, [_Kernel_], kind: "system")
 
     line((2.7, top), (5.1, top), mark: arrow)
     content((3.9, top + 0.1), anchor: "south", [#step(1) submeter])
@@ -757,7 +757,7 @@
     line((dx + dw / 2, top), "lote.west", mark: arrow)
     content(((dx + dw / 2 + 14.6) / 2, top + 0.1), anchor: "south", [sim])
 
-    node("kernel", (dx, bottom), 2.0, 0.8, [Kernel], kind: "system")
+    node("kernel", (dx, bottom), 2.0, 0.8, [_Kernel_], kind: "system")
     line("lote.south", (16.0, bottom), "kernel.east", mark: arrow)
     content(((16.0 + dx + 1.0) / 2, bottom - 0.1), anchor: "north", [#step(3) notificar \ submissão])
     line("kernel.west", (7.5, bottom), mark: arrow)
@@ -782,7 +782,7 @@
     line((2.7, top), (5.1, top), mark: arrow)
     content((3.9, top + 0.1), anchor: "south", [#step(1) submeter])
 
-    node("runtime", (12.0, top), 2.6, 0.8, [Runtime SPDK])
+    node("runtime", (12.0, top), 2.6, 0.8, [_Runtime_ SPDK])
     line((7.5, top), "runtime.west", mark: arrow)
     content(((7.5 + 10.7) / 2, top + 0.1), anchor: "south", [#step(2) encaminhar pedido])
     line((11.3, top + 0.4), (11.3, top + 1.0), (12.7, top + 1.0), (12.7, top + 0.4), mark: arrow)
@@ -790,19 +790,19 @@
 
     // Threads lógicas pelas quais os pedidos são distribuídos
     let threads = 1.6
-    region((9.9, threads - 0.45), (14.1, threads + 0.85), [threads lógicas])
+    region((9.9, threads - 0.45), (14.1, threads + 0.85), [_threads_ lógicas])
     for i in range(3) {
-      node(none, (10.6 + i * 1.4, threads - 0.05), 1.2, 0.55, [thread])
+      node(none, (10.6 + i * 1.4, threads - 0.05), 1.2, 0.55, [_thread_])
     }
     line("runtime.south", (12.0, threads + 0.85), mark: arrow)
     content((11.9, top - 0.68), anchor: "east", [#step(4) enviar mensagem])
     line("runtime.east", (14.8, top), (14.8, threads - 0.05), (14.1, threads - 0.05), mark: arrow)
-    content((14.9, (top + threads) / 2 - 0.1), anchor: "west", [#step(5) agendar \ callback])
+    content((14.9, (top + threads) / 2 - 0.1), anchor: "west", [#step(5) agendar \ _callback_])
 
     // O pedido é executado na thread e, concluído, dá lugar ao callback
     node("execucao", (12.0, 0.4), 2.8, 0.6, [executar pedido], pill: true)
     line((12.0, threads - 0.45), "execucao.north", mark: arrow)
-    node("callback", (12.0, bottom), 2.8, 0.6, [executar callback], pill: true)
+    node("callback", (12.0, bottom), 2.8, 0.6, [executar _callback_], pill: true)
     line("execucao.south", "callback.north", mark: arrow)
 
     line("callback.west", (7.5, bottom), mark: arrow)
