@@ -1,0 +1,37 @@
+name: Typst CI
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "report/**"
+      - ".github/workflows/ci-typst.yml"
+  pull_request:
+    branches: [main, master]
+    paths:
+      - "report/**"
+      - ".github/workflows/ci-typst.yml"
+  workflow_dispatch:
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6.0.2
+
+      - name: Setup Typst
+        uses: typst-community/setup-typst@v5.3.0
+        with:
+          typst-version: 0.14.2
+
+      # The NewsGotT fonts required by the template live in report/fonts
+      - name: Compile dissertation
+        run: typst compile --ignore-system-fonts --font-path report/fonts report/main.typ dissertation.pdf
+
+      - name: Upload PDF
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: dissertation
+          path: dissertation.pdf
