@@ -1,6 +1,6 @@
 = Abstract
 
-Modern storage systems rely on deduplication and compression to store only what is strictly necessary, so their performance depends on the properties of the data they receive @zhu2008 @meyer2012. Evaluating them rigorously therefore requires workloads whose content reproduces the real distribution of duplicates and compressibility, something the most widely used benchmarks reduce to global ratios @koller2010 @tarasov2011.
+Modern storage systems rely on deduplication and compression to reduce storage costs, so their performance depends on the properties of the data they receive @zhu2008 @meyer2012. Evaluating them rigorously therefore requires workloads whose content reproduces the real distribution of duplicates and compressibility, something the most widely used benchmarks reduce to global ratios @koller2010 @tarasov2011.
 
 On the other hand, the diversity of I/O interfaces, from synchronous POSIX to io_uring and SPDK, makes it difficult to run the same workload comparably over all of them @didona2022 @ren2023. This is compounded by the scarcity of real workloads, as the available traces are old and too short to drive a modern device into steady state @gracia-tinedo2015 @pang2026.
 
@@ -16,7 +16,7 @@ Keywords #h(10pt) storage system, I/O interface, deduplication, compression, rea
 
 = Resumo
 
-Os sistemas de armazenamento modernos recorrem à deduplicação e à compressão para armazenar apenas o estritamente necessário, sendo o seu desempenho condicionado pelas propriedades dos dados submetidos @zhu2008 @meyer2012. Avaliá-los com rigor exige por isso cargas cujo conteúdo reproduza a distribuição real de duplicados e compressibilidade, algo que os _benchmarks_ mais utilizados reduzem a taxas globais @koller2010 @tarasov2011.
+Os sistemas de armazenamento modernos recorrem à deduplicação e à compressão para reduzir os custos de armazenamento, sendo o seu desempenho condicionado pelas propriedades dos dados submetidos @zhu2008 @meyer2012. Avaliá-los com rigor exige por isso cargas cujo conteúdo reproduza a distribuição real de duplicados e compressibilidade, algo que os _benchmarks_ mais utilizados reduzem a taxas globais @koller2010 @tarasov2011.
 
 Por outro lado, a diversidade de @api:pl de @io, do POSIX síncrono ao io_uring e ao SPDK, dificulta a execução comparável da mesma carga sobre todas elas @didona2022 @ren2023. A isto junta-se a escassez de cargas reais, dado os _traces_ disponíveis serem antigos e demasiado curtos para conduzir um dispositivo moderno a um regime estacionário @gracia-tinedo2015 @pang2026.
 
