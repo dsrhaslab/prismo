@@ -11,11 +11,11 @@ Antes de descrever a arquitetura, importa enunciar os princípios que a orientam
 
 *Independência entre geração e submissão.* A descrição de uma carga não deve depender da interface através da qual os pedidos alcançam o dispositivo, pelo que a construção de cada pedido e a sua submissão são responsabilidades separadas, podendo a mesma carga ser executada sobre qualquer @api de @io @didona2022 @ren2023.
 
-*Conteúdo descrito por distribuições.* As propriedades de deduplicação e compressão não são expressas por uma taxa única aplicada a todos os blocos, mas por distribuições que atribuem a cada grupo de cópias a sua própria repartição de compressibilidade, reproduzindo assim a heterogeneidade observada em ambientes reais @paulo2013 @dedisbenchpp.
+*Conteúdo descrito por distribuições.* As propriedades de deduplicação e compressão não são expressas por uma taxa única aplicada a todos os blocos, mas por distribuições que repartem os blocos por grupos com diferentes números de cópias, atribuindo a cada grupo a sua própria repartição de compressibilidade, reproduzindo assim a heterogeneidade observada em ambientes reais @paulo2013 @dedisbenchpp.
 
-*_Traces_ como fonte de qualquer dimensão.* Um _trace_ não é tratado como uma carga indivisível, mas como origem possível para cada parâmetro do pedido tomado isoladamente, o que permite combinar dimensões reais com dimensões sintéticas e tirar partido de registos incompletos @tracegen2024 @gracia-tinedo2015.
+*_Traces_ como fonte de qualquer dimensão.* Cada parâmetro do pedido, seja o _offset_, a operação ou o conteúdo, pode ser extraído de um _trace_ ou gerado sinteticamente, independentemente dos restantes, o que permite, por exemplo, reproduzir os acessos de um servidor real sobre conteúdo sintético, ou aproveitar _traces_ que apenas registam algumas destas dimensões @tracegen2024 @gracia-tinedo2015.
 
-*Execução para lá da duração do registo.* Sendo os _traces_ disponíveis demasiado curtos para conduzir um dispositivo moderno a um regime estacionário, a sua reprodução tem de poder prosseguir depois de esgotado o ficheiro, preservando as propriedades estatísticas observadas @pang2026 @ameri2016.
+*Execução para lá da duração do registo.* Sendo os _traces_ disponíveis demasiado curtos para conduzir um dispositivo moderno a um regime estacionário, a sua reprodução tem de poder prosseguir depois de esgotadas as operações neles registadas, preservando as propriedades estatísticas observadas @pang2026 @ameri2016.
 
 == Visão Geral
 
@@ -30,13 +30,15 @@ Tal abstração é o que permite ao utilizador alternar entre dados sintéticos 
 
 Qualquer execução parte da descrição da carga que o utilizador fornece num ficheiro de configuração, onde escolhe o gerador de cada dimensão do pedido, sintético ou baseado num _trace_, e a interface de @io com os respetivos parâmetros. É a partir desta descrição que o Prismo instancia os geradores e o motor antes de a execução começar, conforme a @visao-geral ilustra, ficando o produtor e o consumidor a conhecer apenas as interfaces abstratas que estes implementam.
 
-Instanciados os componentes, a execução de uma carga envolve a sua orquestração segundo o modelo produtor-consumidor que a mesma figura representa @didona2022 @ren2023. O produtor invoca os geradores que definem o padrão de acesso (por exemplo, sequencial ou aleatório), o tipo de operação (incluíndo, leitura ou escrita) e as características do conteúdo (tais como, duplicado ou compressível). Em seguida, encapsula o resultado num pedido de @io e coloca-o numa fila concorrente. O consumidor, por sua vez, retira os pedidos dessa fila e submete-os à interface selecionada.
+Instanciados os componentes, a execução de uma carga envolve a sua orquestração segundo o modelo produtor-consumidor que a mesma figura representa @didona2022 @ren2023. O produtor invoca os geradores que, seguindo a configuração do utilizador, definem o padrão de acesso (por exemplo, sequencial ou aleatório), o tipo de operação (incluíndo, leitura ou escrita) e as características do conteúdo (tais como, duplicado ou compressível). Em seguida, encapsula o resultado num pedido de @io e coloca-o numa fila concorrente. O consumidor, por sua vez, retira os pedidos dessa fila e submete-os à interface selecionada.
 
-Concluído o pedido, a estrutura que o transporta é devolvida ao produtor por um segundo canal, permitindo a sua reutilização sem novas alocações. É este ciclo que define o fluxo do _benchmark_, e é em torno dele que se organizam as secções seguintes, começando pelo modelo de execução e terminando nas métricas recolhidas.
+Concluído o pedido, a estrutura que o transporta é devolvida ao produtor por um segundo canal, permitindo a sua reutilização sem novas alocações. Terminada a execução, o Prismo entrega ao utilizador um relatório com as métricas recolhidas, nomeadamente o débito, os @iops e os percentis de latência, agregados por _job_ e para a execução completa, a que se pode juntar o registo individual de cada pedido.
+
+É este ciclo que define o fluxo do _benchmark_, e é em torno dele que se organizam as secções seguintes, começando pelo modelo de execução e terminando nas métricas recolhidas.
 
 == Modelo de Execução <execution-model>
 
-O ciclo representado na @visao-geral assenta num conjunto de mecanismos que determinam durante quanto tempo, com que paralelismo e a que ritmo a carga é executada, desde os canais que ligam o produtor ao consumidor até à rampa de aquecimento, passando pelo critério de terminação e pela replicação do par em vários _jobs_, sendo todos eles independentes do conteúdo dos pedidos e da interface que os submete.
+O ciclo representado na @visao-geral assenta num conjunto de mecanismos que determinam durante quanto tempo, com que paralelismo e a que ritmo a carga é executada, desde os canais que ligam o produtor ao consumidor até à rampa de aquecimento, passando pelo critério de terminação e pela replicação do par em vários _jobs_. Estes mecanismos atuam sobre o par produtor-consumidor e não sobre os pedidos em si, pelo que funcionam da mesma forma qualquer que seja o conteúdo gerado ou a interface escolhida, sendo cada um deles detalhado nas subsecções seguintes.
 
 === Canais de Comunicação
 

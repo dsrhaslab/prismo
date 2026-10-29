@@ -2,11 +2,11 @@
 
 #show: thesis(
   author: "Diogo Alexandre Correia Marques",
-  title: [Realistic Benchmarking of Data Deduplication \ and  Compression Systems],
+  title: [Avaliação Realista de Sistemas de Deduplicação e Compressão de Dados],
   date: [october 2026],
   supervisors: (
     [João Tiago Medeiros Paulo],
-    // [Co-Supervisor Name],
+    [Rui Pedro Esteves Vasques Correia de Oliveira],
   ),
   cover-images: (image("logos/uminho/color/UM.jpg"), image("logos/uminho/color/EE.jpg")),
   cover-gray-images: (image("logos/uminho/gray/UM.jpg"), image("logos/uminho/gray/EE.jpg")),
