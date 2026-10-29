@@ -28,8 +28,8 @@
   original: [Trace original], replay: [Fase de replay], extensao: [Fase de extensão],
 )
 
-// Nome curto de cada carga, apresentado por baixo do número no eixo das figuras, de modo a
-// que o leitor identifique a carga sem regressar à tabela que as descreve.
+// Nome curto de cada carga, o mesmo que o texto utiliza, apresentado no eixo das figuras em vez
+// do número, de modo a que o leitor identifique a carga sem regressar à tabela que as descreve.
 #let workload-names = (
   "01": "seqwrite", "02": "seqread", "03": "seqwrite64", "04": "randread",
   "05": "randrw", "06": "zipfrw", "07": "seqwrite90", "08": "fsync",
@@ -45,7 +45,7 @@
 
 #let category-tick(label) = {
   if label in workload-names {
-    align(center, stack(spacing: 2.5pt, [#label], text(size: 7pt, raw(workload-names.at(label)))))
+    text(size: 7pt, raw(workload-names.at(label)))
   } else if label in category-labels {
     category-labels.at(label)
   } else {

@@ -77,39 +77,15 @@ Convém realçar que todos os acessos são efetuados com a _flag_ `O_DIRECT`, o 
 
 A avaliação confronta o Prismo, na versão 1.0.0, com o @fio e o Vdbench, duas das ferramentas mais utilizadas na avaliação de sistemas de armazenamento, nas versões mais recentes de cada uma, respetivamente a 3.42 e a 5.04.07 @fio_docs @vdbench.
 
-Estas ferramentas não partilham, no entanto, o mesmo âmbito de aplicação, pois enquanto o @fio suporta as mesmas interfaces de @io que o Prismo, apesar de o acesso ao @spdk ser conseguido através de um _plugin_ externo, o Vdbench opera exclusivamente sobre POSIX síncrono, o que restringe a comparação entre as três ferramentas a esse cenário, conforme resume a @interfaces @fio_docs @vdbench.
-
-#figure(
-  doc_table(
-    columns: (3fr, 1fr, 1fr, 1fr),
-    header: ([Interface], [Prismo], [FIO], [Vdbench]),
-    [POSIX], cell_yes, cell_yes, cell_yes,
-    [libaio], cell_yes, cell_yes, cell_no,
-    [io_uring], cell_yes, cell_yes, cell_no,
-    [SPDK], cell_yes, cell_partial[_Plugin_], cell_no,
-  ),
-  caption: [Interfaces suportadas por cada ferramenta]
-) <interfaces>
+Estas ferramentas não partilham, no entanto, o mesmo âmbito de aplicação, pois enquanto o @fio suporta as mesmas interfaces de @io que o Prismo, apesar de o acesso ao @spdk ser conseguido através de um _plugin_ externo, o Vdbench opera exclusivamente sobre POSIX síncrono, o que restringe a comparação entre as três ferramentas a esse cenário, conforme a @cap-interfaces resume @fio_docs @vdbench.
 
 As interfaces comuns a mais do que uma ferramenta foram configuradas de forma equivalente, operando o io_uring e o libaio com 128 entradas na fila de submissão, sendo no primeiro caso ativado o _polling_ do _kernel_ através das _flags_ `IORING_SETUP_SQPOLL` e `IORING_SETUP_SQ_AFF`, enquanto o @spdk recorre a uma máscara de quatro _reactors_ e oito _threads_ lógicas.
 
-#figure(
-  doc_table(
-    columns: (3fr, 1fr, 1fr, 1fr),
-    header: ([Funcionalidade], [Prismo], [FIO], [Vdbench]),
-    [Distribuição de duplicados], cell_yes, cell_partial[Taxa global], cell_partial[Rácio global],
-    [Distribuição de compressibilidade], cell_yes, cell_partial[Taxa global], cell_partial[Rácio global],
-    [Reprodução de _traces_], cell_yes, cell_partial[Limitado], cell_no,
-    [Extensão sintética de _traces_], cell_yes, cell_no, cell_no,
-  ),
-  caption: [Funcionalidades suportadas por cada ferramenta]
-) <ferramentas>
-
-Já no que toca ao conteúdo e aos _traces_, a @ferramentas evidencia que esta equivalência nem sempre é alcançável, uma vez que o @fio e o Vdbench apenas admitem uma taxa global de duplicados e de compressibilidade, a que acresce o Vdbench não dispor de barreiras de sincronização nem de geração de conteúdo constante, sendo a distribuição Zipfian aproximada através do parâmetro `hotband`, aproximações que devem ser tidas em conta na leitura dos resultados @vdbench.
+Já no que toca ao conteúdo e aos _traces_, a @cap-conteudo e a @cap-traces evidenciam que esta equivalência nem sempre é alcançável, uma vez que o @fio e o Vdbench apenas admitem uma taxa global de duplicados e de compressibilidade, a que acresce o Vdbench não dispor de barreiras de sincronização nem de geração de conteúdo constante, sendo a distribuição Zipfian aproximada através do parâmetro `hotband`, aproximações que devem ser tidas em conta na leitura dos resultados @vdbench.
 
 === Campanha Experimental
 
-A campanha experimental é constituída por quinze cargas de trabalho base, cada uma isolando exatamente uma dimensão relativamente à anterior, o que permite atribuir as diferenças observadas a um único fator. Estas cargas encontram-se descritas na @workloads-base, sendo cada uma identificada por um número e por um nome curto que se repete nos eixos das figuras, e posteriormente replicadas para as quatro interfaces de @io avaliadas, do que resulta um total de sessenta configurações.
+A campanha experimental é constituída por quinze cargas de trabalho base, cada uma isolando exatamente uma dimensão relativamente à anterior, o que permite atribuir as diferenças observadas a um único fator. Estas cargas encontram-se descritas na @workloads-base, sendo cada uma identificada por um nome curto, utilizado ao longo do capítulo e nos eixos das figuras, e posteriormente replicadas para as quatro interfaces de @io avaliadas, do que resulta um total de sessenta configurações.
 
 #[
 #show figure: set block(breakable: true)
@@ -173,7 +149,7 @@ No @zfs o `recordsize` foi ainda fixado em 4 KiB, de modo a coincidir com os blo
 
 As estratégias de deduplicação diferem igualmente, correspondendo às duas alternativas apresentadas na @deduplication, visto o @zfs realizar deduplicação _inline_, no caminho crítico de @io, enquanto o Btrfs a realiza _offline_, através do bees, um serviço que percorre o sistema de ficheiros em segundo plano com um índice parcial limitado a 1 GiB @bees. Tal diferença condiciona a leitura dos resultados, dado que no Btrfs a redução de espaço apenas se manifesta após a passagem do serviço, ao contrário do @zfs onde é imediata, embora ao custo de latência acrescida nas escritas @koller2010 @meyer2012.
 
-Importa realçar que a garantia oferecida pela _flag_ `O_DIRECT` deixa de ser absoluta quando estas otimizações se encontram ativas. No Btrfs, tanto as leituras de dados comprimidos como as escritas sobre _inodes_ com _checksums_ acabam por transitar pela _page cache_, enquanto no @zfs a deduplicação e as escritas diretas são mutuamente incompatíveis, o que obrigou a desativar a propriedade `direct` nos conjuntos de dados avaliados @btrfs_docs @zfs_docs.
+Importa realçar que a garantia oferecida pela _flag_ `O_DIRECT` deixa de ser absoluta quando estas otimizações se encontram ativas. No Btrfs, tanto as leituras de dados comprimidos como as escritas sobre _inodes_ com _checksums_ acabam por transitar pela _page cache_, enquanto no @zfs a deduplicação e as escritas diretas são mutuamente incompatíveis, o que obrigou a desativar a propriedade `direct` nos conjuntos de dados avaliados, passando os pedidos a transitar pelo @arc, a _cache_ que o @zfs mantém em memória @btrfs_docs @zfs_docs.
 
 Desta forma, os resultados obtidos sobre sistemas de ficheiros não são diretamente comparáveis com os do acesso direto ao dispositivo no que respeita ao efeito da _page cache_, limitação que decorre da natureza das otimizações avaliadas e não da metodologia adotada.
 
@@ -216,11 +192,11 @@ Uma carga combina sempre um gerador de cada categoria, atuando estes em série n
 
 Nestes termos, a configuração menos favorável corresponde a três extensões por regressão, que consomem 213.7 nanossegundos cada e limitam o Prismo a 1.6 milhões de operações por segundo. Já a pior combinação entre geradores convencionais, reunindo acesso Zipfian, operações por percentagem e conteúdo com deduplicação, totaliza 294.0 nanossegundos e permite 3.4 milhões de operações por segundo.
 
-Assim sendo, mesmo a configuração mais exigente mantém-se cerca de 14× acima do débito máximo observado nas experiências, que foi de 113 015 @iops na carga 02, conforme a @validacao-iops mostra, margem suficiente para acomodar dispositivos consideravelmente mais rápidos do que o utilizado. Deste modo, nenhuma combinação de geradores constitui o fator limitante da avaliação, e os resultados apresentados traduzem o comportamento do sistema de armazenamento.
+Assim sendo, mesmo a configuração mais exigente mantém-se cerca de 14× acima do débito máximo observado nas experiências, que foi de 113 015 @iops na carga `seqread`, conforme a @validacao-iops mostra, margem suficiente para acomodar dispositivos consideravelmente mais rápidos do que o utilizado. Deste modo, nenhuma combinação de geradores constitui o fator limitante da avaliação, e os resultados apresentados traduzem o comportamento do sistema de armazenamento.
 
 === Reprodutibilidade
 
-A validação assenta nas cargas 01 a 09 executadas sobre o dispositivo @nvme através da interface POSIX, único cenário em que as três ferramentas, o Prismo, o @fio e o Vdbench, operam sobre configurações muito semelhantes e podem por isso ser confrontadas diretamente.
+A validação assenta nas nove primeiras cargas da @workloads-base, de `seqwrite` a `randrw3j`, executadas sobre o dispositivo @nvme através da interface POSIX, único cenário em que as três ferramentas, o Prismo, o @fio e o Vdbench, operam sobre configurações muito semelhantes e podem por isso ser confrontadas diretamente.
 
 O primeiro requisito a verificar é a estabilidade das medições, pois uma ferramenta cujos valores oscilem acentuadamente não permite distinguir o efeito da carga do simples ruído experimental. Esta estabilidade é quantificada pelo coeficiente de variação das séries por segundo recolhidas ao longo de cada execução, apresentado na @reprodutibilidade.
 
@@ -231,7 +207,7 @@ O primeiro requisito a verificar é a estabilidade das medições, pois uma ferr
 
 Os valores obtidos pelo Prismo situam-se entre 0.50% e 2.71%, gama que confirma tratar-se de medições estáveis, sendo de realçar que em sete das nove cargas a oscilação é inferior à do Vdbench e em quatro delas inferior também à do @fio.
 
-A carga 03 destaca-se por apresentar a maior dispersão nas três ferramentas, comportamento que não é imputável aos _benchmarks_ mas ao dispositivo, pois trata-se da única carga com blocos de 64 KiB e o débito alcançado esgota periodicamente a _cache_ interna do @nvme. Por outro lado, o Vdbench exibe oscilações acima de 9% em várias cargas, o que é consistente com as pausas introduzidas pela máquina virtual do Java.
+A carga `seqwrite64` destaca-se por apresentar a maior dispersão nas três ferramentas, comportamento que não é imputável aos _benchmarks_ mas ao dispositivo, pois trata-se da única carga com blocos de 64 KiB e o débito alcançado esgota periodicamente a _cache_ interna do @nvme. Por outro lado, o Vdbench exibe oscilações acima de 9% em várias cargas, o que é consistente com as pausas introduzidas pela máquina virtual do Java.
 
 Estes valores fixam o critério de leitura adotado no restante capítulo, dado que uma diferença entre duas medições só é considerada efetiva quando excede a oscilação que a própria medição apresenta. Na prática, e tomando o valor mais elevado registado pelo Prismo, diferenças inferiores a 3% são tratadas como equivalência e não como vantagem de uma ferramenta sobre a outra @traeger2008 @tarasov2011.
 
@@ -250,21 +226,21 @@ O débito apresentado na @validacao-iops revela concordância entre as três fer
 
 As cargas sequenciais afastam-se ligeiramente deste padrão, com uma vantagem para o Prismo na ordem dos cinco pontos percentuais, atribuível ao modelo produtor-consumidor representado na @visao-geral, uma vez que a preparação dos pedidos decorre numa _thread_ distinta daquela que os submete e permite manter o dispositivo ocupado enquanto o bloco seguinte é construído.
 
-A carga 07 constitui a única exceção relevante, com o Prismo a ficar cerca de um quinto abaixo do @fio. Ambas as ferramentas executaram exatamente o mesmo trabalho, com idêntico número de operações, volume escrito e repartição entre leituras e escritas, diferindo apenas na duração, pelo que a explicação tem de residir no custo por pedido e não na carga submetida.
+A carga `seqwrite90` constitui a única exceção relevante, com o Prismo a ficar cerca de um quinto abaixo do @fio. Ambas as ferramentas executaram exatamente o mesmo trabalho, com idêntico número de operações, volume escrito e repartição entre leituras e escritas, diferindo apenas na duração, pelo que a explicação tem de residir no custo por pedido e não na carga submetida.
 
 Descartam-se desde logo duas hipóteses, dado que a geração de conteúdo é equivalente nas duas ferramentas, visto o parâmetro `buffer_compress_percentage` do @fio ativar automaticamente o `refill_buffers` @fio_docs, e dado que a @componentes demonstra que os geradores sustentam um débito duas ordens de grandeza superior ao exigido por esta carga.
 
-Esta leitura é corroborada pela carga 03, que recorre igualmente à regeneração de conteúdo mas com blocos 16× maiores, reduzindo na mesma proporção o número de pedidos, e onde o Prismo volta a apresentar vantagem. Deste modo, tudo indica tratar-se de um custo que se manifesta por pedido e não por byte transferido.
+Esta leitura é corroborada pela carga `seqwrite64`, que recorre igualmente à regeneração de conteúdo mas com blocos 16× maiores, reduzindo na mesma proporção o número de pedidos, e onde o Prismo volta a apresentar vantagem. Deste modo, tudo indica tratar-se de um custo que se manifesta por pedido e não por byte transferido.
 
-*Efeitos da localidade de acessos.* Ainda sobre a @validacao-iops, importa notar que o padrão de acessos produz por si só diferenças consideráveis, alcançando a carga 02, de leitura sequencial, 113 mil operações por segundo, contra as 13.2 mil da carga 04, que dela difere apenas por aceder ao dispositivo de forma aleatória, ou seja, 8.6× menos. Menos intuitivo é o confronto entre as cargas 05 e 06, que diferem unicamente na distribuição dos _offsets_, ficando a Zipfian 14.3% abaixo da uniforme no Prismo e 15.9% no @fio, contrariando a expectativa de a localidade favorecer o desempenho, a qual provém sobretudo dos suportes rotativos.
+*Efeitos da localidade de acessos.* Ainda sobre a @validacao-iops, importa notar que o padrão de acessos produz por si só diferenças consideráveis, alcançando a carga `seqread`, de leitura sequencial, 113 mil operações por segundo, contra as 13.2 mil da carga `randread`, que dela difere apenas por aceder ao dispositivo de forma aleatória, ou seja, 8.6× menos. Menos intuitivo é o confronto entre as cargas `randrw` e `zipfrw`, que diferem unicamente na distribuição dos _offsets_, ficando a Zipfian 14.3% abaixo da uniforme no Prismo e 15.9% no @fio, contrariando a expectativa de a localidade favorecer o desempenho, a qual provém sobretudo dos suportes rotativos.
 
-Uma vez que estas diferenças se repetem no Prismo e no @fio, caracterizam o dispositivo e não o _benchmark_, sendo elucidativa a série por segundo da carga 06, que expõe sete perturbações a intervalos de cerca de dois minutos, assinatura compatível com a atuação do _garbage collector_, dado que a concentração de escritas numa região restrita esgota mais depressa os blocos livres dessa zona. A consequência para o restante capítulo é sobretudo de leitura, visto só ser legítimo comparar configurações que partilhem o padrão de acessos.
+Uma vez que estas diferenças se repetem no Prismo e no @fio, caracterizam o dispositivo e não o _benchmark_, sendo elucidativa a série por segundo da carga `zipfrw`, que expõe sete perturbações a intervalos de cerca de dois minutos, assinatura compatível com a atuação do _garbage collector_, dado que a concentração de escritas numa região restrita esgota mais depressa os blocos livres dessa zona. A consequência para o restante capítulo é sobretudo de leitura, visto só ser legítimo comparar configurações que partilhem o padrão de acessos.
 
 #figure(
   panels(columns: 1,
     tool-bars("validation-latency.csv", ylabel: [Latência média (µs)],
               height: 3.8cm, ylim: (0, 100),
-              subcaption: [(a) Latência média com o desvio padrão da série, truncado no limite do eixo nas cargas 08 e 09 do Vdbench]),
+              subcaption: [(a) Latência média com o desvio padrão da série, truncado no limite do eixo nas cargas `fsync` e `randrw3j` do Vdbench]),
     tool-bars("validation-p99.csv", ylabel: [Latência p99 (µs)],
               height: 3.8cm, legend: false,
               subcaption: [(b) Percentil 99, calculado sobre a execução completa e por isso sem medida de dispersão]),
@@ -304,9 +280,9 @@ O débito dos componentes, analisado na @components-section, demonstrou que nenh
   caption: [Repartição do tempo de @cpu durante a execução do Prismo]
 ) <validacao-cpu-tipos>
 
-A @validacao-cpu-tipos apresenta as componentes de utilizador, sistema e espera por @io, correspondendo o remanescente até 100% a tempo ocioso, que se situa acima de 95% em todas as cargas com um único _job_ e em 91.6% na carga 09. Estes valores decorrem de a máquina disponibilizar 96 _threads_ de execução enquanto o _benchmark_ ocupa apenas uma, ou três no caso da carga 09.
+A @validacao-cpu-tipos apresenta as componentes de utilizador, sistema e espera por @io, correspondendo o remanescente até 100% a tempo ocioso, que se situa acima de 95% em todas as cargas com um único _job_ e em 91.6% na carga `randrw3j`. Estes valores decorrem de a máquina disponibilizar 96 _threads_ de execução enquanto o _benchmark_ ocupa apenas uma, ou três no caso da carga `randrw3j`.
 
-Mais relevante é a proporção entre as componentes ativas, visto a espera por @io representar entre 29% e 48% do tempo não ocioso nas cargas com um único _job_, valor que ascende a 70% na carga 09. Por outras palavras, o processador passa mais tempo à espera do dispositivo do que a executar código do _benchmark_, seja em espaço de utilizador ou dentro do _kernel_.
+Mais relevante é a proporção entre as componentes ativas, visto a espera por @io representar entre 29% e 48% do tempo não ocioso nas cargas com um único _job_, valor que ascende a 70% na carga `randrw3j`. Por outras palavras, o processador passa mais tempo à espera do dispositivo do que a executar código do _benchmark_, seja em espaço de utilizador ou dentro do _kernel_.
 
 Convém realçar que a componente de utilizador, onde reside a geração de conteúdo e a preparação dos pedidos, não ultrapassa 0.77% em qualquer carga, mantendo-se sempre abaixo da componente de sistema. Assim sendo, o custo do Prismo é dominado pelas chamadas ao sistema inerentes à interface POSIX e não pela lógica própria da ferramenta.
 
@@ -316,12 +292,12 @@ Em suma, os resultados apresentados ao longo desta secção medem a capacidade d
 
 A equivalência demonstrada até aqui atesta a fiabilidade da instrumentação, no entanto nada diz sobre a propriedade que distingue o Prismo, ou seja, a capacidade de gerar conteúdo com distribuições de duplicados e compressibilidade controladas. Assim sendo, o #link("https://github.com/dsrhaslab/prismo/blob/main/tools/deltoide/README.md")[Deltoide], ferramenta auxiliar apresentada na @implementation, é aplicado sobre os dados efetivamente escritos, extraindo as distribuições presentes no dispositivo de armazenamento.
 
-A carga 11 foi configurada com três grupos de duplicados, definidos pelo número de cópias adicionais de cada bloco, e cada um com a sua própria repartição de compressibilidade, apresentando a @conteudo-dup a percentagem de blocos atribuída a cada grupo, tal como foi configurada e tal como o Deltoide a mediu.
+A carga `dedup` foi configurada com três grupos de duplicados, definidos pelo número de cópias adicionais de cada bloco, e cada um com a sua própria repartição de compressibilidade, apresentando a @conteudo-dup a percentagem de blocos atribuída a cada grupo, tal como foi configurada e tal como o Deltoide a mediu.
 
 #figure(
   tool-bars("content-dedup.csv", ylabel: [Blocos escritos (%)],
             xlabel: [Cópias adicionais por bloco], width: 8.5cm, height: 4.4cm),
-  caption: [Distribuição de duplicados configurada e medida na carga 11]
+  caption: [Distribuição de duplicados configurada e medida na carga `dedup`]
 ) <conteudo-dup>
 
 Já a @conteudo detalha a compressibilidade dentro de cada grupo, onde cada entrada indica a percentagem de blocos do grupo e a redução de tamanho que a compressão alcança nesses blocos, ou seja, a fração do bloco eliminada pela zstd, correspondendo uma redução nula a conteúdo incompressível.
@@ -334,7 +310,7 @@ Já a @conteudo detalha a compressibilidade dentro de cada grupo, onde cada entr
     [1], [70% dos blocos com redução de 30% \ 30% dos blocos com redução de 20%], [71.2% dos blocos com redução de 30.2% \ 28.8% dos blocos com redução de 19.8%],
     [3], [100% dos blocos sem redução], [100% dos blocos sem redução],
   ),
-  caption: [Compressibilidade configurada e medida em cada grupo de duplicados da carga 11]
+  caption: [Compressibilidade configurada e medida em cada grupo de duplicados da carga `dedup`]
 ) <conteudo>
 
 Os desvios observados não ultrapassam 1.1% na repartição de duplicados nem 1.2% na de compressibilidade, valores que confirmam uma reprodução fiel da distribuição solicitada. Além disso, observa-se um comportamento particular do algoritmo de geração de duplicados: à medida que os blocos repetidos avançam através da janela, a percentagem medida para o último nível de cópias nunca pode exceder a percentagem solicitada, uma vez que este corresponde ao último estágio.
@@ -349,7 +325,7 @@ A análise decorre sobre o Btrfs e o @zfs, únicos sistemas avaliados que reagem
 
 === Linha de Base por Sistema de Armazenamento
 
-As cargas 04, 05 e 06 operam sobre conteúdo aleatório, logo incompressível e sem duplicados, pelo que o débito de operações obtido traduz aquilo que cada sistema de ficheiros consegue entregar quando as suas otimizações nada têm para explorar. Entre estas destaca-se a carga 06, que partilha com as duas seguintes (cargas 10 e 11) a distribuição Zipfian de acessos e constitui por isso a referência mais próxima.
+As cargas `randread`, `randrw` e `zipfrw` operam sobre conteúdo aleatório, logo incompressível e sem duplicados, pelo que o débito de operações obtido traduz aquilo que cada sistema de ficheiros consegue entregar quando as suas otimizações nada têm para explorar. Entre estas destaca-se a carga `zipfrw`, que partilha com as cargas `compress` e `dedup` a distribuição Zipfian de acessos e constitui por isso a referência mais próxima.
 
 #figure(
   tool-bars("impact-baseline.csv", ylabel: [Milhares de @iops],
@@ -359,25 +335,25 @@ As cargas 04, 05 e 06 operam sobre conteúdo aleatório, logo incompressível e 
 
 A @impacto-baseline evidencia desde logo uma diferença estrutural entre os dois sistemas, com o Btrfs a entregar entre 3.2× e 4.1× o débito do @zfs em todas as cargas. Esta distância decorre do custo que o @zfs impõe a cada operação, resultante da combinação entre a semântica _copy-on-write_, a verificação de _checksums_ e o `recordsize` de 4 KiB adotado, que multiplica o número de registos a gerir face ao valor por omissão.
 
-Merece destaque o facto de a carga 04, composta exclusivamente por leituras, apresentar o débito mais baixo em ambos os sistemas, enquanto a carga 05, com metade das operações a serem escritas, mais do que duplica esse valor no Btrfs. Uma explicação plausível reside no encaminhamento das escritas através da _cache_, conforme exposto na @systems, retornando estas sem aguardar o dispositivo.
+Merece destaque o facto de a carga `randread`, composta exclusivamente por leituras, apresentar o débito mais baixo em ambos os sistemas, enquanto a carga `randrw`, com metade das operações a serem escritas, mais do que duplica esse valor no Btrfs. Uma explicação plausível reside no encaminhamento das escritas através da _cache_, conforme exposto na @systems, retornando estas sem aguardar o dispositivo.
 
-Por outro lado, a carga 06 fica ligeiramente abaixo da carga 05 nos dois sistemas, apesar de a distribuição Zipfian concentrar os acessos numa fração reduzida do dispositivo, resultado que contraria a expectativa de a localidade favorecer o desempenho e que se observa igualmente sobre o dispositivo em acesso direto, conforme exposto na @validation, não sendo por isso imputável aos sistemas de ficheiros.
+Por outro lado, a carga `zipfrw` fica ligeiramente abaixo da carga `randrw` nos dois sistemas, apesar de a distribuição Zipfian concentrar os acessos numa fração reduzida do dispositivo, resultado que contraria a expectativa de a localidade favorecer o desempenho e que se observa igualmente sobre o dispositivo em acesso direto, conforme exposto na @validation, não sendo por isso imputável aos sistemas de ficheiros.
 
 Convém realçar que a dispersão registada nestas cargas é bastante superior à observada sobre o dispositivo em acesso direto, situando-se entre 10% e 18% do valor médio, o que decorre de os sistemas de ficheiros introduzirem trabalho assíncrono que não acompanha o ritmo dos pedidos, oscilando por isso o débito instantâneo conforme essas tarefas são despachadas.
 
 === Compressão
 
-A carga 10 escreve conteúdo com compressibilidade controlada segundo três níveis de redução, cenário que o @fio e o Vdbench apenas conseguem aproximar através de uma taxa global aplicada a todos os blocos, sendo o débito de operações obtido por cada ferramenta em cada sistema de ficheiros apresentado na @impacto-compressao.
+A carga `compress` escreve conteúdo com compressibilidade controlada segundo três níveis de redução, cenário que o @fio e o Vdbench apenas conseguem aproximar através de uma taxa global aplicada a todos os blocos, sendo o débito de operações obtido por cada ferramenta em cada sistema de ficheiros apresentado na @impacto-compressao.
 
 #figure(
   tool-bars("impact-compression.csv", ylabel: [Milhares de @iops],
             xlabel: [Sistema de ficheiros]),
-  caption: [Débito de operações na carga 10 em cada sistema de ficheiros]
+  caption: [Débito de operações na carga `compress` em cada sistema de ficheiros]
 ) <impacto-compressao>
 
-Confrontando a @impacto-compressao com a linha de base, verifica-se que o Prismo alcança mais 26% de débito no Btrfs e mais 32% no @zfs do que na carga 06, que partilha com esta a distribuição Zipfian de acessos. O mecanismo que sustenta este ganho parece claro, o conteúdo compressível permite ao sistema de ficheiros armazenar fisicamente menos dados do que aqueles que lhe são entregues, reduzindo na mesma medida o trabalho pedido ao dispositivo e libertando-o para aceitar mais operações no mesmo intervalo.
+Confrontando a @impacto-compressao com a linha de base, verifica-se que o Prismo alcança mais 26% de débito no Btrfs e mais 32% no @zfs do que na carga `zipfrw`, que partilha com esta a distribuição Zipfian de acessos. O mecanismo que sustenta este ganho parece claro, o conteúdo compressível permite ao sistema de ficheiros armazenar fisicamente menos dados do que aqueles que lhe são entregues, reduzindo na mesma medida o trabalho pedido ao dispositivo e libertando-o para aceitar mais operações no mesmo intervalo.
 
-Convém realçar, no entanto, que esta comparação não isola o efeito do conteúdo, visto a carga 10 apresentar também uma proporção superior de escritas, as quais, conforme observado na própria linha de base, tendem a elevar o débito por retornarem sem aguardar o dispositivo. Assim sendo, ambas as diferenças atuam no mesmo sentido e o ganho não é integralmente imputável à compressibilidade.
+Convém realçar, no entanto, que esta comparação não isola o efeito do conteúdo, visto a carga `compress` apresentar também uma proporção superior de escritas, as quais, conforme observado na própria linha de base, tendem a elevar o débito por retornarem sem aguardar o dispositivo. Assim sendo, ambas as diferenças atuam no mesmo sentido e o ganho não é integralmente imputável à compressibilidade.
 
 É o confronto entre ferramentas que procura eliminar esta ambiguidade, dado que o Prismo e o @fio executam exatamente a mesma carga, diferindo unicamente no conteúdo submetido. No @zfs o débito das duas ferramentas diverge em cerca de 31%, aproximadamente o dobro da dispersão das medições, sendo por isso a única divergência de débito desta secção que excede a dispersão e que, segundo o critério definido na @validation, pode ser considerada efetiva.
 
@@ -385,7 +361,7 @@ No entanto, merece particular destaque o facto de as duas configurações terem 
 
 Deste modo, a divergência observada não é imputável a uma carga globalmente mais compressível, mas ao modo como essa compressibilidade se distribui pelos blocos. Por outras palavras, o sistema de armazenamento responde à forma da distribuição e não apenas ao seu valor médio, propriedade que uma taxa única, como a utilizada no @fio, é por construção incapaz de exprimir.
 
-No Btrfs as duas ferramentas divergem em sentido oposto, em cerca de 16%, divergência que não deve porém ser interpretada como efetiva, dado que a dispersão das medições ronda os 13% e os intervalos das duas ferramentas se sobrepõem numa extensão considerável, obrigando assim o critério estabelecido na @validation a tratá-las como equivalentes.
+No Btrfs as duas ferramentas divergem em sentido oposto, em cerca de 16%, divergência que não deve porém ser interpretada como efetiva, dado que a dispersão das medições ronda os 13% e os intervalos das duas ferramentas se sobrepõem numa extensão considerável.
 
 Convém realçar que a elevada dispersão do Btrfs decorre da sua própria arquitetura, dado que a compressão opera sobre _extents_ de dimensão superior ao bloco de 4 KiB submetido, agrupando num mesmo _extent_ blocos de compressibilidade distinta. Deste modo, a redução alcançada depende de quais os blocos que ficam agrupados, variando ao longo da execução de uma forma que o @zfs, ao comprimir cada _record_ isoladamente, não apresenta.
 
@@ -393,23 +369,23 @@ Determinar se existe de facto uma divergência no Btrfs exigiria a medição do 
 
 === Deduplicação <dedup-section>
 
-A carga 11 acrescenta à compressibilidade uma distribuição de duplicados repartida por três grupos, exercitando deste modo as duas otimizações em conjunto. Esta análise incide unicamente sobre o @zfs, isto porque no Btrfs a deduplicação é _offline_ e nada garante que o bees percorra os dados dentro da janela de medição, pelo que avaliá-lo exigiria execuções consideravelmente mais longas, aspeto que não constituiu foco desta avaliação.
+A carga `dedup` acrescenta à compressibilidade uma distribuição de duplicados repartida por três grupos, exercitando deste modo as duas otimizações em conjunto. Esta análise incide unicamente sobre o @zfs, isto porque no Btrfs a deduplicação é _offline_ e nada garante que o bees percorra os dados dentro da janela de medição, pelo que avaliá-lo exigiria execuções consideravelmente mais longas, aspeto que não constituiu foco desta avaliação.
 
 #figure(
   tool-bars("impact-dedup-zfs.csv", ylabel: [Milhares de @iops],
             width: 8.5cm, height: 4.6cm),
-  caption: [Débito de operações no @zfs nas cargas 10 e 11]
+  caption: [Débito de operações no @zfs nas cargas `compress` e `dedup`]
 ) <impacto-dedup>
 
-A @impacto-dedup mostra a carga 11 a reproduzir de forma quase exata o comportamento da carga 10, mantendo-se as diferenças entre ambas abaixo de 2% em todas as ferramentas, valor muito inferior à dispersão registada, pelo que a introdução de duplicados não produziu qualquer efeito mensurável no débito.
+A @impacto-dedup mostra a carga `dedup` a reproduzir de forma quase exata o comportamento da carga `compress`, mantendo-se as diferenças entre ambas abaixo de 2% em todas as ferramentas, valor muito inferior à dispersão registada, pelo que a introdução de duplicados não produziu qualquer efeito mensurável no débito.
 
-Uma vez que no @zfs a deduplicação atua no caminho crítico e a propriedade `direct` foi desativada precisamente para a manter operacional, a ausência de efeito não decorre de a otimização ter ficado por acionar, admitindo antes duas explicações. A primeira decorre da configuração das cargas, visto a carga 11 apresentar uma compressibilidade média de 22% contra os 30% da carga 10, pelo que o ganho trazido pelos duplicados pode estar a ser anulado por uma redução por compressão inferior em oito pontos percentuais.
+Uma vez que no @zfs a deduplicação atua no caminho crítico e a propriedade `direct` foi desativada precisamente para a manter operacional, a ausência de efeito não decorre de a otimização ter ficado por acionar, admitindo antes duas explicações. A primeira decorre da configuração das cargas, visto a carga `dedup` apresentar uma compressibilidade média de 22% contra os 30% da carga `compress`, pelo que o ganho trazido pelos duplicados pode estar a ser anulado por uma redução por compressão inferior em oito pontos percentuais.
 
 A segunda explicação aponta para o recurso que limita a execução, visto o @zfs consumir cerca de 5× mais processador que o Btrfs e ocupar perto de sessenta gigabytes de memória, conforme se apresenta na @impacto-recursos. Neste caso, como o custo dominante reside no anfitrião e não no disco, evitar escritas físicas não aumenta o débito, que permanece indiferente à presença de duplicados.
 
 === Custo Computacional das Otimizações
 
-A redução do volume escrito não é gratuita, dado que a compressão e a deduplicação consomem processador e memória em troca das operações de @io poupadas, custo que a @impacto-recursos apresenta para a carga 11, onde no @zfs ambas as otimizações se encontram ativas e no Btrfs apenas a compressão atua dentro da janela de medição.
+A redução do volume escrito não é gratuita, dado que a compressão e a deduplicação consomem processador e memória em troca das operações de @io poupadas, custo que a @impacto-recursos apresenta para a carga `dedup`, onde no @zfs ambas as otimizações se encontram ativas e no Btrfs apenas a compressão atua dentro da janela de medição.
 
 #figure(
   panels(
@@ -420,14 +396,14 @@ A redução do volume escrito não é gratuita, dado que a compressão e a dedup
               xlabel: [Sistema de ficheiros], width: 6.0cm, height: 4.4cm,
               subcaption: [(b) Memória ocupada na máquina, incluindo o ARC no @zfs]),
   ),
-  caption: [Consumo de recursos na carga 11 em cada sistema de ficheiros]
+  caption: [Consumo de recursos na carga `dedup` em cada sistema de ficheiros]
 ) <impacto-recursos>
 
-O contraste apresentado na @impacto-recursos é acentuado, dado que o @zfs consome cerca de 5× mais processador do que o Btrfs, na @impacto-recursos (a), e ocupa perto de sessenta gigabytes de memória contra pouco mais de dez, na @impacto-recursos (b), custo que reflete a natureza _inline_ das suas otimizações e o dimensionamento do ARC.
+O contraste apresentado na @impacto-recursos é acentuado, dado que o @zfs consome cerca de 5× mais processador do que o Btrfs, na @impacto-recursos (a), e ocupa perto de sessenta gigabytes de memória contra pouco mais de dez, na @impacto-recursos (b), custo que reflete a natureza _inline_ das suas otimizações e o dimensionamento do @arc.
 
-A comparação da memória entre ferramentas no @zfs exige, por sua vez, alguma cautela, pois embora o Prismo ocupe cerca de oito gigabytes menos do que o @fio, a memória de cada ferramenta oscila mais de vinte gigabytes ao longo da execução, à medida que o ARC cresce, ficando a diferença muito aquém da dispersão e obrigando o critério adotado a tratá-las como equivalentes.
+A comparação da memória entre ferramentas no @zfs exige, por sua vez, alguma cautela, pois embora o Prismo ocupe cerca de oito gigabytes menos do que o @fio, a memória de cada ferramenta oscila mais de vinte gigabytes ao longo da execução, à medida que o @arc cresce, ficando a diferença muito aquém da dispersão e obrigando o critério adotado a tratá-las como equivalentes.
 
-Duas origens poderiam explicar uma eventual diferença, a retenção no ARC dos blocos já comprimidos e a tabela de deduplicação, cuja dimensão depende do número de blocos únicos. Os dados recolhidos não permitem separá-las, sendo apenas de notar que o @fio, configurado com 50% de blocos duplicados contra os 28.75% do Prismo, escreve menos blocos únicos, pelo que a tabela de deduplicação o levaria a ocupar menos memória e não mais.
+Duas origens poderiam explicar uma eventual diferença, a retenção no @arc dos blocos já comprimidos e a tabela de deduplicação, cuja dimensão depende do número de blocos únicos. Os dados recolhidos não permitem separá-las, sendo apenas de notar que o @fio, configurado com 50% de blocos duplicados contra os 28.75% do Prismo, escreve menos blocos únicos, pelo que a tabela de deduplicação o levaria a ocupar menos memória e não mais.
 
 No Btrfs a leitura mais informativa reside no processador, onde o @fio consome praticamente o dobro do Prismo, diferença que excede a dispersão de ambas as séries, para um débito que, conforme estabelecido, não é distinguível do ruído da medição. Esta assimetria é coerente com a forma das duas distribuições, visto metade dos blocos do Prismo serem incompressíveis e portanto descartados precocemente pelo algoritmo, enquanto os do @fio, uniformemente compressíveis a 30%, obrigam ao trabalho completo em cada bloco @btrfs_docs.
 
@@ -455,18 +431,18 @@ Convém realçar que apenas o libaio e o io_uring admitem uma comparação rigor
 
 === Cargas Sequenciais
 
-As cargas 01 e 02 percorrem o dispositivo de forma sequencial com blocos de 4 KiB, a primeira em escrita e a segunda em leitura, constituindo por isso o cenário mais favorável à submissão assíncrona, uma vez que o padrão de acessos é previsível e permite ao dispositivo antecipar os pedidos seguintes.
+As cargas `seqwrite` e `seqread` percorrem o dispositivo de forma sequencial com blocos de 4 KiB, a primeira em escrita e a segunda em leitura, constituindo por isso o cenário mais favorável à submissão assíncrona, uma vez que o padrão de acessos é previsível e permite ao dispositivo antecipar os pedidos seguintes.
 
 #figure(
   panels(
     tool-bars("interfaces-wl01.csv", ylabel: [Milhares de @iops],
               xlabel: [Interface], width: 6.0cm, height: 4.4cm, legend: false,
-              subcaption: [(a) Carga 01, escrita sequencial com blocos de 4 KiB]),
+              subcaption: [(a) Carga `seqwrite`, escrita sequencial com blocos de 4 KiB]),
     tool-bars("interfaces-wl02.csv", ylabel: [Milhares de @iops],
               xlabel: [Interface], width: 6.0cm, height: 4.4cm,
-              subcaption: [(b) Carga 02, leitura sequencial com blocos de 4 KiB]),
+              subcaption: [(b) Carga `seqread`, leitura sequencial com blocos de 4 KiB]),
   ),
-  caption: [Débito de operações nas cargas 01 e 02 em cada interface de @io]
+  caption: [Débito de operações nas cargas `seqwrite` e `seqread` em cada interface de @io]
 ) <interfaces-seq>
 
 A @interfaces-seq revela um ganho considerável das interfaces assíncronas sobre o POSIX, que no Prismo ascende a cerca de 4.8× na escrita, na @interfaces-seq (a), e 4× na leitura, na @interfaces-seq (b), resultado esperado visto o POSIX síncrono bloquear a _thread_ em cada operação e permitir por isso um único pedido em curso, enquanto as restantes mantêm dezenas em execução ao mesmo tempo.
@@ -481,14 +457,14 @@ Porém, no caso do Prismo, a explicação mais provável reside na configuraçã
 
 === Saturação da Largura de Banda
 
-As cargas 01 e 02 mantiveram o bloco em 4 KiB, dimensão que obriga a submeter um elevado número de pedidos para movimentar um volume modesto de dados e que coloca por isso o esforço do lado da submissão. A carga 03 altera exclusivamente este parâmetro, elevando-o para 64 KiB, reduzindo em 16× o número de operações necessárias para transferir a mesma quantidade de dados.
+As cargas `seqwrite` e `seqread` mantiveram o bloco em 4 KiB, dimensão que obriga a submeter um elevado número de pedidos para movimentar um volume modesto de dados e que coloca por isso o esforço do lado da submissão. A carga `seqwrite64` altera exclusivamente este parâmetro, elevando-o para 64 KiB, reduzindo em 16× o número de operações necessárias para transferir a mesma quantidade de dados.
 
 Deste modo, o dispositivo deixa de ser solicitado pela cadência dos pedidos e passa a sê-lo pelo volume que deles resulta, permitindo assim averiguar se a vantagem das interfaces assíncronas se mantém quando o estrangulamento muda de natureza.
 
 #figure(
   tool-bars("interfaces-wl03.csv", ylabel: [Milhares de @iops],
             xlabel: [Interface], width: 8.5cm, height: 4.6cm),
-  caption: [Débito de operações na carga 03 em cada interface de @io]
+  caption: [Débito de operações na carga `seqwrite64` em cada interface de @io]
 ) <interfaces-bloco>
 
 Conforme se observa na @interfaces-bloco, as quatro interfaces produzem resultados indistinguíveis entre si e entre ferramentas, situando-se todas próximo das 28 mil operações por segundo. Uma vez que este valor corresponde a cerca de 1.8 GiB por segundo, conclui-se que o fator limitante deixou de ser a submissão de pedidos e passou a ser a largura de banda do próprio dispositivo.
@@ -499,34 +475,34 @@ Por fim, importa reter que a escolha da interface apenas é determinante enquant
 
 === Cargas Aleatórias e Mistas
 
-As cargas 04 e 05 substituem o acesso sequencial por acessos aleatórios distribuídos por toda a extensão do dispositivo, o que impede qualquer antecipação por parte deste e obriga cada pedido a suportar integralmente a latência do acesso. Nestas condições, o débito deixa de depender predominantemente da rapidez com que os dados são transferidos e passa a ser limitado pela capacidade de manter pedidos em curso, pelo que a profundidade da fila assume um papel determinante.
+As cargas `randread` e `randrw` substituem o acesso sequencial por acessos aleatórios distribuídos por toda a extensão do dispositivo, o que impede qualquer antecipação por parte deste e obriga cada pedido a suportar integralmente a latência do acesso. Nestas condições, o débito deixa de depender predominantemente da rapidez com que os dados são transferidos e passa a ser limitado pela capacidade de manter pedidos em curso, pelo que a profundidade da fila assume um papel determinante.
 
 #figure(
   panels(
     tool-bars("interfaces-wl04.csv", ylabel: [Milhares de @iops],
               xlabel: [Interface], width: 6.0cm, height: 4.4cm, legend: false,
-              subcaption: [(a) Carga 04, leituras aleatórias sobre todo o dispositivo]),
+              subcaption: [(a) Carga `randread`, leituras aleatórias sobre todo o dispositivo]),
     tool-bars("interfaces-wl05.csv", ylabel: [Milhares de @iops],
               xlabel: [Interface], width: 6.0cm, height: 4.4cm,
-              subcaption: [(b) Carga 05, leituras e escritas aleatórias em partes iguais]),
+              subcaption: [(b) Carga `randrw`, leituras e escritas aleatórias em partes iguais]),
   ),
-  caption: [Débito de operações nas cargas 04 e 05 em cada interface de @io]
+  caption: [Débito de operações nas cargas `randread` e `randrw` em cada interface de @io]
 ) <interfaces-rand>
 
 O ganho das interfaces assíncronas é aqui muito superior ao observado nas cargas sequenciais, atingindo no Prismo cerca de 14× o débito do POSIX na leitura aleatória com o io_uring e o libaio, e 19× com o @spdk, conforme a @interfaces-rand (a), amplificação que se explica pela latência de cada acesso, integralmente exposta à aplicação numa interface síncrona e sobreposta entre pedidos concorrentes nas restantes.
 
-O confronto entre ferramentas revela, porém, uma diferença assinalável, com o @fio a alcançar aproximadamente o dobro do Prismo na carga 04 e cerca de 60% acima na carga 05, discrepância que constitui a maior registada em todo o capítulo e que não decorre da configuração, idêntica em ambas as ferramentas.
+O confronto entre ferramentas revela, porém, uma diferença assinalável, com o @fio a alcançar aproximadamente o dobro do Prismo na carga `randread` e cerca de 60% acima na carga `randrw`, discrepância que constitui a maior registada em todo o capítulo e que não decorre da configuração, idêntica em ambas as ferramentas.
 
 #figure(
   panels(
     tool-bars("interfaces-lat-wl04.csv", ylabel: [Latência média (µs)],
               xlabel: [Interface], width: 6.0cm, height: 4.4cm, legend: false,
-              subcaption: [(a) Carga 04, composta apenas por leituras]),
+              subcaption: [(a) Carga `randread`, composta apenas por leituras]),
     tool-bars("interfaces-lat-wl05.csv", ylabel: [Latência média (µs)],
               xlabel: [Interface], width: 6.0cm, height: 4.4cm,
-              subcaption: [(b) Carga 05, com metade das operações em escrita]),
+              subcaption: [(b) Carga `randrw`, com metade das operações em escrita]),
   ),
-  caption: [Latência média nas cargas 04 e 05 em cada interface de @io]
+  caption: [Latência média nas cargas `randread` e `randrw` em cada interface de @io]
 ) <interfaces-lat>
 
 A @interfaces-lat esclarece a origem desta diferença, dado que a latência reportada pelo Prismo nas interfaces assíncronas duplica a do @fio, ao passo que em POSIX ambas coincidem ao décimo de microssegundo. Uma vez que o débito resulta do quociente entre os pedidos em curso e a latência de cada um, e sendo a profundidade configurada idêntica, o dobro da latência traduz-se necessariamente em metade do débito.
@@ -543,12 +519,12 @@ Resta assim o ciclo do consumidor, que alterna entre submeter pedidos e recolher
 
 === Concorrência
 
-A carga 09 replica o padrão aleatório misto da carga 05, distribuindo-o por três _jobs_ independentes, cada um com a sua fila e respetiva _thread_ submissora, o que permite averiguar se cada interface acompanha o aumento do número de produtores ou se algum recurso partilhado impede essa escalabilidade.
+A carga `randrw3j` replica o padrão aleatório misto da carga `randrw`, distribuindo-o por três _jobs_ independentes, cada um com a sua fila e respetiva _thread_ submissora, o que permite averiguar se cada interface acompanha o aumento do número de produtores ou se algum recurso partilhado impede essa escalabilidade.
 
 #figure(
   tool-bars("interfaces-wl09.csv", ylabel: [Milhares de @iops],
             xlabel: [Interface], width: 8.5cm, height: 4.6cm),
-  caption: [Débito de operações na carga 09 em cada interface de @io]
+  caption: [Débito de operações na carga `randrw3j` em cada interface de @io]
 ) <interfaces-conc>
 
 A @interfaces-conc mostra que o libaio do Prismo escala com o número de _jobs_, passando de cerca de 215 mil operações por segundo com um único _job_ para 326 mil com três, valor que iguala o do @fio e constitui o único cenário assíncrono em que as duas ferramentas convergem.
@@ -559,15 +535,15 @@ O io_uring não acompanha esta evolução em qualquer das ferramentas, mantendo-
   panels(
     tool-bars("interfaces-cpu-1job.csv", ylabel: [Utilização de @cpu (%)],
               xlabel: [Interface], width: 6.0cm, height: 4.4cm, legend: false,
-              subcaption: [(a) Carga 05, executada por um único _job_]),
+              subcaption: [(a) Carga `randrw`, executada por um único _job_]),
     tool-bars("interfaces-cpu-3jobs.csv", ylabel: [Utilização de @cpu (%)],
               xlabel: [Interface], width: 6.0cm, height: 4.4cm,
-              subcaption: [(b) Carga 09, repartida por três _jobs_ com fila e _thread_ próprias]),
+              subcaption: [(b) Carga `randrw3j`, repartida por três _jobs_ com fila e _thread_ próprias]),
   ),
   caption: [Utilização de @cpu com um _job_ e com três _jobs_ em cada interface de @io]
 ) <interfaces-recursos>
 
-A @interfaces-recursos, que confronta a carga 05, na @interfaces-recursos (a), com a carga 09, na @interfaces-recursos (b), oferece a explicação mais provável, dado que o io_uring do Prismo eleva o consumo de processador em mais de metade ao passar de um para três _jobs_ sem qualquer ganho de débito, enquanto o libaio o aumenta apenas 12% e entrega em contrapartida mais 52%.
+A @interfaces-recursos, que confronta a carga `randrw`, na @interfaces-recursos (a), com a carga `randrw3j`, na @interfaces-recursos (b), oferece a explicação mais provável, dado que o io_uring do Prismo eleva o consumo de processador em mais de metade ao passar de um para três _jobs_ sem qualquer ganho de débito, enquanto o libaio o aumenta apenas 12% e entrega em contrapartida mais 52%.
 
 Esta penalização do desempenho decorre das _threads_ de _polling_ do _kernel_, que giram em espera ativa e que a configuração adotada fixa todas no mesmo núcleo do processador, em ambas as ferramentas, competindo portanto três instâncias por um único núcleo sem que o tempo assim despendido se traduza em pedidos submetidos.
 
@@ -596,9 +572,9 @@ Os _traces_ utilizados provêm do repositório do @fiu e resultam da instrumenta
     columns: (1fr, 0.7fr, 0.6fr, 0.6fr, 0.7fr, 0.7fr),
     align: (x, y) => if x == 0 or y == 0 { horizon + left } else { horizon + right },
     header: ([_Trace_], [Registos], [Volume], [Escritas], [Duplicados], [Cargas]),
-    [homes], [2.0 M], [7.7 GiB], [92%], [36.5%], [12 e 14],
-    [webmail], [0.7 M], [2.6 GiB], [96%], [37.7%], [15],
-    [cheetah], [22.7 M], [86.6 GiB], [52%], [22.3%], [13],
+    [homes], [2.0 M], [7.7 GiB], [92%], [36.5%], [`hybaccess` e `homes`],
+    [webmail], [0.7 M], [2.6 GiB], [96%], [37.7%], [`webmail`],
+    [cheetah], [22.7 M], [86.6 GiB], [52%], [22.3%], [`hybops`],
   ),
   caption: [_Traces_ utilizados, com as proporções medidas nos primeiros 100 mil registos]
 ) <traces-perfil>
@@ -688,15 +664,13 @@ Em suma, a reprodução é fiel enquanto o ficheiro de _trace_ dura, no entanto 
 
 A @trace-eval tratou o _trace_ como uma carga indivisível, cuja reprodução se procura prolongar no tempo, no entanto o Prismo admite ainda um uso distinto, assente no princípio enunciado na @design-principles de que um _trace_ pode servir de fonte a cada dimensão do pedido tomada isoladamente @tracegen2024 @gracia-tinedo2015.
 
-Neste paradigma, já não se trata de estender a duração do _trace_ mas a sua utilidade, extraindo dele, por exemplo, apenas os acessos e gerando sinteticamente as operações e o conteúdo, o que permite combinar a dimensão real que interessa estudar com dimensões controladas. Esta secção averigua se tal combinação altera o comportamento do sistema de armazenamento face à reprodução integral do _trace_, e de que modo esta capacidade distingue o Prismo das ferramentas de referência.
+Neste paradigma, já não se trata de estender a duração do _trace_ mas a sua utilidade, extraindo dele, por exemplo, apenas os acessos e gerando sinteticamente as operações e o conteúdo, o que permite combinar a dimensão real que interessa estudar com dimensões controladas. Esta secção averigua se tal combinação altera o comportamento do sistema de armazenamento face à reprodução integral do _trace_, capacidade que, conforme a @cap-traces evidencia, nenhuma das ferramentas de referência oferece.
 
-=== Desempenho das Cargas Híbridas
+O confronto incide sobre as cargas que extraem do _trace_ as três dimensões e aquelas que dele retiram apenas uma, designadas por isso de híbridas. As cargas `homes` e `webmail` assentam por inteiro no _trace_, ao passo que a `hybaccess` e a `hybops` conservam somente uma dimensão real e geram sinteticamente as restantes, extraindo a primeira os acessos do homes sobre operações sintéticas e a segunda a repartição das operações do cheetah sobre uma distribuição Zipfian.
 
-O confronto incide sobre as cargas que extraem do _trace_ as três dimensões e aquelas que dele retiram apenas uma, designadas por isso de híbridas. As cargas 14 e 15 assentam por inteiro no _trace_, ao passo que a 12 e a 13 conservam somente uma dimensão real e geram sinteticamente as restantes, extraindo a primeira os acessos do homes sobre operações sintéticas e a segunda a repartição das operações do cheetah sobre uma distribuição Zipfian.
+Convém realçar que a extensão temporal não fica de fora deste confronto, visto as cargas `homes` e `webmail` prolongarem o homes e o webmail através das estratégias da @trace-eval e a carga `hybaccess` estender por amostragem os acessos do homes. Sendo estes _traces_ inferiores a 1.1% do volume movimentado, parte substancial de cada execução decorre sob extensão, embora o débito não tenha sido separado por fase, o que impede isolar o contributo desta face ao da reprodução.
 
-Convém realçar que a extensão temporal não fica de fora deste confronto, visto as cargas 14 e 15 prolongarem o homes e o webmail através das estratégias da @trace-eval e a carga 12 estender por amostragem os acessos do homes. Sendo estes _traces_ inferiores a 1.1% do volume movimentado, parte substancial de cada execução decorre sob extensão, embora o débito não tenha sido separado por fase, o que impede isolar o contributo desta face ao da reprodução.
-
-Os valores da @traces-iops resultam de execuções sobre o @zfs através da interface POSIX, pelo que devem ser confrontados com os da @data-properties e nunca com os da @io-interfaces. Além disso, apresentam-se unicamente os valores do Prismo, dado que nenhuma das ferramentas de referência replica _traces_ desta natureza @fio_docs @vdbench.
+Os valores da @traces-iops resultam de execuções sobre o @zfs através da interface POSIX, pelo que devem ser confrontados com os da @data-properties. Além disso, apresentam-se unicamente os valores do Prismo, dado que nenhuma das ferramentas de referência replica _traces_ desta natureza @fio_docs @vdbench.
 
 #figure(
   tool-bars("traces-iops.csv", ylabel: [Milhares de @iops],
@@ -704,40 +678,19 @@ Os valores da @traces-iops resultam de execuções sobre o @zfs através da inte
   caption: [Débito de operações do Prismo nas cargas baseadas em _traces_]
 ) <traces-iops>
 
-As quatro cargas distribuem-se entre as 3485 e as 4169 operações por segundo, sendo a maior diferença entre duas delas inferior ao desvio padrão da carga 12, pelo que o critério estabelecido na @validation obriga a tratá-las como equivalentes.
+As quatro cargas distribuem-se entre as 3485 e as 4169 operações por segundo, sendo a maior diferença entre duas delas inferior ao desvio padrão da carga `hybaccess`, pelo que devem ser tratadas como equivalentes.
 
-As cargas híbridas ladeiam as restantes, ficando a 12 abaixo de ambas e a 13 acima, distribuição que afasta qualquer efeito sistemático decorrente da substituição de dimensões reais por sintéticas.
+As cargas híbridas ladeiam as restantes, ficando a `hybaccess` abaixo de ambas e a `hybops` acima, distribuição que afasta qualquer efeito sistemático decorrente da substituição de dimensões reais por sintéticas.
 
-Além disso, a carga 12 é a mais dispersa e a única dominada por leituras, aproximando-se por aí da carga 04, a mais lenta de toda a linha de base do @zfs, o que sugere ser a proporção de leituras, e não a proveniência dos acessos, a condicionar o débito.
+Além disso, a carga `hybaccess` é a mais dispersa e a única dominada por leituras, aproximando-se por aí da carga `randread`, a mais lenta de toda a linha de base do @zfs, o que sugere ser a proporção de leituras, e não a proveniência dos acessos, a condicionar o débito.
 
-Esta leitura é corroborada pelo confronto com a linha de base do @zfs apresentada na @impacto-baseline, dado que o débito da carga 05 se situa dentro do intervalo de dispersão de cada uma das quatro, ficando estas por seu turno 85% acima da carga 04, composta exclusivamente por leituras.
+Esta leitura é corroborada pelo confronto com a linha de base do @zfs apresentada na @impacto-baseline, dado que o débito da carga `randrw` se situa dentro do intervalo de dispersão de cada uma das quatro, ficando estas por seu turno 85% acima da carga `randread`, composta exclusivamente por leituras.
 
-As cargas 14 e 15 submetem conteúdo genuinamente duplicado, ao passo que as híbridas escrevem blocos aleatórios, sem que daí resulte vantagem para as primeiras. O resultado é consistente com o observado na @dedup-section, onde a introdução de duplicados também não alterou o débito do @zfs, reforçando a leitura aí avançada de não ser o dispositivo o recurso que limita a execução nesta configuração.
+As cargas `homes` e `webmail` submetem conteúdo genuinamente duplicado, ao passo que as híbridas escrevem blocos aleatórios, sem que daí resulte vantagem para as primeiras. O resultado é consistente com o observado na @dedup-section, onde a introdução de duplicados também não alterou o débito do @zfs, reforçando a leitura aí avançada de não ser o dispositivo o recurso que limita a execução nesta configuração.
 
 Deste modo, o débito não constitui a grandeza através da qual uma carga baseada em _traces_ se distingue de uma sintética, visto qualquer delas se situar na banda já coberta pela @data-properties. O que verdadeiramente as separa é a estrutura temporal do conteúdo e dos acessos, cuja influência a instrumentação adotada não permitiu isolar.
 
-Determinar esse efeito exigiria acompanhar o espaço ocupado em disco e a taxa de acerto da tabela de deduplicação ao longo da execução, grandezas cuja recolha ficou fora desta campanha, constituindo a sua ausência a principal limitação desta subsecção.
-
-=== Comparação de Capacidades
-
-Independentemente dos valores medidos, importa situar o Prismo face às ferramentas de referência quanto àquilo que cada uma consegue reproduzir a partir de um _trace_, comparação que a @traces-iops não permite estabelecer ao nível do débito precisamente por nenhuma das outras duas oferecer mecanismo equivalente.
-
-#figure(
-  doc_table(
-    columns: (2.2fr, auto, auto, auto),
-    header: ([Capacidade], [Prismo], [FIO], [Vdbench]),
-    [Replicação dos acessos], cell_yes, cell_partial[Limitado], cell_no,
-    [Replicação das operações], cell_yes, cell_no, cell_no,
-    [Replicação do conteúdo], cell_yes, cell_no, cell_no,
-    [Combinação com geração sintética], cell_yes, cell_no, cell_no,
-    [Extensão para lá da duração original], cell_yes, cell_no, cell_no,
-  ),
-  caption: [Capacidades de replicação de _traces_ suportadas por cada ferramenta]
-) <traces-capacidades>
-
-Conforme evidencia a @traces-capacidades, o Prismo é a única das três ferramentas a reproduzir em conjunto os acessos, as operações e o conteúdo de um _trace_, visto o @fio admitir apenas a repetição de um padrão de acessos previamente descrito e o Vdbench não oferecer mecanismo equivalente @fio_docs @vdbench.
-
-Merece destaque a combinação com geração sintética, que permite isolar o contributo de cada dimensão ao substituir as restantes por valores controlados, sem a qual não seria possível determinar se um comportamento observado decorre do padrão de acessos ou das propriedades do conteúdo.
+Determinar esse efeito exigiria acompanhar o espaço ocupado em disco e a taxa de acerto da tabela de deduplicação ao longo da execução, grandezas cuja recolha ficou fora desta campanha, constituindo a sua ausência a principal limitação desta secção.
 
 Em suma, a combinação de dimensões reais com dimensões sintéticas não alterou o débito do @zfs face à reprodução integral dos _traces_, residindo o seu valor não no débito mas na possibilidade de isolar o contributo de cada dimensão, capacidade que nenhuma das ferramentas de referência oferece. Estabelecido este último eixo, importa agora reunir as conclusões dispersas ao longo do capítulo.
 
@@ -747,13 +700,13 @@ O capítulo percorreu cinco eixos de avaliação, desde a validação da própri
 
 === Síntese dos Resultados
 
-Numa análise geral, obtém-se uma hierarquia que nenhuma secção isolada poderia estabelecer. À cabeça surge a interface de @io, cuja escolha altera o débito da leitura aleatória da carga 04 em até 19× no Prismo, e 30× no @fio, entre o POSIX e as interfaces assíncronas, conforme a @io-interfaces, seguida da ordem pela qual os blocos são percorridos, que separa a leitura sequencial da aleatória por 8.6× na @validation.
+Numa análise geral, obtém-se uma hierarquia que nenhuma secção isolada poderia estabelecer. À cabeça surge a interface de @io, cuja escolha altera o débito da leitura aleatória da carga `randread` em até 19× no Prismo, e 30× no @fio, entre o POSIX e as interfaces assíncronas, conforme a @io-interfaces, seguida da ordem pela qual os blocos são percorridos, que separa a leitura sequencial da aleatória por 8.6× na @validation.
 
 Com uma influência bastante menor surgem a concentração dos acessos e as propriedades do conteúdo. A primeira explica os 14% que, na mesma secção, separam a distribuição Zipfian da uniforme, enquanto a segunda corresponde aos 31% apurados na @data-properties. Esta hierarquia deve, porém, ser interpretada com alguma cautela, dado que apenas este último efeito foi medido sobre sistemas de ficheiros, enquanto os restantes correspondem ao dispositivo em acesso direto.
 
 Quanto ao conteúdo, o resultado mais consequente não reside no ganho em si, mas na sua dependência da forma da distribuição, dado que na @data-properties o Prismo e o @fio submeteram cargas com idêntica compressibilidade média e obtiveram no @zfs débitos que divergem em 31%. O sistema responde assim à forma como a redutibilidade se reparte pelos blocos e não ao seu valor agregado, propriedade que uma taxa única é incapaz de exprimir.
 
-Fica assim respondida a Q5, visto a avaliação produzida pelo Prismo coincidir com a dos _benchmarks_ existentes nas cargas genéricas e afastar-se dela precisamente onde o conteúdo e os _traces_ intervêm, o que fundamenta o V4, dado a divergência de 31% no @zfs decorrer da forma da distribuição e não da instrumentação, cuja equivalência a @validation demonstrou. A esta divergência junta-se a capacidade de reproduzir, estender e decompor um _trace_ nas suas dimensões, que nenhuma ferramenta de referência oferece.
+Fica assim respondida a Q5, visto a avaliação produzida pelo Prismo coincidir com a dos _benchmarks_ existentes nas cargas genéricas e afastar-se dela precisamente onde o conteúdo e os _traces_ intervêm, o que fundamenta o V4, dado a divergência de 31% no @zfs decorrer da forma da distribuição e não da instrumentação, cuja equivalência a @validation demonstrou. A esta divergência junta-se a capacidade de reproduzir, estender e decompor um _trace_ nas suas dimensões, que nenhuma ferramenta de referência oferece, conforme a @cap-traces resume.
 
 Já a reprodução de _traces_ confirmou-se fiel enquanto o ficheiro de _trace_ dispõe de registos, revelando a @trace-eval que nenhuma estratégia de extensão prolonga a execução sem sacrificar alguma propriedade, a repetição a variabilidade, a amostragem a concentração temporal dos duplicados e a regressão o conteúdo repetido na sua totalidade.
 
@@ -765,7 +718,7 @@ Uma vez que só é considerada efetiva a diferença que excede a dispersão, sob
 
 Dois dos resultados obtidos contrariam aquilo que a literatura ou o próprio desenho experimental faziam prever, importando a sua enumeração conjunta tanto quanto a das confirmações, dado ser dela que decorrem as direções de trabalho futuro.
 
-*Duplicados sem efeito no débito.* Esperava-se que a introdução de duplicados elevasse o débito do @zfs, dado este dispor de deduplicação _inline_ e a @conteudo-dup confirmar que o conteúdo submetido continha as cópias configuradas. A @impacto-dedup regista porém diferenças inferiores a 2% face à carga 10, explicáveis quer pela compressibilidade inferior da carga 11, quer por o desempenho estar limitado pelo processamento no anfitrião, conforme a @impacto-recursos sugere.
+*Duplicados sem efeito no débito.* Esperava-se que a introdução de duplicados elevasse o débito do @zfs, dado este dispor de deduplicação _inline_ e a @conteudo-dup confirmar que o conteúdo submetido continha as cópias configuradas. A @impacto-dedup regista porém diferenças inferiores a 2% face à carga `compress`, explicáveis quer pela compressibilidade inferior da carga `dedup`, quer por o desempenho estar limitado pelo processamento no anfitrião, conforme a @impacto-recursos sugere.
 
 *Regressão sem capacidade preditiva.* Esperava-se que a extensão por regressão, apresentada na @trace-extensions como a mais sofisticada das três, preservasse as dependências entre dimensões. A @traces-assinaturas revela porém que esta anula por completo os duplicados, sendo na prática a menos viável das três estratégias.
 
@@ -777,9 +730,9 @@ Nenhuma campanha experimental esgota o espaço de configurações possíveis, pe
 
 *Âmbito experimental.* A avaliação decorreu sobre uma única máquina e um único dispositivo, correspondendo além disso cada configuração a uma execução, pelo que a dispersão reportada ao longo do capítulo traduz a estabilidade da medição e não a variabilidade entre execuções independentes.
 
-*Controlos imperfeitos.* A linha de base da @data-properties recorre à carga 06, que partilha com as cargas 10 e 11 a distribuição de acessos mas não a repartição das operações. Um controlo estrito exigiria uma variante da carga 10 com redução nula, que das restantes diferisse apenas no conteúdo.
+*Controlos imperfeitos.* A linha de base da @data-properties recorre à carga `zipfrw`, que partilha com as cargas `compress` e `dedup` a distribuição de acessos mas não a repartição das operações. Um controlo estrito exigiria uma variante da carga `compress` com redução nula, que das restantes diferisse apenas no conteúdo.
 
-Do mesmo modo, as cargas 10 e 11 diferem na presença de duplicados mas também na compressibilidade média, 30% contra 22%, o que impede o isolamento do contributo da deduplicação e cuja resolução passaria por igualar essa propriedade entre ambas.
+Do mesmo modo, as cargas `compress` e `dedup` diferem na presença de duplicados mas também na compressibilidade média, 30% contra 22%, o que impede o isolamento do contributo da deduplicação e cuja resolução passaria por igualar essa propriedade entre ambas.
 
 *Grandezas não medidas.* O espaço efetivamente ocupado em disco não foi acompanhado ao longo das execuções, grandeza que teria permitido confirmar quando e em que medida as otimizações foram acionadas, e cuja ausência limita as conclusões alcançadas sobre a deduplicação.
 

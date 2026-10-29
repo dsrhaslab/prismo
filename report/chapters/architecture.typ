@@ -1,4 +1,4 @@
-#import "../utils/functions.typ" : raw_code_block
+#import "../utils/functions.typ" : raw_code_block, doc_table, cell_yes, cell_no, cell_partial
 #import "../utils/diagrams.typ" : *
 
 = Prismo <chapter3>
@@ -735,6 +735,58 @@ Adicionalmente, três séries temporais são mantidas com granularidade ao segun
 ) <relatorio-final>
 
 Quando múltiplos _jobs_ são executados em paralelo, o relatório contém os resultados individuais de cada _job_ e um registo adicional resultante da fusão de todas as estatísticas, onde os histogramas de latência são combinados e os instantes de início e fim são ajustados para refletir o intervalo global de execução @ren2023.
+
+== Comparação com as Ferramentas Existentes <tool-comparison>
+
+Descritos os componentes do Prismo, importa situá-lo face às ferramentas analisadas na @related-work quanto àquilo que cada uma consegue exercitar, comparação que se organiza em três dimensões, as interfaces de @io suportadas, a descrição do conteúdo e a utilização de _traces_.
+
+#let comparison-table(first, ..rows) = {
+  set par(justify: false)
+  set text(size: 0.92em)
+  doc_table(
+    // larguras fixas, para que as colunas das ferramentas fiquem alinhadas nas três tabelas
+    columns: (1fr, 1.65cm, 2.5cm, 3.15cm, 2.15cm, 2.3cm),
+    header: (first, [Prismo], [DEDISbench], [DEDISbench++], [FIO], [Vdbench]),
+    ..rows,
+  )
+}
+
+#figure(
+  comparison-table([Interface],
+    [POSIX], cell_yes, cell_yes, cell_yes, cell_yes, cell_yes,
+    [libaio], cell_yes, cell_no, cell_no, cell_yes, cell_no,
+    [io_uring], cell_yes, cell_no, cell_no, cell_yes, cell_no,
+    [@spdk], cell_yes, cell_no, cell_no, cell_partial[_Plugin_], cell_no,
+  ),
+  caption: [Interfaces de @io suportadas pelo Prismo e pelas ferramentas existentes]
+) <cap-interfaces>
+
+Quanto às interfaces, a @cap-interfaces mostra o Prismo como a única ferramenta a suportar nativamente as quatro, visto o @fio apenas aceder ao @spdk através de um _plugin_ externo e as restantes se limitarem ao POSIX síncrono @dedisbench @fio_docs @vdbench. É esta independência entre a carga e a interface que permite executar a mesma descrição sobre todas elas e atribuir as diferenças observadas à própria interface.
+
+#figure(
+  comparison-table([Propriedade],
+    [Distribuição de duplicados], cell_yes, cell_partial[Absoluta], cell_yes, cell_partial[Taxa global], cell_partial[Rácio global],
+    [Compressibilidade por grupo de cópias], cell_yes, cell_no, cell_partial[Múltiplos de 10%], cell_partial[Taxa global], cell_partial[Rácio global],
+  ),
+  caption: [Descrição do conteúdo no Prismo e nas ferramentas existentes]
+) <cap-conteudo>
+
+Já na descrição do conteúdo, a @cap-conteudo evidencia que apenas o DEDISbench++ e o Prismo repartem os blocos por grupos de cópias com compressibilidade própria, estando no primeiro essa repartição limitada a múltiplos de dez e dependente do número total de blocos @dedisbenchpp. Por outro lado, o DEDISbench ignora a compressão, enquanto o @fio e o Vdbench recorrem a uma taxa global aplicada uniformemente a todos os blocos @fio_docs @vdbench.
+
+#figure(
+  comparison-table([Capacidade],
+    [Replicação dos acessos], cell_yes, cell_no, cell_no, cell_partial[Limitada], cell_no,
+    [Replicação das operações], cell_yes, cell_no, cell_no, cell_no, cell_no,
+    [Replicação do conteúdo], cell_yes, cell_no, cell_no, cell_no, cell_no,
+    [Combinação com geração sintética], cell_yes, cell_no, cell_no, cell_no, cell_no,
+    [Extensão para lá da duração original], cell_yes, cell_no, cell_no, cell_no, cell_no,
+  ),
+  caption: [Utilização de _traces_ no Prismo e nas ferramentas existentes]
+) <cap-traces>
+
+Conforme a @cap-traces indica, o Prismo é ainda o único a reproduzir em conjunto os acessos, as operações e o conteúdo de um _trace_, dado o @fio admitir apenas a repetição de um padrão de acessos previamente descrito e as restantes ferramentas não oferecerem mecanismo equivalente @fio_docs @vdbench. Merece destaque a combinação com geração sintética, que permite isolar o contributo de cada dimensão ao substituir as restantes por valores controlados, sem a qual não seria possível determinar se um comportamento observado decorre do padrão de acessos ou das propriedades do conteúdo.
+
+Em suma, o Prismo reúne numa só ferramenta capacidades que as alternativas existentes oferecem apenas de forma parcial e dispersa, restando descrever o modo como estas foram concretizadas.
 
 == Implementação <implementation>
 

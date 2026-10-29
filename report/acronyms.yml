@@ -2,6 +2,10 @@
   short: API
   long: Applications Programming Interface
 
+- key: arc
+  short: ARC
+  long: Adaptive Replacement Cache
+
 - key: bdev
   short: bdev
   long: Block Device

@@ -3,6 +3,7 @@ external/
 traces/
 *.log
 .env
+*.txt
 testfile*
 tests/
 workloads/results/
