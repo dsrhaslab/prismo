@@ -123,7 +123,7 @@
   wai: (rgb("#e08214"), [Espera por @io]),
 )
 
-#let cpu-stack(name, width: 12.2cm, height: 5.0cm, headroom: 1.45) = {
+#let cpu-stack(name, width: 12.2cm, height: 5.0cm, headroom: 1.1) = {
   let rows = csv("../data/" + name).slice(1)
   let xs = range(rows.len())
   let values = ("usr", "sys", "wai").enumerate().map(((i, key)) => (
@@ -141,13 +141,15 @@
     tops.push(running)
   }
 
+  // legenda numa única linha por cima da área de dados, tal como nos gráficos de barras agrupadas
+  show lq.selector(lq.legend): set grid(columns: 2 * values.len(), column-gutter: 0.6em)
   lq.diagram(
     width: width,
     height: height,
     xlabel: [Carga],
     ylabel: [Tempo de @cpu (%)],
     ylim: (0, calc.max(..running) * headroom),
-    legend: (position: right + top),
+    legend: (position: bottom + center, dy: -100%, pad: 4pt),
     xaxis: (ticks: xs.zip(rows.map(r => category-tick(r.at(0))))),
     ..values.enumerate().map(((i, layer)) => lq.bar(
       xs,

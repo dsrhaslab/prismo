@@ -6,7 +6,7 @@
   date: [october 2026],
   supervisors: (
     [João Tiago Medeiros Paulo],
-    [Rui Pedro Esteves Vasques Correia de Oliveira],
+    [Rui Pedro Esteves Vasques Correia de Oliveira \ #text(weight: "regular")[(co-orientação no Centro de Investigação)]],
   ),
   cover-images: (image("logos/uminho/color/UM.jpg"), image("logos/uminho/color/EE.jpg")),
   cover-gray-images: (image("logos/uminho/gray/UM.jpg"), image("logos/uminho/gray/EE.jpg")),
